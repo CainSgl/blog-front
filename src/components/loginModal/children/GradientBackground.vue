@@ -407,7 +407,7 @@ onUnmounted(() => {
 .character-flow-background {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   background: linear-gradient(135deg, #ff6b9d 0%, #ff8e53 50%, #ff6b9d 100%);
   overflow: hidden;
 }

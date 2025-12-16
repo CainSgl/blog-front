@@ -111,7 +111,7 @@ const handleLogin = async () =>
 }
 
 /* 渐变背景区域 */
-:deep(.gradient-background) {
+:deep(.character-flow-background) {
   flex: 0 0 50%;
   max-width: 50%;
   z-index: 1;
