@@ -1,54 +1,50 @@
-@import '@arco-design/web-vue/dist/arco.less';
-
+@import "@arco-design/web-vue/dist/arco.less";
 
 // 1. 主色系列（primary）- 官方默认
-@primary-1: #E8F3FF;//浅色/白底悬浮
-@primary-2: #999999 ;//文字禁用
-@primary-3: #D0D0D0;//一般禁用
-@primary-4: #FF6699;//特殊场景
-@primary-5: #00B8F6;//悬浮（hover）
-@primary-6:  #00AEEC;// 常规
-@primary-7: #00b1ec;//点击（click）
+@primary-1: #e8f3ff; //浅色/白底悬浮
+@primary-2: #999999; //文字禁用
+@primary-3: #d0d0d0; //一般禁用
+@primary-4: #ff6699; //特殊场景
+@primary-5: #00b8f6; //悬浮（hover）
+@primary-6: #00aeec; // 常规
+@primary-7: #00b1ec; //点击（click）
 
-// 2. 功能色系列 - 官方默认
+// 2. 功能色系列 - Bilibili风格
 // 成功色
-@success-1: #f0fff4;
-@success-2: #d9f7be;
-@success-3: #b7eb8f;
-@success-4: #95de64;
-@success-5: #73d13d;
-@success-6: #52c41a;
-@success-7: #36ad19;
+@success-1: #f0fff5;
+@success-2: #d9f7e6;
+@success-3: #b3e6c6;
+@success-4: #8cd4a6;
+@success-5: #66c285;
+@success-6: #40a965;
+@success-7: #2d8c4a;
 
 // 警告色
-@warning-1: #fff7e6;
-@warning-2: #ffe7ba;
-@warning-3: #ffd591;
-@warning-4: #ffc069;
-@warning-5: #ffa940;
-@warning-6: #fa8c16;
-@warning-7: #d46b08;
-
+@warning-1: #fff9e6;
+@warning-2: #ffebb3;
+@warning-3: #ffdd80;
+@warning-4: #ffcf4d;
+@warning-5: #ffc11a;
+@warning-6: #ffa500;
+@warning-7: #e69500;
 
 // 危险色
-@danger-1: #fff1f0;
-@danger-2: #ffccc7;
-@danger-3: #ffa8a0;
-@danger-4: #ff8072;
-@danger-5: #ff5247;
-@danger-6: #f5222d;
-@danger-7: #d31117;
+@danger-1: #fff0f0;
+@danger-2: #ffcccc;
+@danger-3: #ff9999;
+@danger-4: #ff6666;
+@danger-5: #ff3333;
+@danger-6: #ff0000;
+@danger-7: #cc0000;
 
 // 链接色
 @link-1: #f0f8ff;
-@link-2: #bae0ff;
-@link-3: #91caff;
-@link-4: #69b1ff;
-@link-5: #4096ff;
-@link-6: #1890ff;
-@link-7: #096dd9;
-
-
+@link-2: #b3d9ff;
+@link-3: #80c1ff;
+@link-4: #4da8ff;
+@link-5: #1a8cff;
+@link-6: #0080ff;
+@link-7: #0066cc;
 
 // 边框色系列
 @color-border-1: #e5e5e5;
@@ -56,10 +52,10 @@
 @color-border-3: #bfbfbf;
 @color-border-4: #8c8c8c;
 // 填充颜色
-@color-fill-1: #F7F8FA;
-@color-fill-2: #F2F3F5;
-@color-fill-3: #E5E6EB;
-@color-fill-4: #C9CDD4;
+@color-fill-1: #f7f8fa;
+@color-fill-2: #f2f3f5;
+@color-fill-3: #e5e6eb;
+@color-fill-4: #c9cdd4;
 
 //文字颜色
 @color-text-1: #1f1f1f;
@@ -67,72 +63,60 @@
 @color-text-3: #595959;
 @color-text-4: #8c8c8c;
 //背景颜色
-@color-bg-1:	#FFF; //整体背景色
-@color-bg-2:	#FFF; //一级容器背景
-@color-bg-3:	#FFF; //二级容器背景
-@color-bg-4:	#FFF; //三级容器背景
-@color-bg-5:	#FFF; //下拉弹出框、Tooltip 背景颜色
-@color-bg-white:	#FFF; //白色背景
+@color-bg-1: #fff; //整体背景色
+@color-bg-2: #fff; //一级容器背景
+@color-bg-3: #fff; //二级容器背景
+@color-bg-4: #fff; //三级容器背景
+@color-bg-5: #fff; //下拉弹出框、Tooltip 背景颜色
+@color-bg-white: #fff; //白色背景
 //字体大小
-@font-size-body-3:	14px; //正文-常规
-@font-size-body-2:	13px; //正文-常规-小
-@font-size-body-1:	12px; //辅助文案/次要文案
-@font-size-caption:	12px; //水印文本
-@font-size-title-1:	16px; //标题-小
-@font-size-title-2:	20px; //标题-中
-@font-size-title-3:	24px; //标题-大
-@font-size-display-1:	36px; //运营标题-小
-@font-size-display-2:	48px; //运营标题-中
-@font-size-display-3:	56px; //运营标题-大
+@font-size-body-3: 14px; //正文-常规
+@font-size-body-2: 13px; //正文-常规-小
+@font-size-body-1: 12px; //辅助文案/次要文案
+@font-size-caption: 12px; //水印文本
+@font-size-title-1: 16px; //标题-小
+@font-size-title-2: 20px; //标题-中
+@font-size-title-3: 24px; //标题-大
+@font-size-display-1: 36px; //运营标题-小
+@font-size-display-2: 48px; //运营标题-中
+@font-size-display-3: 56px; //运营标题-大
 //字重
-@font-weight-400:	400; //常规
-@font-weight-500:	500; //中等（加粗）
-@font-weight-600:	600; //半粗
-@font-weight-700:	700; //粗体
-@font-weight-800:	800; //中黑
-@font-weight-900:	900; //黑体
-@font-weight-300:	300; //细体
-@font-weight-200:	200; //纤细
-@font-weight-100:	100; //极细
+@font-weight-400: 400; //常规
+@font-weight-500: 500; //中等（加粗）
+@font-weight-600: 600; //半粗
+@font-weight-700: 700; //粗体
+@font-weight-800: 800; //中黑
+@font-weight-900: 900; //黑体
+@font-weight-300: 300; //细体
+@font-weight-200: 200; //纤细
+@font-weight-100: 100; //极细
 //尺寸
-@size-none:	0; //0
-@size-1:	4px; //4px
-@size-2:	8px; //8px
-@size-3:	12px; //12px
-@size-4:	16px; //迷你（24px）
-@size-5:	20px; //20px
-@size-N:	(4 * N)px; //变量对应的值为 (4 * N)px 大小
-@size-50:	200px; //200px
+@size-none: 0; //0
+@size-1: 4px; //4px
+@size-2: 8px; //8px
+@size-3: 12px; //12px
+@size-4: 16px; //迷你（24px）
+@size-5: 20px; //20px
+@size-N: (4 * N) px; //变量对应的值为 (4 * N)px 大小
+@size-50: 200px; //200px
 //组件尺寸
-@size-mini:	@size-6; //迷你（24px）
-@size-small:	@size-7; //较小（28px）
-@size-default:	@size-8; //中等（32px）
-@size-large:	@size-9; //较大（36px）
+@size-mini: @size-6; //迷你（24px）
+@size-small: @size-7; //较小（28px）
+@size-default: @size-8; //中等（32px）
+@size-large: @size-9; //较大（36px）
 // 边框宽度
-@border-none:	0; //无边框
-@border-1:	1px; //常规
-@border-2:	2px; //较粗
-@border-3:	3px; //粗
+@border-none: 0; //无边框
+@border-1: 1px; //常规
+@border-2: 2px; //较粗
+@border-3: 3px; //粗
 // 边框圆角
-@border-radius-none:	0; //直角
-@border-radius-small:	2px; //圆角-常规
-@border-radius-medium:	4px; //圆角-中等
-@border-radius-large:	8px; //圆角-较大
-@border-radius-circle:	50%; //圆角-全圆角
+@border-radius-none: 2px; //0; //直角
+@border-radius-small: 4px; //2px; //圆角-常规
+@border-radius-medium: 8px; //4px; //圆角-中等
+@border-radius-large: 16px; //8px; //圆角-较大
+@border-radius-circle: 50%; //圆角-全圆角
 //阴影
-@shadow-special:	0 0 1px rgba(0, 0, 0, 0.3); //特殊阴影
-@shadow1-center:	0 -2px 5px rgba(0, 0, 0, 0.1); //阴影样式1
-@shadow2-center:	0 0 10px rgba(0, 0, 0, 0.1); //阴影样式2
-@shadow3-center:	0 0 20px rgba(0, 0, 0, 0.1); //阴影样式3
-
-
-
-
-
-
-
-
-
-
-
-
+@shadow-special: 0 0 1px rgba(0, 0, 0, 0.3); //特殊阴影
+@shadow1-center: 0 -2px 5px rgba(0, 0, 0, 0.1); //阴影样式1
+@shadow2-center: 0 0 10px rgba(0, 0, 0, 0.1); //阴影样式2
+@shadow3-center: 0 0 20px rgba(0, 0, 0, 0.1); //阴影样式3

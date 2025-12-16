@@ -76,8 +76,16 @@
         <h3>标题三 H3</h3>
         <h4>标题四 H4</h4>
         <p>这是一段普通文本，用于展示排版效果。</p>
-        <p><text type="primary">主要文本</text> 和 <text type="success">成功文本</text> 和 <text type="warning">警告文本</text> 和 <text type="danger">危险文本</text></p>
-        <p><text mark>标记文本</text> 和 <text code>代码文本</text> 和 <text keyboard>键盘文本</text></p>
+        <p>
+          <text type="primary">主要文本</text> 和
+          <text type="success">成功文本</text> 和
+          <text type="warning">警告文本</text> 和
+          <text type="danger">危险文本</text>
+        </p>
+        <p>
+          <text mark>标记文本</text> 和 <text code>代码文本</text> 和
+          <text keyboard>键盘文本</text>
+        </p>
       </div>
     </div>
 
@@ -115,7 +123,7 @@
             <div class="grid-content">col-6</div>
           </a-col>
         </a-row>
-        <a-row :gutter="16" style="margin-top: 16px;">
+        <a-row :gutter="16" style="margin-top: 16px">
           <a-col :span="8">
             <div class="grid-content">col-8</div>
           </a-col>
@@ -133,7 +141,7 @@
     <div class="section">
       <h2>Layout 布局</h2>
       <div class="layout-demo">
-        <a-layout style="height: 200px;">
+        <a-layout style="height: 200px">
           <a-layout-header>
             <div class="layout-header">Header</div>
           </a-layout-header>
@@ -156,7 +164,7 @@
           <a-button type="primary">按钮2</a-button>
           <a-button type="primary">按钮3</a-button>
         </a-space>
-        <a-space size="medium" style="margin-top: 16px;">
+        <a-space size="medium" style="margin-top: 16px">
           <a-button type="primary">按钮1</a-button>
           <a-button type="secondary">按钮2</a-button>
           <a-button type="dashed">按钮3</a-button>
@@ -173,7 +181,10 @@
       <div class="avatar-demo">
         <a-avatar :size="40">A</a-avatar>
         <a-avatar :size="50">
-          <img src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" alt="头像" />
+          <img
+            src="https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+            alt="头像"
+          />
         </a-avatar>
         <a-avatar :size="60" type="text">用户</a-avatar>
         <a-avatar :size="70" type="icon">
@@ -189,10 +200,10 @@
         <a-badge :count="5">
           <a-button type="primary">消息</a-button>
         </a-badge>
-        <a-badge :count="99" style="margin-left: 20px;">
+        <a-badge :count="99" style="margin-left: 20px">
           <a-button type="secondary">通知</a-button>
         </a-badge>
-        <a-badge :count="0" show-zero style="margin-left: 20px;">
+        <a-badge :count="0" show-zero style="margin-left: 20px">
           <a-button type="dashed">购物车</a-button>
         </a-badge>
       </div>
@@ -202,11 +213,11 @@
     <div class="section">
       <h2>Card 卡片</h2>
       <div class="card-container">
-        <a-card title="卡片标题" style="width: 300px;">
+        <a-card title="卡片标题" style="width: 300px">
           <p>这是卡片的内容区域，可以放置各种信息。</p>
           <p>卡片是用于承载信息的容器组件。</p>
         </a-card>
-        <a-card title="可操作的卡片" style="width: 300px;">
+        <a-card title="可操作的卡片" style="width: 300px">
           <template #extra>
             <a-link>更多</a-link>
           </template>
@@ -243,7 +254,9 @@
         <a-descriptions title="用户信息" bordered :column="2">
           <a-descriptions-item label="姓名">张三</a-descriptions-item>
           <a-descriptions-item label="年龄">25</a-descriptions-item>
-          <a-descriptions-item label="邮箱">zhangsan@example.com</a-descriptions-item>
+          <a-descriptions-item label="邮箱"
+            >zhangsan@example.com</a-descriptions-item
+          >
           <a-descriptions-item label="电话">138****8888</a-descriptions-item>
           <a-descriptions-item label="地址">北京市朝阳区</a-descriptions-item>
           <a-descriptions-item label="状态">激活</a-descriptions-item>
@@ -293,7 +306,7 @@
     </div>
     <div class="section">
       <h2>Form 表单</h2>
-      <a-form :model="formData" style="max-width: 500px;">
+      <a-form :model="formData" style="max-width: 500px">
         <a-form-item label="姓名">
           <a-input v-model="formData.name" placeholder="请输入姓名" />
         </a-form-item>
@@ -317,7 +330,11 @@
           <a-switch v-model="formData.status" />
         </a-form-item>
         <a-form-item label="城市">
-          <a-select v-model="formData.city" placeholder="请选择城市" style="width: 200px;">
+          <a-select
+            v-model="formData.city"
+            placeholder="请选择城市"
+            style="width: 200px"
+          >
             <a-option value="beijing">北京</a-option>
             <a-option value="shanghai">上海</a-option>
             <a-option value="guangzhou">广州</a-option>
@@ -326,7 +343,7 @@
         </a-form-item>
         <a-form-item>
           <a-button type="primary" @click="handleSubmit">提交</a-button>
-          <a-button style="margin-left: 12px;">重置</a-button>
+          <a-button style="margin-left: 12px">重置</a-button>
         </a-form-item>
       </a-form>
     </div>
@@ -369,16 +386,36 @@
     <div class="section">
       <h2>Alert 警告提示</h2>
       <div class="alert-demo">
-        <a-alert title="成功提示" type="success" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="成功提示"
+          type="success"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条成功提示信息
         </a-alert>
-        <a-alert title="信息提示" type="info" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="信息提示"
+          type="info"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条信息提示信息
         </a-alert>
-        <a-alert title="警告提示" type="warning" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="警告提示"
+          type="warning"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条警告提示信息
         </a-alert>
-        <a-alert title="错误提示" type="error" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="错误提示"
+          type="error"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条错误提示信息
         </a-alert>
       </div>
@@ -389,9 +426,21 @@
       <h2>Message 消息提示</h2>
       <div class="message-demo">
         <a-button @click="showSuccessMessage" type="success">成功消息</a-button>
-        <a-button @click="showInfoMessage" type="info" style="margin-left: 12px;">信息消息</a-button>
-        <a-button @click="showWarningMessage" type="warning" style="margin-left: 12px;">警告消息</a-button>
-        <a-button @click="showErrorMessage" type="error" style="margin-left: 12px;">错误消息</a-button>
+        <a-button @click="showInfoMessage" type="info" style="margin-left: 12px"
+          >信息消息</a-button
+        >
+        <a-button
+          @click="showWarningMessage"
+          type="warning"
+          style="margin-left: 12px"
+          >警告消息</a-button
+        >
+        <a-button
+          @click="showErrorMessage"
+          type="error"
+          style="margin-left: 12px"
+          >错误消息</a-button
+        >
       </div>
     </div>
 
@@ -399,7 +448,12 @@
     <div class="section">
       <h2>Modal 对话框</h2>
       <a-button type="primary" @click="showModal = true">打开模态框</a-button>
-      <a-modal v-model:visible="showModal" title="模态框标题" @ok="handleOk" @cancel="handleCancel">
+      <a-modal
+        v-model:visible="showModal"
+        title="模态框标题"
+        @ok="handleOk"
+        @cancel="handleCancel"
+      >
         <p>这是模态框的内容。</p>
         <p>模态框用于需要用户确认或输入信息的重要操作。</p>
       </a-modal>
@@ -412,11 +466,11 @@
     <div class="section">
       <h2>AutoComplete 自动补全</h2>
       <div class="autocomplete-demo">
-        <a-auto-complete 
-          v-model="autocompleteValue" 
+        <a-auto-complete
+          v-model="autocompleteValue"
           :data="autocompleteData"
           placeholder="请输入"
-          style="width: 300px;"
+          style="width: 300px"
         />
       </div>
     </div>
@@ -425,11 +479,11 @@
     <div class="section">
       <h2>Cascader 级联选择</h2>
       <div class="cascader-demo">
-        <a-cascader 
+        <a-cascader
           v-model="cascaderValue"
           :options="cascaderOptions"
           placeholder="请选择"
-          style="width: 300px;"
+          style="width: 300px"
         />
       </div>
     </div>
@@ -457,15 +511,12 @@
     <div class="section">
       <h2>DatePicker 日期选择器</h2>
       <div class="datepicker-demo">
-        <a-date-picker 
+        <a-date-picker
           v-model="dateValue"
           placeholder="选择日期"
-          style="margin-right: 16px;"
+          style="margin-right: 16px"
         />
-        <a-range-picker 
-          v-model="rangeValue"
-          placeholder="选择日期范围"
-        />
+        <a-range-picker v-model="rangeValue" placeholder="选择日期范围" />
       </div>
     </div>
 
@@ -473,12 +524,29 @@
     <div class="section">
       <h2>Input 输入框</h2>
       <div class="input-demo">
-        <a-input v-model="inputValue" placeholder="请输入文本" style="width: 300px; margin-right: 16px;" />
-        <a-input-password v-model="passwordValue" placeholder="请输入密码" style="width: 300px;" />
+        <a-input
+          v-model="inputValue"
+          placeholder="请输入文本"
+          style="width: 300px; margin-right: 16px"
+        />
+        <a-input-password
+          v-model="passwordValue"
+          placeholder="请输入密码"
+          style="width: 300px"
+        />
       </div>
       <div class="input-demo">
-        <a-input-search v-model="searchValue" placeholder="搜索" style="width: 300px;" />
-        <a-input-number v-model="numberValue" :min="1" :max="100" style="margin-left: 16px; width: 120px;" />
+        <a-input-search
+          v-model="searchValue"
+          placeholder="搜索"
+          style="width: 300px"
+        />
+        <a-input-number
+          v-model="numberValue"
+          :min="1"
+          :max="100"
+          style="margin-left: 16px; width: 120px"
+        />
       </div>
     </div>
 
@@ -505,21 +573,21 @@
     <div class="section">
       <h2>Select 选择器</h2>
       <div class="select-demo">
-        <a-select 
-          v-model="selectValue" 
+        <a-select
+          v-model="selectValue"
           placeholder="请选择"
-          style="width: 200px; margin-right: 16px;"
+          style="width: 200px; margin-right: 16px"
         >
           <a-option value="beijing">北京</a-option>
           <a-option value="shanghai">上海</a-option>
           <a-option value="guangzhou">广州</a-option>
           <a-option value="shenzhen">深圳</a-option>
         </a-select>
-        <a-select 
-          v-model="multipleSelectValue" 
+        <a-select
+          v-model="multipleSelectValue"
           placeholder="多选"
           multiple
-          style="width: 200px;"
+          style="width: 200px"
         >
           <a-option value="reading">阅读</a-option>
           <a-option value="sports">运动</a-option>
@@ -533,11 +601,22 @@
     <div class="section">
       <h2>Slider 滑动输入条</h2>
       <div class="slider-demo">
-        <div style="margin-bottom: 16px;">
-          <a-slider v-model="sliderValue" :min="0" :max="100" style="width: 300px;" />
+        <div style="margin-bottom: 16px">
+          <a-slider
+            v-model="sliderValue"
+            :min="0"
+            :max="100"
+            style="width: 300px"
+          />
         </div>
         <div>
-          <a-slider v-model="rangeSliderValue" range :min="0" :max="100" style="width: 300px;" />
+          <a-slider
+            v-model="rangeSliderValue"
+            range
+            :min="0"
+            :max="100"
+            style="width: 300px"
+          />
         </div>
       </div>
     </div>
@@ -547,8 +626,12 @@
       <h2>Switch 开关</h2>
       <div class="switch-demo">
         <a-switch v-model="switchValue1" />
-        <a-switch v-model="switchValue2" checked-color="#52c41a" style="margin-left: 16px;" />
-        <a-switch v-model="switchValue3" disabled style="margin-left: 16px;" />
+        <a-switch
+          v-model="switchValue2"
+          checked-color="#52c41a"
+          style="margin-left: 16px"
+        />
+        <a-switch v-model="switchValue3" disabled style="margin-left: 16px" />
       </div>
     </div>
 
@@ -556,12 +639,12 @@
     <div class="section">
       <h2>Textarea 文本域</h2>
       <div class="textarea-demo">
-        <a-textarea 
+        <a-textarea
           v-model="textareaValue"
           placeholder="请输入文本"
           :max-length="100"
           show-word-limit
-          style="width: 400px;"
+          style="width: 400px"
         />
       </div>
     </div>
@@ -570,12 +653,12 @@
     <div class="section">
       <h2>TimePicker 时间选择器</h2>
       <div class="timepicker-demo">
-        <a-time-picker 
+        <a-time-picker
           v-model="timeValue"
           placeholder="选择时间"
-          style="margin-right: 16px;"
+          style="margin-right: 16px"
         />
-        <a-time-picker 
+        <a-time-picker
           v-model="timeRangeValue"
           placeholder="选择时间范围"
           range
@@ -586,7 +669,7 @@
     <!-- Form 组件 -->
     <div class="section">
       <h2>Form 表单</h2>
-      <a-form :model="formData" style="max-width: 500px;">
+      <a-form :model="formData" style="max-width: 500px">
         <a-form-item label="姓名">
           <a-input v-model="formData.name" placeholder="请输入姓名" />
         </a-form-item>
@@ -610,7 +693,11 @@
           <a-switch v-model="formData.status" />
         </a-form-item>
         <a-form-item label="城市">
-          <a-select v-model="formData.city" placeholder="请选择城市" style="width: 200px;">
+          <a-select
+            v-model="formData.city"
+            placeholder="请选择城市"
+            style="width: 200px"
+          >
             <a-option value="beijing">北京</a-option>
             <a-option value="shanghai">上海</a-option>
             <a-option value="guangzhou">广州</a-option>
@@ -619,7 +706,7 @@
         </a-form-item>
         <a-form-item>
           <a-button type="primary" @click="handleSubmit">提交</a-button>
-          <a-button style="margin-left: 12px;">重置</a-button>
+          <a-button style="margin-left: 12px">重置</a-button>
         </a-form-item>
       </a-form>
     </div>
@@ -631,16 +718,36 @@
     <div class="section">
       <h2>Alert 警告提示</h2>
       <div class="alert-demo">
-        <a-alert title="成功提示" type="success" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="成功提示"
+          type="success"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条成功提示信息
         </a-alert>
-        <a-alert title="信息提示" type="info" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="信息提示"
+          type="info"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条信息提示信息
         </a-alert>
-        <a-alert title="警告提示" type="warning" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="警告提示"
+          type="warning"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条警告提示信息
         </a-alert>
-        <a-alert title="错误提示" type="error" show-icon style="margin-bottom: 12px;">
+        <a-alert
+          title="错误提示"
+          type="error"
+          show-icon
+          style="margin-bottom: 12px"
+        >
           这是一条错误提示信息
         </a-alert>
       </div>
@@ -651,9 +758,21 @@
       <h2>Message 消息提示</h2>
       <div class="message-demo">
         <a-button @click="showSuccessMessage" type="success">成功消息</a-button>
-        <a-button @click="showInfoMessage" type="info" style="margin-left: 12px;">信息消息</a-button>
-        <a-button @click="showWarningMessage" type="warning" style="margin-left: 12px;">警告消息</a-button>
-        <a-button @click="showErrorMessage" type="error" style="margin-left: 12px;">错误消息</a-button>
+        <a-button @click="showInfoMessage" type="info" style="margin-left: 12px"
+          >信息消息</a-button
+        >
+        <a-button
+          @click="showWarningMessage"
+          type="warning"
+          style="margin-left: 12px"
+          >警告消息</a-button
+        >
+        <a-button
+          @click="showErrorMessage"
+          type="error"
+          style="margin-left: 12px"
+          >错误消息</a-button
+        >
       </div>
     </div>
 
@@ -661,7 +780,12 @@
     <div class="section">
       <h2>Modal 对话框</h2>
       <a-button type="primary" @click="showModal = true">打开模态框</a-button>
-      <a-modal v-model:visible="showModal" title="模态框标题" @ok="handleOk" @cancel="handleCancel">
+      <a-modal
+        v-model:visible="showModal"
+        title="模态框标题"
+        @ok="handleOk"
+        @cancel="handleCancel"
+      >
         <p>这是模态框的内容。</p>
         <p>模态框用于需要用户确认或输入信息的重要操作。</p>
       </a-modal>
@@ -681,10 +805,27 @@
     <div class="section">
       <h2>Notification 通知提醒框</h2>
       <div class="notification-demo">
-        <a-button @click="showNotification('info')" type="info">信息通知</a-button>
-        <a-button @click="showNotification('success')" type="success" style="margin-left: 12px;">成功通知</a-button>
-        <a-button @click="showNotification('warning')" type="warning" style="margin-left: 12px;">警告通知</a-button>
-        <a-button @click="showNotification('error')" type="error" style="margin-left: 12px;">错误通知</a-button>
+        <a-button @click="showNotification('info')" type="info"
+          >信息通知</a-button
+        >
+        <a-button
+          @click="showNotification('success')"
+          type="success"
+          style="margin-left: 12px"
+          >成功通知</a-button
+        >
+        <a-button
+          @click="showNotification('warning')"
+          type="warning"
+          style="margin-left: 12px"
+          >警告通知</a-button
+        >
+        <a-button
+          @click="showNotification('error')"
+          type="error"
+          style="margin-left: 12px"
+          >错误通知</a-button
+        >
       </div>
     </div>
 
@@ -692,7 +833,7 @@
     <div class="section">
       <h2>Popconfirm 气泡确认框</h2>
       <div class="popconfirm-demo">
-        <a-popconfirm 
+        <a-popconfirm
           content="确定要删除这个项目吗？"
           @ok="handlePopconfirmOk"
           @cancel="handlePopconfirmCancel"
@@ -706,13 +847,13 @@
     <div class="section">
       <h2>Progress 进度条</h2>
       <div class="progress-demo">
-        <div style="margin-bottom: 16px;">
+        <div style="margin-bottom: 16px">
           <a-progress :percent="30" />
         </div>
-        <div style="margin-bottom: 16px;">
+        <div style="margin-bottom: 16px">
           <a-progress :percent="70" status="warning" />
         </div>
-        <div style="margin-bottom: 16px;">
+        <div style="margin-bottom: 16px">
           <a-progress :percent="100" status="success" />
         </div>
         <div>
@@ -726,13 +867,13 @@
       <h2>Spin 加载中</h2>
       <div class="spin-demo">
         <a-spin :loading="spinLoading" description="加载中...">
-          <div style="padding: 20px; border: 1px solid #f0f0f0;">
+          <div style="padding: 20px; border: 1px solid #f0f0f0">
             <p>这是加载的内容</p>
             <p>加载完成后显示</p>
           </div>
         </a-spin>
-        <a-button @click="toggleSpin" style="margin-top: 16px;">
-          {{ spinLoading ? '停止加载' : '开始加载' }}
+        <a-button @click="toggleSpin" style="margin-top: 16px">
+          {{ spinLoading ? "停止加载" : "开始加载" }}
         </a-button>
       </div>
     </div>
@@ -742,13 +883,13 @@
       <h2>Skeleton 骨架屏</h2>
       <div class="skeleton-demo">
         <a-skeleton :loading="skeletonLoading" animation>
-          <div style="padding: 20px;">
+          <div style="padding: 20px">
             <h3>内容标题</h3>
             <p>这里是实际的加载内容。</p>
           </div>
         </a-skeleton>
-        <a-button @click="toggleSkeleton" style="margin-top: 16px;">
-          {{ skeletonLoading ? '显示内容' : '显示骨架屏' }}
+        <a-button @click="toggleSkeleton" style="margin-top: 16px">
+          {{ skeletonLoading ? "显示内容" : "显示骨架屏" }}
         </a-button>
       </div>
     </div>
@@ -810,7 +951,13 @@
     <!-- Pagination 组件 -->
     <div class="section">
       <h2>Pagination 分页</h2>
-      <a-pagination :total="100" :current="1" :page-size="10" show-total show-jumper />
+      <a-pagination
+        :total="100"
+        :current="1"
+        :page-size="10"
+        show-total
+        show-jumper
+      />
     </div>
 
     <!-- Steps 组件 -->
@@ -823,9 +970,13 @@
           <a-step title="步骤3" description="描述信息" />
           <a-step title="步骤4" description="描述信息" />
         </a-steps>
-        <a-button-group style="margin-top: 16px;">
-          <a-button @click="prevStep" :disabled="currentStep === 1">上一步</a-button>
-          <a-button @click="nextStep" :disabled="currentStep === 4">下一步</a-button>
+        <a-button-group style="margin-top: 16px">
+          <a-button @click="prevStep" :disabled="currentStep === 1"
+            >上一步</a-button
+          >
+          <a-button @click="nextStep" :disabled="currentStep === 4"
+            >下一步</a-button
+          >
         </a-button-group>
       </div>
     </div>
@@ -833,10 +984,15 @@
     <!-- Table 组件 -->
     <div class="section">
       <h2>Table 表格</h2>
-      <a-table :columns="tableColumns" :data="tableData" :pagination="false" style="margin-top: 16px;">
+      <a-table
+        :columns="tableColumns"
+        :data="tableData"
+        :pagination="false"
+        style="margin-top: 16px"
+      >
         <template #status="{ record }">
           <a-tag :color="record.status === 'active' ? 'green' : 'red'">
-            {{ record.status === 'active' ? '激活' : '禁用' }}
+            {{ record.status === "active" ? "激活" : "禁用" }}
           </a-tag>
         </template>
       </a-table>
@@ -861,13 +1017,25 @@
         <a-tooltip content="这是提示文字" position="top">
           <a-button>顶部提示</a-button>
         </a-tooltip>
-        <a-tooltip content="这是提示文字" position="bottom" style="margin-left: 12px;">
+        <a-tooltip
+          content="这是提示文字"
+          position="bottom"
+          style="margin-left: 12px"
+        >
           <a-button>底部提示</a-button>
         </a-tooltip>
-        <a-tooltip content="这是提示文字" position="left" style="margin-left: 12px;">
+        <a-tooltip
+          content="这是提示文字"
+          position="left"
+          style="margin-left: 12px"
+        >
           <a-button>左侧提示</a-button>
         </a-tooltip>
-        <a-tooltip content="这是提示文字" position="right" style="margin-left: 12px;">
+        <a-tooltip
+          content="这是提示文字"
+          position="right"
+          style="margin-left: 12px"
+        >
           <a-button>右侧提示</a-button>
         </a-tooltip>
       </div>
@@ -877,27 +1045,22 @@
     <div class="section">
       <h2>Tree 树形控件</h2>
       <div class="tree-demo">
-        <a-tree 
-          :data="treeData"
-          :default-expand-all="true"
-          :show-line="true"
-        />
+        <a-tree :data="treeData" :default-expand-all="true" :show-line="true" />
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Message, Notification } from '@arco-design/web-vue'
+import { ref } from 'vue';
+import { Message, Notification } from '@arco-design/web-vue';
 
 // 基础输入组件数据
-const inputValue = ref('')
-const passwordValue = ref('')
-const searchValue = ref('')
-const numberValue = ref(10)
-const textareaValue = ref('')
+const inputValue = ref('');
+const passwordValue = ref('');
+const searchValue = ref('');
+const numberValue = ref(10);
+const textareaValue = ref('');
 
 // 表单数据
 const formData = ref({
@@ -906,14 +1069,14 @@ const formData = ref({
   gender: '',
   hobbies: [],
   status: false,
-  city: ''
-})
+  city: '',
+});
 
 // 数据输入组件数据
-const autocompleteValue = ref('')
-const autocompleteData = ['选项一', '选项二', '选项三', '自定义选项']
+const autocompleteValue = ref('');
+const autocompleteData = ['选项一', '选项二', '选项三', '自定义选项'];
 
-const cascaderValue = ref('')
+const cascaderValue = ref('');
 const cascaderOptions = [
   {
     label: '北京市',
@@ -924,18 +1087,18 @@ const cascaderOptions = [
         value: 'chaoyang',
         children: [
           { label: '三里屯', value: 'sanlitun' },
-          { label: '国贸', value: 'guomao' }
-        ]
+          { label: '国贸', value: 'guomao' },
+        ],
       },
       {
         label: '海淀区',
         value: 'haidian',
         children: [
           { label: '中关村', value: 'zhongguancun' },
-          { label: '五道口', value: 'wudaokou' }
-        ]
-      }
-    ]
+          { label: '五道口', value: 'wudaokou' },
+        ],
+      },
+    ],
   },
   {
     label: '上海市',
@@ -946,63 +1109,63 @@ const cascaderOptions = [
         value: 'huangpu',
         children: [
           { label: '外滩', value: 'waitan' },
-          { label: '人民广场', value: 'renminguangchang' }
-        ]
+          { label: '人民广场', value: 'renminguangchang' },
+        ],
       },
       {
         label: '浦东新区',
         value: 'pudong',
         children: [
           { label: '陆家嘴', value: 'lujiazui' },
-          { label: '张江', value: 'zhangjiang' }
-        ]
-      }
-    ]
-  }
-]
+          { label: '张江', value: 'zhangjiang' },
+        ],
+      },
+    ],
+  },
+];
 
 // 复选框数据
-const checkboxValue1 = ref(false)
-const checkboxValue2 = ref(true)
-const checkboxValue3 = ref(false)
-const checkboxGroup = ref(['apple'])
+const checkboxValue1 = ref(false);
+const checkboxValue2 = ref(true);
+const checkboxValue3 = ref(false);
+const checkboxGroup = ref(['apple']);
 
 // 日期选择器数据
-const dateValue = ref('')
-const rangeValue = ref([])
+const dateValue = ref('');
+const rangeValue = ref([]);
 
 // 单选框数据
-const radioValue = ref('option1')
-const radioGroup = ref('apple')
+const radioValue = ref('option1');
+const radioGroup = ref('apple');
 
 // 选择器数据
-const selectValue = ref('')
-const multipleSelectValue = ref(['reading'])
+const selectValue = ref('');
+const multipleSelectValue = ref(['reading']);
 
 // 滑动条数据
-const sliderValue = ref(50)
-const rangeSliderValue = ref([20, 80])
+const sliderValue = ref(50);
+const rangeSliderValue = ref([20, 80]);
 
 // 开关数据
-const switchValue1 = ref(true)
-const switchValue2 = ref(false)
-const switchValue3 = ref(true)
+const switchValue1 = ref(true);
+const switchValue2 = ref(false);
+const switchValue3 = ref(true);
 
 // 时间选择器数据
-const timeValue = ref('')
-const timeRangeValue = ref([])
+const timeValue = ref('');
+const timeRangeValue = ref([]);
 
 // 标签页数据
-const activeTab = ref('1')
+const activeTab = ref('1');
 
 // 反馈组件数据
-const showModal = ref(false)
-const showDrawer = ref(false)
-const spinLoading = ref(false)
-const skeletonLoading = ref(true)
+const showModal = ref(false);
+const showDrawer = ref(false);
+const spinLoading = ref(false);
+const skeletonLoading = ref(true);
 
 // 步骤条数据
-const currentStep = ref(1)
+const currentStep = ref(1);
 
 // 树形数据
 const treeData = [
@@ -1016,13 +1179,13 @@ const treeData = [
         children: [
           {
             title: '叶子节点1',
-            key: '1-1-1'
+            key: '1-1-1',
           },
           {
             title: '叶子节点2',
-            key: '1-1-2'
-          }
-        ]
+            key: '1-1-2',
+          },
+        ],
       },
       {
         title: '子节点2',
@@ -1030,15 +1193,15 @@ const treeData = [
         children: [
           {
             title: '叶子节点3',
-            key: '1-2-1'
+            key: '1-2-1',
           },
           {
             title: '叶子节点4',
-            key: '1-2-2'
-          }
-        ]
-      }
-    ]
+            key: '1-2-2',
+          },
+        ],
+      },
+    ],
   },
   {
     title: '根节点2',
@@ -1046,15 +1209,15 @@ const treeData = [
     children: [
       {
         title: '子节点3',
-        key: '2-1'
+        key: '2-1',
       },
       {
         title: '子节点4',
-        key: '2-2'
-      }
-    ]
-  }
-]
+        key: '2-2',
+      },
+    ],
+  },
+];
 
 // 表格数据
 const tableColumns = [
@@ -1075,7 +1238,7 @@ const tableColumns = [
     dataIndex: 'status',
     slotName: 'status',
   },
-]
+];
 
 const tableData = ref([
   {
@@ -1083,104 +1246,119 @@ const tableData = ref([
     name: '张三',
     age: 25,
     email: 'zhangsan@example.com',
-    status: 'active'
+    status: 'active',
   },
   {
     key: '2',
     name: '李四',
     age: 30,
     email: 'lisi@example.com',
-    status: 'disabled'
+    status: 'disabled',
   },
   {
     key: '3',
     name: '王五',
     age: 28,
     email: 'wangwu@example.com',
-    status: 'active'
-  }
-])
+    status: 'active',
+  },
+]);
 
 // 事件处理函数
-const handleSubmit = () => {
-  Message.info('表单提交功能待实现')
-}
+const handleSubmit = () => 
+{
+  Message.info('表单提交功能待实现');
+};
 
-const showSuccessMessage = () => {
-  Message.success('这是一条成功消息')
-}
+const showSuccessMessage = () => 
+{
+  Message.success('这是一条成功消息');
+};
 
-const showInfoMessage = () => {
-  Message.info('这是一条信息消息')
-}
+const showInfoMessage = () => 
+{
+  Message.info('这是一条信息消息');
+};
 
-const showWarningMessage = () => {
-  Message.warning('这是一条警告消息')
-}
+const showWarningMessage = () => 
+{
+  Message.warning('这是一条警告消息');
+};
 
-const showErrorMessage = () => {
-  Message.error('这是一条错误消息')
-}
+const showErrorMessage = () => 
+{
+  Message.error('这是一条错误消息');
+};
 
-const handleOk = () => {
-  Message.info('确认操作')
-  showModal.value = false
-}
+const handleOk = () => 
+{
+  Message.info('确认操作');
+  showModal.value = false;
+};
 
-const handleCancel = () => {
-  Message.warning('取消操作')
-  showModal.value = false
-}
+const handleCancel = () => 
+{
+  Message.warning('取消操作');
+  showModal.value = false;
+};
 
-const showNotification = (type) => {
+const showNotification = (type) => 
+{
   const titles = {
     info: '信息通知',
     success: '成功通知',
     warning: '警告通知',
-    error: '错误通知'
-  }
-  
+    error: '错误通知',
+  };
+
   const contents = {
     info: '这是一条信息通知',
     success: '这是一条成功通知',
     warning: '这是一条警告通知',
-    error: '这是一条错误通知'
-  }
-  
+    error: '这是一条错误通知',
+  };
+
   Notification[type]({
     title: titles[type],
-    content: contents[type]
-  })
-}
+    content: contents[type],
+  });
+};
 
-const handlePopconfirmOk = () => {
-  Message.success('确认删除')
-}
+const handlePopconfirmOk = () => 
+{
+  Message.success('确认删除');
+};
 
-const handlePopconfirmCancel = () => {
-  Message.warning('取消删除')
-}
+const handlePopconfirmCancel = () => 
+{
+  Message.warning('取消删除');
+};
 
-const toggleSpin = () => {
-  spinLoading.value = !spinLoading.value
-}
+const toggleSpin = () => 
+{
+  spinLoading.value = !spinLoading.value;
+};
 
-const toggleSkeleton = () => {
-  skeletonLoading.value = !skeletonLoading.value
-}
+const toggleSkeleton = () => 
+{
+  skeletonLoading.value = !skeletonLoading.value;
+};
 
-const prevStep = () => {
-  if (currentStep.value > 1) {
-    currentStep.value--
+const prevStep = () => 
+{
+  if (currentStep.value > 1) 
+  {
+    currentStep.value--;
   }
-}
+};
 
-const nextStep = () => {
-  if (currentStep.value < 4) {
-    currentStep.value++
+const nextStep = () => 
+{
+  if (currentStep.value < 4) 
+  {
+    currentStep.value++;
   }
-}
+};
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
