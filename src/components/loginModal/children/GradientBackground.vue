@@ -17,21 +17,23 @@ const canvas = ref(null);
 let scene, camera, renderer, animationId;
 let characters = [];
 let particles = []; // 粒子数组
+let mouseX = 0, mouseY = 0; // 鼠标位置
+let mouseRadius = 80; // 鼠标影响半径
 
 // 字符配置
 const CHAR_CONFIG = {
   count: 80, // 字符数量（减少数量以提高性能）
-  size: 30,   // 字符大小
-  speed:1.25, // 流动速度（稍快一些）
-  colors: ['#00ff88', '#00d4ff', '#c3cfe2', '#ffffff'] // 字符颜色
+  size: 40,   // 字符大小（增大字体）
+  speed:1.4, // 流动速度（稍快一些）
+  colors: ['#ffffff', '#ffd1dc', '#ffb347', '#ff6b9d', '#ff8e53'] // 字符颜色（与粉红橙黄色背景协调的新配色）
 };
 
 // 粒子配置
 const PARTICLE_CONFIG = {
-  count: 15,    // 每个字符粉碎时产生的粒子数
-  size: 12,     // 粒子大小
-  speed: 1.2,   // 粒子扩散速度
-  lifetime: 50, // 粒子存在时间（帧数）
+  count: 20,    // 每个字符粉碎时产生的粒子数（增加粒子数量）
+  size: 15,     // 粒子大小（稍微增大）
+  speed: 1.5,   // 粒子扩散速度（稍微加快）
+  lifetime: 60, // 粒子存在时间（帧数）（延长粒子存在时间）
   maxParticles: 500 // 最大粒子数量限制
 };
 
@@ -59,7 +61,7 @@ function createParticle(x, y, color) {
   ctx.clearRect(0, 0, size, size);
   const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
   gradient.addColorStop(0, color);
-  gradient.addColorStop(1, 'rgba(0,0,0,0)');
+  gradient.addColorStop(1, 'rgba(255,255,255,0)'); // 使用白色透明度过渡
   
   ctx.beginPath();
   ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
@@ -67,7 +69,7 @@ function createParticle(x, y, color) {
   ctx.fill();
   
   ctx.shadowColor = color;
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur = 15; // 增加阴影模糊以增强视觉效果
   
   const texture = new THREE.CanvasTexture(canvas);
   const material = new THREE.SpriteMaterial({ 
@@ -90,7 +92,7 @@ function createParticle(x, y, color) {
     life: PARTICLE_CONFIG.lifetime,
     initialSize: PARTICLE_CONFIG.size,
     color: color,
-    gravity: 0.03 // 重力效果
+    gravity: 0.02 // 调整重力效果
   };
   
   scene.add(sprite);
@@ -112,12 +114,12 @@ function createFlowCharacter() {
   const color = CHAR_CONFIG.colors[Math.floor(Math.random() * CHAR_CONFIG.colors.length)];
   
   ctx.clearRect(0, 0, size, size);
-  ctx.font = 'bold 48px Arial'; // 调整字体大小以适应较小的canvas
+  ctx.font = 'bold 56px Arial'; // 增大字体大小
   ctx.fillStyle = color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowColor = color;
-  ctx.shadowBlur = 10; // 稍微减小阴影模糊以提高性能
+  ctx.shadowBlur = 15; // 增加阴影模糊以增强视觉效果
   ctx.fillText(char, size / 2, size / 2);
   
   const texture = new THREE.CanvasTexture(canvas);
@@ -174,7 +176,7 @@ function initThreeJS() {
     powerPreference: 'high-performance'
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x0a0a0a, 1);
+  renderer.setClearColor(0xff6b9d, 0); // 设置为透明背景以显示CSS渐变
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   
   // 创建初始字符
@@ -223,8 +225,13 @@ function animate() {
     const scalePhase = Math.sin(time * 1.5 + index * 0.3) * 0.1 + 1;
     char.scale.set(CHAR_CONFIG.size * scalePhase, CHAR_CONFIG.size * scalePhase, 1);
     
-    // 如果字符超出屏幕顶部，则创建粒子粉碎效果
-    if (char.position.y > window.innerHeight / 2 + 100) {
+    // 检查鼠标碰撞
+    const dx = char.position.x - mouseX;
+    const dy = char.position.y - mouseY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    // 如果鼠标靠近字符，则创建粒子粉碎效果
+    if (distance < mouseRadius) {
       // 获取字符的颜色
       const color = CHAR_CONFIG.colors[Math.floor(Math.random() * CHAR_CONFIG.colors.length)];
       
@@ -247,12 +254,48 @@ function animate() {
       
       const newColor = CHAR_CONFIG.colors[Math.floor(Math.random() * CHAR_CONFIG.colors.length)];
       ctx.clearRect(0, 0, size, size);
-      ctx.font = 'bold 48px Arial'; // 使用一致的字体大小
+      ctx.font = 'bold 56px Arial'; // 使用一致的字体大小
       ctx.fillStyle = newColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.shadowColor = newColor;
-      ctx.shadowBlur = 10; // 使用一致的阴影模糊值
+      ctx.shadowBlur = 15; // 使用一致的阴影模糊值
+      ctx.fillText(char.userData.char, size / 2, size / 2);
+      
+      char.material.map.dispose();
+      char.material.map = new THREE.CanvasTexture(canvas);
+      char.material.map.needsUpdate = true;
+    }
+    // 如果字符超出屏幕顶部，则创建粒子粉碎效果
+    else if (char.position.y > window.innerHeight / 2 + 100) {
+      // 获取字符的颜色
+      const color = CHAR_CONFIG.colors[Math.floor(Math.random() * CHAR_CONFIG.colors.length)];
+      
+      // 创建粒子粉碎效果
+      for (let i = 0; i < PARTICLE_CONFIG.count; i++) {
+        createParticle(char.position.x, char.position.y, color);
+      }
+      
+      // 重置字符
+      char.position.y = -window.innerHeight / 2 - Math.random() * 200;
+      char.position.x = (Math.random() - 0.5) * window.innerWidth;
+      char.userData.char = getRandomChar();
+      
+      // 更新纹理
+      const canvas = document.createElement('canvas');
+      const size = 64; // 使用一致的大小
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      
+      const newColor = CHAR_CONFIG.colors[Math.floor(Math.random() * CHAR_CONFIG.colors.length)];
+      ctx.clearRect(0, 0, size, size);
+      ctx.font = 'bold 56px Arial'; // 使用一致的字体大小
+      ctx.fillStyle = newColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = newColor;
+      ctx.shadowBlur = 15; // 使用一致的阴影模糊值
       ctx.fillText(char.userData.char, size / 2, size / 2);
       
       char.material.map.dispose();
@@ -301,6 +344,17 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+// 处理鼠标移动
+function handleMouseMove(event) {
+  // 将鼠标位置转换为Three.js坐标系
+  mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+  
+  // 转换为世界坐标
+  mouseX = mouseX * (window.innerWidth / 2);
+  mouseY = mouseY * (window.innerHeight / 2);
+}
+
 // 处理窗口大小变化
 function handleResize() {
   if (camera && renderer) {
@@ -315,10 +369,12 @@ onMounted(() => {
   animate();
   
   window.addEventListener('resize', handleResize);
+  window.addEventListener('mousemove', handleMouseMove);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
+  window.removeEventListener('mousemove', handleMouseMove);
   
   if (animationId) {
     cancelAnimationFrame(animationId);
@@ -352,7 +408,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8e53 50%, #ff6b9d 100%);
   overflow: hidden;
 }
 
@@ -382,7 +438,7 @@ onUnmounted(() => {
   margin: 0 0 16px 0;
   line-height: 1.2;
   text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-  background: linear-gradient(45deg, #ffffff, #00ff88, #00d4ff, #c3cfe2);
+  background: linear-gradient(45deg, #ffffff, #fff5f0, #ffe5d0);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -395,7 +451,8 @@ onUnmounted(() => {
   opacity: 0.9;
   margin: 0;
   font-weight: 300;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+  color: #ffffff;
 }
 
 @keyframes gradientShift {
