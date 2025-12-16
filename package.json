@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "format:allman": "node format-allman.js",
-    "format:full": "node full-format.js"
+    "format:full": "node full-format.js",
+    "f": "node full-format.js"
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.57.0",
@@ -16,6 +17,7 @@
     "axios": "^1.13.2",
     "pinia": "^3.0.4",
     "three": "^0.182.0",
+    "typeit": "^8.8.7",
     "vue": "^3.5.24",
     "vue-router": "^4.6.4"
   },

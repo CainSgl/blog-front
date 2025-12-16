@@ -2,8 +2,8 @@
   <div class="character-flow-background">
     <canvas ref="canvas" class="flow-canvas"></canvas>
     <div class="welcome-overlay">
-      <h1 class="welcome-title">欢迎回来</h1>
-      <p class="welcome-subtitle">登录您的账户以继续</p>
+      <FloatingText text="欢迎来到Cainsgl的博客" class="welcome-title" />
+      <FloatingText text="登录享受更多的服务" class="welcome-subtitle" />
     </div>
   </div>
 </template>
@@ -11,6 +11,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import * as THREE from 'three';
+import FloatingText from './FloatingText.vue';
 
 const canvas = ref(null);
 
@@ -42,21 +43,25 @@ const PARTICLE_CONFIG = {
 };
 
 // 生成随机字符 (A-Z 和 0-9)
-function getRandomChar() {
+function getRandomChar() 
+{
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   return chars.charAt(Math.floor(Math.random() * chars.length));
 }
 
 // 从对象池获取粒子
-function getParticleFromPool() {
-  if (particlePool.length > 0) {
+function getParticleFromPool() 
+{
+  if (particlePool.length > 0) 
+  {
     return particlePool.pop();
   }
   return null;
 }
 
 // 将粒子返回到对象池
-function returnParticleToPool(particle) {
+function returnParticleToPool(particle) 
+{
   // 重置粒子状态
   particle.userData.velocity.set(
     (Math.random() - 0.5) * PARTICLE_CONFIG.speed * 2,
@@ -71,16 +76,19 @@ function returnParticleToPool(particle) {
 }
 
 // 创建粒子
-function createParticle(x, y, color) {
+function createParticle(x, y, color) 
+{
   // 检查粒子数量限制
-  if (particles.length >= PARTICLE_CONFIG.maxParticles) {
+  if (particles.length >= PARTICLE_CONFIG.maxParticles) 
+  {
     return null;
   }
   
   // 尝试从对象池获取粒子
   let sprite = getParticleFromPool();
   
-  if (sprite) {
+  if (sprite) 
+  {
     // 重用现有粒子
     sprite.material.color.set(color);
     sprite.position.set(x, y, Math.random() * 50);
@@ -107,7 +115,9 @@ function createParticle(x, y, color) {
     
     sprite.material.map.image = canvas;
     sprite.material.map.needsUpdate = true;
-  } else {
+  }
+  else 
+  {
     // 创建新的粒子
     const canvas = document.createElement('canvas');
     const size = 32;
@@ -141,11 +151,13 @@ function createParticle(x, y, color) {
   }
   
   // 存储粒子信息，添加重力效果
-  if (!sprite.userData) {
+  if (!sprite.userData) 
+  {
     sprite.userData = {};
   }
   
-  if (!sprite.userData.velocity) {
+  if (!sprite.userData.velocity) 
+  {
     sprite.userData.velocity = new THREE.Vector3();
   }
   
@@ -167,17 +179,20 @@ function createParticle(x, y, color) {
 }
 
 // 获取容器宽度
-function getContainerWidth() {
+function getContainerWidth() 
+{
   return canvas.value ? canvas.value.parentElement.clientWidth : window.innerWidth;
 }
 
 // 获取容器高度的一半（用于定位计算）
-function getContainerHalfHeight() {
+function getContainerHalfHeight() 
+{
   return canvas.value ? canvas.value.parentElement.clientHeight / 2 : window.innerHeight / 2;
 }
 
 // 创建流动字符
-function createFlowCharacter() {
+function createFlowCharacter() 
+{
   // 创建canvas用于绘制字符
   const canvas = document.createElement('canvas');
   const size = 64; // 减小canvas大小以提高性能
@@ -241,7 +256,8 @@ function createFlowCharacter() {
 }
 
 // 初始化three.js场景
-function initThreeJS() {
+function initThreeJS() 
+{
   scene = new THREE.Scene();
   
   // 获取容器尺寸
@@ -270,7 +286,8 @@ function initThreeJS() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   
   // 创建初始字符
-  for (let i = 0; i < CHAR_CONFIG.count; i++) {
+  for (let i = 0; i < CHAR_CONFIG.count; i++) 
+  {
     createFlowCharacter();
   }
   
@@ -296,19 +313,22 @@ function initThreeJS() {
 }
 
 // 动画循环
-function animate() {
+function animate() 
+{
   animationId = requestAnimationFrame(animate);
   
   // 帧率控制优化
   frameCount++;
-  if (frameCount % frameSkip !== 0) {
+  if (frameCount % frameSkip !== 0) 
+  {
     return;
   }
   
   const time = Date.now() * 0.001; // 获取当前时间用于动画计算
   
   // 更新字符位置
-  characters.forEach((char, index) => {
+  characters.forEach((char, index) => 
+  {
     // 移动字符
     char.position.y += char.userData.velocity.y;
     char.position.x += char.userData.velocity.x;
@@ -327,17 +347,20 @@ function animate() {
     const distance = Math.sqrt(dx * dx + dy * dy);
     
     // 如果鼠标靠近字符，则创建粒子粉碎效果
-    if (distance < mouseRadius) {
+    if (distance < mouseRadius) 
+    {
       resetCharacterAndCreateParticles(char);
     }
     // 如果字符超出屏幕顶部，则创建粒子粉碎效果
-    else if (char.position.y > getContainerHalfHeight() + 100) {
+    else if (char.position.y > getContainerHalfHeight() + 100) 
+    {
       resetCharacterAndCreateParticles(char);
     }
   });
   
   // 更新粒子
-  for (let i = particles.length - 1; i >= 0; i--) {
+  for (let i = particles.length - 1; i >= 0; i--) 
+  {
     const particle = particles[i];
     
     // 应用重力效果
@@ -358,7 +381,8 @@ function animate() {
     particle.scale.set(currentSize, currentSize, 1);
     
     // 如果粒子生命结束，返回到对象池
-    if (particle.userData.life <= 0) {
+    if (particle.userData.life <= 0) 
+    {
       scene.remove(particle);
       particles.splice(i, 1);
       returnParticleToPool(particle);
@@ -366,7 +390,8 @@ function animate() {
   }
   
   // 随机添加新字符（保持数量稳定）
-  if (characters.length < CHAR_CONFIG.count && Math.random() < 0.05) {
+  if (characters.length < CHAR_CONFIG.count && Math.random() < 0.05) 
+  {
     createFlowCharacter();
   }
   
@@ -374,7 +399,8 @@ function animate() {
 }
 
 // 处理鼠标移动
-function handleMouseMove(event) {
+function handleMouseMove(event) 
+{
   if (!canvas.value) return;
   
   // 获取容器尺寸
@@ -387,7 +413,8 @@ function handleMouseMove(event) {
   const relativeY = event.clientY - rect.top;
   
   // 将鼠标位置转换为Three.js坐标系（限制在容器区域内）
-  if (relativeX >= 0 && relativeX <= containerWidth && relativeY >= 0 && relativeY <= containerHalfHeight * 2) {
+  if (relativeX >= 0 && relativeX <= containerWidth && relativeY >= 0 && relativeY <= containerHalfHeight * 2) 
+  {
     // 将相对坐标转换为-1到1的范围
     mouseX = (relativeX / (containerWidth / 2)) - 1;
     mouseY = -(relativeY / containerHalfHeight) + 1;
@@ -399,8 +426,10 @@ function handleMouseMove(event) {
 }
 
 // 处理窗口大小变化
-function handleResize() {
-  if (camera && renderer && canvas.value) {
+function handleResize() 
+{
+  if (camera && renderer && canvas.value) 
+  {
     const containerWidth = canvas.value.parentElement.clientWidth;
     const containerHeight = canvas.value.parentElement.clientHeight;
     camera.aspect = containerWidth / containerHeight;
@@ -410,12 +439,14 @@ function handleResize() {
 }
 
 // 重置字符并创建粒子效果
-function resetCharacterAndCreateParticles(char) {
+function resetCharacterAndCreateParticles(char) 
+{
   // 获取字符的颜色
   const color = CHAR_CONFIG.colors[Math.floor(Math.random() * CHAR_CONFIG.colors.length)];
   
   // 创建粒子粉碎效果
-  for (let i = 0; i < PARTICLE_CONFIG.count; i++) {
+  for (let i = 0; i < PARTICLE_CONFIG.count; i++) 
+  {
     createParticle(char.position.x, char.position.y, color);
   }
   
@@ -455,28 +486,37 @@ function resetCharacterAndCreateParticles(char) {
 }
 
 // 处理键盘按下事件
-function handleKeyDown(event) {
+function handleKeyDown(event) 
+{
   // 获取按下的键值并转换为大写
   const keyPressed = event.key.toUpperCase();
   
   // 检查是否为字母键或数字键
-  if (/^[A-Z0-9]$/.test(keyPressed)) {
+  if (/^[A-Z0-9]$/.test(keyPressed)) 
+  {
     // 查找匹配的字符并粉碎它们
-    characters.forEach(char => {
-      if (char.userData.char === keyPressed) {
+    characters.forEach(char => 
+    {
+      if (char.userData.char === keyPressed) 
+      {
         resetCharacterAndCreateParticles(char);
       }
     });
   }
 }
 
-onMounted(() => {
+onMounted(() => 
+{
   // 延迟初始化以确保容器已正确渲染
-  const initialize = () => {
-    if (canvas.value && canvas.value.parentElement && canvas.value.parentElement.clientWidth > 0) {
+  const initialize = () => 
+  {
+    if (canvas.value && canvas.value.parentElement && canvas.value.parentElement.clientWidth > 0) 
+    {
       initThreeJS();
       animate();
-    } else {
+    }
+    else 
+    {
       // 如果容器还未正确渲染，稍后再试
       setTimeout(initialize, 100);
     }
@@ -489,35 +529,43 @@ onMounted(() => {
   window.addEventListener('keydown', handleKeyDown);
 });
 
-onUnmounted(() => {
+onUnmounted(() => 
+{
   window.removeEventListener('resize', handleResize);
   window.removeEventListener('mousemove', handleMouseMove);
   window.removeEventListener('keydown', handleKeyDown);
 
-  if (animationId) {
+  if (animationId) 
+  {
     cancelAnimationFrame(animationId);
   }
   
-  if (renderer) {
+  if (renderer) 
+  {
     renderer.dispose();
   }
   
   // 清理字符
-  characters.forEach(char => {
-    if (char.material.map) {
+  characters.forEach(char => 
+  {
+    if (char.material.map) 
+    {
       char.material.map.dispose();
     }
     char.material.dispose();
   });
   
   // 清理粒子
-  particles.forEach(particle => {
+  particles.forEach(particle => 
+  {
     scene.remove(particle);
   });
   
   // 清理粒子池
-  [...particles, ...particlePool].forEach(particle => {
-    if (particle.material.map) {
+  [...particles, ...particlePool].forEach(particle => 
+  {
+    if (particle.material.map) 
+    {
       particle.material.map.dispose();
     }
     particle.material.dispose();
@@ -535,6 +583,12 @@ onUnmounted(() => {
   height: 100%;
   background: linear-gradient(135deg, #ff6b9d 0%, #ff8e53 50%, #ff6b9d 100%);
   overflow: hidden;
+  /* 添加向内边框效果，创造凸起的视觉层次 */
+  box-shadow: inset 0 0 0 10px rgba(255, 255, 255, 0.3),
+              inset 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 0% 5% 5% 0%;
+  /* 添加裁剪效果，隐藏背景外的内容 */
+  clip-path: inset(0 0 0 0 round 0% 5% 5% 0%);
 }
 
 .flow-canvas {
@@ -562,13 +616,10 @@ onUnmounted(() => {
   font-weight: 700;
   margin: 0 0 16px 0;
   line-height: 1.2;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-  background: linear-gradient(45deg, #ffffff, #fff5f0, #ffe5d0);
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShift 4s ease-in-out infinite;
+  text-shadow: none;
+  color: white;
+  /* 最简化背景效果 */
+  padding: 5px 10px;
 }
 
 .welcome-subtitle {
@@ -576,9 +627,13 @@ onUnmounted(() => {
   opacity: 0.9;
   margin: 0;
   font-weight: 300;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+  text-shadow: none;
   color: #ffffff;
+  /* 最简化背景效果 */
+  padding: 5px 10px;
 }
+
+
 
 @keyframes gradientShift {
   0%, 100% {

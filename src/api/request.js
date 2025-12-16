@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { Notification } from '@arco-design/web-vue';
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -26,36 +27,90 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => 
   {
+    console.log('Response:', response);
     const { data } = response;
-    // 根据后端返回的数据结构进行处理
-    if (data.code === 200 || data.success === true) 
+    if (data.code === 2000 || data.success === true) 
     {
       return data.data || data;
     }
-    else 
+    // 检查是否有明确的错误标识
+    else if (data.code && data.code !== 200 || data.success === false) 
     {
       // 处理业务错误
-      console.error('Business error:', data.message || data.msg);
+      const errorMessage = data.message || data.msg || 'Unknown error';
+      console.error('Business error:', errorMessage);
       return Promise.reject(
-        new Error(data.message || data.msg || 'Unknown error'),
+        new Error(errorMessage),
       );
+    }
+    else 
+    {
+      return data.data || data;
     }
   },
   (error) => 
   {
-    // 处理HTTP错误
+    console.error('Response error:', error);
     if (error.response) 
     {
-      const { status } = error.response;
-      console.error(`HTTP error: ${status}`);
+      const { status, data } = error.response;
+      let message = `HTTP error: ${status}`;
+      switch(status) {
+        case 400:
+          message = data?.message || data?.msg || '请求参数错误';
+          break;
+        case 401:
+          message = '未授权，请重新登录';
+          break;
+        case 403:
+          message = '拒绝访问';
+          break;
+        case 404:
+          message = '请求的资源不存在';
+          break;
+        case 408:
+          message = '请求超时';
+          break;
+        case 500:
+          message = '服务器内部错误';
+          break;
+        case 501:
+          message = '服务未实现';
+          break;
+        case 502:
+          message = '网关错误';
+          break;
+        case 503:
+          message = '服务不可用';
+          break;
+        case 504:
+          message = '网关超时';
+          break;
+        default:
+          message = data?.message || data?.msg || `HTTP error: ${status}`;
+      }
+      
+      Notification.error({
+        title: '请求错误',
+        content: message,
+        duration: 3000
+      });
     }
     else if (error.request) 
     {
-      console.error('Network error');
+      Notification.error({
+        title: '网络错误',
+        content: '无法连接到服务器，请检查网络连接',
+        duration: 3000
+      });
     }
     else 
     {
-      console.error('Error:', error.message);
+      Notification.error({
+        title: '请求错误',
+        content: error.message || '未知错误',
+        duration: 3000
+      });
     }
     return Promise.reject(error);
   },

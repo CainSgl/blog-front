@@ -1,52 +1,38 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import api from "@/api/index.js";
 
-export const useAuthStore = defineStore('auth', () => 
-{
+export const useAuthStore = defineStore("auth", () => {
   const isLoggedIn = ref(false);
   const showLoginModal = ref(false);
   const isLoading = ref(false);
 
-  const openLogin = () => 
-  {
+  const openLogin = () => {
     showLoginModal.value = true;
   };
 
-  const closeLogin = () => 
-  {
+  const closeLogin = () => {
     showLoginModal.value = false;
   };
 
-  const login = async (credentials) => 
-  {
+  const login = async (credentials) => {
     isLoading.value = true;
-    try 
-    {
-      // 这里后面会实现具体的登录逻辑
-      console.log('登录中...', credentials);
-      // 模拟登录成功
-      isLoggedIn.value = true;
-      showLoginModal.value = false;
-      return { success: true };
-    }
-    catch (error) 
-    {
-      console.error('登录失败:', error);
-      return { success: false, error: error.message };
-    }
-    finally 
-    {
-      isLoading.value = false;
-    }
+    // 调用登录接口
+    const response = await api.post("/user/login", {
+      account: credentials.account,
+      password: credentials.password,
+    });
+    console.log("登录成功", response);
+    isLoggedIn.value = true;
+    showLoginModal.value = false;
+    return { success: true, data: response };
   };
 
-  const logout = () => 
-  {
+  const logout = () => {
     isLoggedIn.value = false;
   };
 
-  const checkLogin = () => 
-  {
+  const checkLogin = () => {
     return isLoggedIn.value;
   };
 

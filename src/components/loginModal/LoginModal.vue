@@ -29,10 +29,11 @@
           </template>
         </a-button>
       </div>
-      
+
       <!-- 右侧登录区域 -->
       <div class="login-right">
         <div class="login-content">
+          <div class="login-title">登录Cattiy</div>
           <a-tabs v-model:active-key="activeTab" size="large">
             <a-tab-pane key="password" title="密码登录">
               <PasswordLogin 
@@ -68,13 +69,14 @@ const authStore = useAuthStore();
 const activeTab = ref('password');
 
 // 处理登录成功
-const handleLoginSuccess = () => {
+const handleLoginSuccess = () => 
+{
   // 可以在这里添加登录成功后的处理逻辑
   console.log('登录成功');
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .login-modal {
   height: 100%;
   display: flex;
@@ -100,7 +102,7 @@ const handleLoginSuccess = () => {
 /* 右侧登录区域 */
 .login-right {
   flex: 1;
-  background: white;
+  background: @color-bg-white;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -115,6 +117,14 @@ const handleLoginSuccess = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.login-title {
+  font-size: @font-size-title-4;
+  font-weight: @font-weight-600;
+  color: @color-text-1;
+  margin-bottom: 24px;
+  text-align: center;
 }
 
 :deep(.arco-form) {
@@ -139,5 +149,22 @@ const handleLoginSuccess = () => {
 
 :deep(.arco-tabs-content) {
   min-height: 200px; /* 设置最小高度防止内容变化时跳动 */
+}
+
+/* 标签页样式 */
+:deep(.arco-tabs-tab) {
+  color: @color-text-2;
+  font-size: @font-size-body-3;
+  &:hover {
+    color: @primary-6;
+  }
+}
+
+:deep(.arco-tabs-tab-active) {
+  color: @primary-6;
+}
+
+:deep(.arco-tabs-ink-bar) {
+  background-color: @primary-6;
 }
 </style>

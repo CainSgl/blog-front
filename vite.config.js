@@ -14,6 +14,7 @@ export default defineConfig({
       less: {
         javascriptEnabled: true,
         modifyVars: {},
+        additionalData: `@import "@/assets/style/global.less";`
       },
     },
   },

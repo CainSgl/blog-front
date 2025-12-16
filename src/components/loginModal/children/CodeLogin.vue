@@ -70,13 +70,16 @@ const isCountingDown = ref(false);
 const countdown = ref(60);
 let countdownTimer = null;
 
-const countdownText = computed(() => {
+const countdownText = computed(() => 
+{
   return isCountingDown.value ? `${countdown.value}秒后重新获取` : '获取验证码';
 });
 
 // 发送验证码
-const sendCode = () => {
-  if (!codeLoginForm.phone) {
+const sendCode = () => 
+{
+  if (!codeLoginForm.phone) 
+  {
     // 这里可以添加手机号验证提示
     return;
   }
@@ -85,9 +88,11 @@ const sendCode = () => {
   isCountingDown.value = true;
   countdown.value = 60;
   
-  countdownTimer = setInterval(() => {
+  countdownTimer = setInterval(() => 
+  {
     countdown.value--;
-    if (countdown.value <= 0) {
+    if (countdown.value <= 0) 
+    {
       clearInterval(countdownTimer);
       isCountingDown.value = false;
     }
@@ -95,8 +100,10 @@ const sendCode = () => {
 };
 
 // 处理验证码登录
-const handleCodeLogin = async () => {
-  if (!codeLoginForm.phone || !codeLoginForm.code) {
+const handleCodeLogin = async () => 
+{
+  if (!codeLoginForm.phone || !codeLoginForm.code) 
+  {
     return;
   }
   
@@ -108,13 +115,15 @@ const handleCodeLogin = async () => {
   };
   
   const result = await authStore.login(loginData);
-  if (result.success) {
+  if (result.success) 
+  {
     // 清空表单
     codeLoginForm.phone = '';
     codeLoginForm.code = '';
     
     // 清除倒计时
-    if (countdownTimer) {
+    if (countdownTimer) 
+    {
       clearInterval(countdownTimer);
       isCountingDown.value = false;
     }
@@ -125,7 +134,7 @@ const handleCodeLogin = async () => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .code-input-wrapper {
   display: flex;
   gap: 12px;
@@ -133,9 +142,71 @@ const handleCodeLogin = async () => {
 
 .code-input-wrapper :deep(.arco-input-wrapper) {
   flex: 1;
+  border-color: @color-border-2;
+  &:hover {
+    border-color: @primary-6;
+  }
+  &:focus-within {
+    border-color: @primary-6;
+    box-shadow: 0 0 0 2px fade(@primary-1, 30%);
+  }
 }
 
 .code-input-wrapper :deep(.arco-btn) {
   flex-shrink: 0;
+}
+
+/* 设置输入框样式 */
+:deep(.arco-input-wrapper) {
+  border-color: @color-border-2;
+  &:hover {
+    border-color: @primary-6;
+  }
+  &:focus-within {
+    border-color: @primary-6;
+    box-shadow: 0 0 0 2px fade(@primary-1, 30%);
+  }
+}
+
+/* 设置标签样式 */
+:deep(.arco-form-item-label) {
+  color: @color-text-2;
+  font-size: @font-size-body-3;
+  font-weight: @font-weight-500;
+}
+
+/* 设置主按钮样式 */
+:deep(.arco-btn-primary) {
+  background-color: @primary-6;
+  border-color: @primary-6;
+  &:hover {
+    background-color: @primary-5;
+    border-color: @primary-5;
+  }
+  &:active {
+    background-color: @primary-7;
+    border-color: @primary-7;
+  }
+}
+
+/* 设置验证码按钮样式 */
+:deep(.arco-btn-primary:not(.arco-btn-disabled)) {
+  background-color: @primary-6;
+  border-color: @primary-6;
+  &:hover {
+    background-color: @primary-5;
+    border-color: @primary-5;
+  }
+  &:active {
+    background-color: @primary-7;
+    border-color: @primary-7;
+  }
+}
+
+/* 设置禁用状态的验证码按钮 */
+:deep(.arco-btn-primary.arco-btn-disabled) {
+  background-color: @color-fill-2;
+  border-color: @color-border-2;
+  color: @color-text-4;
 }
 </style>
