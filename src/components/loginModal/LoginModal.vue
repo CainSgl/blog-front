@@ -13,8 +13,8 @@
     :body-style="{ padding: 0, margin: 0, overflow: 'hidden' }"
   >
     <div class="login-modal">
-      <!-- 渐变背景组件 -->
-      <GradientBackground />
+      <!-- 渐变背景组件 - 仅在模态框显示时渲染 -->
+      <GradientBackground v-if="authStore.showLoginModal" />
       
       <!-- 右侧登录区域 -->
       <div class="login-right">
