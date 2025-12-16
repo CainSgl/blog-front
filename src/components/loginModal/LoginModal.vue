@@ -16,54 +16,38 @@
       <!-- 渐变背景组件 - 仅在模态框显示时渲染 -->
       <GradientBackground v-if="authStore.showLoginModal" />
       
+      <!-- 关闭按钮 - 移动到右上角 -->
+      <div class="close-button">
+        <a-button
+          type="text"
+          shape="circle"
+          size="large"
+          @click="authStore.closeLogin"
+        >
+          <template #icon>
+            <IconClose />
+          </template>
+        </a-button>
+      </div>
+      
       <!-- 右侧登录区域 -->
       <div class="login-right">
-        <div class="login-header">
-          <h2>登录</h2>
-          <a-button
-            type="text"
-            shape="circle"
-            size="large"
-            @click="authStore.closeLogin"
-          >
-            <template #icon>
-              <IconClose />
-            </template>
-          </a-button>
-        </div>
-        
         <div class="login-content">
-          <a-form :model="loginForm" @submit="handleLogin">
-            <a-form-item field="username" label="用户名">
-              <a-input
-                v-model="loginForm.username"
-                placeholder="请输入用户名"
-                size="large"
-                allow-clear
+          <a-tabs v-model:active-key="activeTab" size="large">
+            <a-tab-pane key="password" title="密码登录">
+              <PasswordLogin 
+                :is-loading="authStore.isLoading" 
+                @login-success="handleLoginSuccess"
               />
-            </a-form-item>
+            </a-tab-pane>
             
-            <a-form-item field="password" label="密码">
-              <a-input-password
-                v-model="loginForm.password"
-                placeholder="请输入密码"
-                size="large"
-                allow-clear
+            <a-tab-pane key="code" title="验证码登录">
+              <CodeLogin 
+                :is-loading="authStore.isLoading" 
+                @login-success="handleLoginSuccess"
               />
-            </a-form-item>
-            
-            <a-form-item>
-              <a-button
-                type="primary"
-                size="large"
-                long
-                :loading="authStore.isLoading"
-                @click="handleLogin"
-              >
-                登录
-              </a-button>
-            </a-form-item>
-          </a-form>
+            </a-tab-pane>
+          </a-tabs>
         </div>
       </div>
     </div>
@@ -71,34 +55,22 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { ref } from 'vue';
 import { useAuthStore } from '@/store/auth';
 import { IconClose } from '@arco-design/web-vue/es/icon';
 import GradientBackground from './children/GradientBackground.vue';
+import PasswordLogin from './children/PasswordLogin.vue';
+import CodeLogin from './children/CodeLogin.vue';
 
 const authStore = useAuthStore();
 
-// 登录表单数据
-const loginForm = reactive({
-  username: '',
-  password: ''
-});
+// 标签页控制
+const activeTab = ref('password');
 
-// 处理登录
-const handleLogin = async () => 
-{
-  if (!loginForm.username || !loginForm.password) 
-  {
-    return;
-  }
-  
-  const result = await authStore.login(loginForm);
-  if (result.success) 
-  {
-    // 清空表单
-    loginForm.username = '';
-    loginForm.password = '';
-  }
+// 处理登录成功
+const handleLoginSuccess = () => {
+  // 可以在这里添加登录成功后的处理逻辑
+  console.log('登录成功');
 };
 </script>
 
@@ -108,6 +80,14 @@ const handleLogin = async () =>
   display: flex;
   position: relative;
   overflow: hidden;
+}
+
+/* 关闭按钮 - 定位在右上角 */
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
 }
 
 /* 渐变背景区域 */
@@ -127,21 +107,6 @@ const handleLogin = async () =>
   z-index: 2;
 }
 
-.login-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 32px 32px 24px 32px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.login-header h2 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-text-1);
-}
-
 .login-content {
   flex: 1;
   padding: 32px;
@@ -155,5 +120,24 @@ const handleLogin = async () =>
 :deep(.arco-form) {
   width: 100%;
   max-width: 400px;
+}
+
+/* 修复输入框焦点导致的布局跳动问题 */
+:deep(.arco-input-wrapper) {
+  transition: none;
+}
+
+:deep(.arco-input) {
+  transition: none;
+}
+
+/* 确保标签页容器不会因为内容变化而跳动 */
+:deep(.arco-tabs) {
+  width: 100%;
+  max-width: 400px;
+}
+
+:deep(.arco-tabs-content) {
+  min-height: 200px; /* 设置最小高度防止内容变化时跳动 */
 }
 </style>
