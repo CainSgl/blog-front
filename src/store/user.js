@@ -19,8 +19,8 @@ export const useUserStore = defineStore('user', () =>
     if(!authToken)
     {
       throw {
-        debug:"setToken这里传入的token是空的"
-      }
+        debug:'setToken这里传入的token是空的'
+      };
     }
     token.value = authToken;
     localStorage.setItem('authToken', authToken);

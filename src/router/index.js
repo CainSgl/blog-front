@@ -4,17 +4,34 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/HomeView.vue'),
+    component: () => import('@/views/Home.vue'),
   },
   {
     path: '/components',
     name: 'Components',
-    component: () => import('@/views/ComponentsView.vue'),
+    component: () => import('@/views/Components.vue'),
+  },
+  {
+    path: '/kb',
+    name: 'KnowledgeBase',
+    component: () => import('@/views/kb/kb.vue'),
+    children: [
+      {
+        path: 'view',
+        name: 'KnowledgeBaseView',
+        component: () => import('@/views/kb/children/view.vue')
+      },
+      {
+        path: 'edit',
+        name: 'KnowledgeBaseEdit',
+        component: () => import('@/views/kb/children/edit.vue')
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/views/NotFoundView.vue'),
+    component: () => import('@/views/NotFound.vue'),
   },
 ];
 

@@ -15,10 +15,11 @@ service.interceptors.request.use(
   (config) => 
   {
     const userStore = useUserStore();
-    if (userStore.getToken()) {
+    if (userStore.getToken()) 
+    {
       config.headers['token'] = userStore.getToken();
     }
-    console.debug("发送的请求",config)
+    console.debug('发送的请求',config);
     return config;
   },
   (error) => 

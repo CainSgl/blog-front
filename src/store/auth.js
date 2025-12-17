@@ -37,14 +37,16 @@ export const useAuthStore = defineStore('auth', () =>
     catch (error) 
     {
       throw error;
-    }finally{
+    }
+    finally
+    {
       isLoading.value = false;
     }
   };
   const logout = () => 
   {
     //调用api请求，但不需要等待结果
-    api.get("/user/logout")
+    api.get('/user/logout');
     userStore.clearUserInfo();
   };
   const checkLogin = () => 
