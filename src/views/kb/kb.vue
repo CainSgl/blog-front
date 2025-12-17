@@ -18,58 +18,67 @@ import TreeMenu from '@/components/TreeMenuNew.vue';
 // 模拟数据
 const treeData = ref([
   {
-    "id": 1,
-    "kbId": 1,
-    "name": "目录1",
-    "sortNum": 1,
-    "children":[]
+    'id': 1,
+    'kbId': 1,
+    'name': '根目录1',
+    'parentId':null,
+    'children':[]
   },
   {
-    "id": 2,
-    "kbId": 1,
-    "name": "目录2",
-    "sortNum": 2,
-    "children": [
+    'id': 2,
+    'kbId': 1,
+    'name': '根目录2',
+    'parentId':null,
+    'children': [
       {
-        "id": 3,
-        "kbId": 1,
-        "parentId": 1,
-        "name": "目录3",
-        "sortNum": 2,
-        "children": [
+        'id': 3,
+        'kbId': 1,
+        'name': '目录3',
+        'parentId':2,
+        'children': [
           {
-            "id": 4,
-            "kbId": 1,
-            "parentId": 4,
-            "name": "目录5",
-            "sortNum": 2,
-            "children":[]
-          },
-            {
-            "id": 7,
-            "kbId": 1,
-            "parentId": 4,
-            "name": "目录6",
-            "sortNum": 2,
-            "children":[]
+            'id': 4,
+            'kbId': 1,
+            'parentId':3,
+            'name': '目录5',
+            'children':[]
           },
           {
-            "id": 5,
-            "kbId": 1,
-            "parentId": 4,
-            "name": "文章1",
-            "postId": 5,
-            "sortNum": 2,
-            "children":[]
+            'id': 5,
+            'kbId': 1,
+            'parentId':3,
+            'name': '目录6',
+            'children':[]
           },
           {
-            "id": 6,
-            "kbId": 1,
-            "parentId": 4,
-            "name": "文章2",
-            "postId": 1998966530797060097,
-            "sortNum": 3,
-            "children":[]
+            'id': 6,
+            'kbId': 1,
+            'parentId':3,
+            'name': '文章1',
+            'postId': 5,
+            'children':[
+              {
+                'id': 11,
+                'kbId': 1,
+                'parentId':6,
+                'name': '测试文档1',
+                'children':[]
+              },  {
+                'id': 12,
+                'kbId': 1,
+                'parentId':6,
+                'name': '测试文档2',
+                'children':[]
+              },
+            ]
+          },
+          {
+            'id': 7,
+            'kbId': 1,
+            'parentId':3,
+            'name': '文章2',
+            'postId': 1998966530797060097,
+            'children':[]
           }
         ]
       }
