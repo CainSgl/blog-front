@@ -1,21 +1,17 @@
 <template>
-  <div class="tree-menu">
+  <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave">
     <TransitionGroup 
       name="node-list" 
       tag="div"
       class="tree-menu-container"
     >
-      <div 
+      <div  
         v-for="(node, index) in flatNodes" 
         :key="node.id"
-        class="tree-node default"
+        class="tree-node"
+        :class="getNodeClasses(node, index)"
         :style="{ paddingLeft: `${node.depth * 20}px` }"
-        draggable="true"
-        @dragstart="listDragStart($event, index)"
-        @dragenter="listDragEnter($event, index)"
-        @dragend="listDragEnd"
-        @dragover="listDragOver"
-        @drop="listDrop($event, index)"
+        @mousedown="handleMouseDown($event, node, index)"
       >
         <div  class="node-content" @click="toggleNode(node)" >
           <span 
@@ -29,14 +25,46 @@
           
           <span class="node-name">{{ node.name || '未命名' }}</span>
         </div>
+
+        <!-- 拖拽预览指示器 -->
+        <div 
+          v-if="dragState.isDragging && dragState.targetIndex === index"
+          class="drag-indicator"
+          :class="`indicator-${dragState.dropType}`"
+        >
+          <div class="indicator-line"></div>
+        </div>
       </div>
     </TransitionGroup>
+
+    <!-- 拖拽阴影元素 -->
+    <div 
+      v-if="dragState.isDragging && dragState.draggingElement"
+      class="dragging-shadow"
+      :style="{
+        left: dragState.shadowPosition.x + 'px',
+        top: dragState.shadowPosition.y + 'px',
+        width: dragState.shadowWidth + 'px'
+      }"
+    >
+      <div class="node-content" :style="{ paddingLeft: `${dragState.sourceNode?.depth * 20 || 0}px` }">
+        <span 
+          v-if="dragState.sourceNode?.children && dragState.sourceNode.children.length > 0" 
+          class="expand-icon"
+        >
+          ▶
+        </span>
+        <span v-else class="expand-icon-placeholder">•</span>
+        
+        <span class="node-name">{{ dragState.sourceNode?.name || '拖拽中...' }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { log } from 'three';
-import { ref, watch } from 'vue';
+
+import { ref, watch, reactive, nextTick } from 'vue';
 
 const props = defineProps({
   treeData: {
@@ -47,6 +75,20 @@ const props = defineProps({
 
 // 扁平化的节点数据
 const flatNodes = ref([]);
+
+// 拖拽状态管理
+const dragState = reactive({
+  isDragging: false,
+  sourceNode: null,
+  sourceIndex: -1,
+  targetIndex: -1,
+  dropType: 'none', // 'before', 'after', 'child'
+  draggingElement: null,
+  shadowPosition: { x: 0, y: 0 },
+  shadowWidth: 0,
+  mouseOffset: { x: 0, y: 0 },
+  containerRect: null
+});
 
 // 将树形结构扁平化为数组，保留深度信息
 function flattenTree(nodes, depth = 0) 
@@ -170,244 +212,255 @@ function toggleNode(node)
   }
 }
 
-//下面代码跟拖动有关
-let sourceNode = null;
-let dragTargetInfo = null; // 存储当前拖拽目标信息
-let isDragging = false; // 标记是否正在拖拽
-
-function listDragStart(e, index) 
-{
-  sourceNode = flatNodes.value[index];
-  isDragging = true;
+// 获取节点样式类
+function getNodeClasses(node, index) {
+  const classes = ['default'];
   
-  //先收起子目录
-  if(getNodeExpandedState(sourceNode))
-  {
-    toggleNode(sourceNode);
-  }
-  const target = e.target;
-  target.classList.remove('default');
-  setTimeout(()=>
-  {
-    target.classList.add('dragging');
-  },0);
-  
-  // 设置拖拽数据
-  e.dataTransfer.effectAllowed = 'move';
-}
-
-// 计算鼠标在目标节点上的位置
-function getDropPosition(e, targetElement) {
-  const rect = targetElement.getBoundingClientRect();
-  const mouseY = e.clientY;
-  const top = rect.top;
-  const bottom = rect.bottom;
-  const height = bottom - top;
-  
-  // 计算鼠标在元素中的相对位置（0-1之间）
-  const relativeY = (mouseY - top) / height;
-  
-  // 根据相对位置确定放置类型
-  if (relativeY < 0.3) {
-    return 'before'; // 上方30% -> 前一个兄弟节点
-  } else if (relativeY > 0.7) {
-    return 'after';  // 下方30% -> 后一个兄弟节点
-  } else {
-    return 'inside'; // 中间40% -> 子节点
-  }
-}
-
-// 更新视觉反馈
-function updateDropIndicator(targetElement, position) {
-  // 清除之前的指示器类
-  document.querySelectorAll('.drop-before, .drop-after, .drop-inside').forEach(el => {
-    el.classList.remove('drop-before', 'drop-after', 'drop-inside');
-  });
-  
-  // 添加新的指示器类
-  switch(position) {
-    case 'before':
-      targetElement.classList.add('drop-before');
-      break;
-    case 'after':
-      targetElement.classList.add('drop-after');
-      break;
-    case 'inside':
-      targetElement.classList.add('drop-inside');
-      break;
-  }
-}
-
-function listDragEnter(e, targetIndex) 
-{
-  e.preventDefault();
-  
-  // 确保sourceNode已设置且正在拖拽
-  if(!sourceNode || !isDragging)
-  {
-    return;
-  }
-  
-  // 避免触发自身的事件
-  if(flatNodes.value[targetIndex] === sourceNode)
-  {
-    return;
-  }
-  
-  const targetElement = e.target.closest('.tree-node');
-  if (!targetElement) return;
-  
-  // 计算放置位置
-  const dropPosition = getDropPosition(e, targetElement);
-  
-  // 更新视觉反馈
-  updateDropIndicator(targetElement, dropPosition);
-  
-  // 存储目标信息用于后续处理
-  dragTargetInfo = {
-    targetIndex,
-    dropPosition,
-    targetElement
-  };
-}
-
-function listDragOver(e) 
-{
-  e.preventDefault();
-  
-  if (!sourceNode || !isDragging) return;
-  
-  const targetElement = e.target.closest('.tree-node');
-  if (!targetElement) return;
-  
-  // 更新放置位置和视觉反馈
-  const dropPosition = getDropPosition(e, targetElement);
-  updateDropIndicator(targetElement, dropPosition);
-  
-  // 更新存储的目标信息
-  if (dragTargetInfo) {
-    dragTargetInfo.dropPosition = dropPosition;
-    dragTargetInfo.targetElement = targetElement;
-  }
-  
-  // 设置拖拽效果
-  e.dataTransfer.dropEffect = 'move';
-}
-
-// 移动节点
-function moveNode(sourceIndex, targetIndex, dropPosition) {
-  if (sourceIndex === -1) return;
-  
-  // 避免无效移动
-  if (sourceIndex === targetIndex && dropPosition !== 'inside') {
-    return;
-  }
-  
-  const nodeToMove = flatNodes.value[sourceIndex];
-  const targetNode = flatNodes.value[targetIndex];
-  
-  // 根据放置位置进行不同的操作
-  switch(dropPosition) {
-    case 'before':
-      // 移除原节点
-      flatNodes.value.splice(sourceIndex, 1);
-      // 调整目标索引（如果源索引在目标索引之前，目标索引会减少1）
-      const beforeTargetIndex = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
-      flatNodes.value.splice(beforeTargetIndex, 0, {
-        ...nodeToMove,
-        depth: targetNode?.depth || 0,
-        parentId: targetNode?.parentId || null
-      });
-      break;
-      
-    case 'after':
-      // 移除原节点
-      flatNodes.value.splice(sourceIndex, 1);
-      // 调整目标索引
-      const afterTargetIndex = sourceIndex < targetIndex ? targetIndex : targetIndex + 1;
-      flatNodes.value.splice(afterTargetIndex, 0, {
-        ...nodeToMove,
-        depth: targetNode?.depth || 0,
-        parentId: targetNode?.parentId || null
-      });
-      break;
-      
-    case 'inside':
-      // 作为子节点插入（在目标节点之后）
-      flatNodes.value.splice(sourceIndex, 1);
-      const insideTargetIndex = sourceIndex < targetIndex ? targetIndex : targetIndex + 1;
-      flatNodes.value.splice(insideTargetIndex, 0, {
-        ...nodeToMove,
-        depth: (targetNode?.depth || 0) + 1,
-        parentId: targetNode?.id
-      });
-      break;
-  }
-}
-
-function listDragEnd(e) 
-{
-  // 重置拖拽状态
-  isDragging = false;
-  sourceNode = null;
-  dragTargetInfo = null;
-  
-  // 清除所有拖拽指示器
-  document.querySelectorAll('.drop-before, .drop-after, .drop-inside').forEach(el => {
-    el.classList.remove('drop-before', 'drop-after', 'drop-inside');
-  });
-  
-  // 移除拖拽样式
-  e.target.classList.remove('dragging');
-  e.target.classList.add('default');
-}
-
-// 处理放置事件
-function listDrop(e, targetIndex) {
-  e.preventDefault();
-  
-  // 执行实际的节点移动
-  if (dragTargetInfo) {
-    const sourceIndex = flatNodes.value.findIndex(node => node.id === sourceNode.id);
-    if (sourceIndex !== -1 && sourceIndex !== dragTargetInfo.targetIndex) {
-      moveNode(sourceIndex, dragTargetInfo.targetIndex, dragTargetInfo.dropPosition);
+  if (dragState.isDragging) {
+    if (dragState.sourceIndex === index) {
+      classes.push('dragging-source');
+    } else if (dragState.targetIndex === index) {
+      classes.push('drag-target');
+    } else {
+      classes.push('dragging-other');
     }
   }
   
-  // 重置状态
-  isDragging = false;
-  sourceNode = null;
-  dragTargetInfo = null;
-  
-  // 清除防抖定时器
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-    debounceTimer = null;
+  return classes.join(' ');
+}
+
+// 鼠标按下事件 - 开始拖拽
+function handleMouseDown(event, node, index) {
+  // 如果点击的是展开图标，不触发拖拽
+  if (event.target.closest('.expand-icon')) {
+    return;
   }
   
-  // 清除所有拖拽指示器
-  document.querySelectorAll('.drop-before, .drop-after, .drop-inside').forEach(el => {
-    el.classList.remove('drop-before', 'drop-after', 'drop-inside');
-  });
+  event.preventDefault();
+  
+  // 收起子目录（如果展开的话）
+  if (getNodeExpandedState(node)) {
+    toggleNode(node);
+  }
+  
+  // 初始化拖拽状态
+  dragState.isDragging = true;
+  dragState.sourceNode = { ...node };
+  dragState.sourceIndex = index;
+  dragState.targetIndex = index;
+  
+  // 获取容器边界
+  const container = event.currentTarget.closest('.tree-menu');
+  dragState.containerRect = container.getBoundingClientRect();
+  
+  // 计算鼠标相对于节点的偏移
+  const nodeRect = event.currentTarget.getBoundingClientRect();
+  dragState.mouseOffset.x = event.clientX - nodeRect.left;
+  dragState.mouseOffset.y = event.clientY - nodeRect.top;
+  
+  // 创建拖拽阴影元素
+  createDraggingShadow(node, event);
+  
+  // 更新阴影位置
+  updateShadowPosition(event);
 }
+
+// 创建拖拽阴影元素
+function createDraggingShadow(node, event) {
+  dragState.draggingElement = true;
+  dragState.shadowWidth = event.currentTarget.offsetWidth;
+}
+
+// 更新阴影位置
+function updateShadowPosition(event) {
+  if (!dragState.isDragging) return;
+  
+  dragState.shadowPosition.x = event.clientX - dragState.mouseOffset.x;
+  dragState.shadowPosition.y = event.clientY - dragState.mouseOffset.y;
+}
+
+// 鼠标移动事件
+function handleMouseMove(event) {
+  if (!dragState.isDragging) return;
+  
+  event.preventDefault();
+  
+  // 更新阴影位置
+  updateShadowPosition(event);
+  
+  // 计算目标位置
+  calculateDropPosition(event);
+}
+
+// 计算放置位置
+function calculateDropPosition(event) {
+  const nodes = document.querySelectorAll('.tree-node');
+  const mouseX = event.clientX;
+  const mouseY = event.clientY;
+  
+  let targetIndex = -1;
+  let dropType = 'none';
+  
+  // 遍历所有节点，找到鼠标悬停的节点
+  for (let i = 0; i < nodes.length; i++) {
+    const nodeElement = nodes[i];
+    const rect = nodeElement.getBoundingClientRect();
+    
+    // 检查鼠标是否在当前节点范围内
+    if (mouseY >= rect.top && mouseY <= rect.bottom && 
+        mouseX >= rect.left && mouseX <= rect.right) {
+      
+      // 排除源节点
+      if (i === dragState.sourceIndex) continue;
+      
+      targetIndex = i;
+      
+      // 计算精确的放置类型
+      const relativeY = mouseY - rect.top;
+      const nodeHeight = rect.height;
+      
+      if (relativeY < nodeHeight * 0.25) {
+        dropType = 'before';
+      } else if (relativeY > nodeHeight * 0.75) {
+        dropType = 'after';
+      } else {
+        dropType = 'child';
+      }
+      
+      break;
+    }
+  }
+  
+  // 更新拖拽状态
+  if (targetIndex !== dragState.targetIndex || dropType !== dragState.dropType) {
+    dragState.targetIndex = targetIndex;
+    dragState.dropType = dropType;
+  }
+}
+
+// 鼠标释放事件 - 结束拖拽
+function handleMouseUp(event) {
+  if (!dragState.isDragging) return;
+  
+  event.preventDefault();
+  
+  // 执行放置操作
+  performDrop();
+  
+  // 清理拖拽状态
+  cleanupDrag();
+}
+
+// 鼠标离开容器事件
+function handleMouseLeave(event) {
+  if (!dragState.isDragging) return;
+  
+  // 如果鼠标离开容器，尝试在最近的节点放置
+  if (dragState.targetIndex !== -1) {
+    performDrop();
+  }
+  
+  cleanupDrag();
+}
+
+// 执行放置操作
+function performDrop() {
+  if (dragState.targetIndex === -1 || dragState.dropType === 'none') {
+    return;
+  }
+  
+  const sourceIndex = dragState.sourceIndex;
+  const targetIndex = dragState.targetIndex;
+  const dropType = dragState.dropType;
+  
+  // 防止无效放置
+  if (sourceIndex === targetIndex) return;
+  
+  // 调整索引（因为移除了源节点，目标索引可能会变化）
+  let adjustedTargetIndex = targetIndex;
+  if (sourceIndex < targetIndex) {
+    adjustedTargetIndex--;
+  }
+  
+  // 获取源节点
+  const sourceNode = flatNodes.value[sourceIndex];
+  
+  // 从原位置移除
+  flatNodes.value.splice(sourceIndex, 1);
+  
+  // 根据放置类型插入到新位置
+  switch (dropType) {
+    case 'before':
+      flatNodes.value.splice(adjustedTargetIndex, 0, {
+        ...sourceNode,
+        depth: flatNodes.value[adjustedTargetIndex].depth,
+        parentId: flatNodes.value[adjustedTargetIndex].parentId
+      });
+      break;
+      
+    case 'after':
+      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+        ...sourceNode,
+        depth: flatNodes.value[adjustedTargetIndex].depth,
+        parentId: flatNodes.value[adjustedTargetIndex].parentId
+      });
+      break;
+      
+    case 'child':
+      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+        ...sourceNode,
+        depth: flatNodes.value[adjustedTargetIndex].depth + 1,
+        parentId: flatNodes.value[adjustedTargetIndex].id
+      });
+      break;
+  }
+}
+
+// 清理拖拽状态
+function cleanupDrag() {
+  dragState.isDragging = false;
+  dragState.sourceNode = null;
+  dragState.sourceIndex = -1;
+  dragState.targetIndex = -1;
+  dragState.dropType = 'none';
+  dragState.draggingElement = null;
+  dragState.shadowPosition = { x: 0, y: 0 };
+  dragState.shadowWidth = 0;
+  dragState.mouseOffset = { x: 0, y: 0 };
+  dragState.containerRect = null;
+}
+
 </script>
 
 <style scoped lang="less">
 .tree-menu {
-  // 禁用文本选择
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  
   .tree-menu-container {
     position: relative;
   }
   
-  .default{
+  .default {
     &:hover {
       background-color: #f5f5f5;
     }
+  }
+  
+  // 拖拽状态样式
+  .dragging-source {
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  .drag-target {
+    background-color: #fff3e0;
+    border: 2px dashed #ff9800;
+    
+    .node-content {
+      pointer-events: none;
+    }
+  }
+  
+  .dragging-other {
+    opacity: 0.6;
   }
   
   .tree-node {
@@ -416,10 +469,13 @@ function listDrop(e, targetIndex) {
     border-radius: 4px;
     margin: 2px 0;
     transition: all 0.2s ease;
+    position: relative;
+    
     .node-content {
       display: flex;
       align-items: center;
       gap: 8px;
+      
       .expand-icon {
         width: 16px;
         height: 16px;
@@ -447,10 +503,91 @@ function listDrop(e, targetIndex) {
         color: #333;
       }
     }
+    
+    // 拖拽指示器
+    .drag-indicator {
+      position: absolute;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      
+      &.indicator-before {
+        top: -2px;
+        
+        .indicator-line {
+          height: 2px;
+          background-color: #4caf50;
+          border-radius: 1px;
+          box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+        }
+      }
+      
+      &.indicator-after {
+        bottom: -2px;
+        
+        .indicator-line {
+          height: 2px;
+          background-color: #4caf50;
+          border-radius: 1px;
+          box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+        }
+      }
+      
+      &.indicator-child {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        
+        .indicator-line {
+          width: 12px;
+          height: 12px;
+          background-color: #2196f3;
+          border-radius: 50%;
+          border: 2px solid white;
+          box-shadow: 0 0 6px rgba(33, 150, 243, 0.6);
+        }
+      }
+    }
   }
   
-  .dragging {
-    background-color: #ee00005d;
+  // 拖拽阴影样式
+  .dragging-shadow {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0.95;
+    
+    .node-content {
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      
+      .expand-icon {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #666;
+      }
+      
+      .expand-icon-placeholder {
+        width: 16px;
+        height: 16px;
+      }
+      
+      .node-name {
+        flex: 1;
+        font-size: 14px;
+        color: #333;
+      }
+    }
   }
 }
 
@@ -461,20 +598,6 @@ function listDrop(e, targetIndex) {
 
 .node-list-enter-active {
   transition: all 0.2s ease;
-}
-
-// 拖拽放置指示器样式
-.drop-before {
-  border-top: 2px solid #409eff;
-}
-
-.drop-after {
-  border-bottom: 2px solid #409eff;
-}
-
-.drop-inside {
-  background-color: rgba(64, 158, 255, 0.1);
-  border: 1px dashed #409eff;
 }
 
 .node-list-leave-active {
