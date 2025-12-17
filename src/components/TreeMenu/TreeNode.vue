@@ -1,5 +1,5 @@
 <template>
-  <div class="tree-node" :style="{ paddingLeft: `${level * 20}px` }">
+  <div class="tree-node" :style="{ paddingLeft: `${level * 20}px` }" :data-node-id="node.id">
     <!-- 目录节点 -->
     <DirectoryNode 
       v-if="hasChildren" 
@@ -7,7 +7,7 @@
       :is-expanded="isExpanded"
       :is-dragging="isDragging"
       :is-drag-over="isDragOver"
-      :drag-position="dragPosition"
+      :drag-position="isDragOver ? dragPosition : ''"
       :is-drop-allowed="isDropAllowed"
       @toggle-expand="toggleExpand"
       @drag-start="handleDragStart"
@@ -24,7 +24,7 @@
       :node="node"
       :is-dragging="isDragging"
       :is-drag-over="isDragOver"
-      :drag-position="dragPosition"
+      :drag-position="isDragOver ? dragPosition : ''"
       :is-drop-allowed="isDropAllowed"
       @node-click="handleClick"
       @drag-start="handleDragStart"
@@ -45,6 +45,7 @@
         :dragged-node="draggedNode"
         :drag-over-node="dragOverNode"
         :drag-position="dragPosition"
+        :drag-preview="dragPreview"
         @node-click="emit('node-click', $event)"
         @toggle-expand="emit('toggle-expand', $event)"
         @node-drop="emit('node-drop', $event)"
@@ -82,6 +83,10 @@ const props = defineProps({
   dragPosition: {
     type: String,
     default: ''
+  },
+  dragPreview: {
+    type: Object,
+    default: null
   }
 });
 

@@ -23,7 +23,8 @@ const treeData = ref([
     "id": 1,
     "kbId": 1,
     "name": "目录1",
-    "sortNum": 1
+    "sortNum": 1,
+    "children":[]
   },
   {
     "id": 2,
@@ -43,7 +44,16 @@ const treeData = ref([
             "kbId": 1,
             "parentId": 4,
             "name": "目录5",
-            "sortNum": 2
+            "sortNum": 2,
+            "children":[]
+          },
+            {
+            "id": 7,
+            "kbId": 1,
+            "parentId": 4,
+            "name": "目录6",
+            "sortNum": 2,
+            "children":[]
           },
           {
             "id": 5,
@@ -51,7 +61,8 @@ const treeData = ref([
             "parentId": 4,
             "name": "文章1",
             "postId": 5,
-            "sortNum": 2
+            "sortNum": 2,
+            "children":[]
           },
           {
             "id": 6,
@@ -59,7 +70,8 @@ const treeData = ref([
             "parentId": 4,
             "name": "文章2",
             "postId": 1998966530797060097,
-            "sortNum": 3
+            "sortNum": 3,
+            "children":[]
           }
         ]
       }
@@ -162,7 +174,7 @@ const handleNodeDrop = ({ draggedNode, targetNode, position }) => {
       if (child.id === targetId) return true;
       if (isDraggingToChild(child, targetId)) return true;
     }
-    return false;
+    return false; 
   };
   
   if (isDraggingToChild(draggedNode, targetNode.id)) {

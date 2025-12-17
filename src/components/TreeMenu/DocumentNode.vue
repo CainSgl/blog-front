@@ -6,10 +6,12 @@
       'drag-over': isDragOver && isDropAllowed,
       'drag-over-not-allowed': isDragOver && !isDropAllowed,
       [`drag-${dragPosition}`]: isDragOver && dragPosition && isDropAllowed,
-      [`drag-${dragPosition}-not-allowed`]: isDragOver && dragPosition && !isDropAllowed
+      [`drag-${dragPosition}-not-allowed`]: isDragOver && dragPosition && !isDropAllowed,
+      'preview-before': dragPosition === 'before',
+      'preview-after': dragPosition === 'after',
+      'preview-inside': dragPosition === 'inside' && isDropAllowed
     }"
     draggable="true"
-    @click="handleClick"
     @dragstart="handleDragStart"
     @dragend="handleDragEnd"
     @dragover="handleDragOver"
@@ -135,6 +137,34 @@ const handleDrop = (event) => {
     height: 2px;
     background-color: #165dff;
     z-index: 1000;
+  }
+  
+  /* 预览样式 */
+  &.preview-before::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #165dff;
+    z-index: 1000;
+  }
+  
+  &.preview-after::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #165dff;
+    z-index: 1000;
+  }
+  
+  &.preview-inside {
+    background-color: #bbdefb;
+    box-shadow: inset 0 0 0 2px #165dff;
   }
   
   .node-content {
