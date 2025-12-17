@@ -1,15 +1,19 @@
 <template>
   <div 
-    class="directory-node"
-    :class="{
-      'expanded': isExpanded,
-      'collapsed': !isExpanded,
-      'dragging': isDragging
-    }"
+    class="directory-node-wrapper"
   >
-    <div class="node-content" @click="toggleExpand">
-      <span class="arrow" :class="{ 'expanded': isExpanded }">▶</span>
-      <span class="name">{{ node.name }}</span>
+    <div 
+      class="directory-node"
+      :class="{
+        'expanded': isExpanded,
+        'collapsed': !isExpanded,
+        'dragging': isDragging
+      }"
+    >
+      <div class="node-content" @click="toggleExpand">
+        <span class="arrow" :class="{ 'expanded': isExpanded }">▶</span>
+        <span class="name">{{ node.name }}</span>
+      </div>
     </div>
     
     <!-- 子节点 -->
@@ -125,20 +129,24 @@ const handleChildDrop = (payload) => {
 </script>
 
 <style scoped lang="less">
+.directory-node-wrapper {
+  width: 100%;
+}
+
 .directory-node {
   padding: 4px 8px;
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s ease;
   position: relative;
-  background-color: white; // 默认白色背景
+  background-color: white;
   
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #f5f5f5;
   }
   
   &.dragging {
-    background-color: #ffebee; // 拖拽中红色背景
+    background-color: #ffebee;
     opacity: 0.8;
   }
   

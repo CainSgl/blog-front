@@ -1,5 +1,5 @@
 <template>
-  <div class="tree-node" :style="{ paddingLeft: `${displayLevel * 20}px` }" :data-node-id="node.id">
+  <div class="tree-node" :class="`level-${displayLevel}`" :data-node-id="node.id">
     <!-- 目录节点 -->
     <DirectoryNodeNew 
       v-if="hasChildren" 
@@ -78,5 +78,18 @@ const toggleExpand = () => {
 <style scoped lang="less">
 .tree-node {
   position: relative;
+  
+  // 通过层级类来控制缩进
+  &.level-0 { padding-left: 0px; }
+  &.level-1 { padding-left: 20px; }
+  &.level-2 { padding-left: 40px; }
+  &.level-3 { padding-left: 60px; }
+  &.level-4 { padding-left: 80px; }
+  &.level-5 { padding-left: 100px; }
+  &.level-6 { padding-left: 120px; }
+  &.level-7 { padding-left: 140px; }
+  &.level-8 { padding-left: 160px; }
+  &.level-9 { padding-left: 180px; }
+  &.level-10 { padding-left: 200px; }
 }
 </style>

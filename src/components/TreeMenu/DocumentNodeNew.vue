@@ -1,11 +1,13 @@
 <template>
-  <div 
-    class="document-node"
-    :class="{ 'dragging': isDragging }"
-  >
-    <div class="node-content" @click="handleNodeClick">
-      <span class="icon"></span>
-      <span class="name">{{ node.name }}</span>
+  <div class="document-node-wrapper">
+    <div 
+      class="document-node"
+      :class="{ 'dragging': isDragging }"
+    >
+      <div class="node-content" @click="handleNodeClick">
+        <span class="icon"></span>
+        <span class="name">{{ node.name }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -38,20 +40,24 @@ const handleNodeClick = () => {
 </script>
 
 <style scoped lang="less">
+.document-node-wrapper {
+  width: 100%;
+}
+
 .document-node {
   padding: 4px 8px;
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s ease;
   position: relative;
-  background-color: white; // 默认白色背景
+  background-color: white;
   
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #f5f5f5;
   }
   
   &.dragging {
-    background-color: #ffebee; // 拖拽中红色背景
+    background-color: #ffebee;
     opacity: 0.8;
   }
   
