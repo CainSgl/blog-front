@@ -3,6 +3,10 @@
     <h1>欢迎来到首页</h1>
     <p>这是一个使用 Vite + Vue 3 + Vue Router + Arco Design + Pinia 的项目</p>
     
+    <!-- 用户信息展示 -->
+
+     <p>{{userInfo}}</p> 
+    
     <div class="test-section">
       <a-space direction="vertical" size="large">
         <a-button type="primary" @click="testShowLogin">测试登录弹窗</a-button>
@@ -15,6 +19,18 @@
 
 <script setup>
 import { showLoginModal, requireLogin, loginService } from '@/services/authService';
+import { useUserStore } from '@/store/user';
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
+
+const userStore = useUserStore();
+const { userInfo } = storeToRefs(userStore);
+
+// 组件挂载时获取用户信息
+onMounted(async () => 
+{
+  await userStore.getUserInfo();
+});
 
 const testShowLogin = () => 
 {

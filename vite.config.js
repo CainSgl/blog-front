@@ -14,12 +14,12 @@ export default defineConfig({
       less: {
         javascriptEnabled: true,
         modifyVars: {},
-        additionalData: `@import "@/assets/style/global.less";`
+        additionalData: '@import "@/assets/style/global.less";'
       },
     },
   },
   server: {
-    port: 3000,
+    port: 8081,
     open: true,
   },
   optimizeDeps: {

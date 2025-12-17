@@ -4,7 +4,7 @@
     <a-form-item field="username" label="用户名" :help="usernameHelp" :validate-status="usernameValidateStatus">
       <a-input
         v-model="loginForm.username"
-        placeholder="请输入用户名"
+        placeholder="请输入用户名/邮件/手机号"
         size="large"
         allow-clear
         :class="{ 'invalid-input': isUsernameInvalid }"
@@ -13,16 +13,20 @@
     </a-form-item>
     
     <a-form-item field="password" label="密码" :help="passwordHelp" :validate-status="passwordValidateStatus">
-      <a-input
+      <a-input-password
         v-model="loginForm.password"
-        type="password"
         placeholder="请输入密码"
         size="large"
-        :allow-clear="false"
+        allow-clear
         :class="{ 'invalid-input': isPasswordInvalid }"
         autocomplete="current-password"
       />
     </a-form-item>
+    
+    <!-- 登录错误信息显示 -->
+    <div v-if="loginError" class="login-error-message">
+      {{ loginError }}
+    </div>
     
     <a-form-item>
       <a-button
@@ -61,48 +65,87 @@ const loginForm = reactive({
   password: ''
 });
 
+// 表单提交标志
+const isFormSubmitted = ref(false);
+
+// 登录错误信息
+const loginError = ref('');
+
 // 计算属性：检查用户名是否有效（长度>=4）
-const isUsernameInvalid = computed(() => {
+const isUsernameInvalid = computed(() => 
+{
   return loginForm.username.length > 0 && loginForm.username.length < 4;
 });
 
 // 用户名验证状态
-const usernameValidateStatus = computed(() => {
-  if (loginForm.username.length === 0) return '';
-  return isUsernameInvalid.value ? 'error' : 'success';
+const usernameValidateStatus = computed(() => 
+{
+  if (loginForm.username.length === 0 && isFormSubmitted.value) return 'error';
+  return isUsernameInvalid.value ? 'error' : '';
 });
 
 // 用户名帮助文本
-const usernameHelp = computed(() => {
-  if (loginForm.username.length === 0) return '';
+const usernameHelp = computed(() => 
+{
+  if (loginForm.username.length === 0 && isFormSubmitted.value) return '用户名不能为空';
   return isUsernameInvalid.value ? '用户名长度至少长4位' : '';
 });
 
 // 计算属性：检查密码是否有效（长度>=6）
-const isPasswordInvalid = computed(() => {
+const isPasswordInvalid = computed(() => 
+{
   return loginForm.password.length > 0 && loginForm.password.length < 6;
 });
 
 // 密码验证状态
-const passwordValidateStatus = computed(() => {
-  if (loginForm.password.length === 0) return '';
-  return isPasswordInvalid.value ? 'error' : 'success';
+const passwordValidateStatus = computed(() => 
+{
+  if (loginForm.password.length === 0 && isFormSubmitted.value) return 'error';
+  return isPasswordInvalid.value ? 'error' : '';
 });
 
 // 密码帮助文本
-const passwordHelp = computed(() => {
-  if (loginForm.password.length === 0) return '';
+const passwordHelp = computed(() => 
+{
+  if (loginForm.password.length === 0 && isFormSubmitted.value) return '密码不能为空';
   return isPasswordInvalid.value ? '密码长度至少长6位' : '';
 });
 
 // 处理登录
 const handleLogin = async () => 
 {
-  if (!loginForm.username || !loginForm.password) 
+  // 清除之前的错误信息
+  loginError.value = '';
+  
+  // 设置表单已提交标志
+  isFormSubmitted.value = true;
+  // 如果用户名或密码为空，则不继续执行登录逻辑
+  if (isUsernameInvalid.value || isPasswordInvalid.value || !loginForm.username || !loginForm.password) 
   {
     return;
   }
-  const result = await authStore.login(loginForm);
+  try
+  {
+    await authStore.login(loginForm);
+    authStore.closeLogin();
+  }
+  catch(error)
+  {
+    // 显示具体的错误信息给用户
+    if (error && error.message) 
+    {
+      loginError.value = error.message;
+    }
+    else if (error && error.data && error.data.msg) 
+    {
+      loginError.value = error.data.msg;
+    }
+    else 
+    {
+      loginError.value = '登录失败，请稍后重试';
+    }
+    console.log('登录失败:', error);
+  }
 };
 </script>
 
@@ -123,23 +166,16 @@ div {
   user-select: text;
 }
 
-/* 隐藏所有可能的眼睛图标 */
-:deep(input[type="password"]) {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-:deep(input::-ms-reveal) {
-  display: none;
-}
-
-:deep(input::-webkit-credentials-auto-fill-button) {
-  display: none !important;
-}
-
+/* 显示密码的眼睛图标 */
 :deep(.arco-input-password-icon) {
-  display: none !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: @color-text-2;
+}
+
+:deep(.arco-input-password-icon:hover) {
+  color: @primary-6;
 }
 
 /* 使用全局主题变量设置输入框样式 */
@@ -183,5 +219,20 @@ div {
     background-color: @primary-7;
     border-color: @primary-7;
   }
+}
+
+/* 登录错误信息样式 */
+.login-error-message {
+  color: @danger-6;
+  font-size: @font-size-body-3;
+  margin-bottom: 12px;
+  margin-left: 85px;
+  padding: 8px 12px;
+  background-color: @danger-1;
+  border-radius: @border-radius-small;
+  border: 1px solid @danger-2;
+  width: calc(100% - 85px);
+  max-width: calc(400px - 85px);
+  box-sizing: border-box;
 }
 </style>

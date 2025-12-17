@@ -2,7 +2,6 @@ import request from './request.js';
 
 const api = {
   /**
-   * GET请求
    * @param {string} url - 请求URL
    * @param {object} params - URL参数
    * @param {object} config - axios配置
@@ -17,14 +16,8 @@ const api = {
       ...config,
     });
   },
+  
 
-  /**
-   * POST请求
-   * @param {string} url - 请求URL
-   * @param {object} data - 请求体数据
-   * @param {object} config - axios配置
-   * @returns {Promise}
-   */
   post(url, data = {}, config = {}) 
   {
     return request({
@@ -35,13 +28,7 @@ const api = {
     });
   },
 
-  /**
-   * PUT请求
-   * @param {string} url - 请求URL
-   * @param {object} data - 请求体数据
-   * @param {object} config - axios配置
-   * @returns {Promise}
-   */
+
   put(url, data = {}, config = {}) 
   {
     return request({
@@ -52,13 +39,7 @@ const api = {
     });
   },
 
-  /**
-   * DELETE请求
-   * @param {string} url - 请求URL
-   * @param {object} params - URL参数
-   * @param {object} config - axios配置
-   * @returns {Promise}
-   */
+
   delete(url, params = {}, config = {}) 
   {
     return request({
@@ -67,7 +48,8 @@ const api = {
       params,
       ...config,
     });
-  },
+  }
+  
 };
 
 export default api;

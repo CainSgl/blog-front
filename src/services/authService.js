@@ -1,9 +1,11 @@
 import { useAuthStore } from '@/store/auth';
+import { useUserStore } from '@/store/user';
 
 // 创建全局登录服务
 export const createLoginService = () => 
 {
   const authStore = useAuthStore();
+  const userStore = useUserStore();
   
   return {
     // 检查是否已登录
@@ -24,13 +26,27 @@ export const createLoginService = () =>
     // 执行登录
     login: async (credentials) => 
     {
-      return await authStore.login(credentials);
+      // 执行登录操作
+      const result = await authStore.login(credentials);
+      return result;
     },
     
     // 登出
     logout: () => 
     {
       authStore.logout();
+    },
+    
+    // 获取用户信息
+    getUserInfo: () => 
+    {
+      return userStore.getUserInfo();
+    },
+    
+    // 获取token
+    getToken: () => 
+    {
+      return userStore.getToken();
     },
   };
 };

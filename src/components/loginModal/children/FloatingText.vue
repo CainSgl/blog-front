@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
 
 const props = defineProps({
   text: {
@@ -23,15 +23,16 @@ const props = defineProps({
     type: String,
     default: ''
   }
-})
+});
 
 // 将文本拆分为字符数组
-const chars = ref(props.text.split(''))
+const chars = ref(props.text.split(''));
 
 // 当组件挂载时触发动画
-onMounted(() => {
+onMounted(() => 
+{
   // 触发动画的类会在CSS中定义
-})
+});
 </script>
 
 <style scoped>
