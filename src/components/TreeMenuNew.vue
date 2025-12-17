@@ -460,7 +460,7 @@ function cleanupDrag() {
   }
   
   .dragging-other {
-    opacity: 0.6;
+    opacity:1;
   }
   
   .tree-node {
@@ -558,7 +558,7 @@ function cleanupDrag() {
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    opacity: 0.95;
+    opacity: 0.5;
     
     .node-content {
       padding: 8px 12px;
