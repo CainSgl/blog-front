@@ -460,35 +460,58 @@ function flattenTree(nodes, depth = 0)
   return result;
 }
 
-// 递归过滤节点 - 新版本：直接返回包含所有匹配节点的扁平数组
+// 递归过滤节点 - 新版本：返回包含所有匹配节点及其父节点的树结构
 function filterNodes(nodes, keyword) 
 {
   if (!keyword || !nodes?.length) return [];
   
   const lowerKeyword = keyword.toLowerCase();
-  const result = [];
   
-  // 递归搜索函数
-  function search(nodes) 
-  {
-    for (const node of nodes) 
-    {
-      // 检查当前节点是否匹配
-      if (node.name && node.name.toLowerCase().includes(lowerKeyword)) 
-      {
-        result.push({ ...node });
-      }
-      
-      // 递归搜索子节点
-      if (node.children && node.children.length > 0) 
-      {
-        search(node.children);
-      }
-    }
+  // 深度克隆节点树，避免修改原数据
+  function cloneNode(node) {
+    return {
+      ...node,
+      children: node.children ? node.children.map(child => cloneNode(child)) : []
+    };
   }
   
-  search(nodes);
-  return result;
+  // 检查节点及其子节点是否包含匹配项
+  function hasMatchingDescendant(node) {
+    // 检查当前节点是否匹配
+    if (node.name && node.name.toLowerCase().includes(lowerKeyword)) {
+      return true;
+    }
+    
+    // 递归检查子节点
+    if (node.children && node.children.length > 0) {
+      return node.children.some(child => hasMatchingDescendant(child));
+    }
+    
+    return false;
+  }
+  
+  // 过滤节点树，保留匹配节点及其所有父节点
+  function filterTree(nodes) {
+    const result = [];
+    
+    for (const node of nodes) {
+      // 深度克隆当前节点
+      const clonedNode = cloneNode(node);
+      
+      // 如果当前节点匹配或者有匹配的后代节点，则保留该节点
+      if (hasMatchingDescendant(node)) {
+        // 如果有子节点，递归过滤子节点
+        if (clonedNode.children && clonedNode.children.length > 0) {
+          clonedNode.children = filterTree(clonedNode.children);
+        }
+        result.push(clonedNode);
+      }
+    }
+    
+    return result;
+  }
+  
+  return filterTree(nodes);
 }
 let cachedTreeData;
 // 处理搜索
@@ -508,10 +531,15 @@ function handleSearch(value)
       {
         cachedTreeData=flatNodes.value;
       }
-    
       // 过滤节点
-      const filteredData = filterNodes(cachedTreeData, value);
-      flatNodes.value = filteredData;
+      const filteredData = filterNodes(props.treeData, value);
+      // 将过滤后的树结构扁平化
+      flatNodes.value = flattenTree(filteredData);
+      // 清空所有节点的children数组以适配现有逻辑
+      for(let i=0;i<flatNodes.value.length;i++)
+      {
+        flatNodes.value[i].children=[];
+      }
     }
   });
 
