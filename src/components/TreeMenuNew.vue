@@ -404,17 +404,12 @@ function handleMoreMenuToggle(visible, node)
   }
 }
 
-
-
 /**
  * 下面是跟扁平化节点
  */
 
 // 扁平化的节点数据
 const flatNodes = ref([]);
-
-// 原始节点数据缓存
-const cachedTreeData = ref([]);
 
 // 搜索文本
 const searchText = ref('');
@@ -465,60 +460,59 @@ function flattenTree(nodes, depth = 0)
   return result;
 }
 
-// 递归过滤节点
+// 递归过滤节点 - 新版本：直接返回包含所有匹配节点的扁平数组
 function filterNodes(nodes, keyword) 
 {
-  if (!keyword) return nodes;
+  if (!keyword || !nodes?.length) return [];
   
-  const filteredNodes = [];
+  const lowerKeyword = keyword.toLowerCase();
+  const result = [];
   
-  for (const node of nodes) 
+  // 递归搜索函数
+  function search(nodes) 
   {
-    // 检查当前节点是否匹配
-    const isMatch = node.name && node.name.toLowerCase().includes(keyword.toLowerCase());
-    
-    // 创建节点副本
-    const nodeCopy = { ...node };
-    
-    // 递归过滤子节点
-    if (node.children && node.children.length > 0) 
+    for (const node of nodes) 
     {
-      nodeCopy.children = filterNodes(node.children, keyword);
-    }
-    
-    // 如果当前节点匹配或有匹配的子节点，则添加到结果中
-    if (isMatch || (nodeCopy.children && nodeCopy.children.length > 0)) 
-    {
-      // 如果当前节点不匹配但子节点匹配，清除children数组以避免显示不匹配的中间节点
-      if (!isMatch && nodeCopy.children && nodeCopy.children.length === 0) 
+      // 检查当前节点是否匹配
+      if (node.name && node.name.toLowerCase().includes(lowerKeyword)) 
       {
-        delete nodeCopy.children;
+        result.push({ ...node });
       }
-      filteredNodes.push(nodeCopy);
+      
+      // 递归搜索子节点
+      if (node.children && node.children.length > 0) 
+      {
+        search(node.children);
+      }
     }
   }
   
-  return filteredNodes;
+  search(nodes);
+  return result;
 }
-
+let cachedTreeData;
 // 处理搜索
 function handleSearch(value) 
 {
   withLock(()=>
   {
-  
     if (!value) 
     {
-    // 如果搜索文本为空，恢复原始数据
-      flatNodes.value = flattenTree(cachedTreeData.value);
+      // 如果搜索文本为空，恢复原始数据
+      flatNodes.value = cachedTreeData;
+      cachedTreeData=null;
     }
     else 
     {
-    // 过滤节点
-      const filteredData = filterNodes(cachedTreeData.value, value);
-      flatNodes.value = flattenTree(filteredData);
+      if(cachedTreeData==null)
+      {
+        cachedTreeData=flatNodes.value;
+      }
+    
+      // 过滤节点
+      const filteredData = filterNodes(cachedTreeData, value);
+      flatNodes.value = filteredData;
     }
-
   });
 
 }
