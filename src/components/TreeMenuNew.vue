@@ -155,100 +155,172 @@ const router = useRouter();
 // 创建内部loading状态
 const loading = ref(0);
 
+// 创建操作锁，防止并发操作
+const operationLock = ref(false);
+
+// 锁定操作函数
+async function withLock(operation) {
+  // 如果已经有操作在进行中，直接返回
+  if (operationLock.value) {
+    console.warn('操作被拒绝：已有操作正在进行中');
+    return;
+  }
+  
+  // 获取锁
+  operationLock.value = true;
+  
+  try {
+    // 执行操作
+    await operation();
+  } finally {
+    // 释放锁
+    operationLock.value = false;
+  }
+}
+
 // 创建操作处理函数映射对象
 const actionHandlers = {
   'newPost': async (node) => 
   {
-    loading.value +=1;
-    //创建并跳转
-    try
-    {
-      const {data}= await api.post('/post',{
-        title:'无标题文档',
-        kbId:props.kbId,
-        parentId:node.id,
-      });
-      const newNode={
-        id:data.dirId,
-        name:'无标题文档',
-        parentId:node.id,
-        postId:data.post.id,
-        depth:node.depth+1,
-      };
-      addChildNode(node, newNode);
-      //跳转到编辑页面并携带postId参数
-      router.push({ 
-        name: 'KBEdit', 
-        query: { p: data.post.id ,kb:props.kbId}
-      });
-    }
-    catch(error)
-    {
-      console.error('创建文档失败:', error);
-    }
-    finally
-    {
-      loading.value-=1;
-    }
-   
-
+    await withLock(async () => {
+      loading.value +=1;
+      //创建并跳转
+      try
+      {
+        const {data}= await api.post('/post',{
+          title:'无标题文档',
+          kbId:props.kbId,
+          parentId:node.id,
+        });
+        const newNode={
+          id:data.dirId,
+          name:'无标题文档',
+          parentId:node.id,
+          postId:data.post.id,
+          depth:node.depth+1,
+        };
+        addChildNode(node, newNode);
+        //跳转到编辑页面并携带postId参数
+        router.push({ 
+          name: 'KBEdit', 
+          query: { p: data.post.id ,kb:props.kbId}
+        });
+      }
+      catch(error)
+      {
+        console.error('创建文档失败:', error);
+      }
+      finally
+      {
+        loading.value-=1;
+      }
+    });
   },
   'newDir': (node) => 
   {
-    
+    withLock(() => {
+      // 实现新建目录逻辑
+      console.log('新建目录:', node);
+    });
   },
   'import': (node) => 
   {
-    
+    withLock(() => {
+      // 实现导入逻辑
+      console.log('导入到节点:', node);
+    });
   },
   'rename': (node) => 
   {
- 
+    withLock(() => {
+      // 实现重命名逻辑
+      console.log('重命名节点:', node);
+    });
   },
   'edit-doc': (node) => 
   {
- 
+    withLock(() => {
+      // 实现编辑文档逻辑
+      console.log('编辑文档:', node);
+      if (node.postId) {
+        router.push({ 
+          name: 'KBEdit', 
+          query: { p: node.postId, kb: props.kbId }
+        });
+      }
+    });
   }, 
   'copy-link': (node) => 
   {
- 
+    withLock(() => {
+      // 实现复制链接逻辑
+      console.log('复制链接:', node);
+      if (node.postId) {
+        const link = `${window.location.origin}/post/${node.postId}`;
+        navigator.clipboard.writeText(link).then(() => {
+          console.log('链接已复制到剪贴板');
+        }).catch(err => {
+          console.error('复制链接失败:', err);
+        });
+      }
+    });
   },
   'pin-top': (node) => 
   {
- 
+    withLock(() => {
+      // 实现置顶文档逻辑
+      console.log('置顶文档:', node);
+    });
   },
   'open-new-tab': (node) => 
   {
- 
+    withLock(() => {
+      // 实现新标签页打开逻辑
+      console.log('新标签页打开:', node);
+      if (node.postId) {
+        const routeData = router.resolve({ 
+          name: 'KBEdit', 
+          query: { p: node.postId, kb: props.kbId }
+        });
+        window.open(routeData.href, '_blank');
+      }
+    });
   },
   'delete': async (node) => 
   {
-    //删除dir就行
-    loading.value +=1;
-    try 
-    {
-      const {data} = await api.delete('/dir',{
-        'kbId': props.kbId,
-        'dirId': node.id
-      });
-      console.log("本次目录删除影响了",data,"个文章，需要用户注意");
-      // 移除对应的dir节点
-      removeNode(node);
-    }
-    catch (error) 
-    {
-      console.error('删除目录失败:', error);
-    }
-    finally 
-    {
-      loading.value -=1;
-    }
+    await withLock(async () => {
+      //删除dir就行
+      loading.value +=1;
+      try 
+      {
+        const {data} = await api.delete('/dir',{
+          'kbId': props.kbId,
+          'dirId': node.id
+        });
+        console.log("本次目录删除影响了",data,"个文章，需要用户注意");
+        // 移除对应的dir节点
+        removeNode(node);
+      }
+      catch (error) 
+      {
+        console.error('删除目录失败:', error);
+      }
+      finally 
+      {
+        loading.value -=1;
+      }
+    });
   }
 };
 
 // 添加子节点
 function addChildNode(parentNode, childNode) 
 {
+  if (operationLock.value) {
+    console.warn('addChildNode操作被拒绝：已有操作正在进行中');
+    return;
+  }
+  
   if(getNodeExpandedState(parentNode)) 
   {
     //找到当前节点在扁平化数组中的位置
@@ -273,6 +345,11 @@ function addChildNode(parentNode, childNode)
 // 移除节点
 function removeNode(node) 
 {
+  if (operationLock.value) {
+    console.warn('removeNode操作被拒绝：已有操作正在进行中');
+    return;
+  }
+  
   // 找到当前节点在扁平化数组中的位置
   if(getNodeExpandedState(node))
 {
@@ -379,6 +456,11 @@ const dragState = reactive({
 // 将树形结构扁平化为数组，保留深度信息
 function flattenTree(nodes, depth = 0) 
 {
+  if (operationLock.value) {
+    console.warn('flattenTree操作被拒绝：已有操作正在进行中');
+    return [];
+  }
+  
   const result = [];
   
   for (const node of nodes) 
@@ -431,6 +513,11 @@ function filterNodes(nodes, keyword) {
 
 // 处理搜索
 function handleSearch(value) {
+  if (operationLock.value) {
+    console.warn('handleSearch操作被拒绝：已有操作正在进行中');
+    return;
+  }
+  
   if (!value) {
     // 如果搜索文本为空，恢复原始数据
     flatNodes.value = flattenTree(cachedTreeData.value);
@@ -446,6 +533,11 @@ watch(
   () => props.treeData,
   (newData) => 
   {
+    if (operationLock.value) {
+      console.warn('监听器操作被拒绝：已有操作正在进行中');
+      return;
+    }
+    
     // 缓存原始数据
     cachedTreeData.value = JSON.parse(JSON.stringify(newData));
     flatNodes.value = flattenTree(newData);
@@ -486,6 +578,11 @@ function getNodeExpandedState(node)
 // 切换节点展开/收起状态
 function toggleNode(node) 
 {
+  if (operationLock.value) {
+    console.warn('toggleNode操作被拒绝：已有操作正在进行中');
+    return;
+  }
+  
   const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
   
   // 获取当前节点的展开状态
@@ -889,6 +986,11 @@ function handleMouseLeave(event)
 // 执行放置操作
 function performDrop() 
 {
+  if (operationLock.value) {
+    console.warn('performDrop操作被拒绝：已有操作正在进行中');
+    return;
+  }
+  
   if (dragState.targetIndex === -1 || dragState.dropType === 'none') 
   {
     return;
