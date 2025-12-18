@@ -46,7 +46,7 @@ onMounted(async ()=>
 
 });
 const kbName=ref('');
-const kbId=ref("-1");
+const kbId=ref('-1');
 function handleClickPost(node) 
 {
   console.log('点击了');

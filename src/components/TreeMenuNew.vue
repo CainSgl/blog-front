@@ -143,7 +143,7 @@ const props = defineProps({
   },
   kbId:{
     type:String,
-    default:"-1",
+    default:'-1',
   }
 });
 
@@ -159,20 +159,27 @@ const loading = ref(0);
 const operationLock = ref(false);
 
 // 锁定操作函数
-async function withLock(operation) {
+async function withLock(operation) 
+{
   // 如果已经有操作在进行中，直接返回
-  if (operationLock.value) {
-    console.warn('操作被拒绝：已有操作正在进行中');
-    return;
+  while(true)
+  {
+    if (!operationLock.value) 
+    {
+      break;
+    }
   }
-  
+
   // 获取锁
   operationLock.value = true;
   
-  try {
+  try 
+  {
     // 执行操作
     await operation();
-  } finally {
+  }
+  finally 
+  {
     // 释放锁
     operationLock.value = false;
   }
@@ -182,181 +189,166 @@ async function withLock(operation) {
 const actionHandlers = {
   'newPost': async (node) => 
   {
-    await withLock(async () => {
-      loading.value +=1;
-      //创建并跳转
-      try
-      {
-        const {data}= await api.post('/post',{
-          title:'无标题文档',
-          kbId:props.kbId,
-          parentId:node.id,
-        });
-        const newNode={
-          id:data.dirId,
-          name:'无标题文档',
-          parentId:node.id,
-          postId:data.post.id,
-          depth:node.depth+1,
-        };
-        addChildNode(node, newNode);
-        //跳转到编辑页面并携带postId参数
-        router.push({ 
-          name: 'KBEdit', 
-          query: { p: data.post.id ,kb:props.kbId}
-        });
-      }
-      catch(error)
-      {
-        console.error('创建文档失败:', error);
-      }
-      finally
-      {
-        loading.value-=1;
-      }
-    });
+
+    loading.value +=1;
+    //创建并跳转
+    try
+    {
+      const {data}= await api.post('/post',{
+        title:'无标题文档',
+        kbId:props.kbId,
+        parentId:node.id,
+      });
+      const newNode={
+        id:data.dirId,
+        name:'无标题文档',
+        parentId:node.id,
+        postId:data.post.id,
+        depth:node.depth+1,
+      };
+      addChildNode(node, newNode);
+      //跳转到编辑页面并携带postId参数
+      router.push({ 
+        name: 'KBEdit', 
+        query: { p: data.post.id ,kb:props.kbId}
+      });
+    }
+    catch(error)
+    {
+      console.error('创建文档失败:', error);
+    }
+    finally
+    {
+      loading.value-=1;
+    }
+  
   },
   'newDir': (node) => 
   {
-    withLock(() => {
-      // 实现新建目录逻辑
-      console.log('新建目录:', node);
-    });
+   
   },
   'import': (node) => 
   {
-    withLock(() => {
-      // 实现导入逻辑
-      console.log('导入到节点:', node);
-    });
+    
   },
   'rename': (node) => 
   {
-    withLock(() => {
-      // 实现重命名逻辑
-      console.log('重命名节点:', node);
-    });
+   
   },
   'edit-doc': (node) => 
   {
-    withLock(() => {
-      // 实现编辑文档逻辑
-      console.log('编辑文档:', node);
-      if (node.postId) {
-        router.push({ 
-          name: 'KBEdit', 
-          query: { p: node.postId, kb: props.kbId }
-        });
-      }
-    });
+    // 实现编辑文档逻辑
+    console.log('编辑文档:', node);
+    if (node.postId) 
+    {
+      router.push({ 
+        name: 'KBEdit', 
+        query: { p: node.postId, kb: props.kbId }
+      });
+    }
   }, 
   'copy-link': (node) => 
   {
-    withLock(() => {
-      // 实现复制链接逻辑
-      console.log('复制链接:', node);
-      if (node.postId) {
-        const link = `${window.location.origin}/post/${node.postId}`;
-        navigator.clipboard.writeText(link).then(() => {
-          console.log('链接已复制到剪贴板');
-        }).catch(err => {
-          console.error('复制链接失败:', err);
-        });
-      }
-    });
+    // 实现复制链接逻辑
+    console.log('复制链接:', node);
+    if (node.postId) 
+    {
+      const link = `${window.location.origin}/post/${node.postId}`;
+      navigator.clipboard.writeText(link).then(() => 
+      {
+        console.log('链接已复制到剪贴板');
+      }).catch(err => 
+      {
+        console.error('复制链接失败:', err);
+      });
+    }
   },
   'pin-top': (node) => 
   {
-    withLock(() => {
-      // 实现置顶文档逻辑
-      console.log('置顶文档:', node);
-    });
+  
   },
   'open-new-tab': (node) => 
   {
-    withLock(() => {
-      // 实现新标签页打开逻辑
-      console.log('新标签页打开:', node);
-      if (node.postId) {
-        const routeData = router.resolve({ 
-          name: 'KBEdit', 
-          query: { p: node.postId, kb: props.kbId }
-        });
-        window.open(routeData.href, '_blank');
-      }
-    });
+    // 实现新标签页打开逻辑
+    console.log('新标签页打开:', node);
+    if (node.postId) 
+    {
+      const routeData = router.resolve({ 
+        name: 'KBEdit', 
+        query: { p: node.postId, kb: props.kbId }
+      });
+      window.open(routeData.href, '_blank');
+    }
   },
   'delete': async (node) => 
   {
-    await withLock(async () => {
-      //删除dir就行
-      loading.value +=1;
-      try 
-      {
-        const {data} = await api.delete('/dir',{
-          'kbId': props.kbId,
-          'dirId': node.id
-        });
-        console.log("本次目录删除影响了",data,"个文章，需要用户注意");
-        // 移除对应的dir节点
-        removeNode(node);
-      }
-      catch (error) 
-      {
-        console.error('删除目录失败:', error);
-      }
-      finally 
-      {
-        loading.value -=1;
-      }
-    });
+    //删除dir就行
+    loading.value +=1;
+    try 
+    {
+      const {data} = await api.delete('/dir',{
+        'kbId': props.kbId,
+        'dirId': node.id
+      });
+      console.log('本次目录删除影响了',data,'个文章，需要用户注意');
+      // 移除对应的dir节点
+      removeNode(node);
+    }
+    catch (error) 
+    {
+      console.error('删除目录失败:', error);
+    }
+    finally 
+    {
+      loading.value -=1;
+    }
   }
 };
 
 // 添加子节点
 function addChildNode(parentNode, childNode) 
 {
-  if (operationLock.value) {
-    console.warn('addChildNode操作被拒绝：已有操作正在进行中');
-    return;
-  }
-  
-  if(getNodeExpandedState(parentNode)) 
+  withLock(()=>
   {
-    //找到当前节点在扁平化数组中的位置
-    const currentIndex = flatNodes.value.findIndex(item => item.id === parentNode.id);
-    //找到该节点的所有子节点，插入到最后一个子节点后面
-    let insertIndex = currentIndex + 1;
-    //遍历找到最后一个子节点的位置
-    while(insertIndex < flatNodes.value.length && flatNodes.value[insertIndex].depth > parentNode.depth) 
+    if(getNodeExpandedState(parentNode)) 
     {
-      insertIndex++;
+    //找到当前节点在扁平化数组中的位置
+      const currentIndex = flatNodes.value.findIndex(item => item.id === parentNode.id);
+      //找到该节点的所有子节点，插入到最后一个子节点后面
+      let insertIndex = currentIndex + 1;
+      //遍历找到最后一个子节点的位置
+      while(insertIndex < flatNodes.value.length && flatNodes.value[insertIndex].depth > parentNode.depth) 
+      {
+        insertIndex++;
+      }
+      //在正确位置插入新节点
+      flatNodes.value.splice(insertIndex, 0, childNode);
     }
-    //在正确位置插入新节点
-    flatNodes.value.splice(insertIndex, 0, childNode);
-  }
-  else 
-  {
+    else 
+    {
     //添加在children里
-    parentNode.children.push(childNode);
-  }
+      parentNode.children.push(childNode);
+    }
+  });
+ 
 }
 
 // 移除节点
 function removeNode(node) 
 {
-  if (operationLock.value) {
-    console.warn('removeNode操作被拒绝：已有操作正在进行中');
-    return;
-  }
-  
+  withLock(()=>
+  {
   // 找到当前节点在扁平化数组中的位置
-  if(getNodeExpandedState(node))
-{
-  toggleNode(node);
-}
-  const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
-
+    if(getNodeExpandedState(node))
+    {
+      toggleNode(node);
+    }
+    const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
+    if (currentIndex !== -1) 
+    {
+      flatNodes.value.splice(currentIndex, 1);
+    }
+  });
 }
 
 function slectHandler(key, node) 
@@ -414,9 +406,6 @@ function handleMoreMenuToggle(visible, node)
 
 
 
-
-
-
 /**
  * 下面是跟扁平化节点
  */
@@ -455,12 +444,7 @@ const dragState = reactive({
 
 // 将树形结构扁平化为数组，保留深度信息
 function flattenTree(nodes, depth = 0) 
-{
-  if (operationLock.value) {
-    console.warn('flattenTree操作被拒绝：已有操作正在进行中');
-    return [];
-  }
-  
+{  
   const result = [];
   
   for (const node of nodes) 
@@ -472,21 +456,24 @@ function flattenTree(nodes, depth = 0)
     });
     
     // 递归处理子节点
-    if (node.children && node.children.length > 0) {
+    if (node.children && node.children.length > 0) 
+    {
       result.push(...flattenTree(node.children, depth + 1));
     }
   }
-  console.log(result)
+  console.log(result);
   return result;
 }
 
 // 递归过滤节点
-function filterNodes(nodes, keyword) {
+function filterNodes(nodes, keyword) 
+{
   if (!keyword) return nodes;
   
   const filteredNodes = [];
   
-  for (const node of nodes) {
+  for (const node of nodes) 
+  {
     // 检查当前节点是否匹配
     const isMatch = node.name && node.name.toLowerCase().includes(keyword.toLowerCase());
     
@@ -494,14 +481,17 @@ function filterNodes(nodes, keyword) {
     const nodeCopy = { ...node };
     
     // 递归过滤子节点
-    if (node.children && node.children.length > 0) {
+    if (node.children && node.children.length > 0) 
+    {
       nodeCopy.children = filterNodes(node.children, keyword);
     }
     
     // 如果当前节点匹配或有匹配的子节点，则添加到结果中
-    if (isMatch || (nodeCopy.children && nodeCopy.children.length > 0)) {
+    if (isMatch || (nodeCopy.children && nodeCopy.children.length > 0)) 
+    {
       // 如果当前节点不匹配但子节点匹配，清除children数组以避免显示不匹配的中间节点
-      if (!isMatch && nodeCopy.children && nodeCopy.children.length === 0) {
+      if (!isMatch && nodeCopy.children && nodeCopy.children.length === 0) 
+      {
         delete nodeCopy.children;
       }
       filteredNodes.push(nodeCopy);
@@ -512,20 +502,25 @@ function filterNodes(nodes, keyword) {
 }
 
 // 处理搜索
-function handleSearch(value) {
-  if (operationLock.value) {
-    console.warn('handleSearch操作被拒绝：已有操作正在进行中');
-    return;
-  }
+function handleSearch(value) 
+{
+  withLock(()=>
+  {
   
-  if (!value) {
+    if (!value) 
+    {
     // 如果搜索文本为空，恢复原始数据
-    flatNodes.value = flattenTree(cachedTreeData.value);
-  } else {
+      flatNodes.value = flattenTree(cachedTreeData.value);
+    }
+    else 
+    {
     // 过滤节点
-    const filteredData = filterNodes(cachedTreeData.value, value);
-    flatNodes.value = flattenTree(filteredData);
-  }
+      const filteredData = filterNodes(cachedTreeData.value, value);
+      flatNodes.value = flattenTree(filteredData);
+    }
+
+  });
+
 }
 
 // 监听原始数据变化，重新扁平化
@@ -533,13 +528,6 @@ watch(
   () => props.treeData,
   (newData) => 
   {
-    if (operationLock.value) {
-      console.warn('监听器操作被拒绝：已有操作正在进行中');
-      return;
-    }
-    
-    // 缓存原始数据
-    cachedTreeData.value = JSON.parse(JSON.stringify(newData));
     flatNodes.value = flattenTree(newData);
     for(let i=0;i<flatNodes.value.length;i++)
     {
@@ -578,83 +566,86 @@ function getNodeExpandedState(node)
 // 切换节点展开/收起状态
 function toggleNode(node) 
 {
-  if (operationLock.value) {
-    console.warn('toggleNode操作被拒绝：已有操作正在进行中');
-    return;
-  }
-  
-  const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
-  
-  // 获取当前节点的展开状态
-  const isExpanded = getNodeExpandedState(node);
-  
-  function toExpand(index) 
-  {
-    if (flatNodes.value.length <= index) 
-    {
-      return;
-    }
-    
-    const me = flatNodes.value[index];
-    // 将子节点逐个插入到当前节点之后
-    if (me.children && me.children.length > 0) 
-    {
-      const childrenWithDepth = me.children.map(child => ({
-        ...child,
-        depth: me.depth + 1
-      }));
-      // 在当前节点后插入子节点
-      flatNodes.value.splice(index + 1, 0, ...childrenWithDepth);
-      me.children=[];
-    }
-  }
-  
-  function toCollapse(index) 
+  withLock(()=>
   {
 
-    if (index+1>=flatNodes.value.length) 
+ 
+    const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
+  
+    // 获取当前节点的展开状态
+    const isExpanded = getNodeExpandedState(node);
+  
+    function toExpand(index) 
     {
-      return;
-    }
-    const me = flatNodes.value[index];
-    if(me.children && me.children.length>0)
-    {
-      return
-    }
-    //如果下一个节点的深度刚好是自己的深度+1，说明下一个节点是直接子节点
-    while(true)
-    {
-      const next=flatNodes.value[index+1];
-      if(!next)
-     {
-       return
-      }
-      if(next.depth===me.depth+1)
+      if (flatNodes.value.length <= index) 
       {
-        toCollapse(index+1);
-        //移除他，并加入到自己的子节点里去
-        me.children.push(next);
-        flatNodes.value.splice(index+1,1);
+        return;
       }
-      else
+    
+      const me = flatNodes.value[index];
+      // 将子节点逐个插入到当前节点之后
+      if (me.children && me.children.length > 0) 
       {
-        break
+        const childrenWithDepth = me.children.map(child => ({
+          ...child,
+          depth: me.depth + 1
+        }));
+        // 在当前节点后插入子节点
+        flatNodes.value.splice(index + 1, 0, ...childrenWithDepth);
+        me.children=[];
       }
     }
-  }
+  
+    function toCollapse(index) 
+    {
+
+      if (index+1>=flatNodes.value.length) 
+      {
+        return;
+      }
+      const me = flatNodes.value[index];
+      if(me.children && me.children.length>0)
+      {
+        return;
+      }
+      //如果下一个节点的深度刚好是自己的深度+1，说明下一个节点是直接子节点
+      while(true)
+      {
+        const next=flatNodes.value[index+1];
+        if(!next)
+        {
+          return;
+        }
+        if(next.depth===me.depth+1)
+        {
+          toCollapse(index+1);
+          //移除他，并加入到自己的子节点里去
+          me.children.push(next);
+          flatNodes.value.splice(index+1,1);
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
     
    
-  // 切换节点展开状态
-  if (!isExpanded) 
-  {
+    // 切换节点展开状态
+    if (!isExpanded) 
+    {
     // 展开节点
-    toExpand(currentIndex);
-  }
-  else 
-  {
+      toExpand(currentIndex);
+    }
+    else 
+    {
     // 收起节点
-    toCollapse(currentIndex);
-  }
+      toCollapse(currentIndex);
+    }
+
+
+  });
+ 
 }
 
 // 获取节点样式类
@@ -684,7 +675,7 @@ function getNodeClasses(node, index)
  * 下面是拖拽
  */
 // 拖拽相关配置
-const DRAG_THRESHOLD = 5; // 最小拖拽距离
+const DRAG_THRESHOLD = 10; // 最小拖拽距离
 
 // 鼠标按下事件 - 设置拖拽准备状态
 function handleMouseDown(event, node, index) 
@@ -986,63 +977,63 @@ function handleMouseLeave(event)
 // 执行放置操作
 function performDrop() 
 {
-  if (operationLock.value) {
-    console.warn('performDrop操作被拒绝：已有操作正在进行中');
-    return;
-  }
-  
-  if (dragState.targetIndex === -1 || dragState.dropType === 'none') 
+
+  withLock(()=>
   {
-    return;
-  }
+    if (dragState.targetIndex === -1 || dragState.dropType === 'none') 
+    {
+      return;
+    }
   
-  const sourceIndex = dragState.sourceIndex;
-  const targetIndex = dragState.targetIndex;
-  const dropType = dragState.dropType;
+    const sourceIndex = dragState.sourceIndex;
+    const targetIndex = dragState.targetIndex;
+    const dropType = dragState.dropType;
   
-  // 防止无效放置
-  if (sourceIndex === targetIndex) return;
+    // 防止无效放置
+    if (sourceIndex === targetIndex) return;
   
-  // 调整索引（因为移除了源节点，目标索引可能会变化）
-  let adjustedTargetIndex = targetIndex;
-  if (sourceIndex < targetIndex) 
-  {
-    adjustedTargetIndex--;
-  }
+    // 调整索引（因为移除了源节点，目标索引可能会变化）
+    let adjustedTargetIndex = targetIndex;
+    if (sourceIndex < targetIndex) 
+    {
+      adjustedTargetIndex--;
+    }
   
-  // 获取源节点
-  const sourceNode = flatNodes.value[sourceIndex];
+    // 获取源节点
+    const sourceNode = flatNodes.value[sourceIndex];
   
-  // 从原位置移除
-  flatNodes.value.splice(sourceIndex, 1);
+    // 从原位置移除
+    flatNodes.value.splice(sourceIndex, 1);
   
-  // 根据放置类型插入到新位置
-  switch (dropType) 
-  {
-  case 'before':
-    flatNodes.value.splice(adjustedTargetIndex, 0, {
-      ...sourceNode,
-      depth: flatNodes.value[adjustedTargetIndex].depth,
-      parentId: flatNodes.value[adjustedTargetIndex].parentId
-    });
-    break;
+    // 根据放置类型插入到新位置
+    switch (dropType) 
+    {
+    case 'before':
+      flatNodes.value.splice(adjustedTargetIndex, 0, {
+        ...sourceNode,
+        depth: flatNodes.value[adjustedTargetIndex].depth,
+        parentId: flatNodes.value[adjustedTargetIndex].parentId
+      });
+      break;
       
-  case 'after':
-    flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
-      ...sourceNode,
-      depth: flatNodes.value[adjustedTargetIndex].depth,
-      parentId: flatNodes.value[adjustedTargetIndex].parentId
-    });
-    break;
+    case 'after':
+      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+        ...sourceNode,
+        depth: flatNodes.value[adjustedTargetIndex].depth,
+        parentId: flatNodes.value[adjustedTargetIndex].parentId
+      });
+      break;
       
-  case 'child':
-    flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
-      ...sourceNode,
-      depth: flatNodes.value[adjustedTargetIndex].depth + 1,
-      parentId: flatNodes.value[adjustedTargetIndex].id
-    });
-    break;
-  }
+    case 'child':
+      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+        ...sourceNode,
+        depth: flatNodes.value[adjustedTargetIndex].depth + 1,
+        parentId: flatNodes.value[adjustedTargetIndex].id
+      });
+      break;
+    }
+  });
+ 
 }
 
 // 清理拖拽状态
