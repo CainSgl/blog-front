@@ -27,8 +27,39 @@
           
           <!-- 右侧操作图标 - 只在悬停时显示 -->
            <div class="node-actions" v-show="!dragState.isDragging&&edit&&!node.postId">
-             <IconPlus class="action-icon" @click.stop="handleAddNode(node)" @mousedown.stop />
-             <IconMore class="action-icon" @click.stop="handleMoreActions(node)" @mousedown.stop />
+              <Dropdown 
+                trigger="click" 
+                placement="bottom" 
+                :popup-visible="menuState.openNodeId === node.id && menuState.openMenuType === 'add'"
+                @select="(value) => handleAddNodeAction(value, node)"
+                @popup-visible-change="(visible) => handleAddMenuToggle(visible, node)"
+              >
+               <IconPlus class="action-icon" @click.stop @mousedown.stop />
+               <template #content>
+                 <Menu>
+                   <Menu.Item key="child">添加子节点</Menu.Item>
+                   <Menu.Item key="before">在上方添加</Menu.Item>
+                   <Menu.Item key="after">在下方添加</Menu.Item>
+                 </Menu>
+               </template>
+             </Dropdown>
+             <Dropdown 
+                trigger="click" 
+                placement="bottom" 
+                :popup-visible="menuState.openNodeId === node.id && menuState.openMenuType === 'more'"
+                @select="(value) => handleMoreActions(value, node)"
+                @popup-visible-change="(visible) => handleMoreMenuToggle(visible, node)"
+              >
+               <IconMore class="action-icon" @click.stop @mousedown.stop />
+               <template #content>
+                 <Menu>
+                   <Menu.Item key="rename">重命名</Menu.Item>
+                   <Menu.Item key="delete" :style="{ color: 'rgb(var(--red-6))' }">删除</Menu.Item>
+                   <Menu.Item key="copy">复制</Menu.Item>
+                   <Menu.Item key="move">移动</Menu.Item>
+                 </Menu>
+               </template>
+             </Dropdown>
            </div>
         </div>
 
@@ -72,6 +103,8 @@
 
 import { ref, watch, reactive, nextTick } from 'vue';
 import { IconDown, IconRight, IconPlus, IconMore } from '@arco-design/web-vue/es/icon';
+import { Dropdown, Menu } from '@arco-design/web-vue';
+import { ref as vueRef } from 'vue';
 
 const props = defineProps({
   treeData: {
@@ -84,26 +117,105 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['clickPost']);
+const emit = defineEmits(['clickPost', 'addNode']);
 
-// 图标点击处理函数
-function handleAddNode(node) {
-  // 这里可以添加新节点的逻辑
-  console.log('添加子节点:', node.name);
-  // TODO: 实现添加子节点的功能
-  // 可以触发一个事件或者打开一个模态框
+
+
+// 处理添加节点的不同操作
+function handleAddNodeAction(action, node) {
+  console.log('执行添加操作:', action, '节点:', node.name);
+  // 关闭菜单
+  menuState.openNodeId = null;
+  menuState.openMenuType = null;
+  
+  switch (action) {
+    case 'child':
+      // 添加子节点
+      emit('addNode', { type: 'child', parentNode: node });
+      break;
+    case 'before':
+      // 在上方添加节点
+      emit('addNode', { type: 'before', referenceNode: node });
+      break;
+    case 'after':
+      // 在下方添加节点
+      emit('addNode', { type: 'after', referenceNode: node });
+      break;
+    default:
+      break;
+  }
 }
 
-function handleMoreActions(node) {
-  // 这里可以添加更多操作的逻辑
-  console.log('更多操作:', node.name);
-  // TODO: 实现更多操作菜单
-  // 可以触发一个事件或者打开一个下拉菜单
-  // 比如：重命名、删除、复制等操作
+// 处理添加菜单的开关
+function handleAddMenuToggle(visible, node) {
+  if (visible) {
+    // 打开添加菜单时，关闭其他菜单
+    menuState.openNodeId = node.id;
+    menuState.openMenuType = 'add';
+  } else if (menuState.openNodeId === node.id && menuState.openMenuType === 'add') {
+    // 只有当关闭的是当前节点的添加菜单时才重置状态
+    menuState.openNodeId = null;
+    menuState.openMenuType = null;
+  }
 }
+
+// 处理更多操作菜单的开关
+function handleMoreMenuToggle(visible, node) {
+  if (visible) {
+    // 打开更多操作菜单时，关闭其他菜单
+    menuState.openNodeId = node.id;
+    menuState.openMenuType = 'more';
+  } else if (menuState.openNodeId === node.id && menuState.openMenuType === 'more') {
+    // 只有当关闭的是当前节点的更多操作菜单时才重置状态
+    menuState.openNodeId = null;
+    menuState.openMenuType = null;
+  }
+}
+
+function handleMoreActions(value, node) {
+  console.log('更多操作:', value, '节点:', node.name);
+  
+  // 关闭菜单
+  menuState.openNodeId = null;
+  menuState.openMenuType = null;
+  
+  switch (value) {
+    case 'rename':
+      // 重命名节点
+      console.log('重命名节点:', node.name);
+      // TODO: 实现重命名功能
+      break;
+    case 'delete':
+      // 删除节点
+      console.log('删除节点:', node.name);
+      // TODO: 实现删除功能
+      break;
+    case 'copy':
+      // 复制节点
+      console.log('复制节点:', node.name);
+      // TODO: 实现复制功能
+      break;
+    case 'move':
+      // 移动节点
+      console.log('移动节点:', node.name);
+      // TODO: 实现移动功能
+      break;
+    default:
+      break;
+  }
+}
+
+
+
 
 // 扁平化的节点数据
 const flatNodes = ref([]);
+
+// 菜单状态管理
+const menuState = reactive({
+  openNodeId: null, // 当前打开菜单的节点ID
+  openMenuType: null // 'add' 或 'more'
+});
 
 // 拖拽状态管理
 const dragState = reactive({
