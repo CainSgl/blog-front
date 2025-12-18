@@ -12,6 +12,35 @@
           <IconSearch />
         </template>
       </Input>
+      
+      <!-- 搜索框右侧操作图标 -->
+      <div class="search-actions">
+        <Dropdown 
+          trigger="click" 
+          placement="bottom" 
+          :popup-visible="menuState.openNodeId === 'search' && menuState.openMenuType === 'add'"
+          @select="(key) => handleMenuSelect(key, null)"
+          @popup-visible-change="(visible) => {
+            if (visible) {
+              menuState.openNodeId = 'search';
+              menuState.openMenuType = 'add';
+            } else if (menuState.openNodeId === 'search' && menuState.openMenuType === 'add') {
+              menuState.openNodeId = null;
+              menuState.openMenuType = null;
+            }
+          }"
+          position="br"
+        >
+          <IconPlus class="action-icon" @click.stop @mousedown.stop />
+          <template #content>
+            <Menu>
+              <Menu.Item key="newPost" @click="() => slectHandler('newPost', null, 'add')"><IconDriveFile class="menu-icon" />文档</Menu.Item>
+              <Menu.Item key="import" @click="() => slectHandler('import', null, 'add')"><IconImport class="menu-icon" />导入</Menu.Item>
+              <Menu.Item key="newDir" @click="() => slectHandler('newDir', null, 'add')"><IconFolder class="menu-icon" />目录</Menu.Item>
+            </Menu>
+          </template>
+        </Dropdown>
+      </div>
     </div>
     <TransitionGroup 
       name="node-list" 
@@ -25,7 +54,7 @@
         :style="{ marginLeft: `${node.depth * 20}px` }"
         @mousedown="handleMouseDown($event, node, index)"
       >
-        <div class="node-content">
+        <div class="node-content" :class="{ renaming: node.showInput }">
           <span 
             class="expand-icon"
             :class="{ expanded: getNodeExpandedState(node) }"
@@ -33,13 +62,27 @@
             <IconDown v-if="getNodeExpandedState(node)" />
             <IconRight v-else-if="node.children && node.children.length > 0" />
           </span>
-          <span class="node-name">{{ node.name || '未命名' }}</span>
           
+          <span class="node-name"  v-show="!node.showInput" >{{ node.name || '未命名' }}</span>
+          <div v-if="node.showInput">
+            <Input 
+              ref="renameInput"
+              :value="node.name"
+              class="rename-input"
+              @input="(e) => handleRenameInput(e, node)"
+              @blur="() => handleRenameBlur(node)"
+              @keyup.enter="() => handleRenameConfirm(node)"
+              @keyup.esc="() => handleRenameCancel(node)"
+              @mousedown.stop
+              @click.stop
+              autofocus
+            />
+          </div>
           <!-- 右侧操作图标-->
            <div 
              class="node-actions" 
              :class="{ 'show-actions': menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more') }"
-             v-show="!dragState.isDragging && (edit || (menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more')))">
+             v-show="!dragState.isDragging && (edit || (menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more'))) && !node.showInput">
 
               <Dropdown 
                 trigger="click" 
@@ -72,17 +115,17 @@
                <template #content>
                  <Menu>
                    <Menu.Item key="rename"   @click="() => slectHandler('rename', node, 'more')" > <IconEdit  class="menu-icon" /> 重命名</Menu.Item>
-                   <Menu.Item key="edit-doc" @click="() => slectHandler('edit-doc', node, 'more')" ><IconPen  class="menu-icon"/>  编辑文档</Menu.Item>
-                   <Menu.Item key="copy-link"  @click="() => slectHandler('copy-link', node, 'more')" >  <IconCopy  class="menu-icon"/>复制链接</Menu.Item>
-                    <Menu.Item key="pin-top"  @click="() => slectHandler('pin-top', node, 'more')" > <IconToTop  class="menu-icon"/> 置顶文档</Menu.Item>
-                    <Menu.Item key="open-new-tab"  @click="() => slectHandler('open-new-tab', node, 'more')" > <IconLaunch  class="menu-icon"/>在新标签页打开</Menu.Item>
+                   <Menu.Item v-if="node.postId" key="edit-doc" @click="() => slectHandler('edit-doc', node, 'more')" ><IconPen  class="menu-icon"/>  编辑文档</Menu.Item>
+                   <Menu.Item  v-if="node.postId" key="copy-link"  @click="() => slectHandler('copy-link', node, 'more')" >  <IconCopy  class="menu-icon"/>复制链接</Menu.Item>
+                    <!-- <Menu.Item v-if="node.postId" key="pin-top"  @click="() => slectHandler('pin-top', node, 'more')" > <IconToTop  class="menu-icon"/> 置顶文档</Menu.Item> -->
+                    <Menu.Item v-if="node.postId" key="open-new-tab"  @click="() => slectHandler('open-new-tab', node, 'more')" > <IconLaunch  class="menu-icon"/>在新标签页打开</Menu.Item>
                    <Menu.Item key="delete" :style="{ color: 'rgb(var(--red-6))' }"  @click="() => slectHandler('delete', node, 'more')" ><IconDelete  class="menu-icon"/> 删除</Menu.Item>
                  </Menu>
                </template>
              </Dropdown>
            </div>
         </div>
-
+    
         <!-- 拖拽预览指示器 -->
         <div 
           v-if="dragState.isDragging && dragState.targetIndex === index"
@@ -185,6 +228,56 @@ async function withLock(operation)
   }
 }
 
+let lastRenameNode=null;
+const nodeName=ref('');
+// 处理重命名确认
+function handleRenameConfirm(node) {
+  node.showInput = false;
+  node.showInput = false;
+  lastRenameNode = null;
+}
+
+// 处理重命名失焦
+function handleRenameBlur(node) {
+  console.log(node,nodeName.value)
+  if(nodeName.value!=node.name)
+  {
+    console.log("需要保存数据")
+    //去调用api
+    loading.value +=1;
+     api.put('/dir',{
+      id:node.id,
+      kbId:props.kbId,
+      name:nodeName.value,
+      parentId:node.parentId,
+    }).then((res) => {
+      loading.value -=1;
+      node.name=nodeName.value;
+    }).catch((error) => {
+      console.error('重命名目录失败:', error);
+      loading.value -=1;
+    });
+  }
+  node.showInput = false;
+  lastRenameNode = null;
+
+
+}
+
+// 处理重命名输入框变化
+function handleRenameInput(e,node) {
+  nodeName.value=e
+  return
+}
+function handleRenameCancel(e)
+{
+  console.log("取消重命名")
+  lastRenameNode.showInput = false;
+  nodeName.value=lastRenameNode.name;
+  lastRenameNode=null
+}
+
+
 // 创建操作处理函数映射对象
 const actionHandlers = {
   'newPost': async (node) => 
@@ -197,14 +290,15 @@ const actionHandlers = {
       const {data}= await api.post('/post',{
         title:'无标题文档',
         kbId:props.kbId,
-        parentId:node.id,
+        parentId:node?.id,
       });
       const newNode={
         id:data.dirId,
         name:'无标题文档',
-        parentId:node.id,
+        parentId:node?.id,
         postId:data.post.id,
-        depth:node.depth+1,
+        depth:node ? node.depth + 1 : 0,
+        children:[]
       };
       addChildNode(node, newNode);
       //跳转到编辑页面并携带postId参数
@@ -223,17 +317,49 @@ const actionHandlers = {
     }
   
   },
-  'newDir': (node) => 
+  'newDir':async (node) => 
   {
-   
+      loading.value +=1;
+    //创建并跳转
+    try
+    {
+      const {data}= await api.post('/dir',{
+        name:'新建目录',
+        kbId:props.kbId,
+        parentId:node?.id,
+      });
+      const newNode={
+        id:data,
+        name:'新建目录',
+        parentId:node?.id,
+        depth:node ? node.depth + 1 : 0,
+        children:[]
+      };
+      addChildNode(node, newNode);
+    }
+    catch(error)
+    {
+      console.error('创建文档失败:', error);
+    }
+    finally
+    {
+      loading.value-=1;
+    }
+
   },
   'import': (node) => 
   {
-    
+    //后面再做 TODO
   },
   'rename': (node) => 
   {
-   
+    if(lastRenameNode)
+   {
+    lastRenameNode.showInput=false;
+   }
+    lastRenameNode=node;
+    nodeName.value=node.name;
+    node.showInput=true;
   },
   'edit-doc': (node) => 
   {
@@ -253,18 +379,24 @@ const actionHandlers = {
     console.log('复制链接:', node);
     if (node.postId) 
     {
-      const link = `${window.location.origin}/post/${node.postId}`;
-      navigator.clipboard.writeText(link).then(() => 
-      {
-        console.log('链接已复制到剪贴板');
-      }).catch(err => 
-      {
-        console.error('复制链接失败:', err);
-      });
+      const link = `a`;
     }
   },
-  'pin-top': (node) => 
+  'pin-top':async (node) => 
   {
+    loading.value +=1;
+    try{
+     const {data} = await api.put('/post',{
+      id:node.postId,
+      isTop:true,
+    })
+    }catch(error)
+    {
+      console.error('置顶文档失败:', error);
+    }finally
+    {
+      loading.value -=1;
+    }
   
   },
   'open-new-tab': (node) => 
@@ -310,6 +442,15 @@ function addChildNode(parentNode, childNode)
 {
   withLock(()=>
   {
+    if(!parentNode)
+  {
+    //明显根节点
+    flatNodes.value.push(childNode);
+    return;
+  }
+   
+    
+
     if(getNodeExpandedState(parentNode)) 
     {
     //找到当前节点在扁平化数组中的位置
@@ -341,7 +482,7 @@ function removeNode(node)
   // 找到当前节点在扁平化数组中的位置
     if(getNodeExpandedState(node))
     {
-      toggleNode(node);
+      toggleNode(node,true);
     }
     const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
     if (currentIndex !== -1) 
@@ -456,7 +597,6 @@ function flattenTree(nodes, depth = 0)
       result.push(...flattenTree(node.children, depth + 1));
     }
   }
-  console.log(result);
   return result;
 }
 
@@ -523,6 +663,7 @@ function handleSearch(value)
     {
       // 如果搜索文本为空，恢复原始数据
       flatNodes.value = cachedTreeData;
+      console.log("恢复数据")
       cachedTreeData=null;
     }
     else 
@@ -586,11 +727,14 @@ function getNodeExpandedState(node)
 }
 
 // 切换节点展开/收起状态
-function toggleNode(node) 
+function toggleNode(node,onLock=false) 
 {
-  withLock(()=>
+  const toggle=()=>
   {
-
+    if(node.showInput)
+    {
+      return;
+    }
  
     const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
   
@@ -666,8 +810,14 @@ function toggleNode(node)
     }
 
 
-  });
- 
+  }
+  if(onLock)
+  {
+    toggle()
+  }else
+  {
+ withLock(toggle);
+  }
 }
 
 // 获取节点样式类
@@ -710,12 +860,12 @@ function handleMouseDown(event, node, index)
     return;
   }
   
-  // 如果 edit 为 false，不允许拖拽功能
-  if (!props.edit) 
+  // 如果 edit 为 false 或者正在重命名节点，不允许拖拽功能
+  if (!props.edit || lastRenameNode) 
   {
     event.preventDefault();
     // 如果节点存在 postId，调用父组件的 clickPost 方法
-    if (node.postId) 
+    if (node.postId&&!lastRenameNode) 
     {
       emit('clickPost', node);
     }
@@ -761,8 +911,8 @@ function createDraggingShadow(node, event)
 // 开始拖拽
 function startDragging(event) 
 {
-  // 如果 edit 为 false，不允许开始拖拽
-  if (!props.edit) 
+  // 如果 edit 为 false 或者正在重命名节点，不允许开始拖拽
+  if (!props.edit || lastRenameNode) 
   {
     return;
   }
@@ -811,8 +961,8 @@ function handleMouseMove(event)
 {
   event.preventDefault();
   
-  // 如果 edit 为 false，不允许拖拽
-  if (!props.edit) 
+  // 如果 edit 为 false 或者正在重命名节点，不允许拖拽
+  if (!props.edit || lastRenameNode) 
   {
     return;
   }
@@ -1036,6 +1186,7 @@ function performDrop()
         depth: flatNodes.value[adjustedTargetIndex].depth,
         parentId: flatNodes.value[adjustedTargetIndex].parentId
       });
+      console.log("before")
       break;
       
     case 'after':
@@ -1044,6 +1195,7 @@ function performDrop()
         depth: flatNodes.value[adjustedTargetIndex].depth,
         parentId: flatNodes.value[adjustedTargetIndex].parentId
       });
+      console.log("after")
       break;
       
     case 'child':
@@ -1052,6 +1204,7 @@ function performDrop()
         depth: flatNodes.value[adjustedTargetIndex].depth + 1,
         parentId: flatNodes.value[adjustedTargetIndex].id
       });
+      console.log("child")
       break;
     }
   });
@@ -1091,6 +1244,7 @@ function cleanupDrag()
   }
   
   .default {
+    height: 20px;
     &:hover {
       background-color: #f5f5f5;
     }
@@ -1124,12 +1278,23 @@ function cleanupDrag()
     transition: all 0.2s ease;
     position: relative;
     border: 2px solid transparent;
+    // 确保节点有固定的最小高度，有助于内容垂直居中
+    min-height: 24px;
   }
   
   .tree-node .node-content {
     display: flex;
     align-items: center;
     gap: 8px;
+    
+    // 当显示重命名输入框时，调整对齐方式
+    &.renaming {
+      align-items: stretch;
+    }
+    
+    // 确保内容区域占满节点高度，有助于子元素垂直居中
+    height: 100%;
+    min-height: 24px;
     
     .expand-icon {
       width: 16px;
@@ -1163,6 +1328,37 @@ function cleanupDrag()
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    
+    // 重命名输入框样式
+    .arco-input-wrapper.rename-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0);
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin: -4px -8px; /* 抵消父容器的padding影响 */
+      /* 确保输入框垂直居中对齐 */
+      align-self: center;
+      /* 确保输入框高度与节点内容一致 */
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      // 添加过渡效果使 appearance 更平滑
+      transition: all 0.2s ease;
+    }
+    
+    /* 重命名输入框内的input元素样式 */
+    .rename-input input {
+      /* 确保文字垂直居中 */
+      line-height: 1.5;
+      padding: 4px 12px;
+      // 移除默认的上下内边距，因为我们已经在 wrapper 上设置了
+      padding-top: 0;
+      padding-bottom: 0;
+      // 确保输入框占满容器高度
+      height: 100%;
+      // 文本居中
+      text-align: left;
     }
     
     // 右侧操作图标样式
@@ -1249,7 +1445,7 @@ function cleanupDrag()
     z-index: 1000;
     pointer-events: none;
     border-radius: 20%;
-    opacity: 0.4;
+    opacity: 0.8;
     .node-content {
       padding: 8px 12px;
       display: flex;
@@ -1292,9 +1488,37 @@ function cleanupDrag()
 .search-container {
   padding: 12px;
   border-bottom: 1px solid var(--color-neutral-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
   
   .arco-input-wrapper {
     border-radius: 16px;
+    flex: 1;
+  }
+  
+  .search-actions {
+    display: flex;
+    align-items: center;
+    
+    .action-icon {
+      width: 16px;
+      height: 16px;
+      color: #999;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: #f0f0f0;
+      }
+      
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
   }
 }
 
