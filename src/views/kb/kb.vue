@@ -3,6 +3,8 @@
     <div class="sidebar">
       <TreeMenu 
         :tree-data="treeData"
+        :edit="true"
+        @clickPost="handleClickPost"
       />
     </div>
     <div class="content">
@@ -14,7 +16,9 @@
 <script setup>
 import { ref } from 'vue';
 import TreeMenu from '@/components/TreeMenuNew.vue';
-
+function handleClickPost(node) {
+  console.log(node)
+}
 // 模拟数据
 const treeData = ref([
   {
@@ -54,20 +58,22 @@ const treeData = ref([
             'id': 6,
             'kbId': 1,
             'parentId':3,
-            'name': '文章1',
-            'postId': 5,
+            'name': '目录7',
+
             'children':[
               {
                 'id': 11,
                 'kbId': 1,
                 'parentId':6,
-                'name': '测试文档1',
+                'name': '测试文档aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1测试文档aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1测试文档aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1',
+                  'postId': 5,
                 'children':[]
               },  {
                 'id': 12,
                 'kbId': 1,
                 'parentId':6,
                 'name': '测试文档2',
+                                  'postId': 5,
                 'children':[]
               },
             ]
@@ -97,7 +103,7 @@ const treeData = ref([
 }
 
 .sidebar {
-  width: 600px;
+  width: 300px;
   border-right: 1px solid #e5e6eb;
   padding: 20px;
   overflow-y: auto;

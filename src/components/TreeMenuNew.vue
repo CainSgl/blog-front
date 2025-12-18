@@ -13,17 +13,23 @@
         :style="{ marginLeft: `${node.depth * 20}px` }"
         @mousedown="handleMouseDown($event, node, index)"
       >
-        <div  class="node-content">
+        <div class="node-content">
           <span 
             v-if="node.children && node.children.length > 0" 
             class="expand-icon"
             :class="{ expanded: getNodeExpandedState(node) }"
           >
-            {{ getNodeExpandedState(node) ? '▼' : '▶' }}
+            <IconDown v-if="getNodeExpandedState(node)" />
+            <IconRight v-else />
           </span>
-          <span v-else class="expand-icon-placeholder">•</span>
-          
+          <!-- <span v-else class="expand-icon-placeholder">•</span> -->
           <span class="node-name">{{ node.name || '未命名' }}</span>
+          
+          <!-- 右侧操作图标 - 只在悬停时显示 -->
+           <div class="node-actions" v-show="!dragState.isDragging&&edit&&!node.postId">
+             <IconPlus class="action-icon" @click.stop="handleAddNode(node)" @mousedown.stop />
+             <IconMore class="action-icon" @click.stop="handleMoreActions(node)" @mousedown.stop />
+           </div>
         </div>
 
         <!-- 拖拽预览指示器 -->
@@ -53,10 +59,9 @@
           v-if="dragState.sourceNode?.children && dragState.sourceNode.children.length > 0" 
           class="expand-icon"
         >
-          ▶
+          <IconRight />
         </span>
-        <span v-else class="expand-icon-placeholder">•</span>
-        
+        <!-- <span v-else class="expand-icon-placeholder">•</span> -->
         <span class="node-name">{{ dragState.sourceNode?.name }}</span>
       </div>
     </div>
@@ -66,13 +71,36 @@
 <script setup>
 
 import { ref, watch, reactive, nextTick } from 'vue';
+import { IconDown, IconRight, IconPlus, IconMore } from '@arco-design/web-vue/es/icon';
 
 const props = defineProps({
   treeData: {
     type: Array,
     required: true
+  },
+  edit: {
+    type: Boolean,
+    default: false
   }
 });
+
+const emit = defineEmits(['clickPost']);
+
+// 图标点击处理函数
+function handleAddNode(node) {
+  // 这里可以添加新节点的逻辑
+  console.log('添加子节点:', node.name);
+  // TODO: 实现添加子节点的功能
+  // 可以触发一个事件或者打开一个模态框
+}
+
+function handleMoreActions(node) {
+  // 这里可以添加更多操作的逻辑
+  console.log('更多操作:', node.name);
+  // TODO: 实现更多操作菜单
+  // 可以触发一个事件或者打开一个下拉菜单
+  // 比如：重命名、删除、复制等操作
+}
 
 // 扁平化的节点数据
 const flatNodes = ref([]);
@@ -254,6 +282,19 @@ function handleMouseDown(event, node, index)
     return;
   }
   
+  // 如果 edit 为 false，不允许拖拽功能
+  if (!props.edit) {
+    event.preventDefault();
+    // 如果节点存在 postId，调用父组件的 clickPost 方法
+    if (node.postId) {
+      emit('clickPost', node);
+    } else {
+      // 否则执行点击逻辑 - 切换展开/收起状态
+      toggleNode(node);
+    }
+    return;
+  }
+  
   event.preventDefault();
   
   // 获取容器边界
@@ -287,6 +328,11 @@ function createDraggingShadow(node, event)
 
 // 开始拖拽
 function startDragging(event) {
+  // 如果 edit 为 false，不允许开始拖拽
+  if (!props.edit) {
+    return;
+  }
+  
   dragState.isDragging = true;
   dragState.hasMoved = true;
   
@@ -299,6 +345,12 @@ function startDragging(event) {
   // 收起子目录（如果展开的话）
   if (dragState.sourceNode && getNodeExpandedState(dragState.sourceNode)) {
     toggleNode(dragState.sourceNode);
+  }
+  
+  // 临时移除tree-menu-container样式
+  const container = document.querySelector('.tree-menu-container');
+  if (container) {
+    container.classList.add('no-transition');
   }
   
   // 创建拖拽阴影元素
@@ -321,6 +373,11 @@ function updateShadowPosition(event)
 function handleMouseMove(event) 
 {
   event.preventDefault();
+  
+  // 如果 edit 为 false，不允许拖拽
+  if (!props.edit) {
+    return;
+  }
   
   // 如果还未开始拖拽，检查是否需要启动拖拽
   if (!dragState.isDragging && dragState.sourceNode) {
@@ -384,7 +441,17 @@ function calculateDropPosition(event)
       }
       else 
       {
-        dropType = 'child';
+        // 如果目标节点存在postId，不允许作为子节点
+        const targetNode = flatNodes.value[i];
+      
+        if (targetNode.postId) 
+        {
+          dropType = 'after';
+        }
+        else 
+        {
+          dropType = 'child';
+        }
       }
       
       break;
@@ -403,6 +470,29 @@ function calculateDropPosition(event)
 function handleMouseUp(event) 
 {
   event.preventDefault();
+  
+  // 如果 edit 为 false，直接处理点击事件
+  if (!props.edit) {
+    if (dragState.sourceNode) {
+      const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
+      const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
+      
+      // 如果移动距离很小，认为是点击
+      if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) {
+        // 如果节点存在 postId，调用父组件的 clickPost 方法
+        if (dragState.sourceNode.postId) {
+          emit('clickPost', dragState.sourceNode);
+        } else {
+          // 否则执行点击逻辑 - 切换展开/收起状态
+          toggleNode(dragState.sourceNode);
+        }
+      }
+    }
+    
+    // 清理拖拽状态
+    cleanupDrag();
+    return;
+  }
   
   // 如果已经开始了拖拽，执行放置操作
   if (dragState.isDragging) {
@@ -424,8 +514,13 @@ function handleMouseUp(event)
         dragState.clickTimeout = null;
       }
       
-      // 执行点击逻辑 - 切换展开/收起状态
-      toggleNode(dragState.sourceNode);
+      // 如果节点存在postId，调用父组件的clickPost方法
+      if (dragState.sourceNode.postId) {
+        emit('clickPost', dragState.sourceNode);
+      } else {
+        // 否则执行点击逻辑 - 切换展开/收起状态
+        toggleNode(dragState.sourceNode);
+      }
     }
   }
   
@@ -523,6 +618,7 @@ function cleanupDrag()
     clearTimeout(dragState.clickTimeout);
     dragState.clickTimeout = null;
   }
+  
 }
 
 </script>
@@ -581,13 +677,17 @@ function cleanupDrag()
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
       color: #666;
       cursor: pointer;
       transition: transform 0.2s ease;
       
       &.expanded {
         transform: rotate(0deg);
+      }
+      
+      svg {
+        width: 16px;
+        height: 16px;
       }
     }
     
@@ -600,7 +700,44 @@ function cleanupDrag()
       flex: 1;
       font-size: 14px;
       color: #333;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+    
+    // 右侧操作图标样式
+    .node-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      margin-left: auto;
+    }
+    
+    .action-icon {
+      width: 16px;
+      height: 16px;
+      color: #999;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: #f0f0f0;
+      }
+      
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+  
+  // 悬停时显示右侧图标
+  .tree-node:hover .node-actions {
+    opacity: 1;
   }
   
   // 拖拽指示器
@@ -660,14 +797,18 @@ function cleanupDrag()
       background: white;
       
       .expand-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      
+      svg {
         width: 16px;
         height: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        color: #666;
       }
+    }
       
       .expand-icon-placeholder {
         width: 16px;
