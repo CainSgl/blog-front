@@ -10,10 +10,10 @@
         :key="node.id"
         class="tree-node"
         :class="getNodeClasses(node, index)"
-        :style="{ paddingLeft: `${node.depth * 20}px` }"
+        :style="{ marginLeft: `${node.depth * 20}px` }"
         @mousedown="handleMouseDown($event, node, index)"
       >
-        <div  class="node-content" @click="toggleNode(node)" >
+        <div  class="node-content">
           <span 
             v-if="node.children && node.children.length > 0" 
             class="expand-icon"
@@ -31,6 +31,7 @@
           v-if="dragState.isDragging && dragState.targetIndex === index"
           class="drag-indicator"
           :class="`indicator-${dragState.dropType}`"
+          :style="{ paddingLeft: `${(node.depth)}px` }"
         >
           <div class="indicator-line"></div>
         </div>
@@ -56,7 +57,7 @@
         </span>
         <span v-else class="expand-icon-placeholder">•</span>
         
-        <span class="node-name">{{ dragState.sourceNode?.name || '拖拽中...' }}</span>
+        <span class="node-name">{{ dragState.sourceNode?.name }}</span>
       </div>
     </div>
   </div>
@@ -87,7 +88,10 @@ const dragState = reactive({
   shadowPosition: { x: 0, y: 0 },
   shadowWidth: 0,
   mouseOffset: { x: 0, y: 0 },
-  containerRect: null
+  containerRect: null,
+  startPosition: { x: 0, y: 0 },
+  hasMoved: false,
+  clickTimeout: null
 });
 
 // 将树形结构扁平化为数组，保留深度信息
@@ -213,15 +217,22 @@ function toggleNode(node)
 }
 
 // 获取节点样式类
-function getNodeClasses(node, index) {
+function getNodeClasses(node, index) 
+{
   const classes = ['default'];
   
-  if (dragState.isDragging) {
-    if (dragState.sourceIndex === index) {
+  if (dragState.isDragging) 
+  {
+    if (dragState.sourceIndex === index) 
+    {
       classes.push('dragging-source');
-    } else if (dragState.targetIndex === index) {
+    }
+    else if (dragState.targetIndex === index && dragState.dropType === 'child') 
+    {
       classes.push('drag-target');
-    } else {
+    }
+    else 
+    {
       classes.push('dragging-other');
     }
   }
@@ -229,25 +240,21 @@ function getNodeClasses(node, index) {
   return classes.join(' ');
 }
 
-// 鼠标按下事件 - 开始拖拽
-function handleMouseDown(event, node, index) {
-  // 如果点击的是展开图标，不触发拖拽
-  if (event.target.closest('.expand-icon')) {
+// 拖拽相关配置
+const DRAG_THRESHOLD = 5; // 最小拖拽距离
+
+// 鼠标按下事件 - 设置拖拽准备状态
+function handleMouseDown(event, node, index) 
+{
+  // 如果点击的是展开图标，不触发拖拽，只处理展开/收起
+  if (event.target.closest('.expand-icon')) 
+  {
+    event.preventDefault();
+    toggleNode(node);
     return;
   }
   
   event.preventDefault();
-  
-  // 收起子目录（如果展开的话）
-  if (getNodeExpandedState(node)) {
-    toggleNode(node);
-  }
-  
-  // 初始化拖拽状态
-  dragState.isDragging = true;
-  dragState.sourceNode = { ...node };
-  dragState.sourceIndex = index;
-  dragState.targetIndex = index;
   
   // 获取容器边界
   const container = event.currentTarget.closest('.tree-menu');
@@ -258,21 +265,52 @@ function handleMouseDown(event, node, index) {
   dragState.mouseOffset.x = event.clientX - nodeRect.left;
   dragState.mouseOffset.y = event.clientY - nodeRect.top;
   
+  // 记录初始位置
+  dragState.startPosition = {
+    x: event.clientX,
+    y: event.clientY
+  };
+  
+  // 设置拖拽准备状态，但不立即开始拖拽
+  dragState.isDragging = false;
+  dragState.sourceNode = { ...node };
+  dragState.sourceIndex = index;
+  dragState.targetIndex = index;
+}
+
+// 创建拖拽阴影元素
+function createDraggingShadow(node, event) 
+{
+  dragState.draggingElement = true;
+  dragState.shadowWidth = event.currentTarget.offsetWidth;
+}
+
+// 开始拖拽
+function startDragging(event) {
+  dragState.isDragging = true;
+  dragState.hasMoved = true;
+  
+  // 清除点击定时器
+  if (dragState.clickTimeout) {
+    clearTimeout(dragState.clickTimeout);
+    dragState.clickTimeout = null;
+  }
+  
+  // 收起子目录（如果展开的话）
+  if (dragState.sourceNode && getNodeExpandedState(dragState.sourceNode)) {
+    toggleNode(dragState.sourceNode);
+  }
+  
   // 创建拖拽阴影元素
-  createDraggingShadow(node, event);
+  createDraggingShadow(dragState.sourceNode, event);
   
   // 更新阴影位置
   updateShadowPosition(event);
 }
 
-// 创建拖拽阴影元素
-function createDraggingShadow(node, event) {
-  dragState.draggingElement = true;
-  dragState.shadowWidth = event.currentTarget.offsetWidth;
-}
-
 // 更新阴影位置
-function updateShadowPosition(event) {
+function updateShadowPosition(event) 
+{
   if (!dragState.isDragging) return;
   
   dragState.shadowPosition.x = event.clientX - dragState.mouseOffset.x;
@@ -280,20 +318,35 @@ function updateShadowPosition(event) {
 }
 
 // 鼠标移动事件
-function handleMouseMove(event) {
-  if (!dragState.isDragging) return;
-  
+function handleMouseMove(event) 
+{
   event.preventDefault();
   
-  // 更新阴影位置
-  updateShadowPosition(event);
+  // 如果还未开始拖拽，检查是否需要启动拖拽
+  if (!dragState.isDragging && dragState.sourceNode) {
+    const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
+    const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
+    
+    // 如果移动距离超过阈值，开始拖拽
+    if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
+      startDragging(event);
+      return;
+    }
+  }
   
-  // 计算目标位置
-  calculateDropPosition(event);
+  // 如果已经在拖拽状态，处理拖拽逻辑
+  if (dragState.isDragging) {
+    // 更新阴影位置
+    updateShadowPosition(event);
+    
+    // 计算目标位置
+    calculateDropPosition(event);
+  }
 }
 
 // 计算放置位置
-function calculateDropPosition(event) {
+function calculateDropPosition(event) 
+{
   const nodes = document.querySelectorAll('.tree-node');
   const mouseX = event.clientX;
   const mouseY = event.clientY;
@@ -302,13 +355,15 @@ function calculateDropPosition(event) {
   let dropType = 'none';
   
   // 遍历所有节点，找到鼠标悬停的节点
-  for (let i = 0; i < nodes.length; i++) {
+  for (let i = 0; i < nodes.length; i++) 
+  {
     const nodeElement = nodes[i];
     const rect = nodeElement.getBoundingClientRect();
     
     // 检查鼠标是否在当前节点范围内
     if (mouseY >= rect.top && mouseY <= rect.bottom && 
-        mouseX >= rect.left && mouseX <= rect.right) {
+        mouseX >= rect.left && mouseX <= rect.right) 
+    {
       
       // 排除源节点
       if (i === dragState.sourceIndex) continue;
@@ -319,11 +374,16 @@ function calculateDropPosition(event) {
       const relativeY = mouseY - rect.top;
       const nodeHeight = rect.height;
       
-      if (relativeY < nodeHeight * 0.25) {
+      if (relativeY < nodeHeight * 0.25) 
+      {
         dropType = 'before';
-      } else if (relativeY > nodeHeight * 0.75) {
+      }
+      else if (relativeY > nodeHeight * 0.75) 
+      {
         dropType = 'after';
-      } else {
+      }
+      else 
+      {
         dropType = 'child';
       }
       
@@ -332,40 +392,66 @@ function calculateDropPosition(event) {
   }
   
   // 更新拖拽状态
-  if (targetIndex !== dragState.targetIndex || dropType !== dragState.dropType) {
+  if (targetIndex !== dragState.targetIndex || dropType !== dragState.dropType) 
+  {
     dragState.targetIndex = targetIndex;
     dragState.dropType = dropType;
   }
 }
 
-// 鼠标释放事件 - 结束拖拽
-function handleMouseUp(event) {
-  if (!dragState.isDragging) return;
-  
+// 鼠标释放事件 - 结束拖拽或处理点击
+function handleMouseUp(event) 
+{
   event.preventDefault();
   
-  // 执行放置操作
-  performDrop();
+  // 如果已经开始了拖拽，执行放置操作
+  if (dragState.isDragging) {
+    performDrop();
+    cleanupDrag();
+    return;
+  }
+  
+  // 如果没有开始拖拽，可能是点击事件
+  if (dragState.sourceNode) {
+    const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
+    const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
+    
+    // 如果移动距离很小，认为是点击
+    if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) {
+      // 清除点击定时器（如果有的话）
+      if (dragState.clickTimeout) {
+        clearTimeout(dragState.clickTimeout);
+        dragState.clickTimeout = null;
+      }
+      
+      // 执行点击逻辑 - 切换展开/收起状态
+      toggleNode(dragState.sourceNode);
+    }
+  }
   
   // 清理拖拽状态
   cleanupDrag();
 }
 
 // 鼠标离开容器事件
-function handleMouseLeave(event) {
+function handleMouseLeave(event) 
+{
   if (!dragState.isDragging) return;
   
-  // 如果鼠标离开容器，尝试在最近的节点放置
-  if (dragState.targetIndex !== -1) {
-    performDrop();
+  // 如果鼠标离开容器，尝试目前是不放置
+  if (dragState.targetIndex !== -1) 
+  {
+   // performDrop();
   }
   
   cleanupDrag();
 }
 
 // 执行放置操作
-function performDrop() {
-  if (dragState.targetIndex === -1 || dragState.dropType === 'none') {
+function performDrop() 
+{
+  if (dragState.targetIndex === -1 || dragState.dropType === 'none') 
+  {
     return;
   }
   
@@ -378,7 +464,8 @@ function performDrop() {
   
   // 调整索引（因为移除了源节点，目标索引可能会变化）
   let adjustedTargetIndex = targetIndex;
-  if (sourceIndex < targetIndex) {
+  if (sourceIndex < targetIndex) 
+  {
     adjustedTargetIndex--;
   }
   
@@ -389,35 +476,37 @@ function performDrop() {
   flatNodes.value.splice(sourceIndex, 1);
   
   // 根据放置类型插入到新位置
-  switch (dropType) {
-    case 'before':
-      flatNodes.value.splice(adjustedTargetIndex, 0, {
-        ...sourceNode,
-        depth: flatNodes.value[adjustedTargetIndex].depth,
-        parentId: flatNodes.value[adjustedTargetIndex].parentId
-      });
-      break;
+  switch (dropType) 
+  {
+  case 'before':
+    flatNodes.value.splice(adjustedTargetIndex, 0, {
+      ...sourceNode,
+      depth: flatNodes.value[adjustedTargetIndex].depth,
+      parentId: flatNodes.value[adjustedTargetIndex].parentId
+    });
+    break;
       
-    case 'after':
-      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
-        ...sourceNode,
-        depth: flatNodes.value[adjustedTargetIndex].depth,
-        parentId: flatNodes.value[adjustedTargetIndex].parentId
-      });
-      break;
+  case 'after':
+    flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+      ...sourceNode,
+      depth: flatNodes.value[adjustedTargetIndex].depth,
+      parentId: flatNodes.value[adjustedTargetIndex].parentId
+    });
+    break;
       
-    case 'child':
-      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
-        ...sourceNode,
-        depth: flatNodes.value[adjustedTargetIndex].depth + 1,
-        parentId: flatNodes.value[adjustedTargetIndex].id
-      });
-      break;
+  case 'child':
+    flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+      ...sourceNode,
+      depth: flatNodes.value[adjustedTargetIndex].depth + 1,
+      parentId: flatNodes.value[adjustedTargetIndex].id
+    });
+    break;
   }
 }
 
 // 清理拖拽状态
-function cleanupDrag() {
+function cleanupDrag() 
+{
   dragState.isDragging = false;
   dragState.sourceNode = null;
   dragState.sourceIndex = -1;
@@ -428,12 +517,19 @@ function cleanupDrag() {
   dragState.shadowWidth = 0;
   dragState.mouseOffset = { x: 0, y: 0 };
   dragState.containerRect = null;
+  dragState.startPosition = { x: 0, y: 0 };
+  dragState.hasMoved = false;
+  if (dragState.clickTimeout) {
+    clearTimeout(dragState.clickTimeout);
+    dragState.clickTimeout = null;
+  }
 }
 
 </script>
 
 <style scoped lang="less">
 .tree-menu {
+  user-select: none;
   .tree-menu-container {
     position: relative;
   }
@@ -445,14 +541,15 @@ function cleanupDrag() {
   }
   
   // 拖拽状态样式
-  .dragging-source {
+  .tree-node.dragging-source {
     opacity: 0;
     visibility: hidden;
   }
   
-  .drag-target {
-    background-color: #fff3e0;
-    border: 2px dashed #ff9800;
+  .tree-node.drag-target {
+    background-color: @primary-1;
+    border: 2px dashed @primary-6 !important;
+    border-radius: 4px;
     
     .node-content {
       pointer-events: none;
@@ -470,84 +567,82 @@ function cleanupDrag() {
     margin: 2px 0;
     transition: all 0.2s ease;
     position: relative;
+    border: 2px solid transparent;
+  }
+  
+  .tree-node .node-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     
-    .node-content {
+    .expand-icon {
+      width: 16px;
+      height: 16px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+      transition: transform 0.2s ease;
       
-      .expand-icon {
-        width: 16px;
-        height: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        color: #666;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-        
-        &.expanded {
-          transform: rotate(0deg);
-        }
-      }
-      
-      .expand-icon-placeholder {
-        width: 16px;
-        height: 16px;
-      }
-      
-      .node-name {
-        flex: 1;
-        font-size: 14px;
-        color: #333;
+      &.expanded {
+        transform: rotate(0deg);
       }
     }
     
-    // 拖拽指示器
-    .drag-indicator {
-      position: absolute;
-      left: 0;
-      right: 0;
-      pointer-events: none;
+    .expand-icon-placeholder {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .node-name {
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+    }
+  }
+  
+  // 拖拽指示器
+  .drag-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    
+    &.indicator-before {
+      top: -2px;
       
-      &.indicator-before {
-        top: -2px;
-        
-        .indicator-line {
-          height: 2px;
-          background-color: #4caf50;
-          border-radius: 1px;
-          box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
-        }
-      }
-      
-      &.indicator-after {
-        bottom: -2px;
-        
-        .indicator-line {
-          height: 2px;
-          background-color: #4caf50;
-          border-radius: 1px;
-          box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
-        }
-      }
-      
-      &.indicator-child {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        
-        .indicator-line {
-          width: 12px;
-          height: 12px;
-          background-color: #2196f3;
-          border-radius: 50%;
-          border: 2px solid white;
-          box-shadow: 0 0 6px rgba(33, 150, 243, 0.6);
-        }
+      .indicator-line {
+        height: 2px;
+        background-color: @primary-6;
+        border-radius: 1px;
       }
     }
+    
+    &.indicator-after {
+      bottom: -2px;
+      
+      .indicator-line {
+        height: 2px;
+        background-color: @primary-6;
+        border-radius: 1px;
+      }
+    }
+    
+    // &.indicator-child {
+    //   top: 50%;
+    //   left: 50%;
+    //   transform: translate(-50%, -50%);
+      
+    //   .indicator-line {
+    //     width: 12px;
+    //     height: 12px;
+    //     background-color: #2196f3;
+    //     border-radius: 50%;
+    //     border: 2px solid white;
+    //   }
+    // }
   }
   
   // 拖拽阴影样式
@@ -555,11 +650,8 @@ function cleanupDrag() {
     position: fixed;
     z-index: 1000;
     pointer-events: none;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    opacity: 0.5;
-    
+    border-radius: 20%;
+    opacity: 0.4;
     .node-content {
       padding: 8px 12px;
       display: flex;
