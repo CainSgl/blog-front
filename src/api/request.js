@@ -19,7 +19,13 @@ service.interceptors.request.use(
     {
       config.headers['token'] = userStore.getToken();
     }
-    console.debug('发送的请求',config);
+    // 打印URL、请求方式和参数
+    console.debug('发送的请求:', {
+      url: config.url,
+      method: config.method,
+      params: config.params,
+      data: config.data
+    });
     return config;
   },
   (error) => 

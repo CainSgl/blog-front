@@ -1,9 +1,21 @@
 <template>
-  <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave">
+    <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave">
+    <!-- 搜索框 -->
+    <div class="search-container" v-if="edit">
+      <Input 
+        v-model="searchText" 
+        placeholder="搜索节点..." 
+        allow-clear
+        @input="handleSearch"
+      >
+        <template #prefix>
+          <IconSearch />
+        </template>
+      </Input>
+    </div>
     <TransitionGroup 
       name="node-list" 
       tag="div"
-      class="tree-menu-container"
     >
       <div  
         v-for="(node, index) in flatNodes" 
@@ -15,31 +27,35 @@
       >
         <div class="node-content">
           <span 
-            v-if="node.children && node.children.length > 0" 
             class="expand-icon"
             :class="{ expanded: getNodeExpandedState(node) }"
           >
             <IconDown v-if="getNodeExpandedState(node)" />
-            <IconRight v-else />
+            <IconRight v-else-if="node.children && node.children.length > 0" />
           </span>
-          <!-- <span v-else class="expand-icon-placeholder">•</span> -->
           <span class="node-name">{{ node.name || '未命名' }}</span>
           
-          <!-- 右侧操作图标 - 只在悬停时显示 -->
-           <div class="node-actions" v-show="!dragState.isDragging&&edit&&!node.postId">
+          <!-- 右侧操作图标-->
+           <div 
+             class="node-actions" 
+             :class="{ 'show-actions': menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more') }"
+             v-show="!dragState.isDragging && (edit || (menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more')))">
+
               <Dropdown 
                 trigger="click" 
                 placement="bottom" 
                 :popup-visible="menuState.openNodeId === node.id && menuState.openMenuType === 'add'"
-                @select="(value) => handleAddNodeAction(value, node)"
+                @select="(key) => handleMenuSelect(key, node)"
                 @popup-visible-change="(visible) => handleAddMenuToggle(visible, node)"
+                v-if="!node.postId"
+                position="br"
               >
                <IconPlus class="action-icon" @click.stop @mousedown.stop />
                <template #content>
                  <Menu>
-                   <Menu.Item key="child">添加子节点</Menu.Item>
-                   <Menu.Item key="before">在上方添加</Menu.Item>
-                   <Menu.Item key="after">在下方添加</Menu.Item>
+                   <Menu.Item key="newPost"  @click="() => slectHandler('newPost', node, 'add')"><IconDriveFile class="menu-icon" />文档</Menu.Item>
+                   <Menu.Item key="import"  @click="() => slectHandler('import', node, 'add')"><IconImport   class="menu-icon" />导入</Menu.Item>
+                   <Menu.Item key="newDir"  @click="() => slectHandler('newDir', node, 'add')"><IconFolder  class="menu-icon" />目录</Menu.Item>
                  </Menu>
                </template>
              </Dropdown>
@@ -49,14 +65,18 @@
                 :popup-visible="menuState.openNodeId === node.id && menuState.openMenuType === 'more'"
                 @select="(value) => handleMoreActions(value, node)"
                 @popup-visible-change="(visible) => handleMoreMenuToggle(visible, node)"
+                position="bl"
+                :popup-max-height="false"
               >
                <IconMore class="action-icon" @click.stop @mousedown.stop />
                <template #content>
                  <Menu>
-                   <Menu.Item key="rename">重命名</Menu.Item>
-                   <Menu.Item key="delete" :style="{ color: 'rgb(var(--red-6))' }">删除</Menu.Item>
-                   <Menu.Item key="copy">复制</Menu.Item>
-                   <Menu.Item key="move">移动</Menu.Item>
+                   <Menu.Item key="rename"   @click="() => slectHandler('rename', node, 'more')" > <IconEdit  class="menu-icon" /> 重命名</Menu.Item>
+                   <Menu.Item key="edit-doc" @click="() => slectHandler('edit-doc', node, 'more')" ><IconPen  class="menu-icon"/>  编辑文档</Menu.Item>
+                   <Menu.Item key="copy-link"  @click="() => slectHandler('copy-link', node, 'more')" >  <IconCopy  class="menu-icon"/>复制链接</Menu.Item>
+                    <Menu.Item key="pin-top"  @click="() => slectHandler('pin-top', node, 'more')" > <IconToTop  class="menu-icon"/> 置顶文档</Menu.Item>
+                    <Menu.Item key="open-new-tab"  @click="() => slectHandler('open-new-tab', node, 'more')" > <IconLaunch  class="menu-icon"/>在新标签页打开</Menu.Item>
+                   <Menu.Item key="delete" :style="{ color: 'rgb(var(--red-6))' }"  @click="() => slectHandler('delete', node, 'more')" ><IconDelete  class="menu-icon"/> 删除</Menu.Item>
                  </Menu>
                </template>
              </Dropdown>
@@ -74,7 +94,6 @@
         </div>
       </div>
     </TransitionGroup>
-
     <!-- 拖拽阴影元素 -->
     <div 
       v-if="dragState.isDragging && dragState.draggingElement"
@@ -96,16 +115,23 @@
         <span class="node-name">{{ dragState.sourceNode?.name }}</span>
       </div>
     </div>
+    <!-- 加载状态指示器 -->
+    <div v-if="loading>0" class="loading-container">
+      <Spin tip="数据正在拼命发送到服务器中...">
+      <template #icon>
+      <IconSync/>
+       </template>
+      </Spin>
+    </div>
   </div>
 </template>
 
 <script setup>
-
-import { ref, watch, reactive, nextTick } from 'vue';
-import { IconDown, IconRight, IconPlus, IconMore } from '@arco-design/web-vue/es/icon';
-import { Dropdown, Menu } from '@arco-design/web-vue';
-import { ref as vueRef } from 'vue';
-
+import { ref, watch, reactive, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { IconDown, IconRight, IconPlus, IconMore, IconImport, IconFolder, IconDriveFile,IconEdit, IconPen, IconCopy, IconToTop, IconLaunch, IconDelete ,IconSync, IconSearch } from '@arco-design/web-vue/es/icon';
+import { Dropdown, Menu, Spin, Input } from '@arco-design/web-vue';
+import api from '@/api/index.js';
 const props = defineProps({
   treeData: {
     type: Array,
@@ -114,45 +140,178 @@ const props = defineProps({
   edit: {
     type: Boolean,
     default: false
+  },
+  kbId:{
+    type:String,
+    default:"-1",
   }
 });
 
-const emit = defineEmits(['clickPost', 'addNode']);
+const emit = defineEmits(['clickPost', 'trigger']);
 
+// 初始化路由
+const router = useRouter();
 
+// 创建内部loading状态
+const loading = ref(0);
 
-// 处理添加节点的不同操作
-function handleAddNodeAction(action, node) {
-  console.log('执行添加操作:', action, '节点:', node.name);
-  // 关闭菜单
-  menuState.openNodeId = null;
-  menuState.openMenuType = null;
-  
-  switch (action) {
-    case 'child':
-      // 添加子节点
-      emit('addNode', { type: 'child', parentNode: node });
-      break;
-    case 'before':
-      // 在上方添加节点
-      emit('addNode', { type: 'before', referenceNode: node });
-      break;
-    case 'after':
-      // 在下方添加节点
-      emit('addNode', { type: 'after', referenceNode: node });
-      break;
-    default:
-      break;
+// 创建操作处理函数映射对象
+const actionHandlers = {
+  'newPost': async (node) => 
+  {
+    loading.value +=1;
+    //创建并跳转
+    try
+    {
+      const {data}= await api.post('/post',{
+        title:'无标题文档',
+        kbId:props.kbId,
+        parentId:node.id,
+      });
+      const newNode={
+        id:data.dirId,
+        name:'无标题文档',
+        parentId:node.id,
+        postId:data.post.id,
+        depth:node.depth+1,
+      };
+      addChildNode(node, newNode);
+      //跳转到编辑页面并携带postId参数
+      router.push({ 
+        name: 'KBEdit', 
+        query: { p: data.post.id ,kb:props.kbId}
+      });
+    }
+    catch(error)
+    {
+      console.error('创建文档失败:', error);
+    }
+    finally
+    {
+      loading.value-=1;
+    }
+   
+
+  },
+  'newDir': (node) => 
+  {
+    
+  },
+  'import': (node) => 
+  {
+    
+  },
+  'rename': (node) => 
+  {
+ 
+  },
+  'edit-doc': (node) => 
+  {
+ 
+  }, 
+  'copy-link': (node) => 
+  {
+ 
+  },
+  'pin-top': (node) => 
+  {
+ 
+  },
+  'open-new-tab': (node) => 
+  {
+ 
+  },
+  'delete': async (node) => 
+  {
+    //删除dir就行
+    loading.value +=1;
+    try 
+    {
+      const {data} = await api.delete('/dir',{
+        'kbId': props.kbId,
+        'dirId': node.id
+      });
+      console.log("本次目录删除影响了",data,"个文章，需要用户注意");
+      // 移除对应的dir节点
+      removeNode(node);
+    }
+    catch (error) 
+    {
+      console.error('删除目录失败:', error);
+    }
+    finally 
+    {
+      loading.value -=1;
+    }
+  }
+};
+
+// 添加子节点
+function addChildNode(parentNode, childNode) 
+{
+  if(getNodeExpandedState(parentNode)) 
+  {
+    //找到当前节点在扁平化数组中的位置
+    const currentIndex = flatNodes.value.findIndex(item => item.id === parentNode.id);
+    //找到该节点的所有子节点，插入到最后一个子节点后面
+    let insertIndex = currentIndex + 1;
+    //遍历找到最后一个子节点的位置
+    while(insertIndex < flatNodes.value.length && flatNodes.value[insertIndex].depth > parentNode.depth) 
+    {
+      insertIndex++;
+    }
+    //在正确位置插入新节点
+    flatNodes.value.splice(insertIndex, 0, childNode);
+  }
+  else 
+  {
+    //添加在children里
+    parentNode.children.push(childNode);
   }
 }
 
+// 移除节点
+function removeNode(node) 
+{
+  // 找到当前节点在扁平化数组中的位置
+  if(getNodeExpandedState(node))
+{
+  toggleNode(node);
+}
+  const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
+
+}
+
+function slectHandler(key, node) 
+{
+  //隐藏菜单
+  menuState.openNodeId = null;
+  menuState.openMenuType = null;
+  
+  // 使用映射对象直接调用对应的函数
+  if (actionHandlers[key]) 
+  {
+    actionHandlers[key](node);
+  }
+  else 
+  {
+    console.log('未知操作:', key);
+  }
+}
+
+
+
 // 处理添加菜单的开关
-function handleAddMenuToggle(visible, node) {
-  if (visible) {
+function handleAddMenuToggle(visible, node) 
+{
+  if (visible) 
+  {
     // 打开添加菜单时，关闭其他菜单
     menuState.openNodeId = node.id;
     menuState.openMenuType = 'add';
-  } else if (menuState.openNodeId === node.id && menuState.openMenuType === 'add') {
+  }
+  else if (menuState.openNodeId === node.id && menuState.openMenuType === 'add') 
+  {
     // 只有当关闭的是当前节点的添加菜单时才重置状态
     menuState.openNodeId = null;
     menuState.openMenuType = null;
@@ -160,56 +319,39 @@ function handleAddMenuToggle(visible, node) {
 }
 
 // 处理更多操作菜单的开关
-function handleMoreMenuToggle(visible, node) {
-  if (visible) {
+function handleMoreMenuToggle(visible, node) 
+{
+  if (visible) 
+  {
     // 打开更多操作菜单时，关闭其他菜单
     menuState.openNodeId = node.id;
     menuState.openMenuType = 'more';
-  } else if (menuState.openNodeId === node.id && menuState.openMenuType === 'more') {
+  }
+  else if (menuState.openNodeId === node.id && menuState.openMenuType === 'more') 
+  {
     // 只有当关闭的是当前节点的更多操作菜单时才重置状态
     menuState.openNodeId = null;
     menuState.openMenuType = null;
   }
 }
 
-function handleMoreActions(value, node) {
-  console.log('更多操作:', value, '节点:', node.name);
-  
-  // 关闭菜单
-  menuState.openNodeId = null;
-  menuState.openMenuType = null;
-  
-  switch (value) {
-    case 'rename':
-      // 重命名节点
-      console.log('重命名节点:', node.name);
-      // TODO: 实现重命名功能
-      break;
-    case 'delete':
-      // 删除节点
-      console.log('删除节点:', node.name);
-      // TODO: 实现删除功能
-      break;
-    case 'copy':
-      // 复制节点
-      console.log('复制节点:', node.name);
-      // TODO: 实现复制功能
-      break;
-    case 'move':
-      // 移动节点
-      console.log('移动节点:', node.name);
-      // TODO: 实现移动功能
-      break;
-    default:
-      break;
-  }
-}
 
 
 
+
+
+/**
+ * 下面是跟扁平化节点
+ */
 
 // 扁平化的节点数据
 const flatNodes = ref([]);
+
+// 原始节点数据缓存
+const cachedTreeData = ref([]);
+
+// 搜索文本
+const searchText = ref('');
 
 // 菜单状态管理
 const menuState = reactive({
@@ -246,9 +388,57 @@ function flattenTree(nodes, depth = 0)
       ...node,
       depth
     });
+    
+    // 递归处理子节点
+    if (node.children && node.children.length > 0) {
+      result.push(...flattenTree(node.children, depth + 1));
+    }
   }
   
   return result;
+}
+
+// 递归过滤节点
+function filterNodes(nodes, keyword) {
+  if (!keyword) return nodes;
+  
+  const filteredNodes = [];
+  
+  for (const node of nodes) {
+    // 检查当前节点是否匹配
+    const isMatch = node.name && node.name.toLowerCase().includes(keyword.toLowerCase());
+    
+    // 创建节点副本
+    const nodeCopy = { ...node };
+    
+    // 递归过滤子节点
+    if (node.children && node.children.length > 0) {
+      nodeCopy.children = filterNodes(node.children, keyword);
+    }
+    
+    // 如果当前节点匹配或有匹配的子节点，则添加到结果中
+    if (isMatch || (nodeCopy.children && nodeCopy.children.length > 0)) {
+      // 如果当前节点不匹配但子节点匹配，清除children数组以避免显示不匹配的中间节点
+      if (!isMatch && nodeCopy.children && nodeCopy.children.length === 0) {
+        delete nodeCopy.children;
+      }
+      filteredNodes.push(nodeCopy);
+    }
+  }
+  
+  return filteredNodes;
+}
+
+// 处理搜索
+function handleSearch(value) {
+  if (!value) {
+    // 如果搜索文本为空，恢复原始数据
+    flatNodes.value = flattenTree(cachedTreeData.value);
+  } else {
+    // 过滤节点
+    const filteredData = filterNodes(cachedTreeData.value, value);
+    flatNodes.value = flattenTree(filteredData);
+  }
 }
 
 // 监听原始数据变化，重新扁平化
@@ -256,35 +446,40 @@ watch(
   () => props.treeData,
   (newData) => 
   {
+    // 缓存原始数据
+    cachedTreeData.value = JSON.parse(JSON.stringify(newData));
     flatNodes.value = flattenTree(newData);
+    for(let i=0;i<flatNodes.value.length;i++)
+    {
+      flatNodes.value[i].children=[];
+    }
   },
   { immediate: true, deep: true }
 );
-
+/**
+ * 控制节点的展开和收起
+ */
 // 获取节点展开状态
 function getNodeExpandedState(node) 
 {
-  // 如果没有子节点，直接返回false
-  if (!node.children || node.children.length === 0) 
+  if(node.children && node.children.length>0)
   {
     return false;
   }
-  
   // 查找当前节点在扁平化数组中的索引
   const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
-  
   // 检查下一个元素是否存在且是否为当前节点的子节点
   if (currentIndex >= 0 && currentIndex < flatNodes.value.length - 1) 
   {
+
     const nextNode = flatNodes.value[currentIndex + 1];
     // 如果下一个节点的parentId等于当前节点的id，说明是展开状态
     if (nextNode.parentId === node.id) 
     {
+      //说明展开了，并且就在自己的后面
       return true;
     }
   }
-  
-  // 默认返回false（收起状态）
   return false;
 }
 
@@ -313,11 +508,13 @@ function toggleNode(node)
       }));
       // 在当前节点后插入子节点
       flatNodes.value.splice(index + 1, 0, ...childrenWithDepth);
+      me.children=[];
     }
   }
   
   function toCollapse(parentIndex) 
   {
+
     if (flatNodes.value.length <= parentIndex) 
     {
       return;
@@ -334,6 +531,7 @@ function toggleNode(node)
       {
         break;
       }
+      parent.children.push(node);
       removeCount++;
     }
     // 删除所有子节点
@@ -379,7 +577,9 @@ function getNodeClasses(node, index)
   
   return classes.join(' ');
 }
-
+/**
+ * 下面是拖拽
+ */
 // 拖拽相关配置
 const DRAG_THRESHOLD = 5; // 最小拖拽距离
 
@@ -395,12 +595,16 @@ function handleMouseDown(event, node, index)
   }
   
   // 如果 edit 为 false，不允许拖拽功能
-  if (!props.edit) {
+  if (!props.edit) 
+  {
     event.preventDefault();
     // 如果节点存在 postId，调用父组件的 clickPost 方法
-    if (node.postId) {
+    if (node.postId) 
+    {
       emit('clickPost', node);
-    } else {
+    }
+    else 
+    {
       // 否则执行点击逻辑 - 切换展开/收起状态
       toggleNode(node);
     }
@@ -439,9 +643,11 @@ function createDraggingShadow(node, event)
 }
 
 // 开始拖拽
-function startDragging(event) {
+function startDragging(event) 
+{
   // 如果 edit 为 false，不允许开始拖拽
-  if (!props.edit) {
+  if (!props.edit) 
+  {
     return;
   }
   
@@ -449,19 +655,22 @@ function startDragging(event) {
   dragState.hasMoved = true;
   
   // 清除点击定时器
-  if (dragState.clickTimeout) {
+  if (dragState.clickTimeout) 
+  {
     clearTimeout(dragState.clickTimeout);
     dragState.clickTimeout = null;
   }
   
   // 收起子目录（如果展开的话）
-  if (dragState.sourceNode && getNodeExpandedState(dragState.sourceNode)) {
+  if (dragState.sourceNode && getNodeExpandedState(dragState.sourceNode)) 
+  {
     toggleNode(dragState.sourceNode);
   }
   
   // 临时移除tree-menu-container样式
   const container = document.querySelector('.tree-menu-container');
-  if (container) {
+  if (container) 
+  {
     container.classList.add('no-transition');
   }
   
@@ -487,24 +696,28 @@ function handleMouseMove(event)
   event.preventDefault();
   
   // 如果 edit 为 false，不允许拖拽
-  if (!props.edit) {
+  if (!props.edit) 
+  {
     return;
   }
   
   // 如果还未开始拖拽，检查是否需要启动拖拽
-  if (!dragState.isDragging && dragState.sourceNode) {
+  if (!dragState.isDragging && dragState.sourceNode) 
+  {
     const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
     const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
     
     // 如果移动距离超过阈值，开始拖拽
-    if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
+    if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) 
+    {
       startDragging(event);
       return;
     }
   }
   
   // 如果已经在拖拽状态，处理拖拽逻辑
-  if (dragState.isDragging) {
+  if (dragState.isDragging) 
+  {
     // 更新阴影位置
     updateShadowPosition(event);
     
@@ -584,17 +797,23 @@ function handleMouseUp(event)
   event.preventDefault();
   
   // 如果 edit 为 false，直接处理点击事件
-  if (!props.edit) {
-    if (dragState.sourceNode) {
+  if (!props.edit) 
+  {
+    if (dragState.sourceNode) 
+    {
       const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
       const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
       
       // 如果移动距离很小，认为是点击
-      if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) {
+      if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) 
+      {
         // 如果节点存在 postId，调用父组件的 clickPost 方法
-        if (dragState.sourceNode.postId) {
+        if (dragState.sourceNode.postId) 
+        {
           emit('clickPost', dragState.sourceNode);
-        } else {
+        }
+        else 
+        {
           // 否则执行点击逻辑 - 切换展开/收起状态
           toggleNode(dragState.sourceNode);
         }
@@ -607,29 +826,36 @@ function handleMouseUp(event)
   }
   
   // 如果已经开始了拖拽，执行放置操作
-  if (dragState.isDragging) {
+  if (dragState.isDragging) 
+  {
     performDrop();
     cleanupDrag();
     return;
   }
   
   // 如果没有开始拖拽，可能是点击事件
-  if (dragState.sourceNode) {
+  if (dragState.sourceNode) 
+  {
     const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
     const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
     
     // 如果移动距离很小，认为是点击
-    if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) {
+    if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) 
+    {
       // 清除点击定时器（如果有的话）
-      if (dragState.clickTimeout) {
+      if (dragState.clickTimeout) 
+      {
         clearTimeout(dragState.clickTimeout);
         dragState.clickTimeout = null;
       }
       
       // 如果节点存在postId，调用父组件的clickPost方法
-      if (dragState.sourceNode.postId) {
+      if (dragState.sourceNode.postId) 
+      {
         emit('clickPost', dragState.sourceNode);
-      } else {
+      }
+      else 
+      {
         // 否则执行点击逻辑 - 切换展开/收起状态
         toggleNode(dragState.sourceNode);
       }
@@ -648,7 +874,7 @@ function handleMouseLeave(event)
   // 如果鼠标离开容器，尝试目前是不放置
   if (dragState.targetIndex !== -1) 
   {
-   // performDrop();
+    // performDrop();
   }
   
   cleanupDrag();
@@ -726,7 +952,8 @@ function cleanupDrag()
   dragState.containerRect = null;
   dragState.startPosition = { x: 0, y: 0 };
   dragState.hasMoved = false;
-  if (dragState.clickTimeout) {
+  if (dragState.clickTimeout) 
+  {
     clearTimeout(dragState.clickTimeout);
     dragState.clickTimeout = null;
   }
@@ -848,7 +1075,8 @@ function cleanupDrag()
   }
   
   // 悬停时显示右侧图标
-  .tree-node:hover .node-actions {
+  .tree-node:hover .node-actions,
+  .tree-node .node-actions.show-actions {
     opacity: 1;
   }
   
@@ -931,8 +1159,21 @@ function cleanupDrag()
         flex: 1;
         font-size: 14px;
         color: #333;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
+  }
+}
+
+// 搜索框样式
+.search-container {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-neutral-3);
+  
+  .arco-input-wrapper {
+    border-radius: 16px;
   }
 }
 
@@ -959,6 +1200,23 @@ function cleanupDrag()
 .node-list-leave-from {
   opacity: 1;
   max-height: 100px;
+}
+
+
+
+
+.menu-icon {
+ font-size: 16px;
+ color:#414141;
+ vertical-align: middle;
+}
+
+/* 加载状态样式 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 
 </style>

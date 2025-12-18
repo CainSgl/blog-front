@@ -13,17 +13,17 @@ const routes = [
   },
   {
     path: '/kb',
-    name: 'KnowledgeBase',
+    name: 'KB',
     component: () => import('@/views/kb/kb.vue'),
     children: [
       {
         path: 'view',
-        name: 'KnowledgeBaseView',
+        name: 'KBView',
         component: () => import('@/views/kb/children/view.vue')
       },
       {
         path: 'edit',
-        name: 'KnowledgeBaseEdit',
+        name: 'KBEdit',
         component: () => import('@/views/kb/children/edit.vue')
       }
     ]

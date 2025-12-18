@@ -1,12 +1,20 @@
 <template>
   <div class="knowledge-base">
     <div class="sidebar">
+      <div class="kb-header">
+        <h3>{{ kbName }}</h3>
+      </div>
       <TreeMenu 
         :tree-data="treeData"
         :edit="true"
         @clickPost="handleClickPost"
+        :kb-id="kbId"
       />
     </div>
+
+
+
+
     <div class="content">
       <router-view />
     </div>
@@ -14,83 +22,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import TreeMenu from '@/components/TreeMenuNew.vue';
-function handleClickPost(node) {
-  console.log(node)
-}
-// 模拟数据
-const treeData = ref([
-  {
-    'id': 1,
-    'kbId': 1,
-    'name': '根目录1',
-    'parentId':null,
-    'children':[]
-  },
-  {
-    'id': 2,
-    'kbId': 1,
-    'name': '根目录2',
-    'parentId':null,
-    'children': [
-      {
-        'id': 3,
-        'kbId': 1,
-        'name': '目录3',
-        'parentId':2,
-        'children': [
-          {
-            'id': 4,
-            'kbId': 1,
-            'parentId':3,
-            'name': '目录5',
-            'children':[]
-          },
-          {
-            'id': 5,
-            'kbId': 1,
-            'parentId':3,
-            'name': '目录6',
-            'children':[]
-          },
-          {
-            'id': 6,
-            'kbId': 1,
-            'parentId':3,
-            'name': '目录7',
+import api from '@/api/index.js';
+import { useRoute } from 'vue-router';
 
-            'children':[
-              {
-                'id': 11,
-                'kbId': 1,
-                'parentId':6,
-                'name': '测试文档aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1测试文档aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1测试文档aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1',
-                  'postId': 5,
-                'children':[]
-              },  {
-                'id': 12,
-                'kbId': 1,
-                'parentId':6,
-                'name': '测试文档2',
-                                  'postId': 5,
-                'children':[]
-              },
-            ]
-          },
-          {
-            'id': 7,
-            'kbId': 1,
-            'parentId':3,
-            'name': '文章2',
-            'postId': 1998966530797060097,
-            'children':[]
-          }
-        ]
-      }
-    ]
+
+const route = useRoute();
+onMounted(async ()=>
+{
+  const kbParam = route.query.kb;
+  if (kbParam) 
+  {
+    const kbIdreq = parseInt(kbParam);
+   
+    const {data}= await api.get('/kb',{id:kbIdreq});
+    console.log('知识库ID',kbIdreq,data);
+    //TODO，现在全部是正确的，后续加隐私设置
+    kbId.value=data.first.id;
+    kbName.value=data.first.name;
+    treeData.value=data.second;
   }
-]);
+
+});
+const kbName=ref('');
+const kbId=ref("-1");
+function handleClickPost(node) 
+{
+  console.log('点击了');
+}
+const treeData = ref([]);
+
 
 
 </script>

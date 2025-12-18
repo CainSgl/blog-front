@@ -12,7 +12,6 @@
     "f": "node full-format.js"
   },
   "dependencies": {
-    "@arco-design/web-vue": "^2.57.0",
     "@types/three": "^0.182.0",
     "axios": "^1.13.2",
     "pinia": "^3.0.4",
@@ -23,6 +22,7 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@arco-design/web-vue": "^2.57.0",
     "@eslint/js": "^9.39.2",
     "@vitejs/plugin-vue": "^6.0.1",
     "astyle": "^2.0.0",

@@ -40,16 +40,16 @@ const api = {
   },
 
 
-  delete(url, params = {}, config = {}) 
+  delete(url, params = {},data={}, config = {}) 
   {
     return request({
       url,
       method: 'delete',
       params,
+      data,
       ...config,
     });
   }
-  
 };
 
 export default api;
