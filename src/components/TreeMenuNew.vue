@@ -394,7 +394,7 @@ function flattenTree(nodes, depth = 0)
       result.push(...flattenTree(node.children, depth + 1));
     }
   }
-  
+  console.log(result)
   return result;
 }
 
@@ -512,35 +512,41 @@ function toggleNode(node)
     }
   }
   
-  function toCollapse(parentIndex) 
+  function toCollapse(index) 
   {
 
-    if (flatNodes.value.length <= parentIndex) 
+    if (index+1>=flatNodes.value.length) 
     {
       return;
     }
-    const parent = flatNodes.value[parentIndex];
-    const parentDepth = parent.depth;
-    // 从父节点的下一个位置开始查找需要删除的子节点
-    let removeCount = 0;
-    for (let i = parentIndex + 1; i < flatNodes.value.length; i++) 
+    const me = flatNodes.value[index];
+    if(me.children && me.children.length>0)
     {
-      const node = flatNodes.value[i];
-      // 如果节点的深度小于等于父节点，说明已经超出了子节点范围
-      if (node.depth <= parentDepth) 
-      {
-        break;
-      }
-      parent.children.push(node);
-      removeCount++;
+      return
     }
-    // 删除所有子节点
-    if (removeCount > 0) 
+    //如果下一个节点的深度刚好是自己的深度+1，说明下一个节点是直接子节点
+    while(true)
     {
-      flatNodes.value.splice(parentIndex + 1, removeCount);
+      const next=flatNodes.value[index+1];
+      if(!next)
+     {
+       return
+      }
+      if(next.depth===me.depth+1)
+      {
+        toCollapse(index+1);
+        //移除他，并加入到自己的子节点里去
+        me.children.push(next);
+        flatNodes.value.splice(index+1,1);
+      }
+      else
+      {
+        break
+      }
     }
   }
-  
+    
+   
   // 切换节点展开状态
   if (!isExpanded) 
   {
