@@ -71,8 +71,9 @@ const activeTab = ref('password');
 // 处理登录成功
 const handleLoginSuccess = () => 
 {
-  // 可以在这里添加登录成功后的处理逻辑
+  // 登录成功后刷新页面
   console.log('登录成功');
+  window.location.reload();
 };
 </script>
 

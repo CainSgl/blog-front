@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { Notification } from '@arco-design/web-vue';
+import { Message, Notification } from '@arco-design/web-vue';
 import { useUserStore } from '@/store/user.js';
+import { showLoginModal } from '@/services/authService';
 // 创建axios实例
 const service = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
@@ -44,6 +45,7 @@ service.interceptors.response.use(
     {
       return response.data;
     }
+
     //构造一下错误提醒
     const error={
       debug:response.data.debug,
@@ -56,14 +58,36 @@ service.interceptors.response.use(
     if (code == '40100') 
     {
       //说明没有登录
-      Notification.error({
-        title: '登录过期',
-        content: '请重新登录',
-        duration: 3000,
-      });
-      //TODO 尝试弹出登录后，重新刷新页面
+      const userStore = useUserStore();
+      if(userStore.getToken())
+      {
+        Message.warning({
+          content: '登录似乎过期了，请重新登录',
+          duration: 3000,
+        });
+      }
+      else
+      {
+        Message.info({
+          content: '你还没有登录呢，登录享受更多服务哦',
+          duration: 3000,
+        });
+      }
+      showLoginModal();
       return;
     }
+    if(code==40101)
+    {
+      Message.error({
+        content: '无权限操作',
+        duration: 3000,
+      });
+      return;
+    }
+    Message.error({
+      content: error.message||'服务器异常',
+      duration: 3000,
+    });
     console.error('服务器成功响应，但返回的不是成功请求', error);
     return Promise.reject(error);
   },

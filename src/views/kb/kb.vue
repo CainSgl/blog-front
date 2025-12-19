@@ -4,6 +4,7 @@
       <div class="kb-header">
         <h3>{{ kbName }}</h3>
       </div>
+
       <TreeMenu 
         :tree-data="treeData"
         :edit="true"
@@ -11,13 +12,10 @@
         :kb-id="kbId"
       />
     </div>
-
-
-
-
     <div class="content">
       <router-view />
     </div>
+
   </div>
 </template>
 
@@ -35,15 +33,16 @@ onMounted(async ()=>
   if (kbParam) 
   {
     const kbIdreq = parseInt(kbParam);
-   
     const {data}= await api.get('/kb',{id:kbIdreq});
-    console.log('知识库ID',kbIdreq,data);
     //TODO，现在全部是正确的，后续加隐私设置
     kbId.value=data.first.id;
     kbName.value=data.first.name;
     treeData.value=data.second;
   }
-
+  else
+  {
+    console.log('没有');
+  }
 });
 const kbName=ref('');
 const kbId=ref('-1');

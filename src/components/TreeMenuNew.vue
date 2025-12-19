@@ -4,7 +4,7 @@
     <div class="search-container" v-if="edit">
       <Input 
         v-model="searchText" 
-        placeholder="搜索节点..." 
+        placeholder="找不到？搜索一下吧..." 
         allow-clear
         @input="handleSearch"
       >
@@ -64,10 +64,9 @@
           </span>
           
           <span class="node-name"  v-show="!node.showInput" >{{ node.name || '未命名' }}</span>
-          <div v-if="node.showInput">
+          <div v-show="node.showInput">
             <Input 
-              ref="renameInput"
-              :value="node.name"
+              :value="nodeName"
               class="rename-input"
               @input="(e) => handleRenameInput(e, node)"
               @blur="() => handleRenameBlur(node)"
@@ -160,7 +159,7 @@
     </div>
     <!-- 加载状态指示器 -->
     <div v-if="loading>0" class="loading-container">
-      <Spin tip="数据正在拼命发送到服务器中...">
+      <Spin :tip="loadingTip">
       <template #icon>
       <IconSync/>
        </template>
@@ -197,7 +196,14 @@ const router = useRouter();
 
 // 创建内部loading状态
 const loading = ref(0);
-
+const loadingTip = computed(() => 
+{
+  if (loading.value === 1) 
+  {
+    return '正在拼命同步修改中...';
+  }
+  return `正在拼命同步修改中,前方还有${loading.value-1}个命令正在发送...`;
+});
 // 创建操作锁，防止并发操作
 const operationLock = ref(false);
 
@@ -231,31 +237,40 @@ async function withLock(operation)
 let lastRenameNode=null;
 const nodeName=ref('');
 // 处理重命名确认
-function handleRenameConfirm(node) {
+function handleRenameConfirm(node) 
+{
   node.showInput = false;
   node.showInput = false;
   lastRenameNode = null;
 }
 
 // 处理重命名失焦
-function handleRenameBlur(node) {
-  console.log(node,nodeName.value)
+function handleRenameBlur(node) 
+{
   if(nodeName.value!=node.name)
   {
-    console.log("需要保存数据")
+    console.log('需要保存数据');
     //去调用api
     loading.value +=1;
-     api.put('/dir',{
+    let parentId=node.parentId;
+    if(!parentId)
+    {
+      parentId=null;
+    }
+    api.put('/dir',{
       id:node.id,
       kbId:props.kbId,
       name:nodeName.value,
-      parentId:node.parentId,
-    }).then((res) => {
+      parentId:parentId,
+    }).then((res) => 
+    {
       loading.value -=1;
       node.name=nodeName.value;
-    }).catch((error) => {
+    }).catch((error) => 
+    {
       console.error('重命名目录失败:', error);
       loading.value -=1;
+      node.name=nodeName.value;
     });
   }
   node.showInput = false;
@@ -265,16 +280,17 @@ function handleRenameBlur(node) {
 }
 
 // 处理重命名输入框变化
-function handleRenameInput(e,node) {
-  nodeName.value=e
-  return
+function handleRenameInput(e,node) 
+{
+  nodeName.value=e;
+  return;
 }
 function handleRenameCancel(e)
 {
-  console.log("取消重命名")
+  console.log('取消重命名');
   lastRenameNode.showInput = false;
   nodeName.value=lastRenameNode.name;
-  lastRenameNode=null
+  lastRenameNode=null;
 }
 
 
@@ -287,15 +303,22 @@ const actionHandlers = {
     //创建并跳转
     try
     {
+      let parentId=null;
+      let docName='不建议文档创建在根目录噢';
+      if(node)
+      {
+        parentId=node.id;
+        docName=node.name+'下的文档';
+      }
       const {data}= await api.post('/post',{
-        title:'无标题文档',
+        title:docName,
         kbId:props.kbId,
         parentId:node?.id,
       });
       const newNode={
         id:data.dirId,
-        name:'无标题文档',
-        parentId:node?.id,
+        name:docName,
+        parentId:parentId,
         postId:data.post.id,
         depth:node ? node.depth + 1 : 0,
         children:[]
@@ -319,19 +342,25 @@ const actionHandlers = {
   },
   'newDir':async (node) => 
   {
-      loading.value +=1;
-    //创建并跳转
+    loading.value +=1;
     try
     {
+      let parentId=null;
+      let dirName='根目录';
+      if(node)
+      {
+        parentId=node.id;
+        dirName=(node.depth+1)+'级目录';
+      }
       const {data}= await api.post('/dir',{
-        name:'新建目录',
+        name: dirName,
         kbId:props.kbId,
-        parentId:node?.id,
+        parentId:parentId,
       });
       const newNode={
         id:data,
-        name:'新建目录',
-        parentId:node?.id,
+        name:dirName,
+        parentId:parentId,
         depth:node ? node.depth + 1 : 0,
         children:[]
       };
@@ -354,11 +383,12 @@ const actionHandlers = {
   'rename': (node) => 
   {
     if(lastRenameNode)
-   {
-    lastRenameNode.showInput=false;
-   }
+    {
+      lastRenameNode.showInput=false;
+    }
     lastRenameNode=node;
     nodeName.value=node.name;
+    console.log(node.name);
     node.showInput=true;
   },
   'edit-doc': (node) => 
@@ -379,21 +409,29 @@ const actionHandlers = {
     console.log('复制链接:', node);
     if (node.postId) 
     {
-      const link = `a`;
+      const link = 'a';
     }
   },
   'pin-top':async (node) => 
   {
     loading.value +=1;
-    try{
-     const {data} = await api.put('/post',{
-      id:node.postId,
-      isTop:true,
-    })
-    }catch(error)
+    try
+    {
+      let postId=null;
+      if(node.postId)
+      {
+        postId=node.postId;
+      }
+      const {data} = await api.put('/post',{
+        id:node.postId,
+        isTop:true,
+      });
+    }
+    catch(error)
     {
       console.error('置顶文档失败:', error);
-    }finally
+    }
+    finally
     {
       loading.value -=1;
     }
@@ -443,11 +481,11 @@ function addChildNode(parentNode, childNode)
   withLock(()=>
   {
     if(!parentNode)
-  {
+    {
     //明显根节点
-    flatNodes.value.push(childNode);
-    return;
-  }
+      flatNodes.value.push(childNode);
+      return;
+    }
    
     
 
@@ -608,7 +646,8 @@ function filterNodes(nodes, keyword)
   const lowerKeyword = keyword.toLowerCase();
   
   // 深度克隆节点树，避免修改原数据
-  function cloneNode(node) {
+  function cloneNode(node) 
+  {
     return {
       ...node,
       children: node.children ? node.children.map(child => cloneNode(child)) : []
@@ -616,14 +655,17 @@ function filterNodes(nodes, keyword)
   }
   
   // 检查节点及其子节点是否包含匹配项
-  function hasMatchingDescendant(node) {
+  function hasMatchingDescendant(node) 
+  {
     // 检查当前节点是否匹配
-    if (node.name && node.name.toLowerCase().includes(lowerKeyword)) {
+    if (node.name && node.name.toLowerCase().includes(lowerKeyword)) 
+    {
       return true;
     }
     
     // 递归检查子节点
-    if (node.children && node.children.length > 0) {
+    if (node.children && node.children.length > 0) 
+    {
       return node.children.some(child => hasMatchingDescendant(child));
     }
     
@@ -631,17 +673,21 @@ function filterNodes(nodes, keyword)
   }
   
   // 过滤节点树，保留匹配节点及其所有父节点
-  function filterTree(nodes) {
+  function filterTree(nodes) 
+  {
     const result = [];
     
-    for (const node of nodes) {
+    for (const node of nodes) 
+    {
       // 深度克隆当前节点
       const clonedNode = cloneNode(node);
       
       // 如果当前节点匹配或者有匹配的后代节点，则保留该节点
-      if (hasMatchingDescendant(node)) {
+      if (hasMatchingDescendant(node)) 
+      {
         // 如果有子节点，递归过滤子节点
-        if (clonedNode.children && clonedNode.children.length > 0) {
+        if (clonedNode.children && clonedNode.children.length > 0) 
+        {
           clonedNode.children = filterTree(clonedNode.children);
         }
         result.push(clonedNode);
@@ -663,7 +709,7 @@ function handleSearch(value)
     {
       // 如果搜索文本为空，恢复原始数据
       flatNodes.value = cachedTreeData;
-      console.log("恢复数据")
+      console.log('恢复数据');
       cachedTreeData=null;
     }
     else 
@@ -695,6 +741,14 @@ watch(
     for(let i=0;i<flatNodes.value.length;i++)
     {
       flatNodes.value[i].children=[];
+    }
+    //让深度为2的收起自己的子目录
+    for(let i=0;i<flatNodes.value.length;i++)
+    {
+      if(flatNodes.value[i].depth==1)
+      {
+        toggleNode(flatNodes.value[i],true);
+      }
     }
   },
   { immediate: true, deep: true }
@@ -810,13 +864,14 @@ function toggleNode(node,onLock=false)
     }
 
 
-  }
+  };
   if(onLock)
   {
-    toggle()
-  }else
+    toggle();
+  }
+  else
   {
- withLock(toggle);
+    withLock(toggle);
   }
 }
 
@@ -1170,46 +1225,172 @@ function performDrop()
     {
       adjustedTargetIndex--;
     }
-  
     // 获取源节点
     const sourceNode = flatNodes.value[sourceIndex];
-  
     // 从原位置移除
     flatNodes.value.splice(sourceIndex, 1);
-  
+    const adjustedTarget=flatNodes.value[adjustedTargetIndex];
+    const lastNode=flatNodes.value[adjustedTargetIndex-1];
     // 根据放置类型插入到新位置
     switch (dropType) 
     {
     case 'before':
+      if(adjustedTarget.depth!=sourceNode.depth)
+      {
+        console.log('before切换了层级 adjustedTarget,sourceNode,lastNode',adjustedTarget,sourceNode,lastNode);
+        if(lastNode)
+        {
+          //查看lastNode的深度，如果是一样的，说明是resort，如果不一样，说明是move
+          if(lastNode.depth==adjustedTarget.depth)
+          {
+            moveOrResourt(sourceNode.id,lastNode.id,adjustedTarget.parentId);
+          }
+          else
+          {
+            moveOrResourt(sourceNode.id,null,adjustedTarget.parentId);
+          }
+     
+        }
+        else
+        {
+          //说明完全是最高的一级
+          moveOrResourt(sourceNode.id,null,null);
+        }
+      }
+      else
+      {
+        if(lastNode.depth==adjustedTarget.depth)
+        {
+          moveOrResourt(sourceNode.id,lastNode.id,-1);
+        }
+        else
+        {
+          moveOrResourt(sourceNode.id,null,-1);
+        }
+        console.log('before切换了层级 adjustedTarget,sourceNode,lastNode',adjustedTarget,sourceNode,lastNode);
+      }
       flatNodes.value.splice(adjustedTargetIndex, 0, {
         ...sourceNode,
-        depth: flatNodes.value[adjustedTargetIndex].depth,
-        parentId: flatNodes.value[adjustedTargetIndex].parentId
+        depth: adjustedTarget.depth,
+        parentId: adjustedTarget.parentId
       });
-      console.log("before")
       break;
       
     case 'after':
+      if(adjustedTarget.depth!=sourceNode.depth)
+      {
+        moveOrResourt(sourceNode.id,adjustedTarget.id,adjustedTarget.parentId);
+        console.log('after切换了层级',adjustedTarget,sourceNode);
+      }
+      else
+      {
+        moveOrResourt(sourceNode.id,adjustedTarget.id,-1);
+        console.log('after未切换层级',adjustedTarget,sourceNode);
+      }
       flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
         ...sourceNode,
-        depth: flatNodes.value[adjustedTargetIndex].depth,
-        parentId: flatNodes.value[adjustedTargetIndex].parentId
+        depth: adjustedTarget.depth,
+        parentId: adjustedTarget.parentId
       });
-      console.log("after")
       break;
       
     case 'child':
+      if(adjustedTarget.depth!=sourceNode.depth-1)
+      {
+        moveOrResourt(sourceNode.id,null,adjustedTarget.id);
+        console.log('child切换了层级',adjustedTarget,sourceNode);
+      }
+      else
+      {
+        moveOrResourt(sourceNode.id,null,-1);
+        console.log('child未切换层级',adjustedTarget,sourceNode);
+      }
       flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
         ...sourceNode,
-        depth: flatNodes.value[adjustedTargetIndex].depth + 1,
-        parentId: flatNodes.value[adjustedTargetIndex].id
+        depth: adjustedTarget.depth + 1,
+        parentId: adjustedTarget.id
       });
-      console.log("child")
       break;
     }
   });
  
 }
+function moveOrResourt(id,lastId,parentId)
+{
+  if(parentId==-1)
+  {
+    console.log('调用resort即可,id,lastId',id,lastId);
+    resourtDir(id,lastId);
+    //加入队列等待
+  }
+  else
+  {
+    console.log('调用move即可,id,lastId,parentId',id,lastId,parentId);
+    //加入队列请求
+    moveDir(id,lastId,parentId);
+  }
+}
+
+const willMoveDirs=[];
+let moveDirItem=null;
+function resourtDir(id,lastId)
+{
+  willMoveDirs.push({
+    url: '/dir/resort',
+    id,
+    lastId,
+    kbId:props.kbId
+  });
+  startMoveDirs();
+}
+function moveDir(id,lastId,parentId)
+{
+  willMoveDirs.push({
+    url: '/dir/move',
+    id,
+    lastId,
+    parentId,
+    kbId:props.kbId
+  });
+  startMoveDirs();
+}
+
+function startMoveDirs()
+{
+  if(moveDirItem)
+  {
+    return;
+  }
+  moveDirItem=setInterval(async ()=>
+  {
+    //去不断的调用api并等待
+    const item= willMoveDirs.shift();
+    if(item)
+    {
+      loading.value+=1;
+      try
+      {
+        await api.post(item.url,item);
+      }
+      catch(error)
+      {
+        console.log('移动目录失败',error);
+      }
+      finally
+      {
+        loading.value-=1;
+      }
+    }
+    else
+    {
+      clearInterval(moveDirItem);
+      moveDirItem=null;
+    }
+  });
+}
+
+
+
 
 // 清理拖拽状态
 function cleanupDrag() 
@@ -1564,4 +1745,4 @@ function cleanupDrag()
   margin-top: 20px;
 }
 
-</style>
+</style>1

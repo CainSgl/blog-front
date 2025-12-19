@@ -128,6 +128,8 @@ const handleLogin = async () =>
   {
     await authStore.login(loginForm);
     authStore.closeLogin();
+    // 发射登录成功事件
+    emit('login-success');
   }
   catch(error)
   {

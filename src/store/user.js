@@ -47,8 +47,14 @@ export const useUserStore = defineStore('user', () =>
       if (token) 
       {
         //说明有token，但是没有用户信息，需要从后端获取
-        const { data } = await api.get('/user/current');
-        userInfo.value = data;  
+        try{
+            const { data } = await api.get('/user/current');
+           userInfo.value = data;  
+        }catch(error)
+        {
+          console.error('获取用户信息失败:', error);
+          return {}
+        }
       }
     }
     return userInfo.value;

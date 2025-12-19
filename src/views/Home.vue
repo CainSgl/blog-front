@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { showLoginModal, requireLogin, loginService } from '@/services/authService';
+import { showLoginModal, requireLogin } from '@/services/authService';
 import { useUserStore } from '@/store/user';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
@@ -51,7 +51,8 @@ const testRequireLogin = () =>
 
 const testLogout = () => 
 {
-  loginService.logout();
+  // 使用用户存储来清除用户信息
+  userStore.clearUserInfo();
   console.log('已登出');
 };
 </script>
