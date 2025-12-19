@@ -5,6 +5,9 @@
       height="100vh"
       :disabled-menus="[]"
       @upload-image="handleUploadImage"
+      :include-level="[1,2,3,4,5]"
+      left-toolbar="undo redo | tip emoji | todo-list | align | copied-code"
+      right-toolbar="preview toc sync-scroll fullscreen"
     ></v-md-editor>
   </div>
 </template>
@@ -15,14 +18,16 @@ import { ref } from 'vue';
 const text = ref('');
 
 const handleUploadImage = (event, insertImage, files) => {
-    console.log(files[0].name)
+  // 实际项目中这里应该上传到服务器并返回真实的URL
+  console.log(files[0].name);
   
-  const url = 'https://example.com/image.jpg';
+  // 模拟上传成功后的URL
+  const url = 'https://example.com/' + files[0].name;
   insertImage({
-     url: files[0].name,
-     desc: '图片描述',
-     width: 'auto',
-     height: 'auto',
+    url: url,
+    desc: '图片描述',
+    width: 'auto',
+    height: 'auto',
   });
 };
 </script>
