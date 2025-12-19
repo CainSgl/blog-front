@@ -12,10 +12,11 @@
     "f": "node full-format.js"
   },
   "dependencies": {
+    "@kangc/v-md-editor": "^2.3.18",
     "@types/three": "^0.182.0",
     "axios": "^1.13.2",
     "pinia": "^3.0.4",
-    "quill": "^2.0.3",
+    "prismjs": "^1.30.0",
     "three": "^0.182.0",
     "typeit": "^8.8.7",
     "vue": "^3.5.24",
