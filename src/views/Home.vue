@@ -3,9 +3,15 @@
     <h1>欢迎来到首页</h1>
     <p>这是一个使用 Vite + Vue 3 + Vue Router + Arco Design + Pinia 的项目</p>
     
+    <!-- 主题切换按钮 -->
+    <div class="theme-toggle">
+      <a-button @click="toggleTheme">
+        切换到{{ isDarkMode ? '亮色' : '暗黑' }}模式
+      </a-button>
+    </div>
+    
     <!-- 用户信息展示 -->
-
-     <p>{{userInfo}}</p> 
+    <p>{{userInfo}}</p> 
     
     <div class="test-section">
       <a-space direction="vertical" size="large">

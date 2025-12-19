@@ -16,7 +16,7 @@
       <!-- 搜索框右侧操作图标 -->
       <div class="search-actions">
         <Dropdown 
-          trigger="click" 
+          trigger="hover" 
           placement="bottom" 
           :popup-visible="menuState.openNodeId === 'search' && menuState.openMenuType === 'add'"
           @select="(key) => handleMenuSelect(key, null)"
@@ -29,7 +29,7 @@
               menuState.openMenuType = null;
             }
           }"
-          position="br"
+          position="bl"
         >
           <IconPlus class="action-icon" @click.stop @mousedown.stop />
           <template #content>
@@ -61,6 +61,7 @@
           >
             <IconDown v-if="getNodeExpandedState(node)" />
             <IconRight v-else-if="node.children && node.children.length > 0" />
+            <IconFile v-else-if="node.postId" />
           </span>
           
           <span class="node-name"  v-show="!node.showInput" >{{ node.name || '未命名' }}</span>
@@ -84,7 +85,7 @@
              v-show="!dragState.isDragging && (edit || (menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more'))) && !node.showInput">
 
               <Dropdown 
-                trigger="click" 
+                trigger="hover" 
                 placement="bottom" 
                 :popup-visible="menuState.openNodeId === node.id && menuState.openMenuType === 'add'"
                 @select="(key) => handleMenuSelect(key, node)"
@@ -102,7 +103,7 @@
                </template>
              </Dropdown>
              <Dropdown 
-                trigger="click" 
+                trigger="hover" 
                 placement="bottom" 
                 :popup-visible="menuState.openNodeId === node.id && menuState.openMenuType === 'more'"
                 @select="(value) => handleMoreActions(value, node)"
@@ -171,7 +172,7 @@
 <script setup>
 import { ref, watch, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { IconDown, IconRight, IconPlus, IconMore, IconImport, IconFolder, IconDriveFile,IconEdit, IconPen, IconCopy, IconToTop, IconLaunch, IconDelete ,IconSync, IconSearch } from '@arco-design/web-vue/es/icon';
+import { IconDown, IconRight, IconPlus,IconFile, IconMore, IconImport, IconFolder, IconDriveFile,IconEdit, IconPen, IconCopy, IconToTop, IconLaunch, IconDelete ,IconSync, IconSearch } from '@arco-design/web-vue/es/icon';
 import { Dropdown, Menu, Spin, Input } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 const props = defineProps({
