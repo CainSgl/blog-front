@@ -32,7 +32,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import TreeMenu from '@/components/TreeMenuNew.vue';
+import TreeMenu from '@/components/TreeMenuWrapper.vue';
 import LikeButton from '@/components/LikeButton.vue';
 import api from '@/api/index.js';
 import { IconHome } from '@arco-design/web-vue/es/icon';
@@ -53,7 +53,7 @@ onMounted(async () =>
   const kbParam = route.query.kb;
   if (kbParam) 
   {
-    const kbIdreq = parseInt(kbParam);
+    const kbIdreq = kbParam;
     try 
     {
       const { data } = await api.get('/kb', { id: kbIdreq });
