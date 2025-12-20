@@ -2,9 +2,10 @@ import axios from 'axios';
 import { Message, Notification } from '@arco-design/web-vue';
 import { useUserStore } from '@/store/user.js';
 import { showLoginModal } from '@/services/authService';
+import { API_BASE_URL } from '@/config';
 // 创建axios实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'

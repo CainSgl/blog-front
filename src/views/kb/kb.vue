@@ -44,47 +44,57 @@ const route = useRoute();
 const router = useRouter();
 const noKb = ref(false);
 const kbInfo = ref({
-  name: "获取中...",
+  name: '获取中...',
   likeCount: 0
-})
+});
 
-onMounted(async () => {
+onMounted(async () => 
+{
   const kbParam = route.query.kb;
-  if (kbParam) {
+  if (kbParam) 
+  {
     const kbIdreq = parseInt(kbParam);
-    try {
+    try 
+    {
       const { data } = await api.get('/kb', { id: kbIdreq });
       //TODO，现在全部是正确的，后续加隐私设置
       kbId.value = data.first.id;
       kbInfo.value = data.first;
       treeData.value = data.second;
-    } catch (error) {
-      console.error(error)
+    }
+    catch (error) 
+    {
+      console.error(error);
       //要么没登陆，要么资源不存在(权限不足也是这个)
-      if (error.data.code == "40004") {
+      if (error.data.code == '40004') 
+      {
         //展示404
         router.push({ name: 'NoKb' });
         noKb.value = true;
       }
     }
   }
-  else {
+  else 
+  {
     console.log('没有');
     //重定向到404页面
     router.push({ name: 'NotFound' });
   }
 });
 const kbId = ref('-1');
-function handleClickPost(node) {
-   router.push({ name: 'KBEdit', query: { kb: kbId.value,p:node.id } });
+function handleClickPost(node) 
+{
+  router.push({ name: 'KBEdit', query: { kb: kbId.value,p:node.id } });
 }
 const treeData = ref([]);
 
-function goToHome() {
+function goToHome() 
+{
   router.push({ name: 'index', query: { kb: kbId.value } });
 }
 
-function handleLike(data) {
+function handleLike(data) 
+{
   console.log('点赞状态:', data);
   // 这里可以添加发送请求到后端保存点赞状态的逻辑
   // 例如：api.post('/kb/like', { kbId: data.kbId, liked: data.liked })

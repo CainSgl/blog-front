@@ -4,8 +4,10 @@ import { useUserStore } from '@/store/user';
 // 使用工厂函数创建登录服务，避免循环依赖
 let loginServiceInstance = null;
 
-export const getLoginService = () => {
-  if (!loginServiceInstance) {
+export const getLoginService = () => 
+{
+  if (!loginServiceInstance) 
+  {
     // 延迟初始化，避免循环依赖
     const authStore = useAuthStore();
     const userStore = useUserStore();

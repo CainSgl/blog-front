@@ -26,14 +26,18 @@ const emit = defineEmits(['like']);
 const likeCount = ref(props.initialLikeCount);
 const liked = ref(false);
 
-function handleLike() {
+function handleLike() 
+{
   // 切换点赞状态
   liked.value = !liked.value;
   
   // 更新点赞数
-  if (liked.value) {
+  if (liked.value) 
+  {
     likeCount.value++;
-  } else {
+  }
+  else 
+  {
     likeCount.value--;
   }
   
