@@ -18,9 +18,7 @@
     </div>
     <div class="content">
       <router-view />
-    </div>
-
-    
+    </div>  
     <LikeButton 
       :initial-like-count="kbInfo.likeCount" 
       :kb-id="kbId" 
@@ -37,6 +35,7 @@ import LikeButton from '@/components/LikeButton.vue';
 import api from '@/api/index.js';
 import { IconHome } from '@arco-design/web-vue/es/icon';
 import { useRoute, useRouter } from 'vue-router';
+import { useKbStore } from './kbStore.js';
 
 
 
@@ -47,6 +46,7 @@ const kbInfo = ref({
   name: '获取中...',
   likeCount: 0
 });
+const kbStore = useKbStore();
 
 onMounted(async () => 
 {
@@ -61,6 +61,11 @@ onMounted(async () =>
       kbId.value = data.first.id;
       kbInfo.value = data.first;
       treeData.value = data.second;
+      
+      // Store data in Pinia store
+      kbStore.setKbId(data.first.id);
+      kbStore.setKbInfo(data.first);
+      kbStore.setTreeData(data.second);
     }
     catch (error) 
     {
@@ -84,7 +89,8 @@ onMounted(async () =>
 const kbId = ref('-1');
 function handleClickPost(node) 
 {
-  router.push({ name: 'KBEdit', query: { kb: kbId.value,p:node.id } });
+  console.log('点击了文章:', node);
+  router.push({ name: 'KBEdit', query: { kb: kbId.value,p:node.postId } });
 }
 const treeData = ref([]);
 
@@ -95,9 +101,6 @@ function goToHome()
 
 function handleLike(data) 
 {
-  console.log('点赞状态:', data);
-  // 这里可以添加发送请求到后端保存点赞状态的逻辑
-  // 例如：api.post('/kb/like', { kbId: data.kbId, liked: data.liked })
 }
 
 
