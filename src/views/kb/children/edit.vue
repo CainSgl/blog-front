@@ -32,9 +32,7 @@
             {{ '同步滚动' }}
           </a-button>
         </a-tooltip>
-      </a-button-group>
-
-      
+      </a-button-group>      
       <a-button-group>
         <a-tooltip content="粗体">
           <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('bold')" title="粗体" size="large">
@@ -61,13 +59,27 @@
             <icon-font-colors size="large" />
           </a-button>
         </a-tooltip>
-        <a-tooltip content="切换字体颜色">
-        </a-tooltip>
+        <!-- 字体颜色选择器 -->
+        <vue-pick-colors 
+          v-model:value="fontColor" 
+          @change="handleFontColorChange" 
+          :width="30" 
+          :height="30" 
+          :borderRadius="4"
+        />
         <a-tooltip content="背景颜色">
           <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('background')" title="背景颜色" size="large">
             <icon-highlight />
           </a-button>
         </a-tooltip>
+        <!-- 背景颜色选择器 -->
+        <vue-pick-colors 
+          v-model:value="backgroundColor" 
+          @change="handleBackgroundColorChange" 
+          :width="30" 
+          :height="30" 
+          :borderRadius="4"
+        />
       </a-button-group>
       <a-button-group>
         <a-tooltip content="无序列表">
@@ -113,6 +125,7 @@
               @select="handleEmojiSelect" 
               :native="true"
               class="emoji-picker-popup"
+               :toolbar="['bold', 'italic']"
             />
           </template>
         </a-trigger>
@@ -120,8 +133,8 @@
     </div>
 
     <v-md-editor ref="editorRef" :model-value="text" @update:model-value="text = $event" height="calc(100vh - 40px)"
-      :disabled-menus="['save']" @upload-image="handleUploadImage" :include-level="[1, 2, 3, 4, 5]"
-      :mode="editorMode"></v-md-editor>
+     @upload-image="handleUploadImage" :include-level="[1, 2, 3, 4, 5]"
+      :mode="editorMode" :toolbar="false"></v-md-editor>
   </div>
 </template>
 
@@ -134,6 +147,7 @@ import { API_BASE_URL } from '@/config';
 import { IconArrowLeft, IconBold, IconItalic,IconMoreVertical,IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote } from '@arco-design/web-vue/es/icon';
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
+import VuePickColors from 'vue-pick-colors';
 
 // 使用 shallowRef 而不是 ref 来避免对象被冻结的问题
 const text = shallowRef('');
@@ -148,6 +162,10 @@ const showToc = ref(false);
 const syncScroll = ref(true);
 const isFullscreen = ref(false);
 const showEmojiPicker = ref(false); // 控制表情选择器显示
+
+// 颜色选择器相关数据
+const fontColor = ref('#0080ff'); // 默认字体颜色
+const backgroundColor = ref('#ffff00'); // 默认背景颜色
 
 // 编辑器模式
 const editorMode = ref('both'); // 'edit', 'preview', 'both'
@@ -585,128 +603,7 @@ const formatUnderline = () => {
   }
 };
 
-// 字体颜色处理函数
-const formatColor = () => {
-  const textInfo = getSelectedTextInfo();
-  if (!textInfo) return;
 
-  const { textarea, start, end, selectedText } = textInfo;
-
-  // 检查是否已经设置了字体颜色（只在选中文本时检查）
-  if (selectedText.length > 0) {
-    // 定义颜色标签
-    const colorTagStart = '<span style="color: #0080ff;">';
-    const colorTagEnd = '</span>';
-
-    // 检查选中文本是否已经被颜色标签包围
-    if (selectedText.startsWith(colorTagStart) && selectedText.endsWith(colorTagEnd) && selectedText.length > 35) {
-      // 取消颜色：去掉前后标签
-      const unformattedText = selectedText.substring(colorTagStart.length, selectedText.length - colorTagEnd.length);
-      const newText = text.value.substring(0, start) + unformattedText + text.value.substring(end);
-      updateTextAndSetCursor(newText, start);
-    } else {
-      // 设置颜色：包裹标签
-      // 这里我们可以弹出一个颜色选择器，但为了简化，我们使用默认颜色
-      const formattedText = `<span style="color: #0080ff;">${selectedText}</span>`;
-      const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
-      updateTextAndSetCursor(newText, start + colorTagStart.length);
-    }
-  } else {
-    // 如果没有选中文本，检查当前行是否已经设置了字体颜色
-    const lineInfo = getCurrentLineText();
-    if (lineInfo) {
-      const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
-      const colorTagStart = '<span style="color: #0080ff;">';
-      const colorTagEnd = '</span>';
-
-      // 检查当前行是否已经被颜色标签包围
-      if (lineText.startsWith(colorTagStart) && lineText.endsWith(colorTagEnd) && lineText.length > 35) {
-        // 取消整行颜色：去掉前后标签
-        const unformattedText = lineText.substring(colorTagStart.length, lineText.length - colorTagEnd.length);
-        const beforeText = text.value.substring(0, lineStart);
-        const afterText = text.value.substring(lineEnd);
-        const newText = beforeText + unformattedText + afterText;
-        // 保持光标在原来的位置（相对位置不变）
-        const newCursorPosition = lineStart + cursorPositionInLine - colorTagStart.length;
-        updateTextAndSetCursor(newText, Math.max(lineStart, newCursorPosition));
-      } else {
-        // 整行设置颜色：包裹标签
-        const formattedText = `<span style="color: #0080ff;">${lineText}</span>`;
-        const beforeText = text.value.substring(0, lineStart);
-        const afterText = text.value.substring(lineEnd);
-        const newText = beforeText + formattedText + afterText;
-        // 保持光标在原来的位置（相对位置不变）
-        const newCursorPosition = lineStart + colorTagStart.length + cursorPositionInLine;
-        updateTextAndSetCursor(newText, newCursorPosition);
-      }
-    } else {
-      // 如果无法获取行信息，则在光标位置插入颜色标签
-      const newText = text.value.substring(0, start) + `<span style="color: #0080ff;"></span>` + text.value.substring(end);
-      updateTextAndSetCursor(newText, start + 29); // '<span style="color: #0080ff;">'.length
-    }
-  }
-};
-
-// 背景颜色处理函数
-const formatBackground = () => {
-  const textInfo = getSelectedTextInfo();
-  if (!textInfo) return;
-
-  const { textarea, start, end, selectedText } = textInfo;
-
-  // 检查是否已经设置了背景颜色（只在选中文本时检查）
-  if (selectedText.length > 0) {
-    // 定义背景颜色标签
-    const bgColorTagStart = '<span style="background-color: #ffff00;">';
-    const bgColorTagEnd = '</span>';
-
-    // 检查选中文本是否已经被背景颜色标签包围
-    if (selectedText.startsWith(bgColorTagStart) && selectedText.endsWith(bgColorTagEnd) && selectedText.length > 45) {
-      // 取消背景颜色：去掉前后标签
-      const unformattedText = selectedText.substring(bgColorTagStart.length, selectedText.length - bgColorTagEnd.length);
-      const newText = text.value.substring(0, start) + unformattedText + text.value.substring(end);
-      updateTextAndSetCursor(newText, start);
-    } else {
-      // 设置背景颜色：包裹标签
-      const formattedText = `<span style="background-color: #ffff00;">${selectedText}</span>`;
-      const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
-      updateTextAndSetCursor(newText, start + bgColorTagStart.length);
-    }
-  } else {
-    // 如果没有选中文本，检查当前行是否已经设置了背景颜色
-    const lineInfo = getCurrentLineText();
-    if (lineInfo) {
-      const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
-      const bgColorTagStart = '<span style="background-color: #ffff00;">';
-      const bgColorTagEnd = '</span>';
-
-      // 检查当前行是否已经被背景颜色标签包围
-      if (lineText.startsWith(bgColorTagStart) && lineText.endsWith(bgColorTagEnd) && lineText.length > 45) {
-        // 取消整行背景颜色：去掉前后标签
-        const unformattedText = lineText.substring(bgColorTagStart.length, lineText.length - bgColorTagEnd.length);
-        const beforeText = text.value.substring(0, lineStart);
-        const afterText = text.value.substring(lineEnd);
-        const newText = beforeText + unformattedText + afterText;
-        // 保持光标在原来的位置（相对位置不变）
-        const newCursorPosition = lineStart + cursorPositionInLine - bgColorTagStart.length;
-        updateTextAndSetCursor(newText, Math.max(lineStart, newCursorPosition));
-      } else {
-        // 整行设置背景颜色：包裹标签
-        const formattedText = `<span style="background-color: #ffff00;">${lineText}</span>`;
-        const beforeText = text.value.substring(0, lineStart);
-        const afterText = text.value.substring(lineEnd);
-        const newText = beforeText + formattedText + afterText;
-        // 保持光标在原来的位置（相对位置不变）
-        const newCursorPosition = lineStart + bgColorTagStart.length + cursorPositionInLine;
-        updateTextAndSetCursor(newText, newCursorPosition);
-      }
-    } else {
-      // 如果无法获取行信息，则在光标位置插入背景颜色标签
-      const newText = text.value.substring(0, start) + `<span style="background-color: #ffff00;"></span>` + text.value.substring(end);
-      updateTextAndSetCursor(newText, start + 39); // '<span style="background-color: #ffff00;">'.length
-    }
-  }
-};
 
 // 无序列表处理函数
 const formatUnorderedList = () => {
@@ -788,6 +685,256 @@ const formatQuote = () => {
 
 
 
+// 字体颜色变化处理函数
+const handleFontColorChange = (color) => {
+  // 更新字体颜色值
+  fontColor.value = color;
+  // 应用字体颜色到选中文本
+  formatColorWithCustomColor(color);
+};
+
+// 背景颜色变化处理函数
+const handleBackgroundColorChange = (color) => {
+  // 更新背景颜色值
+  backgroundColor.value = color;
+  // 应用背景颜色到选中文本
+  formatBackgroundWithCustomColor(color);
+};
+
+// 辅助函数：解析span标签中的样式
+const parseSpanStyle = (spanText) => {
+  const styleRegex = /<span style="([^"]*)">([^]*)<\/span>/;
+  const match = spanText.match(styleRegex);
+  
+  if (!match) return null;
+  
+  const styleString = match[1];
+  const content = match[2];
+  
+  // 解析样式字符串
+  const styles = {};
+  styleString.split(';').forEach(style => {
+    const [key, value] = style.split(':').map(s => s.trim());
+    if (key && value) {
+      styles[key] = value;
+    }
+  });
+  
+  return {
+    styles,
+    content,
+    fullMatch: match[0]
+  };
+};
+
+// 辅助函数：构建span标签
+const buildSpanTag = (styles, content) => {
+  const styleString = Object.entries(styles)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('; ');
+  return `<span style="${styleString}">${content}</span>`;
+};
+
+// 带自定义颜色的字体颜色处理函数
+const formatColorWithCustomColor = (customColor) => {
+  const textInfo = getSelectedTextInfo();
+  if (!textInfo) return;
+
+  const { textarea, start, end, selectedText } = textInfo;
+
+  // 检查是否已经设置了字体颜色（只在选中文本时检查）
+  if (selectedText.length > 0) {
+    // 检查选中文本是否已经被span标签包围
+    const spanInfo = parseSpanStyle(selectedText);
+    
+    if (spanInfo) {
+      // 如果已经有span标签，检查是否已经有相同的字体颜色
+      if (spanInfo.styles['color'] === customColor) {
+        // 如果颜色相同，则移除字体颜色样式
+        delete spanInfo.styles['color'];
+        
+        // 如果没有其他样式了，就移除整个span标签
+        let newText;
+        if (Object.keys(spanInfo.styles).length === 0) {
+          newText = text.value.substring(0, start) + spanInfo.content + text.value.substring(end);
+          updateTextAndSetCursor(newText, start);
+        } else {
+          // 否则只更新样式
+          const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+          newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
+          updateTextAndSetCursor(newText, start);
+        }
+      } else {
+        // 如果颜色不同，则更新字体颜色样式
+        spanInfo.styles['color'] = customColor;
+        const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+        const newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
+        updateTextAndSetCursor(newText, start);
+      }
+    } else {
+      // 没有span标签，直接添加新的
+      const styles = { 'color': customColor };
+      const formattedText = buildSpanTag(styles, selectedText);
+      const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
+      updateTextAndSetCursor(newText, start + formattedText.indexOf('>') + 1);
+    }
+  } else {
+    // 如果没有选中文本，检查当前行是否已经设置了字体颜色
+    const lineInfo = getCurrentLineText();
+    if (lineInfo) {
+      const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
+      const spanInfo = parseSpanStyle(lineText);
+      
+      if (spanInfo) {
+        // 如果已经有span标签，检查是否已经有相同的字体颜色
+        if (spanInfo.styles['color'] === customColor) {
+          // 如果颜色相同，则移除字体颜色样式
+          delete spanInfo.styles['color'];
+          
+          // 如果没有其他样式了，就移除整个span标签
+          let newText;
+          if (Object.keys(spanInfo.styles).length === 0) {
+            const beforeText = text.value.substring(0, lineStart);
+            const afterText = text.value.substring(lineEnd);
+            newText = beforeText + spanInfo.content + afterText;
+            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+          } else {
+            // 否则只更新样式
+            const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+            const beforeText = text.value.substring(0, lineStart);
+            const afterText = text.value.substring(lineEnd);
+            const newText = beforeText + updatedSpan + afterText;
+            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+          }
+        } else {
+          // 如果颜色不同，则更新字体颜色样式
+          spanInfo.styles['color'] = customColor;
+          const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+          const beforeText = text.value.substring(0, lineStart);
+          const afterText = text.value.substring(lineEnd);
+          const newText = beforeText + updatedSpan + afterText;
+          updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+        }
+      } else {
+        // 没有span标签，为整行添加新的
+        const styles = { 'color': customColor };
+        const formattedText = buildSpanTag(styles, lineText);
+        const beforeText = text.value.substring(0, lineStart);
+        const afterText = text.value.substring(lineEnd);
+        const newText = beforeText + formattedText + afterText;
+        const newCursorPosition = lineStart + formattedText.indexOf('>') + 1 + cursorPositionInLine;
+        updateTextAndSetCursor(newText, newCursorPosition);
+      }
+    } else {
+      // 如果无法获取行信息，则在光标位置插入颜色标签
+      const styles = { 'color': customColor };
+      const formattedText = buildSpanTag(styles, '');
+      const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
+      updateTextAndSetCursor(newText, start + formattedText.indexOf('>') + 1);
+    }
+  }
+};
+
+// 带自定义颜色的背景颜色处理函数
+const formatBackgroundWithCustomColor = (customColor) => {
+  const textInfo = getSelectedTextInfo();
+  if (!textInfo) return;
+
+  const { textarea, start, end, selectedText } = textInfo;
+
+  // 检查是否已经设置了背景颜色（只在选中文本时检查）
+  if (selectedText.length > 0) {
+    // 检查选中文本是否已经被span标签包围
+    const spanInfo = parseSpanStyle(selectedText);
+    
+    if (spanInfo) {
+      // 如果已经有span标签，检查是否已经有相同的背景颜色
+      if (spanInfo.styles['background-color'] === customColor) {
+        // 如果颜色相同，则移除背景颜色样式
+        delete spanInfo.styles['background-color'];
+        
+        // 如果没有其他样式了，就移除整个span标签
+        let newText;
+        if (Object.keys(spanInfo.styles).length === 0) {
+          newText = text.value.substring(0, start) + spanInfo.content + text.value.substring(end);
+          updateTextAndSetCursor(newText, start);
+        } else {
+          // 否则只更新样式
+          const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+          newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
+          updateTextAndSetCursor(newText, start);
+        }
+      } else {
+        // 如果颜色不同，则更新背景颜色样式
+        spanInfo.styles['background-color'] = customColor;
+        const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+        const newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
+        updateTextAndSetCursor(newText, start);
+      }
+    } else {
+      // 没有span标签，直接添加新的
+      const styles = { 'background-color': customColor };
+      const formattedText = buildSpanTag(styles, selectedText);
+      const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
+      updateTextAndSetCursor(newText, start + formattedText.indexOf('>') + 1);
+    }
+  } else {
+    // 如果没有选中文本，检查当前行是否已经设置了背景颜色
+    const lineInfo = getCurrentLineText();
+    if (lineInfo) {
+      const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
+      const spanInfo = parseSpanStyle(lineText);
+      
+      if (spanInfo) {
+        // 如果已经有span标签，检查是否已经有相同的背景颜色
+        if (spanInfo.styles['background-color'] === customColor) {
+          // 如果颜色相同，则移除背景颜色样式
+          delete spanInfo.styles['background-color'];
+          
+          // 如果没有其他样式了，就移除整个span标签
+          let newText;
+          if (Object.keys(spanInfo.styles).length === 0) {
+            const beforeText = text.value.substring(0, lineStart);
+            const afterText = text.value.substring(lineEnd);
+            newText = beforeText + spanInfo.content + afterText;
+            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+          } else {
+            // 否则只更新样式
+            const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+            const beforeText = text.value.substring(0, lineStart);
+            const afterText = text.value.substring(lineEnd);
+            const newText = beforeText + updatedSpan + afterText;
+            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+          }
+        } else {
+          // 如果颜色不同，则更新背景颜色样式
+          spanInfo.styles['background-color'] = customColor;
+          const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
+          const beforeText = text.value.substring(0, lineStart);
+          const afterText = text.value.substring(lineEnd);
+          const newText = beforeText + updatedSpan + afterText;
+          updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+        }
+      } else {
+        // 没有span标签，为整行添加新的
+        const styles = { 'background-color': customColor };
+        const formattedText = buildSpanTag(styles, lineText);
+        const beforeText = text.value.substring(0, lineStart);
+        const afterText = text.value.substring(lineEnd);
+        const newText = beforeText + formattedText + afterText;
+        const newCursorPosition = lineStart + formattedText.indexOf('>') + 1 + cursorPositionInLine;
+        updateTextAndSetCursor(newText, newCursorPosition);
+      }
+    } else {
+      // 如果无法获取行信息，则在光标位置插入背景颜色标签
+      const styles = { 'background-color': customColor };
+      const formattedText = buildSpanTag(styles, '');
+      const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
+      updateTextAndSetCursor(newText, start + formattedText.indexOf('>') + 1);
+    }
+  }
+};
+
 // 文本格式化函数
 const formatText = (type) => {
   // 阻止按钮获取焦点，保持文本选中状态
@@ -808,10 +955,10 @@ const formatText = (type) => {
       formatUnderline();
       break;
     case 'color':
-      formatColor();
+      formatColorWithCustomColor(fontColor.value);
       break;
     case 'background':
-      formatBackground();
+      formatBackgroundWithCustomColor(backgroundColor.value);
       break;
     case 'unordered-list':
       formatUnorderedList();
