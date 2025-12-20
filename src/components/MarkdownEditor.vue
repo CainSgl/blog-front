@@ -34,6 +34,20 @@
         </a-tooltip>
       </a-button-group>      
       <a-button-group>
+        <!-- 标题下拉菜单 -->
+        <a-dropdown>
+          <a-button class="format-button" title="标题" size="large">
+            <span>正文</span>
+            <icon-down size="small" style="margin-left: 4px;" />
+          </a-button>
+          <template #content>
+            <a-doption @click="saveSelection(); formatText('title', 0)">正文</a-doption>
+            <a-doption @click="saveSelection(); formatText('title', 1)"><icon-h1 size="large" /> 标题1</a-doption>
+            <a-doption @click="saveSelection(); formatText('title', 2)"><icon-h2 size="large" /> 标题2</a-doption>
+            <a-doption @click="saveSelection(); formatText('title', 3)"><icon-h3 size="large" /> 标题3</a-doption>
+            <a-doption @click="saveSelection(); formatText('title', 4)"><icon-h4 size="large" /> 标题4</a-doption>
+          </template>
+        </a-dropdown>
         <a-tooltip content="粗体">
           <a-button class="format-button"  @mousedown.prevent="saveSelection(); formatText('bold')" title="粗体" size="large">
             <icon-bold size="large" />
@@ -148,9 +162,9 @@
 import { onMounted, ref, shallowRef, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/index.js';
-import { Message } from '@arco-design/web-vue';
+import { Message, Dropdown, Doption } from '@arco-design/web-vue';
 import { API_BASE_URL } from '@/config';
-import { IconArrowLeft, IconBold, IconItalic,IconMoreVertical,IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote } from '@arco-design/web-vue/es/icon';
+import { IconArrowLeft, IconBold, IconItalic,IconMoreVertical,IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote, IconDown, IconH1, IconH2, IconH3, IconH4 } from '@arco-design/web-vue/es/icon';
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
@@ -727,6 +741,67 @@ const formatQuote = () => {
   }
 };
 
+// 标题格式化函数
+const formatTitle = (level) => {
+  const textInfo = getSelectedTextInfo();
+  if (!textInfo) return;
+
+  const { textarea, start, end, selectedText } = textInfo;
+  
+  // 生成对应级别的标题符号
+  const titleSymbol = '#'.repeat(level);
+  
+  // 如果有选中文本
+  if (selectedText.length > 0) {
+    // 获取选中文本的第一行作为标题内容
+    const firstLine = selectedText.split('\n')[0];
+    // 移除已有的标题符号
+    const cleanText = firstLine.replace(/^#+\s*/, '');
+    
+    // 生成新的标题文本
+    const formattedText = `${titleSymbol} ${cleanText}`;
+    const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
+    updateTextAndSetCursor(newText, start + titleSymbol.length + 1);
+  } else {
+    // 如果没有选中文本，检查当前行是否已经是标题
+    const lineInfo = getCurrentLineText();
+    if (lineInfo) {
+      const { lineText, lineStart, lineEnd } = lineInfo;
+      
+      // 检查当前行是否已经是标题
+      const titleMatch = lineText.match(/^(#+)\s*(.*)$/);
+      
+      if (titleMatch) {
+        const currentLevel = titleMatch[1].length;
+        const titleContent = titleMatch[2];
+        
+        // 如果当前级别与目标级别相同，则取消标题格式（恢复为普通文本）
+        if (currentLevel === level) {
+          const newText = text.value.substring(0, lineStart) + titleContent + text.value.substring(lineEnd);
+          updateTextAndSetCursor(newText, lineStart);
+        } else {
+          // 否则更新标题级别
+          const newTitleSymbol = '#'.repeat(level);
+          const formattedText = `${newTitleSymbol} ${titleContent}`;
+          const newText = text.value.substring(0, lineStart) + formattedText + text.value.substring(lineEnd);
+          updateTextAndSetCursor(newText, lineStart + newTitleSymbol.length + 1);
+        }
+      } else {
+        // 当前行不是标题，将其转换为指定级别的标题
+        const formattedText = `${titleSymbol} ${lineText}`;
+        const beforeText = text.value.substring(0, lineStart);
+        const afterText = text.value.substring(lineEnd);
+        const newText = beforeText + formattedText + afterText;
+        updateTextAndSetCursor(newText, lineStart + titleSymbol.length + 1);
+      }
+    } else {
+      // 如果无法获取行信息，则在光标位置插入标题标记
+      const newText = text.value.substring(0, start) + `${titleSymbol} ` + text.value.substring(end);
+      updateTextAndSetCursor(newText, start + titleSymbol.length + 1);
+    }
+  }
+};
+
 
 
 
@@ -981,7 +1056,7 @@ const formatBackgroundWithCustomColor = (customColor) => {
 };
 
 // 文本格式化函数
-const formatText = (type) => {
+const formatText = (type, extraParam) => {
   // 阻止按钮获取焦点，保持文本选中状态
   event.preventDefault();
 
@@ -1016,6 +1091,9 @@ const formatText = (type) => {
       break;
     case 'quote':
       formatQuote();
+      break;
+    case 'title':
+      formatTitle(extraParam); // extraParam 是标题级别 (1-4)
       break;
     default:
       console.warn(`未知的格式化类型: ${type}`);
