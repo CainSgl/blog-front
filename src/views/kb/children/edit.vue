@@ -61,9 +61,11 @@
             <icon-font-colors size="large" />
           </a-button>
         </a-tooltip>
+        <a-tooltip content="切换字体颜色">
+        </a-tooltip>
         <a-tooltip content="背景颜色">
           <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('background')" title="背景颜色" size="large">
-            <icon-fill size="large" />
+            <icon-highlight />
           </a-button>
         </a-tooltip>
       </a-button-group>
@@ -84,6 +86,11 @@
             <icon-check-circle size="large" />
           </a-button>
         </a-tooltip>
+        <a-tooltip content="引用">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('quote')" title="引用" size="large">
+            <icon-quote size="large" />
+          </a-button>
+        </a-tooltip>
         <a-tooltip content="插入链接">
           <a-button class="format-button" @mousedown.prevent="saveSelection(); insertLink()" title="插入链接" size="large">
             <icon-link size="large" />
@@ -94,6 +101,21 @@
             <icon-upload size="large" />
           </a-button>
         </a-tooltip>
+        <a-trigger trigger="click" :unmount-on-close="false" animation-name="slide-dynamic-origin" auto-fit-transform-origin v-model:popup-visible="showEmojiPicker">
+          <a-tooltip content="表情">
+            <a-button class="format-button" title="表情" size="large">
+              <icon-face-smile-fill size="large" />
+            </a-button>
+          </a-tooltip>
+          <template #content>
+            <emoji-picker 
+              v-show="showEmojiPicker"
+              @select="handleEmojiSelect" 
+              :native="true"
+              class="emoji-picker-popup"
+            />
+          </template>
+        </a-trigger>
       </a-button-group>
     </div>
 
@@ -109,7 +131,9 @@ import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/index.js';
 import { Message } from '@arco-design/web-vue';
 import { API_BASE_URL } from '@/config';
-import { IconArrowLeft, IconBold, IconItalic, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo } from '@arco-design/web-vue/es/icon';
+import { IconArrowLeft, IconBold, IconItalic,IconMoreVertical,IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote } from '@arco-design/web-vue/es/icon';
+import EmojiPicker from 'vue3-emoji-picker';
+import 'vue3-emoji-picker/css';
 
 // 使用 shallowRef 而不是 ref 来避免对象被冻结的问题
 const text = shallowRef('');
@@ -123,6 +147,7 @@ const showPreview = ref(true);
 const showToc = ref(false);
 const syncScroll = ref(true);
 const isFullscreen = ref(false);
+const showEmojiPicker = ref(false); // 控制表情选择器显示
 
 // 编辑器模式
 const editorMode = ref('both'); // 'edit', 'preview', 'both'
@@ -249,6 +274,25 @@ const getTextAreaElement = () => {
   if (!editor) return null;
 
   return editor.$refs.editorEgine?.textareaEl || editor.$el.querySelector('textarea');
+};
+
+// 处理表情选择
+const handleEmojiSelect = (emoji) => {
+  const textarea = getTextAreaElement();
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  // 在光标位置插入表情
+  const newText = text.value.substring(0, start) + emoji.i + text.value.substring(end);
+  text.value = newText;
+
+  // 设置光标位置到表情后面
+  setTimeout(() => {
+    textarea.setSelectionRange(start + emoji.i.length, start + emoji.i.length);
+    textarea.focus();
+  }, 0);
 };
 
 // 获取选中文本信息
@@ -722,6 +766,25 @@ const formatTaskList = () => {
   }
 };
 
+// 引用处理函数
+const formatQuote = () => {
+  const textInfo = getSelectedTextInfo();
+  if (!textInfo) return;
+
+  const { textarea, start, end, selectedText } = textInfo;
+
+  // 如果有选中文本，对每一行添加引用符号
+  if (selectedText.length > 0) {
+    const formattedText = selectedText.split('\n').map(line => `> ${line}`).join('\n');
+    const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
+    updateTextAndSetCursor(newText, start);
+  } else {
+    // 如果没有选中文本，在当前位置插入引用符号
+    const newText = text.value.substring(0, start) + `\n\n> ` + text.value.substring(end);
+    updateTextAndSetCursor(newText, start + 4); // 光标定位在 "> " 后面
+  }
+};
+
 
 
 
@@ -758,6 +821,9 @@ const formatText = (type) => {
       break;
     case 'task-list':
       formatTaskList();
+      break;
+    case 'quote':
+      formatQuote();
       break;
     default:
       console.warn(`未知的格式化类型: ${type}`);
@@ -1115,5 +1181,13 @@ onMounted(async () => {
   margin: 24px 0;
   background-color: #e5e5e5;
   border: 0;
+}
+
+/* 表情选择器样式 */
+.emoji-picker-popup {
+  padding: 10px;
+  background-color: var(--color-bg-popup);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
 }
 </style>
