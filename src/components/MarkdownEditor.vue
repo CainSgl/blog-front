@@ -124,7 +124,7 @@
         </a-tooltip>
         <a-tooltip content="上传图片">
           <a-button class="format-button" @mousedown.prevent="saveSelection(); insertImage()" title="上传图片" size="large">
-            <icon-upload size="large" />
+            <icon-image size="large" />
           </a-button>
         </a-tooltip>
         <a-trigger trigger="click" :unmount-on-close="false" animation-name="slide-dynamic-origin" auto-fit-transform-origin v-model:popup-visible="showEmojiPicker">
@@ -145,10 +145,61 @@
         </a-trigger>
       </a-button-group>
     </div>
+   <a-divider :size="2" style="border-bottom-style: dotted" />
+       <!-- 编辑器容器（带右键菜单） -->
+    <a-dropdown trigger="contextMenu" alignPoint :popup-max-height="800" >
+      <div style="height: 100%;">
+        <v-md-editor ref="editorRef" :model-value="text" @update:model-value="handleModelUpdate" :height="height"
+         @upload-image="handleUploadImage" :include-level="[1, 2, 3, 4, 5]"
+          :mode="editorMode" :toolbar="[]"></v-md-editor>
+      </div>
+      <template #content>
+        <!-- 格式化功能 -->
+        <a-doption @click="saveSelection(); formatText('bold')">
+          <icon-bold style="margin-right: 8px;" /> 粗体
+        </a-doption>
+        <a-doption @click="saveSelection(); formatText('italic')">
+          <icon-italic style="margin-right: 8px;" /> 斜体
+        </a-doption>
+           <a-divider />
+        <a-doption @click="saveSelection(); insertImage()">
+          <icon-image style="margin-right: 8px;" /> 插入图片
+        </a-doption>
+                <a-doption @click="saveSelection(); formatText('color')">
+          <icon-font-colors style="margin-right: 8px;" /> 字体颜色
+        </a-doption>
+        <a-doption @click="saveSelection(); formatText('background')">
+          <icon-highlight style="margin-right: 8px;" /> 背景颜色
+        </a-doption>
+                <a-doption @click="saveSelection(); formatText('strikethrough')">
+          <icon-strikethrough style="margin-right: 8px;" /> 删除线
+        </a-doption>
+        <a-divider />
 
-    <v-md-editor ref="editorRef" :model-value="text" @update:model-value="handleModelUpdate" :height="height"
-     @upload-image="handleUploadImage" :include-level="[1, 2, 3, 4, 5]"
-      :mode="editorMode" :toolbar="[]"></v-md-editor>
+        <a-divider />
+        <!-- 列表功能 -->
+        <a-doption @click="saveSelection(); formatText('unordered-list')">
+          <icon-unordered-list style="margin-right: 8px;" /> 无序列表
+        </a-doption>
+        <a-doption @click="saveSelection(); formatText('ordered-list')">
+          <icon-ordered-list style="margin-right: 8px;" /> 有序列表
+        </a-doption>
+        <a-doption @click="saveSelection(); formatText('task-list')">
+          <icon-check-circle style="margin-right: 8px;" /> 任务列表
+        </a-doption>
+        <a-doption @click="saveSelection(); formatText('quote')">
+          <icon-quote style="margin-right: 8px;" /> 引用
+        </a-doption>
+        <a-divider />
+        <!-- 颜色功能 -->
+
+        <a-doption @click="saveSelection(); insertLink()">
+          <icon-link style="margin-right: 8px;" /> 插入链接
+        </a-doption>
+
+      </template>
+    </a-dropdown>
+    
     
     <!-- 字数和行数统计 -->
     <div class="editor-stats">
@@ -164,7 +215,7 @@ import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/index.js';
 import { Message, Dropdown, Doption } from '@arco-design/web-vue';
 import { API_BASE_URL } from '@/config';
-import { IconArrowLeft, IconBold, IconItalic,IconMoreVertical,IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote, IconDown, IconH1, IconH2, IconH3, IconH4 } from '@arco-design/web-vue/es/icon';
+import { IconArrowLeft, IconBold, IconItalic,IconImage,IconMoreVertical,IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote, IconDown, IconH1, IconH2, IconH3, IconH4 } from '@arco-design/web-vue/es/icon';
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
@@ -1182,15 +1233,20 @@ onMounted(async () => {
 .editor-container :deep(.v-md-editor__left-area-title) {
   display: none !important;
 }
-
+.editor-container :deep(.v-md-editor) {
+  box-shadow: none !important;
+}
 .editor-container :deep(.v-md-editor__toolbar) {
   display: none !important;
 }
 .tool-list {
+  padding-left: 10px;
   display: flex;
   align-items: center;
   gap: 20px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  background-color: rgb(245, 245, 245);
+  border-radius: 15px;
 }
 
 

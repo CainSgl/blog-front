@@ -16,6 +16,11 @@ const routes = [
     name: 'KB',
     component: () => import('@/views/kb/kb.vue'),
     children: [
+        {
+        path: 'index',
+        name: 'KBIndex',
+        component: () => import('@/views/kb/children/index.vue')
+      },
       {
         path: 'view',
         name: 'KBView',
@@ -25,6 +30,11 @@ const routes = [
         path: 'edit',
         name: 'KBEdit',
         component: () => import('@/views/kb/children/edit.vue')
+      },
+      {
+        path: 'commit',
+        name: 'KBCommit',
+        component: () => import('@/views/kb/children/commit.vue')
       }
     ]
   },

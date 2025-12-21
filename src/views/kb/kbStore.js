@@ -7,6 +7,10 @@ export const useKbStore = defineStore('kb', {
     kbInfo: {
       name: '获取中...',
       likeCount: 0
+    },
+    postInfo: {
+      postId: '',
+      content: ''
     }
   }),
   
@@ -22,7 +26,10 @@ export const useKbStore = defineStore('kb', {
     setKbId(id) {
       this.kbId = id;
     },
-    
+    setCommitInfo(postInfo,newContent)
+    {
+      
+    },
     reset() {
       this.treeData = [];
       this.kbId = '';
