@@ -173,7 +173,7 @@
 import { ref, watch, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { IconDown, IconRight, IconPlus,IconFile, IconMore, IconImport, IconFolder, IconDriveFile,IconEdit, IconPen, IconCopy, IconToTop, IconLaunch, IconDelete ,IconSync, IconSearch } from '@arco-design/web-vue/es/icon';
-import { Dropdown, Menu, Spin, Input } from '@arco-design/web-vue';
+import { Dropdown, Menu, Spin, Input, Message } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 const props = defineProps({
   treeData: {
@@ -461,7 +461,9 @@ const actionHandlers = {
         'kbId': props.kbId,
         'dirId': node.id
       });
-      console.log('本次目录删除影响了',data,'个文章，需要用户注意');
+      if(data>0)
+        Message.warning(node.name+"目录下的"+data+"个文章已被暂存，这通常不会影响什么。");
+        console.log('本次目录删除影响了',data,'个文章，需要用户注意');
       // 移除对应的dir节点
       removeNode(node);
     }
@@ -1260,7 +1262,12 @@ function performDrop()
       }
       else
       {
-        if(lastNode.depth==adjustedTarget.depth)
+        if(!lastNode)
+        {
+          //说明切换到了最高一级别
+          moveOrResourt(sourceNode.id,null,null);
+    
+        }else if(lastNode.depth==adjustedTarget.depth)
         {
           moveOrResourt(sourceNode.id,lastNode.id,-1);
         }

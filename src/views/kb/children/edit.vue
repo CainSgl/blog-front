@@ -1,28 +1,29 @@
 <template>
-  <div style="padding:10px 0px;">
-    <div>
-      <a-layout-header style="display: flex;justify-content: space-between; align-items: center;">
-        <a-breadcrumb>
-          <a-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="item.id"
-            :class="{ 'last-item': index === breadcrumbItems.length - 1 }">
-            {{ item.name }}
-          </a-breadcrumb-item>
-        </a-breadcrumb>
-        <div style="display: flex; align-items: center;margin-right: 10px">
-          <a-tooltip v-if="postInfo.status" :content="getStatusTooltip()">
-            <component :is="getStatusIcon()" style="cursor: pointer;font-size: 20px;" size="large" />
-          </a-tooltip>
-          <span v-if="postInfo.updatedAt" style="color: #666; margin-left: 10px; font-size: 15px;">
-            上次更新时间：{{ formatUpdateTime(postInfo.updatedAt) }}
-          </span>
-        </div>
-      </a-layout-header>
+  <a-spin :loading="loading" tip="正在加载文章内容..." style="display: block;">
+    <div style="padding:10px 0px;">
+      <div>
+        <a-layout-header style="display: flex;justify-content: space-between; align-items: center;">
+          <a-breadcrumb>
+            <a-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="item.id"
+              :class="{ 'last-item': index === breadcrumbItems.length - 1 }">
+              {{ item.name }}
+            </a-breadcrumb-item>
+          </a-breadcrumb>
+          <div style="display: flex; align-items: center;margin-right: 10px">
+            <a-tooltip v-if="postInfo.status" :content="getStatusTooltip()">
+              <component :is="getStatusIcon()" style="cursor: pointer;font-size: 20px;" size="large" />
+            </a-tooltip>
+            <span v-if="postInfo.updatedAt" style="color: #666; margin-left: 10px; font-size: 15px;">
+              上次更新时间：{{ formatUpdateTime(postInfo.updatedAt) }}
+            </span>
+          </div>
+        </a-layout-header>
+      </div>
+      <div style="height: 100%;">
+        <MarkdownEditor v-model="textContent" :height="editorHeight" @go-back="goBack" />
+      </div>
     </div>
-    <div style="height: 100%;">
-      <MarkdownEditor v-model="textContent" :height="editorHeight" @go-back="goBack" />
-    </div>
-  </div>
-
+  </a-spin>
 </template>
 
 <script setup>
@@ -45,6 +46,7 @@ const lastAutoSavedTime = ref(0); // 存储上次自动保存的时间戳
 let isAutoSave = false; // 自动保存的定时器（非响应式）
 let diff = 0; // 跟踪内容变化是否达到200字
 const editorHeight = ref('calc(100vh - 104px)');
+const loading = ref(false); // 控制文章加载时的旋转动画
 const breadcrumbItems = ref([
   { id: 'home', name: kbStore.kbInfo?.name || '知识库' }
 ]);
@@ -64,19 +66,32 @@ const isContentChanged = computed(() => {
 // 返回函数
 const goBack = () => {
   console.log(postInfo.value.content, textContent.value);
+  const postId = route.query.p;
   if (postInfo.value.content != textContent.value) {
-    Modal.info({
+     const modalInstance =Modal.info({
       title: '发布文章',
       content: '是否前往发布页发布你的文章？',
-      okText: '确认',
-      onOk: () => {
-        const postId = route.query.p;
-        savePostContent(postId, textContent.value);
-        router.push({ name: 'KBCommit', query: { kb: kbId.value, p: postInfo.value.postId } });
-      },
-      onCancel:()=>{
-        router.push({ name: 'KBView', query: { kb: kbId.value, p: postInfo.value.postId } });
-      }
+      okText: '发布',
+      footer: () => [
+        h('button', {
+          class: 'arco-btn arco-btn-primary arco-btn-shape-square arco-btn-size-medium',
+          onClick: () => {
+            savePostContent(postId, textContent.value);
+            // 存储文章发布数据到 kbStore
+            kbStore.setCommitInfo(postInfo.value, textContent.value);
+            router.push({ name: 'ArticleCommit', query: { kb: kbId.value, p: postInfo.value.postId } });
+            modalInstance.close();
+          }
+        }, '发布'),
+        h('button', {
+          class: 'arco-btn arco-btn-secondary arco-btn-shape-square arco-btn-size-medium',
+          style: { marginLeft: '12px' },
+          onClick: () => {
+            router.push({ name: 'KBView', query: { kb: kbId.value, p: postInfo.value.postId } });
+            modalInstance.close();
+          }
+        }, '取消')
+      ]
     });
     return;
   } else {
@@ -149,7 +164,7 @@ const savePostContent = async (postId, content, isAuto = false) => {
     });
     for (let i = 0; ; i++) {
       let a = localStorage.getItem(`lastPostContentCache:${i}`)
-      if (a) {
+      if (a && a.postId != postId) {
         continue;
       }
       localStorage.setItem(`lastPostContentCache:${i}`,
@@ -347,7 +362,7 @@ const handleKeyDown = (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 's') {
       event.preventDefault(); // 阻止浏览器默认的保存页面行为
       const postId = route.query.p;
-      if (postId && textContent.value.trim()) { 
+      if (postId && textContent.value.trim()) {
         savePostContent(postId, textContent.value, false); // 手动保存
       }
     }
@@ -392,7 +407,7 @@ onBeforeUnmount(() => {
 // 路由离开前的守卫
 onBeforeRouteLeave(async (to, from) => {
   // 检查是否有未保存的更改
-  if (isContentChanged.value&&!saveLock) {
+  if (isContentChanged.value && !saveLock) {
     // 获取当前文章名称
     let currentPostName = '文章';
     const postId = route.query.p;
@@ -536,8 +551,8 @@ const loadPostContent = async (postId) => {
     postName = result.node.name || '文章';
   }
 
-  // 显示加载提示
-  const loadingMsg = Message.loading(`正在加载${postName}...`, 0);
+  // 开始加载，设置loading为true
+  loading.value = true;
 
   try {
     saveLock = true
@@ -556,13 +571,13 @@ const loadPostContent = async (postId) => {
     console.error('加载文章内容失败:', error);
     Message.error(`加载${postName}失败`);
   } finally {
-    // 关闭加载提示
-    loadingMsg.close();
+    // 加载完成，设置loading为false
+    loading.value = false;
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .last-item {
   font-weight: bold;
   color: #165DFF;
@@ -576,4 +591,5 @@ const loadPostContent = async (postId) => {
 .unsaved-changes-modal .arco-modal-footer button {
   margin-right: 10px;
 }
+
 </style>

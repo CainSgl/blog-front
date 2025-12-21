@@ -32,7 +32,7 @@
             {{ '同步滚动' }}
           </a-button>
         </a-tooltip>
-      </a-button-group>      
+      </a-button-group>
       <a-button-group>
         <!-- 标题下拉菜单 -->
         <a-dropdown>
@@ -49,51 +49,47 @@
           </template>
         </a-dropdown>
         <a-tooltip content="粗体">
-          <a-button class="format-button"  @mousedown.prevent="saveSelection(); formatText('bold')" title="粗体" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('bold')" title="粗体"
+            size="large">
             <icon-bold size="large" />
           </a-button>
         </a-tooltip>
         <a-tooltip content="斜体">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('italic')" title="斜体" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('italic')" title="斜体"
+            size="large">
             <icon-italic size="large" />
           </a-button>
         </a-tooltip>
         <a-tooltip content="删除线">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('strikethrough')" title="删除线" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('strikethrough')" title="删除线"
+            size="large">
             <icon-strikethrough size="large" />
           </a-button>
         </a-tooltip>
         <a-tooltip content="下划线">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('underline')" title="下划线" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('underline')" title="下划线"
+            size="large">
             <icon-underline size="large" />
           </a-button>
         </a-tooltip>
         <a-tooltip content="字体颜色">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('color')" title="字体颜色" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('color')" title="字体颜色"
+            size="large">
             <icon-font-colors size="large" />
           </a-button>
         </a-tooltip>
         <!-- 字体颜色选择器 -->
-        <vue-pick-colors 
-          v-model:value="fontColor" 
-          @change="handleFontColorChange" 
-          :width="25" 
-          :height="25" 
-          :borderRadius="4"
-        />
+        <vue-pick-colors v-model:value="fontColor" @change="handleFontColorChange" :width="25" :height="25"
+          :borderRadius="4" />
         <a-tooltip content="背景颜色">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('background')" title="背景颜色" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('background')" title="背景颜色"
+            size="large">
             <icon-highlight />
           </a-button>
         </a-tooltip>
         <!-- 背景颜色选择器 -->
-        <vue-pick-colors 
-          v-model:value="backgroundColor" 
-          @change="handleBackgroundColorChange" 
-          :width="25" 
-          :height="25" 
-          :borderRadius="4"
-        />
+        <vue-pick-colors v-model:value="backgroundColor" @change="handleBackgroundColorChange" :width="25" :height="25"
+          :borderRadius="4" />
       </a-button-group>
       <a-button-group>
         <a-tooltip content="无序列表">
@@ -103,17 +99,20 @@
           </a-button>
         </a-tooltip>
         <a-tooltip content="有序列表">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('ordered-list')" title="有序列表" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('ordered-list')" title="有序列表"
+            size="large">
             <icon-ordered-list size="large" />
           </a-button>
         </a-tooltip>
         <a-tooltip content="任务列表">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('task-list')" title="任务列表" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('task-list')" title="任务列表"
+            size="large">
             <icon-check-circle size="large" />
           </a-button>
         </a-tooltip>
         <a-tooltip content="引用">
-          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('quote')" title="引用" size="large">
+          <a-button class="format-button" @mousedown.prevent="saveSelection(); formatText('quote')" title="引用"
+            size="large">
             <icon-quote size="large" />
           </a-button>
         </a-tooltip>
@@ -127,31 +126,27 @@
             <icon-image size="large" />
           </a-button>
         </a-tooltip>
-        <a-trigger trigger="click" :unmount-on-close="false" animation-name="slide-dynamic-origin" auto-fit-transform-origin v-model:popup-visible="showEmojiPicker">
+        <a-trigger trigger="click" :unmount-on-close="false" animation-name="slide-dynamic-origin"
+          auto-fit-transform-origin v-model:popup-visible="showEmojiPicker">
           <a-tooltip content="表情">
             <a-button class="format-button" title="表情" size="large">
               <icon-face-smile-fill size="large" />
             </a-button>
           </a-tooltip>
           <template #content>
-            <emoji-picker 
-              v-show="showEmojiPicker"
-              @select="handleEmojiSelect" 
-              :native="true"
-              class="emoji-picker-popup"
-               :toolbar="['bold', 'italic']"
-            />
+            <emoji-picker v-show="showEmojiPicker" @select="handleEmojiSelect" :native="true" class="emoji-picker-popup"
+              :toolbar="['bold', 'italic']" />
           </template>
         </a-trigger>
       </a-button-group>
     </div>
-   <a-divider :size="2" style="border-bottom-style: dotted" />
-       <!-- 编辑器容器（带右键菜单） -->
-    <a-dropdown trigger="contextMenu" alignPoint :popup-max-height="800" >
+    <a-divider :size="2" style="border-bottom-style: dotted" />
+    <!-- 编辑器容器（带右键菜单） -->
+    <a-dropdown trigger="contextMenu" alignPoint :popup-max-height="800">
       <div style="height: 100%;">
         <v-md-editor ref="editorRef" :model-value="text" @update:model-value="handleModelUpdate" :height="height"
-         @upload-image="handleUploadImage" :include-level="[1, 2, 3, 4, 5]"
-          :mode="editorMode" :toolbar="[]"></v-md-editor>
+          @upload-image="handleUploadImage" :include-level="[1, 2, 3, 4, 5]" :mode="editorMode"
+          :toolbar="[]"></v-md-editor>
       </div>
       <template #content>
         <!-- 格式化功能 -->
@@ -161,22 +156,20 @@
         <a-doption @click="saveSelection(); formatText('italic')">
           <icon-italic style="margin-right: 8px;" /> 斜体
         </a-doption>
-           <a-divider />
+
         <a-doption @click="saveSelection(); insertImage()">
           <icon-image style="margin-right: 8px;" /> 插入图片
         </a-doption>
-                <a-doption @click="saveSelection(); formatText('color')">
+        <a-doption @click="saveSelection(); formatText('color')">
           <icon-font-colors style="margin-right: 8px;" /> 字体颜色
         </a-doption>
         <a-doption @click="saveSelection(); formatText('background')">
           <icon-highlight style="margin-right: 8px;" /> 背景颜色
         </a-doption>
-                <a-doption @click="saveSelection(); formatText('strikethrough')">
+        <a-doption @click="saveSelection(); formatText('strikethrough')">
           <icon-strikethrough style="margin-right: 8px;" /> 删除线
         </a-doption>
-        <a-divider />
 
-        <a-divider />
         <!-- 列表功能 -->
         <a-doption @click="saveSelection(); formatText('unordered-list')">
           <icon-unordered-list style="margin-right: 8px;" /> 无序列表
@@ -190,7 +183,6 @@
         <a-doption @click="saveSelection(); formatText('quote')">
           <icon-quote style="margin-right: 8px;" /> 引用
         </a-doption>
-        <a-divider />
         <!-- 颜色功能 -->
 
         <a-doption @click="saveSelection(); insertLink()">
@@ -199,8 +191,8 @@
 
       </template>
     </a-dropdown>
-    
-    
+
+
     <!-- 字数和行数统计 -->
     <div class="editor-stats">
       <span class="stat-item">字数: {{ wordCount }}</span>
@@ -215,7 +207,7 @@ import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/index.js';
 import { Message, Dropdown, Doption } from '@arco-design/web-vue';
 import { API_BASE_URL } from '@/config';
-import { IconArrowLeft, IconBold, IconItalic,IconImage,IconMoreVertical,IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote, IconDown, IconH1, IconH2, IconH3, IconH4 } from '@arco-design/web-vue/es/icon';
+import { IconArrowLeft, IconBold, IconItalic, IconImage, IconMoreVertical, IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote, IconDown, IconH1, IconH2, IconH3, IconH4 } from '@arco-design/web-vue/es/icon';
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
@@ -798,17 +790,17 @@ const formatTitle = (level) => {
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
-  
+
   // 生成对应级别的标题符号
   const titleSymbol = '#'.repeat(level);
-  
+
   // 如果有选中文本
   if (selectedText.length > 0) {
     // 获取选中文本的第一行作为标题内容
     const firstLine = selectedText.split('\n')[0];
     // 移除已有的标题符号
     const cleanText = firstLine.replace(/^#+\s*/, '');
-    
+
     // 生成新的标题文本
     const formattedText = `${titleSymbol} ${cleanText}`;
     const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
@@ -818,14 +810,14 @@ const formatTitle = (level) => {
     const lineInfo = getCurrentLineText();
     if (lineInfo) {
       const { lineText, lineStart, lineEnd } = lineInfo;
-      
+
       // 检查当前行是否已经是标题
       const titleMatch = lineText.match(/^(#+)\s*(.*)$/);
-      
+
       if (titleMatch) {
         const currentLevel = titleMatch[1].length;
         const titleContent = titleMatch[2];
-        
+
         // 如果当前级别与目标级别相同，则取消标题格式（恢复为普通文本）
         if (currentLevel === level) {
           const newText = text.value.substring(0, lineStart) + titleContent + text.value.substring(lineEnd);
@@ -876,12 +868,12 @@ const handleBackgroundColorChange = (color) => {
 const parseSpanStyle = (spanText) => {
   const styleRegex = /<span style="([^"]*)">([^]*)<\/span>/;
   const match = spanText.match(styleRegex);
-  
+
   if (!match) return null;
-  
+
   const styleString = match[1];
   const content = match[2];
-  
+
   // 解析样式字符串
   const styles = {};
   styleString.split(';').forEach(style => {
@@ -890,7 +882,7 @@ const parseSpanStyle = (spanText) => {
       styles[key] = value;
     }
   });
-  
+
   return {
     styles,
     content,
@@ -917,13 +909,13 @@ const formatColorWithCustomColor = (customColor) => {
   if (selectedText.length > 0) {
     // 检查选中文本是否已经被span标签包围
     const spanInfo = parseSpanStyle(selectedText);
-    
+
     if (spanInfo) {
       // 如果已经有span标签，检查是否已经有相同的字体颜色
       if (spanInfo.styles['color'] === customColor) {
         // 如果颜色相同，则移除字体颜色样式
         delete spanInfo.styles['color'];
-        
+
         // 如果没有其他样式了，就移除整个span标签
         let newText;
         if (Object.keys(spanInfo.styles).length === 0) {
@@ -955,13 +947,13 @@ const formatColorWithCustomColor = (customColor) => {
     if (lineInfo) {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
       const spanInfo = parseSpanStyle(lineText);
-      
+
       if (spanInfo) {
         // 如果已经有span标签，检查是否已经有相同的字体颜色
         if (spanInfo.styles['color'] === customColor) {
           // 如果颜色相同，则移除字体颜色样式
           delete spanInfo.styles['color'];
-          
+
           // 如果没有其他样式了，就移除整个span标签
           let newText;
           if (Object.keys(spanInfo.styles).length === 0) {
@@ -1017,13 +1009,13 @@ const formatBackgroundWithCustomColor = (customColor) => {
   if (selectedText.length > 0) {
     // 检查选中文本是否已经被span标签包围
     const spanInfo = parseSpanStyle(selectedText);
-    
+
     if (spanInfo) {
       // 如果已经有span标签，检查是否已经有相同的背景颜色
       if (spanInfo.styles['background-color'] === customColor) {
         // 如果颜色相同，则移除背景颜色样式
         delete spanInfo.styles['background-color'];
-        
+
         // 如果没有其他样式了，就移除整个span标签
         let newText;
         if (Object.keys(spanInfo.styles).length === 0) {
@@ -1055,13 +1047,13 @@ const formatBackgroundWithCustomColor = (customColor) => {
     if (lineInfo) {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
       const spanInfo = parseSpanStyle(lineText);
-      
+
       if (spanInfo) {
         // 如果已经有span标签，检查是否已经有相同的背景颜色
         if (spanInfo.styles['background-color'] === customColor) {
           // 如果颜色相同，则移除背景颜色样式
           delete spanInfo.styles['background-color'];
-          
+
           // 如果没有其他样式了，就移除整个span标签
           let newText;
           if (Object.keys(spanInfo.styles).length === 0) {
@@ -1227,18 +1219,21 @@ onMounted(async () => {
 
 <style scoped lang="less">
 .editor-container {
-
   position: relative;
 }
+
 .editor-container :deep(.v-md-editor__left-area-title) {
   display: none !important;
 }
+
 .editor-container :deep(.v-md-editor) {
   box-shadow: none !important;
 }
+
 .editor-container :deep(.v-md-editor__toolbar) {
   display: none !important;
 }
+
 .tool-list {
   padding-left: 10px;
   display: flex;
@@ -1251,8 +1246,8 @@ onMounted(async () => {
 
 
 .format-button {
-   min-width: 32px;
-   padding: 4px 8px;
+  min-width: 32px;
+  padding: 4px 8px;
 }
 
 .editor-stats {
@@ -1264,8 +1259,7 @@ onMounted(async () => {
 }
 
 
-.stat-item{
-  margin:10px
+.stat-item {
+  margin: 10px
 }
-
 </style>

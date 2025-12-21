@@ -11,7 +11,8 @@ export const useKbStore = defineStore('kb', {
     postInfo: {
       postId: '',
       content: ''
-    }
+    },
+    
   }),
   
   actions: {
@@ -26,9 +27,22 @@ export const useKbStore = defineStore('kb', {
     setKbId(id) {
       this.kbId = id;
     },
-    setCommitInfo(postInfo,newContent)
-    {
-      
+    setCommitInfo(postInfo, newContent) {
+      this.postInfo={
+        ...postInfo,
+        newContent
+      }
+    },
+    // 获取发布数据的便捷方法
+    getCommitData() {
+      return this.postInfo;
+    },
+    // 清除发布数据
+    clearCommitData() { 
+      this.postInfo = {
+        postId: '',
+        content: '',
+      };
     },
     reset() {
       this.treeData = [];
@@ -37,6 +51,7 @@ export const useKbStore = defineStore('kb', {
         name: '获取中...',
         likeCount: 0
       };
+      this.clearCommitData();
     }
   }
 });

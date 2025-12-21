@@ -30,13 +30,13 @@ const routes = [
         path: 'edit',
         name: 'KBEdit',
         component: () => import('@/views/kb/children/edit.vue')
-      },
-      {
-        path: 'commit',
-        name: 'KBCommit',
-        component: () => import('@/views/kb/children/commit.vue')
       }
     ]
+  },
+  {
+    path: '/commit',
+    name: 'ArticleCommit',
+    component: () => import('@/views/ArticleCommit.vue'),
   },
   {
     path: '/:pathMatch(.*)*',
