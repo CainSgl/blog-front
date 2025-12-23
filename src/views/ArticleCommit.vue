@@ -1,5 +1,6 @@
 <template>
     <div class="article-commit">
+
         <a-affix :offset-top="0">
             <div class="header">
                 <a-button type="text" @click="goBack">
@@ -18,89 +19,133 @@
             </div>
         </a-affix>
 
-        <div class="content">
-            <div class="layout-container">
-                <!-- 左侧：文章信息 -->
-                <div class="left-panel">
-                    <a-card title="文章信息">
-                        <a-form :model="articleForm" layout="vertical">
-                            <a-form-item label="文章标题">
-                                <a-input v-model="articleForm.title" placeholder="请输入文章标题" />
-                            </a-form-item>
-
-                            <a-form-item label="文章摘要">
-                                <a-textarea v-model="articleForm.summary" placeholder="请输入文章摘要"
-                                    :auto-size="{ minRows: 3, maxRows: 5 }" />
-                            </a-form-item>
-
-                            <a-form-item label="文章标签">
-                                <div class="tag-input-group">
-                                    <a-select v-model="articleForm.tags" multiple allow-create filterable
-                                        placeholder="请选择或输入标签" class="tag-select">
-                                        <a-option value="技术">技术</a-option>
-                                    </a-select>
-                                    <a-button type="primary" @click="autoGenerateTags" :loading="generatingTags"
-                                        class="auto-generate-btn">
-                                        AI帮我填
-                                    </a-button>
-                                </div>
-                            </a-form-item>
-                        </a-form>
-                        <p>
-                            内容预览
-                        </p>
-                        <MarkdownPreview :content="articleForm.content" />
-                    </a-card>
-
-
-                </div>
-
-                <!-- 右侧：发布设置 -->
-                <div class="right-panel">
-                    <a-card title="发布信息">
-                        <a-form layout="vertical">
-                            <a-form-item label="是否置顶">
-                                <a-switch v-model="articleForm.top" />
-                            </a-form-item>
-                        </a-form>
-
-                        <a-divider />
-
-                        <div class="stats-section">
-                            <h4>文章统计</h4>
-                            <a-space direction="vertical" size="large" style="width: 100%;">
-                                <a-statistic title="字数统计" :value="wordCount" suffix="字" show-group-separator />
-                                <a-statistic title="阅读数" :value="articleForm.viewCount" show-group-separator />
-                                <a-statistic title="点赞数" :value="articleForm.likeCount" show-group-separator />
-                                <a-statistic title="评论数" :value="articleForm.commentCount" show-group-separator />
-                                <a-statistic title="阅读增长率" :value="growthPercentage" :precision="2"
-                                    :value-style="{ color: '#0fbf60' }">
-                                    <template #prefix>
-                                        <IconArrowRise />
-                                    </template>
-                                    <template #suffix>%</template>
-                                </a-statistic>
-                            </a-space>
-                        </div>
-                    </a-card>
-                </div>
+        <!-- 摘要确认模态框 -->
+        <a-modal v-model:visible="summaryModalVisible" title="确认摘要" @ok="confirmSummary" @cancel="cancelSummary"
+            okText="使用AI生成的摘要" cancelText="取消">
+            <div class="summary-comparison">
+                <p><strong>原文摘要：</strong></p>
+                <div class="summary-content original-summary">{{ articleForm.summary }}</div>
+                <p><strong>AI生成的摘要：</strong></p>
+                <div class="summary-content ai-summary">{{ aiGeneratedSummary }}</div>
             </div>
+        </a-modal>
+
+        <div class="content">
+            <Spin :loading="publishing" tip="正在发布文章..." style="display: block;">
+                <div class="layout-container">
+                    <!-- 左侧：文章信息 -->
+
+                    <div class="left-panel">
+                        <a-card title="文章信息">
+                            <a-form :model="articleForm" layout="vertical">
+                                <a-form-item label="文章标题">
+                                    <a-input v-model="articleForm.title" placeholder="请输入文章标题" :maxlength="150" show-word-limit />
+                                </a-form-item>
+
+                                <a-form-item label="文章摘要">
+                                    <div class="summary-input-group">
+                                        <a-textarea v-model="articleForm.summary" placeholder="请输入文章摘要"
+                                            :auto-size="{ minRows: 3, maxRows: 5 }" :maxlength="300" show-word-limit />
+                                        <a-button type="primary" @click="autoGenerateSummary"
+                                            :loading="generatingSummary" class="auto-generate-btn">
+                                            AI帮我填
+                                        </a-button>
+                                    </div>
+                                </a-form-item>
+
+                                <a-form-item label="文章标签">
+                                    <div class="tag-input-group">
+                                        <a-select v-model="articleForm.tags" multiple allow-create filterable
+                                            placeholder="请选择或输入标签" class="tag-select" :max-tag-count="8" @change="onTagChange">
+                                            <a-option v-for="tag in articleForm.tags" :key="tag" :value="tag">{{ tag
+                                                }}</a-option>
+                                        </a-select>
+                                        <a-button type="primary" @click="autoGenerateTags" :loading="generatingTags"
+                                            class="auto-generate-btn">
+                                            AI帮我填
+                                        </a-button>
+                                        <div class="tag-count-info" v-if="articleForm.tags && articleForm.tags.length > 0">
+                                            已选择 {{ articleForm.tags.length }}/8 个标签
+                                        </div>
+                                    </div>
+                                </a-form-item>
+                            </a-form>
+                            <p>
+                                内容预览
+                            </p>
+                            
+                            <MarkdownPreview :content="articleForm.newContent" height="400px"
+                                style="max-height: 400px;" />
+                            
+                            <!-- 图片上传区域 -->
+                            <div class="image-upload-section">
+                                <h4>上传图片</h4>
+                                <Upload
+                                    :custom-request="customRequest"
+                                    :show-file-list="false"
+                                    :multiple="true"
+                                    accept="image/*"
+                                    @progress="uploadingImage = true"
+                                >
+                                    <a-button type="dashed" :loading="uploadingImage">
+                                        <template #icon>
+                                            <IconPlus />
+                                        </template>
+                                        点击上传图片
+                                    </a-button>
+                                </Upload>
+                            </div>
+                        </a-card>
+                    </div>
+                    <!-- 右侧：发布设置 -->
+                    <div class="right-panel">
+                        <a-card title="发布信息">
+                            <a-form layout="vertical">
+                                <a-form-item label="是否置顶">
+                                    <a-switch v-model="articleForm.top" />
+                                </a-form-item>
+                            </a-form>
+
+                            <a-divider />
+
+                            <div class="stats-section">
+
+                                <a-divider></a-divider>
+                                <h4>文章统计</h4>
+                                <a-space direction="vertical" size="large" style="width: 100%;">
+                                    <a-statistic title="字数统计" :value="wordCount" suffix="字" show-group-separator />
+                                    <a-statistic title="阅读数" :value="articleForm.viewCount" show-group-separator />
+                                    <a-statistic title="点赞数" :value="articleForm.likeCount" show-group-separator />
+                                    <a-statistic title="评论数" :value="articleForm.commentCount" show-group-separator />
+                                </a-space>
+                 
+                            </div>
+                        </a-card>
+                    </div>
+                </div>
+            </Spin>
         </div>
+                                        <h3>预览</h3>
+                                <PostCard :post="articleForm"></PostCard>
     </div>
+
 </template>
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { Message } from '@arco-design/web-vue';
+import { Message, Spin, Upload } from '@arco-design/web-vue';
 import { useKbStore } from './kb/kbStore.js';
 import MarkdownPreview from '../components/MarkdownPreview.vue';
 import {
     IconArrowLeft,
     IconArrowRise,
-    IconSend
+    IconSend,
+    IconPlus
 } from '@arco-design/web-vue/lib/icon';
-
+import { API_BASE_URL } from '@/config';
+import PostCard from '@/components/PostCard.vue'
+import api from '@/api/index.js';
 const router = useRouter();
 const kbStore = useKbStore();
 
@@ -109,7 +154,7 @@ const articleForm = ref({
     title: '',
     summary: '',
     content: '',
-    status: '草稿',
+    status: '已公布',
     top: false,
     recommend: false,
     viewCount: 0,
@@ -119,20 +164,8 @@ const articleForm = ref({
     userId: '',
     createdAt: '',
     updatedAt: '',
-    kbId: ''
-});
-
-// 计算动态的增长百分比
-const growthPercentage = computed(() => {
-    const currentViewCount = articleForm.value.viewCount || 0;
-    const growthCount = Math.floor(Math.random() * 50) + 10;
-
-    if (currentViewCount === 0) {
-        return growthCount > 0 ? '∞' : '0.0';
-    }
-
-    const percentage = (growthCount / currentViewCount) * 100;
-    return percentage.toFixed(1);
+    kbId: '',
+    newContent: ''
 });
 
 // 发布状态
@@ -141,19 +174,19 @@ const publishing = ref(false);
 // 自动生成标签状态
 const generatingTags = ref(false);
 
-// 生成模拟增长数据的函数
-const generateMockGrowthData = () => {
-    // 随机更新阅读数、点赞数、评论数等统计数据
-    if (articleForm.value.viewCount !== undefined) {
-        articleForm.value.viewCount += Math.floor(Math.random() * 10) + 1;
-    }
-    if (articleForm.value.likeCount !== undefined) {
-        articleForm.value.likeCount += Math.floor(Math.random() * 3) + 1;
-    }
-    if (articleForm.value.commentCount !== undefined) {
-        articleForm.value.commentCount += Math.floor(Math.random() * 2);
-    }
-};
+// 自动生成摘要状态
+const generatingSummary = ref(false);
+
+// 摘要确认模态框状态
+const summaryModalVisible = ref(false);
+
+// AI生成的摘要内容
+const aiGeneratedSummary = ref('');
+
+// 上传图片相关状态
+const uploadingImage = ref(false);
+
+
 
 // 计算属性
 const wordCount = computed(() => {
@@ -161,46 +194,38 @@ const wordCount = computed(() => {
     return articleForm.value.content ? articleForm.value.content.length : 0;
 });
 
+// 标签选择变化处理
+const onTagChange = (value) => {
+    if (value && value.length > 8) {
+        Message.warning('选择的标签过多！最多只能选择8个标签');
+        // 限制标签数量为8个
+        articleForm.value.tags = value.slice(0, 8);
+    }
+};
+
 // 方法
 const goBack = () => {
     router.go(-1);
 };
 
 const autoGenerateTags = async () => {
-    if (!articleForm.value.content || !articleForm.value.content.trim()) {
-        Message.warning('请先输入文章内容');
-        return;
-    }
-
     generatingTags.value = true;
-
     try {
-        // TODO: 调用后端自动生成标签接口
-        // 这里模拟一个接口调用，实际需要替换为真实的后端接口
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟网络请求
+        // 检查当前标签数量是否已达到上限
+        if (articleForm.value.tags && articleForm.value.tags.length >= 8) {
+            Message.warning('标签数量已达上限！最多只能选择8个标签');
+            return;
+        }
 
-        // 模拟后端返回的数据格式
-        const mockResponse = [
-            { tag: "Spring AI ChatClient", core: 0.3 },
-            { tag: "ChatResponse", core: 0.15 },
-            { tag: "entity方法", core: 0.1 },
-            { tag: "流式响应stream", core: 0.1 },
-            { tag: "提示模版", core: 0.1 },
-            { tag: "默认配置", core: 0.1 },
-            { tag: "Advisor机制", core: 0.1 }
-        ];
-
-        // 从响应中提取标签名
-        const generatedTags = mockResponse.map(item => item.tag);
-
+        const { data } = await api.post('/ai/tag/generate', { content: articleForm.value.newContent })
+        console.log(data)
+        const generatedTags = data.map(item => item.tag + ":" + item.core);
         // 将生成的标签添加到现有标签中，去重
         const currentTags = articleForm.value.tags || [];
         const newTags = [...new Set([...currentTags, ...generatedTags])];
-
-        articleForm.value.tags = newTags;
-
-        Message.success(`已自动生成 ${generatedTags.length} 个标签`);
-
+        // 限制标签数量为8个
+        articleForm.value.tags = newTags.slice(0, 8);
+        Message.success(`已自动生成 ${Math.min(generatedTags.length, 8 - currentTags.length)} 个标签`);
     } catch (error) {
         console.error('自动生成标签失败:', error);
         Message.error('自动生成标签失败，请重试');
@@ -209,79 +234,153 @@ const autoGenerateTags = async () => {
     }
 };
 
-const publishArticle = async () => {
-    if (!articleForm.value.title.trim()) {
-        Message.error('请输入文章标题');
-        return;
-    }
-
-    publishing.value = true;
-
+const autoGenerateSummary = async () => {
+    generatingSummary.value = true;
     try {
-        // TODO: 实现实际的发布逻辑
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const { data } = await api.post('/ai/summary/generate', { content: articleForm.value.newContent });
+        // 限制AI生成的摘要长度不超过300字
+        const limitedData = data.length > 300 ? data.substring(0, 300) : data;
+        // 保存AI生成的摘要
+        aiGeneratedSummary.value = limitedData;
 
-        Message.success('文章发布成功！');
+        // 如果已有摘要，显示确认模态框让用户选择
+        if (articleForm.value.summary && articleForm.value.summary.trim() !== '') {
+            summaryModalVisible.value = true;
+        } else {
+            // 如果没有现有摘要，直接使用AI生成的摘要
+            articleForm.value.summary = limitedData;
+            Message.success('已自动生成摘要');
+        }
+    } catch (error) {
+        console.error('自动生成摘要失败:', error);
+        Message.error('自动生成摘要失败，请重试');
+    } finally {
+        generatingSummary.value = false;
+    }
+};
 
-        // 发布成功后跳转到文章列表
-        router.push({
-            name: 'KBIndex',
-            query: { kb: kbStore.kbId || '' }
+const publishArticle = async () => {
+    // 设置发布状态为true，显示加载动画
+    publishing.value = true;
+    try {
+        // 调用api
+        // 先保存文章信息
+        const res = await api.put('/post', {
+            id: articleForm.value.id,
+            title: articleForm.value.title,
+            summary: articleForm.value.summary,
+            status: '已公布',
+            isTop: articleForm.value.top,
+            tags: articleForm.value.tags,
+            auto: true,
         });
 
-        // 清除发布数据
-        try {
-            kbStore.clearCommitData?.();
-        } catch (error) {
-            console.error('Error clearing commit data:', error);
-        }
+        // 然后发布文章
+        await api.post('/post/publish', { id: articleForm.value.id });
 
+        // 发布成功提示
+        Message.success('文章发布成功！');
+
+        // 可以考虑跳转到文章详情页或其他操作
+        // router.push(`/article/${articleForm.value.id}`);
     } catch (error) {
         console.error('发布文章失败:', error);
-        Message.error('发布失败，请重试');
+        // 发布失败提示
+        Message.error('文章发布失败，请重试');
     } finally {
+        // 无论成功还是失败，都要结束加载状态
         publishing.value = false;
     }
+};
+
+// 确认使用AI生成的摘要
+const confirmSummary = () => {
+    // 确保摘要长度不超过300字
+    const limitedSummary = aiGeneratedSummary.value.length > 300 
+        ? aiGeneratedSummary.value.substring(0, 300) 
+        : aiGeneratedSummary.value;
+    articleForm.value.summary = limitedSummary;
+    summaryModalVisible.value = false;
+    Message.success('已更新摘要');
+};
+
+// 取消使用AI生成的摘要
+const cancelSummary = () => {
+    summaryModalVisible.value = false;
+};
+
+// 上传图片的处理函数
+const handleUploadImage = async (file) => {
+  try {
+    Message.loading({ 
+      id: 'upload-image:' + file.name, 
+      content: file.name + '图片上传中...', 
+      duration: 15000, 
+    }); 
+    
+    // 创建FormData对象 
+    const formData = new FormData(); 
+    formData.append('file', file); 
+    
+    // 使用api上传文件 
+    const { data } = await api.post('/file/upload', formData, { 
+      headers: { 
+        'Content-Type': 'multipart/form-data' 
+      } 
+    }); 
+    articleForm.value.img=API_BASE_URL + "/file?f=" + data.shortUrl
+    // 这里可以根据需要将图片URL添加到文章内容中
+    // 由于ArticleCommit.vue当前没有直接编辑器，我们显示成功信息
+    Message.success({ 
+      id: 'upload-image:' + file.name, 
+      content: '图片上传成功', 
+      duration: 3000, 
+    }); 
+    
+    // 可以将上传的图片URL添加到文章内容中
+    const imageUrl = '/api/file?f=' + data.shortUrl; // 假设API_BASE_URL为'/api'
+    // 如果需要将图片链接插入到内容中，可以更新articleForm的内容
+    // 这里我们只是展示上传成功
+    console.log('图片上传成功，URL:', imageUrl);
+    
+    return imageUrl;
+  } catch (error) {
+    console.error('文件上传失败:', error);
+    Message.error({ 
+      id: 'upload-image:' + file.name, 
+      content: '图片上传失败，请稍后重试', 
+      duration: 3000, 
+    }); 
+    throw error;
+  } 
+};
+
+// Arco Design Upload组件的自定义上传方法
+const customRequest = async (options) => {
+  const { fileItem, onError, onSuccess, onProgress } = options;
+  
+  // 模拟上传进度
+  onProgress({ percent: 50 });
+  
+  try {
+    const imageUrl = await handleUploadImage(fileItem.file);
+    onSuccess({ url: imageUrl });
+    return { url: imageUrl };
+  } catch (error) {
+    onError(error);
+    throw error;
+  }
 };
 
 // 组件挂载时初始化数据
 onMounted(() => {
     try {
         const commitData = kbStore.getCommitData?.() || {};
-        console.log('Commit data:', commitData)
-
         if (!commitData.id || !commitData.newContent) {
             Message.warning('未找到文章内容，请返回编辑页面');
-            //setTimeout(() => router.go(-1), 2000);
             return;
         }
-
-        // 更新 articleForm 中的所有字段
-        articleForm.value = {
-            title: commitData.title || '',
-            summary: commitData.summary || '',
-            content: commitData.newContent || '',
-            status: commitData.status || '草稿',
-            top: commitData.top || false,
-            recommend: commitData.recommend || false,
-            viewCount: commitData.viewCount || Math.floor(Math.random() * 1000) + 100,
-            likeCount: commitData.likeCount || Math.floor(Math.random() * 50) + 10,
-            commentCount: commitData.commentCount || Math.floor(Math.random() * 20) + 1,
-            tags: commitData.tags || [],
-            userId: commitData.userId || 'user_' + Math.floor(Math.random() * 1000),
-            createdAt: commitData.createdAt || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-            updatedAt: commitData.updatedAt || new Date().toISOString(),
-            kbId: commitData.kbId || ''
-        };
-
-        // 生成mock增长数据
-        generateMockGrowthData();
-
-        // 每30秒更新一次增长数据，模拟实时数据变化
-        setInterval(() => {
-            generateMockGrowthData();
-        }, 30000);
-
+        articleForm.value = commitData;
     } catch (error) {
         console.error('Error initializing article form:', error);
         Message.error('初始化失败');
@@ -293,6 +392,7 @@ onMounted(() => {
 <style scoped lang="less">
 .article-commit {
     height: 100vh;
+    position: relative;
 }
 
 .header {
@@ -374,12 +474,71 @@ onMounted(() => {
         flex-shrink: 0;
         white-space: nowrap;
     }
+    
+    .tag-input-group > * {
+        margin-top: 0 !important;
+    }
+    
+    .tag-count-info {
+        font-size: 12px;
+        color: var(--color-text-3);
+        white-space: nowrap;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+    }
+
+    .summary-input-group {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .summary-input-group .arco-textarea {
+        flex: 1;
+    }
+
+    .summary-input-group .auto-generate-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+        margin-top: 1px;
+    }
+
+    .summary-comparison {
+        .summary-content {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .original-summary {
+            background-color: #f5f5f5;
+        }
+
+        .ai-summary {
+            background-color: #e8f4ff;
+        }
+    }
 
     .preview-card {
         margin-top: 16px;
 
         .arco-card-body {
             padding: 0;
+        }
+    }
+    
+    .image-upload-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #f0f0f0;
+        
+        h4 {
+            margin-bottom: 12px;
+            font-weight: 500;
         }
     }
 }
@@ -445,6 +604,21 @@ onMounted(() => {
                 width: 100%;
                 align-self: stretch;
             }
+            
+            .tag-count-info {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .summary-input-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .summary-input-group .auto-generate-btn {
+                width: 100%;
+                align-self: stretch;
+            }
         }
     }
 
@@ -487,6 +661,21 @@ onMounted(() => {
     }
 
     .tag-input-group .auto-generate-btn {
+        width: 100%;
+    }
+    
+    .tag-count-info {
+        margin-left: 0;
+        margin-top: 8px;
+        align-self: flex-start;
+    }
+
+    .summary-input-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .summary-input-group .auto-generate-btn {
         width: 100%;
     }
 }

@@ -65,7 +65,6 @@ const isContentChanged = computed(() => {
 
 // 返回函数
 const goBack = () => {
-  console.log(postInfo.value.content, textContent.value);
   const postId = route.query.p;
   if (postInfo.value.content != textContent.value) {
      const modalInstance =Modal.info({
@@ -563,8 +562,6 @@ const loadPostContent = async (postId) => {
     saveLock = false;
 
     postInfo.value = data;
-    // 添加调试信息以验证数据结构
-    console.log('Post Info:', data);
     lastAutoSavedTime.value = Date.now(); // 更新上次自动保存的时间
     diff = 0;
   } catch (error) {
