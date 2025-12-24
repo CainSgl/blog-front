@@ -32,6 +32,7 @@ export const useKbStore = defineStore('kb', {
         ...postInfo,
         newContent
       }
+      console.log("发布的文章信息",this.postInfo)
     },
     // 获取发布数据的便捷方法
     getCommitData() {

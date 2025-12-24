@@ -45,7 +45,7 @@ const lastAutoSavedContent = ref(''); // 存储上次自动保存的内容
 const lastAutoSavedTime = ref(0); // 存储上次自动保存的时间戳
 let isAutoSave = false; // 自动保存的定时器（非响应式）
 let diff = 0; // 跟踪内容变化是否达到200字
-const editorHeight = ref('calc(100vh - 104px)');
+const editorHeight = ref('calc(100vh - 124px)');
 const loading = ref(false); // 控制文章加载时的旋转动画
 const breadcrumbItems = ref([
   { id: 'home', name: kbStore.kbInfo?.name || '知识库' }
@@ -69,7 +69,7 @@ const goBack = () => {
   if (postInfo.value.content != textContent.value) {
      const modalInstance =Modal.info({
       title: '发布文章',
-      content: '是否前往发布页发布你的文章？',
+      content: '是否前往发布页发布你的文章？\n注意：你当前修改的内容其他人无法访问，其他人只能看见曾经发布的版本 ',
       okText: '发布',
       footer: () => [
         h('button', {
@@ -555,7 +555,7 @@ const loadPostContent = async (postId) => {
 
   try {
     saveLock = true
-    const { data } = await api.get(`/post`, { id: postId });
+    const { data } = await api.get(`/post/last`, { id: postId });
     textContent.value = data.content || '';
     originalContent.value = data.content || ''; // 保存原始内容
     lastAutoSavedContent.value = data.content || ''; // 更新上次自动保存的内容

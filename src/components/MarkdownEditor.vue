@@ -1239,8 +1239,9 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 20px;
+  padding:4px 4px;
   margin-bottom: 10px;
-  background-color: rgb(245, 245, 245);
+  background-color: rgb(248, 248, 248);
   border-radius: 15px;
 }
 

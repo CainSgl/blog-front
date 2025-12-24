@@ -1,5 +1,6 @@
 <template>
   <div class="post-card">
+
     <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick">
       <!-- 图片和内容容器，用于响应式布局 -->
       <div class="post-content-wrapper">
@@ -48,10 +49,13 @@
           <div class="post-stats">
             <a-space>
               <span class="stat-item">
-                <icon-eye /> {{ post.viewCount }}
+                <icon-eye  /> {{ post.viewCount }}
               </span>
-              <span class="stat-item">
-                <icon-thumb-up /> {{ post.likeCount }}
+              <span class="stat-item" @click="handleLikeClick">
+                <icon-heart-fill v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
+                <icon-thumb-down-fill v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
+                <icon-thumb-up v-else />
+                {{ post.likeCount }}
               </span>
               <span class="stat-item">
                 <icon-message /> {{ post.commentCount }}
@@ -71,7 +75,8 @@
 
 <script setup>
 import { Card, Tag, Space, Image } from '@arco-design/web-vue'
-import { IconEye, IconThumbUp, IconMessage } from '@arco-design/web-vue/es/icon'
+import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon'
+import { computed } from 'vue'
 
 const props = defineProps({
   post: {
@@ -91,7 +96,8 @@ const props = defineProps({
       userId: '',
       createdAt: '',
       updatedAt: '',
-      img:''
+      img:'',
+      operate:[]
     })
   }
 })
@@ -106,6 +112,23 @@ const formatDate = (dateString) => {
     month: '2-digit',
     day: '2-digit'
   })
+}
+
+// 计算属性：判断是否已点赞
+const isLiked = computed(() => {
+  return props.post.operate && props.post.operate.includes('点赞');
+})
+
+// 计算属性：判断是否已讨厌
+const isDisliked = computed(() => {
+  return props.post.operate && props.post.operate.includes('讨厌');
+})
+
+// 处理点赞/讨厌点击事件
+const handleLikeClick = (event) => {
+  event.stopPropagation(); // 阻止事件冒泡，避免触发卡片点击
+  console.log('Like clicked for post:', props.post.id);
+  // 这里可以添加点赞/取消点赞的逻辑
 }
 
 // 处理卡片点击事件
@@ -143,7 +166,7 @@ const handleCardClick = () => {
       gap: 16px;
       
       .post-image {
-        flex: 0 0 300px; // 固定图片宽度为200px
+        flex: 0 0 300px; // 固定图片宽度为300px
         height: 200px;
         border-radius: 8px;
       }

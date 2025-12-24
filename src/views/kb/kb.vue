@@ -101,7 +101,6 @@ function handleClickPost(node) {
   if (pageName === 'KBIndex') {
     router.push({ name: 'KBView', query: { kb: kbId.value, p: node.postId } });
   } else {
-    
     router.push({ name: pageName, query: { kb: kbId.value, p: node.postId } });
   }
 }

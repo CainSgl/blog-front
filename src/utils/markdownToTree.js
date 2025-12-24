@@ -16,15 +16,24 @@ export function parseMarkdownToTree(markdown) {
   // 用于生成唯一 key 的计数器
   let keyCounter = 0;
   
-  // 正则表达式匹配标题行
-  const headingRegex = /^(#{1,6})\s+(.*)$/;
+  // 正则表达式匹配标题行，包括可能的锚点
+  // 匹配格式如: # 标题 或 # 标题{#anchor-id}
+  const headingRegex = /^(#{1,6})\s+(.+?)(?:\{#[^}]*\})?$/;
   
   lines.forEach(line => {
     const match = line.match(headingRegex);
     
     if (match) {
       const level = match[1].length;  // 标题级别 (# 的数量)
-      const title = match[2].trim();  // 标题文本
+      // 提取标题文本，去除可能的锚点部分
+      let title = match[2].trim();
+      
+      // 如果标题文本以 { 开头（意味着整个标题名被误认为包含锚点），进一步清理
+      if (title.includes('{#') && title.includes('}')) {
+        // 只保留 { 之前的部分
+        const anchorIndex = title.indexOf('{#');
+        title = title.substring(0, anchorIndex).trim();
+      }
       
       // 创建节点对象
       const node = {

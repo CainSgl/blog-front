@@ -19,6 +19,7 @@
             </div>
         </a-affix>
 
+
         <!-- 摘要确认模态框 -->
         <a-modal v-model:visible="summaryModalVisible" title="确认摘要" @ok="confirmSummary" @cancel="cancelSummary"
             okText="使用AI生成的摘要" cancelText="取消">
@@ -37,9 +38,13 @@
 
                     <div class="left-panel">
                         <a-card title="文章信息">
+                            <h3>预览</h3>
+                            <PostCard :post="articleForm"></PostCard>
+                            <a-divider></a-divider>
                             <a-form :model="articleForm" layout="vertical">
                                 <a-form-item label="文章标题">
-                                    <a-input v-model="articleForm.title" placeholder="请输入文章标题" :maxlength="150" show-word-limit />
+                                    <a-input v-model="articleForm.title" placeholder="请输入文章标题" :maxlength="150"
+                                        show-word-limit />
                                 </a-form-item>
 
                                 <a-form-item label="文章摘要">
@@ -56,7 +61,8 @@
                                 <a-form-item label="文章标签">
                                     <div class="tag-input-group">
                                         <a-select v-model="articleForm.tags" multiple allow-create filterable
-                                            placeholder="请选择或输入标签" class="tag-select" :max-tag-count="8" @change="onTagChange">
+                                            placeholder="请选择或输入标签" class="tag-select" :max-tag-count="8"
+                                            @change="onTagChange">
                                             <a-option v-for="tag in articleForm.tags" :key="tag" :value="tag">{{ tag
                                                 }}</a-option>
                                         </a-select>
@@ -64,37 +70,35 @@
                                             class="auto-generate-btn">
                                             AI帮我填
                                         </a-button>
-                                        <div class="tag-count-info" v-if="articleForm.tags && articleForm.tags.length > 0">
+                                        <div class="tag-count-info"
+                                            v-if="articleForm.tags && articleForm.tags.length > 0">
                                             已选择 {{ articleForm.tags.length }}/8 个标签
                                         </div>
                                     </div>
                                 </a-form-item>
                             </a-form>
-                            <p>
-                                内容预览
-                            </p>
-                            
-                            <MarkdownPreview :content="articleForm.newContent" height="400px"
-                                style="max-height: 400px;" />
-                            
-                            <!-- 图片上传区域 -->
+                                     <!-- 图片上传区域 -->
                             <div class="image-upload-section">
-                                <h4>上传图片</h4>
-                                <Upload
-                                    :custom-request="customRequest"
-                                    :show-file-list="false"
-                                    :multiple="true"
-                                    accept="image/*"
-                                    @progress="uploadingImage = true"
-                                >
+                                <h4>上传封面</h4>
+                                <Upload :custom-request="customRequest" :show-file-list="false" :multiple="true"
+                                    accept="image/*" @progress="uploadingImage = true">
                                     <a-button type="dashed" :loading="uploadingImage">
                                         <template #icon>
                                             <IconPlus />
                                         </template>
-                                        点击上传图片
+                                        点击封面
                                     </a-button>
                                 </Upload>
+
+                                <!-- 图片裁剪模态框 -->
+                                <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible"
+                                    :aspect-ratio="1.5" @confirm="handleCroppedImage" />
                             </div>
+                            <p>内容预览</p>
+                            <MarkdownPreview :content="articleForm.newContent" height="400px"
+                                style="max-height: 400px;" />
+
+                   
                         </a-card>
                     </div>
                     <!-- 右侧：发布设置 -->
@@ -111,22 +115,21 @@
                             <div class="stats-section">
 
                                 <a-divider></a-divider>
-                                <h4>文章统计</h4>
-                                <a-space direction="vertical" size="large" style="width: 100%;">
+                                <h4 style="user-select: none;">文章统计</h4>
+                                <a-space  direction="vertical" size="large" style="width: 100%;">
                                     <a-statistic title="字数统计" :value="wordCount" suffix="字" show-group-separator />
                                     <a-statistic title="阅读数" :value="articleForm.viewCount" show-group-separator />
                                     <a-statistic title="点赞数" :value="articleForm.likeCount" show-group-separator />
                                     <a-statistic title="评论数" :value="articleForm.commentCount" show-group-separator />
                                 </a-space>
-                 
+
                             </div>
                         </a-card>
                     </div>
                 </div>
             </Spin>
         </div>
-                                        <h3>预览</h3>
-                                <PostCard :post="articleForm"></PostCard>
+
     </div>
 
 </template>
@@ -137,6 +140,7 @@ import { useRouter } from 'vue-router';
 import { Message, Spin, Upload } from '@arco-design/web-vue';
 import { useKbStore } from './kb/kbStore.js';
 import MarkdownPreview from '../components/MarkdownPreview.vue';
+import ImageCropperModal from '../components/ImageCropperModal.vue';
 import {
     IconArrowLeft,
     IconArrowRise,
@@ -149,12 +153,19 @@ import api from '@/api/index.js';
 const router = useRouter();
 const kbStore = useKbStore();
 
+// 注册组件
+const components = {
+    ImageCropperModal,
+    MarkdownPreview,
+    PostCard
+}
+
 // 表单数据
 const articleForm = ref({
     title: '',
     summary: '',
     content: '',
-    status: '已公布',
+    status: '已发布',
     top: false,
     recommend: false,
     viewCount: 0,
@@ -185,6 +196,11 @@ const aiGeneratedSummary = ref('');
 
 // 上传图片相关状态
 const uploadingImage = ref(false);
+
+// 图片裁剪相关状态
+const cropperModalVisible = ref(false);
+const currentImageFile = ref(null);
+const imageCropperRef = ref(null);
 
 
 
@@ -269,10 +285,10 @@ const publishArticle = async () => {
             id: articleForm.value.id,
             title: articleForm.value.title,
             summary: articleForm.value.summary,
-            status: '已公布',
+            status: '已发布',
             isTop: articleForm.value.top,
             tags: articleForm.value.tags,
-            auto: true,
+            img: articleForm.value.img,
         });
 
         // 然后发布文章
@@ -296,8 +312,8 @@ const publishArticle = async () => {
 // 确认使用AI生成的摘要
 const confirmSummary = () => {
     // 确保摘要长度不超过300字
-    const limitedSummary = aiGeneratedSummary.value.length > 300 
-        ? aiGeneratedSummary.value.substring(0, 300) 
+    const limitedSummary = aiGeneratedSummary.value.length > 300
+        ? aiGeneratedSummary.value.substring(0, 300)
         : aiGeneratedSummary.value;
     articleForm.value.summary = limitedSummary;
     summaryModalVisible.value = false;
@@ -309,67 +325,91 @@ const cancelSummary = () => {
     summaryModalVisible.value = false;
 };
 
-// 上传图片的处理函数
-const handleUploadImage = async (file) => {
-  try {
-    Message.loading({ 
-      id: 'upload-image:' + file.name, 
-      content: file.name + '图片上传中...', 
-      duration: 15000, 
-    }); 
-    
-    // 创建FormData对象 
-    const formData = new FormData(); 
-    formData.append('file', file); 
-    
-    // 使用api上传文件 
-    const { data } = await api.post('/file/upload', formData, { 
-      headers: { 
-        'Content-Type': 'multipart/form-data' 
-      } 
-    }); 
-    articleForm.value.img=API_BASE_URL + "/file?f=" + data.shortUrl
-    // 这里可以根据需要将图片URL添加到文章内容中
-    // 由于ArticleCommit.vue当前没有直接编辑器，我们显示成功信息
-    Message.success({ 
-      id: 'upload-image:' + file.name, 
-      content: '图片上传成功', 
-      duration: 3000, 
-    }); 
-    
-    // 可以将上传的图片URL添加到文章内容中
-    const imageUrl = '/api/file?f=' + data.shortUrl; // 假设API_BASE_URL为'/api'
-    // 如果需要将图片链接插入到内容中，可以更新articleForm的内容
-    // 这里我们只是展示上传成功
-    console.log('图片上传成功，URL:', imageUrl);
-    
-    return imageUrl;
-  } catch (error) {
-    console.error('文件上传失败:', error);
-    Message.error({ 
-      id: 'upload-image:' + file.name, 
-      content: '图片上传失败，请稍后重试', 
-      duration: 3000, 
-    }); 
-    throw error;
-  } 
+
+
+// 处理裁剪后的图片
+const handleCroppedImage = async (croppedFile) => {
+    try {
+        Message.loading({
+            id: 'upload-cropped-image:' + croppedFile.name,
+            content: croppedFile.name + '上传中...',
+            duration: 15000,
+        });
+
+        // 创建FormData对象 
+        const formData = new FormData();
+        formData.append('file', croppedFile);
+
+        // 使用api上传文件 
+        const { data } = await api.post('/file/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        articleForm.value.img = API_BASE_URL + "/file?f=" + data.shortUrl;
+
+        // 显示成功信息
+        Message.success({
+            id: 'upload-cropped-image:' + croppedFile.name,
+            content: '图片上传成功',
+            duration: 3000,
+        });
+
+        // 可以将上传的图片URL添加到文章内容中
+        const imageUrl = '/api/file?f=' + data.shortUrl; // 假设API_BASE_URL为'/api'
+        console.log('裁剪后图片上传成功，URL:', imageUrl);
+
+        cropperModalVisible.value = false;
+        currentImageFile.value = null;
+
+        return imageUrl;
+    } catch (error) {
+        console.error('裁剪后图片上传失败:', error);
+        Message.error({
+            id: 'upload-cropped-image:' + croppedFile.name,
+            content: '图片上传失败，请稍后重试',
+            duration: 3000,
+        });
+        throw error;
+    }
 };
 
 // Arco Design Upload组件的自定义上传方法
 const customRequest = async (options) => {
-  const { fileItem, onError, onSuccess, onProgress } = options;
-  
-  // 模拟上传进度
-  onProgress({ percent: 50 });
-  
-  try {
-    const imageUrl = await handleUploadImage(fileItem.file);
-    onSuccess({ url: imageUrl });
-    return { url: imageUrl };
-  } catch (error) {
-    onError(error);
-    throw error;
-  }
+    const { fileItem, onError, onSuccess, onProgress } = options;
+    const file = fileItem.file;
+
+    // 检查是否为图片
+    if (!file.type.startsWith('image/')) {
+        console.error('请选择图片文件');
+        onError();
+        return;
+    }
+
+    // 创建图片对象用于裁剪组件
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = async () => {
+        // 将原始文件保存到currentImageFile，用于裁剪
+        currentImageFile.value = file;
+
+        // 显示裁剪模态框
+        cropperModalVisible.value = true;
+
+        // 等待模态框打开后设置图片
+        await nextTick();
+        setTimeout(() => {
+            if (imageCropperRef.value) {
+                imageCropperRef.value.setImage(img);
+            }
+        }, 100);
+
+        onSuccess();
+    };
+    img.onerror = () => {
+        console.error('图片加载失败');
+        onError();
+    };
 };
 
 // 组件挂载时初始化数据
@@ -380,6 +420,7 @@ onMounted(() => {
             Message.warning('未找到文章内容，请返回编辑页面');
             return;
         }
+        commitData.status='发布中'
         articleForm.value = commitData;
     } catch (error) {
         console.error('Error initializing article form:', error);
@@ -474,11 +515,11 @@ onMounted(() => {
         flex-shrink: 0;
         white-space: nowrap;
     }
-    
-    .tag-input-group > * {
+
+    .tag-input-group>* {
         margin-top: 0 !important;
     }
-    
+
     .tag-count-info {
         font-size: 12px;
         color: var(--color-text-3);
@@ -530,12 +571,12 @@ onMounted(() => {
             padding: 0;
         }
     }
-    
+
     .image-upload-section {
         margin-top: 16px;
         padding-top: 16px;
         border-top: 1px solid #f0f0f0;
-        
+
         h4 {
             margin-bottom: 12px;
             font-weight: 500;
@@ -604,7 +645,7 @@ onMounted(() => {
                 width: 100%;
                 align-self: stretch;
             }
-            
+
             .tag-count-info {
                 margin-left: 0;
                 margin-top: 8px;
@@ -663,7 +704,7 @@ onMounted(() => {
     .tag-input-group .auto-generate-btn {
         width: 100%;
     }
-    
+
     .tag-count-info {
         margin-left: 0;
         margin-top: 8px;
