@@ -16,6 +16,7 @@
     "@types/three": "^0.182.0",
     "axios": "^1.13.2",
     "dompurify": "^3.3.1",
+    "highlight.js": "^11.11.1",
     "katex": "^0.16.27",
     "marked": "^17.0.1",
     "mermaid": "^11.12.2",

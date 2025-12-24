@@ -1,3 +1,16 @@
+// 生成标题 ID 的辅助函数，与 MarkdownPreview.vue 中保持一致
+const generateId = (text) => {
+  // 移除 HTML 标签（如果有的话）
+  const cleanText = text.replace(/<[^>]*>/g, '');
+  // 移除特殊字符，转换为小写，用连字符连接
+  return cleanText
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\u4e00-\u9fa5\s-]/g, '') // 保留字母、数字、中文、空格和连字符
+    .replace(/[\s-]+/g, '-') // 多个空格或连字符替换为单个连字符
+    .replace(/^-+|-+$/g, ''); // 去除开头和结尾的连字符
+};
+
 /**
  * 将 Markdown 文本解析为 a-tree 组件可用的树结构
  * @param {string} markdown - Markdown 文本
@@ -36,9 +49,11 @@ export function parseMarkdownToTree(markdown) {
       }
       
       // 创建节点对象
+      const id = generateId(title);
       const node = {
         title: title,
         key: `node-${++keyCounter}`,
+        to: id,  // 添加 to 属性，用于目录跳转
         level: level
       };
       

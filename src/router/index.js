@@ -39,6 +39,11 @@ const routes = [
     component: () => import('@/views/ArticleCommit.vue'),
   },
   {
+    path: '/redirect',
+    name: 'Redirect',
+    component: () => import('@/views/RedirectPage.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),

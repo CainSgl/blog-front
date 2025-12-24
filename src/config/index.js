@@ -1,4 +1,4 @@
-// src/config/index.js
+
 // 统一配置管理文件
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';

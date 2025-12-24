@@ -41,7 +41,7 @@ const kbStore = useKbStore();
 
 // 响应式数据
 const textContent = ref('');
-const previewHeight = ref('calc(100vh - 54px)');
+const previewHeight = ref('calc(100vh - 84px)');
 const loading = ref(false); // 控制文章加载时的旋转动画
 const breadcrumbItems = ref([
   { id: 'home', name: kbStore.kbInfo?.name || '知识库' }
