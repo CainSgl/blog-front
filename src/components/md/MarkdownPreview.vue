@@ -422,86 +422,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="less">
-.cainsgl-markdown-code-block{
-
-  .hljs {
-    color: #24292e;
-    background: #ffffff;
-  }
-  .hljs-doctag,
-  .hljs-keyword,
-  .hljs-meta .hljs-keyword,
-  .hljs-template-tag,
-  .hljs-template-variable,
-  .hljs-type,
-  .hljs-variable.language_ {
-    color: #d73a49; /* 关键字红色 */
-  }
-  .hljs-title,
-  .hljs-title.class_,
-  .hljs-title.class_.inherited__,
-  .hljs-title.function_ {
-    color: #6f42c1; /* 函数/类名紫色 */
-  }
-  .hljs-attr,
-  .hljs-attribute,
-  .hljs-literal,
-  .hljs-meta,
-  .hljs-number,
-  .hljs-operator,
-  .hljs-variable,
-  .hljs-selector-attr,
-  .hljs-selector-class,
-  .hljs-selector-id {
-    color: #005cc5; /* 属性、常量蓝色 */
-  }
-  .hljs-regexp,
-  .hljs-string,
-  .hljs-meta .hljs-string {
-    color: #032f62; /* 字符串蓝色 */
-  }
-  .hljs-built_in,
-  .hljs-symbol {
-    color: #e36209; /* 内建函数橙色 */
-  }
-  .hljs-comment,
-  .hljs-code,
-  .hljs-formula {
-    color: #6a737d; /* 注释灰色 */
-  }
-  .hljs-name,
-  .hljs-quote,
-  .hljs-selector-tag,
-  .hljs-selector-pseudo {
-    color: #22863a; /* 标签名绿色 */
-  }
-  .hljs-subst {
-    color: #24292e; /* 替换文本 */
-  }
-  .hljs-section {
-    color: #005cc5;
-    font-weight: bold;
-  }
-  .hljs-bullet {
-    color: #735c0f; /* 列表标记 */
-  }
-  .hljs-emphasis {
-    color: #24292e;
-    font-style: italic;
-  }
-  .hljs-strong {
-    color: #24292e;
-    font-weight: bold;
-  }
-  .hljs-addition {
-    color: #22863a;
-    background-color: #f0fff4;
-  }
-  .hljs-deletion {
-    color: #b31d28;
-    background-color: #ffeef0;
-  }
-}
 
 
 
@@ -542,15 +462,15 @@ onUnmounted(() => {
     }
 
     & .cainsgl-markdown-table {
-      width: 100%;
+
       border-collapse: collapse;
       margin: 16px 0;
       font-size: 0.9em;
       font-family: inherit;
       background-color: #fff;
-      border: 1px solid #d1d5db;
+ 
       border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
 
       th,
       td {

@@ -95,19 +95,28 @@ const copyCode = async () => {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 @border-color: #d0d7de;
 @header-bg: #f6f8fa;
 @text-color: #24292e;
 @title-color: #57606a;
 @code-bg: #f6f8fa;
+@vscode-bg: #ffffff;
+@vscode-comment: #6a9955;
+@vscode-keyword: #569cd6;
+@vscode-string: #ce9178;
+@vscode-function: #dcdcaa;
+@vscode-constant: #9cdcfe;
+@vscode-property: #9cdcfe;
+@vscode-punctuation: #d4d4d4;
+@vscode-operator: #d4d4d4;
 
 .cainsgl-code-container {
   margin: 16px 0;
   border: 1px solid @border-color;
   border-radius: 6px;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: @vscode-bg;
 
   .cainsgl-code-header {
     display: flex;
@@ -166,7 +175,7 @@ const copyCode = async () => {
   .cainsgl-code-block {
     margin: 0;
     padding: 12px;
-    background-color: @code-bg;
+    background-color: @vscode-bg;
     overflow: auto;  // 同时支持水平和垂直滚动
     font-size: 0.9em;
     line-height: 1.5;
@@ -185,9 +194,96 @@ const copyCode = async () => {
     }
 
     .hljs {
-      background: @code-bg !important;
+      background: @vscode-bg !important;
       padding: 0 !important;
       margin: 0;
+      color: @text-color;
+    }
+    
+    /* VSCode Light Theme 语法高亮配色 */
+    .hljs-comment,
+    .hljs-quote {
+      color: @vscode-comment;
+      font-style: italic;
+    }
+    
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-subst {
+      color: @vscode-keyword;
+      font-weight: bold;
+    }
+    
+    .hljs-number,
+    .hljs-literal,
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-tag .hljs-attr {
+      color: @vscode-constant;
+    }
+    
+    .hljs-string,
+    .hljs-doctag {
+      color: @vscode-string;
+    }
+    
+    .hljs-title,
+    .hljs-section,
+    .hljs-selector-id {
+      color: @vscode-function;
+      font-weight: bold;
+    }
+    
+    .hljs-subst {
+      color: @text-color;
+    }
+    
+    .hljs-type,
+    .hljs-class .hljs-title {
+      color: @vscode-constant;
+      font-weight: bold;
+    }
+    
+    .hljs-tag,
+    .hljs-name,
+    .hljs-attribute {
+      color: @vscode-keyword;
+    }
+    
+    .hljs-regexp,
+    .hljs-link {
+      color: @vscode-string;
+    }
+    
+    .hljs-symbol,
+    .hljs-bullet {
+      color: @vscode-constant;
+    }
+    
+    .hljs-built_in,
+    .hljs-builtin-name {
+      color: @vscode-function;
+    }
+    
+    .hljs-meta {
+      color: @vscode-keyword;
+      font-weight: bold;
+    }
+    
+    .hljs-deletion {
+      background: #fdd;
+    }
+    
+    .hljs-addition {
+      background: #dfd;
+    }
+    
+    .hljs-emphasis {
+      font-style: italic;
+    }
+    
+    .hljs-strong {
+      font-weight: bold;
     }
   }
 }
