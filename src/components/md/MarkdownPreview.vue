@@ -336,12 +336,20 @@ let hashChangeCounter = 0; // 计数器，用于控制hashchange事件处理
 // 添加滚动状态标志
 let isScrollingToElement = false; // 标记是否正在滚动到元素（由程序触发，而非用户手动滚动）
 
-// 自定义设置hash的函数，避免在程序滚动时修改hash
+// 自定义设置hash的函数，避免在程序滚动时修改hash，同时不产生历史记录
 const setHash = (encodedTargetHash) => {
   // 只有在非滚动状态下才允许设置hash
   if (!isScrollingToElement) {
     hashChangeCounter++;
-    window.location.hash = encodedTargetHash;
+    // 使用replaceState来设置hash，避免产生历史记录
+    const oldHash = window.location.hash;
+    const newURL = window.location.pathname + window.location.search + '#' + encodedTargetHash;
+    window.history.replaceState(null, '', newURL);
+    
+    // 手动触发hashchange事件，以便其他组件能响应hash变化
+    if (oldHash !== '#' + encodedTargetHash) {
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    }
   }
 };
 

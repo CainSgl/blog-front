@@ -513,11 +513,13 @@ const updateTextAndSetCursor = (newText, cursorPosition, cursorEndPosition = nul
     const textarea = getTextAreaElement();
     if (!textarea) return;
 
-    if (cursorEndPosition !== null) {
-      textarea.setSelectionRange(cursorPosition, cursorEndPosition);
-    } else {
-      textarea.setSelectionRange(cursorPosition, cursorPosition);
-    }
+    // 确保光标位置在有效范围内
+    const adjustedCursorPosition = Math.max(0, Math.min(cursorPosition, newText.length));
+    const adjustedEndPosition = cursorEndPosition !== null 
+      ? Math.max(0, Math.min(cursorEndPosition, newText.length))
+      : adjustedCursorPosition;
+
+    textarea.setSelectionRange(adjustedCursorPosition, adjustedEndPosition);
     textarea.focus();
   }, 0);
 };
@@ -962,26 +964,28 @@ const formatColorWithCustomColor = (customColor) => {
         let newText;
         if (Object.keys(spanInfo.styles).length === 0) {
           newText = text.value.substring(0, start) + spanInfo.content + text.value.substring(end);
-          updateTextAndSetCursor(newText, start);
+          // 光标位置应该是开始位置加上内容长度（因为标签被移除了）
+          updateTextAndSetCursor(newText, start + spanInfo.content.length);
         } else {
           // 否则只更新样式
           const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
           newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
-          updateTextAndSetCursor(newText, start);
+          // 更新span标签后，光标位置应该是开始位置加上新标签内容的长度
+          updateTextAndSetCursor(newText, start + updatedSpan.length);
         }
       } else {
         // 如果颜色不同，则更新字体颜色样式
         spanInfo.styles['color'] = customColor;
         const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
         const newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
-        updateTextAndSetCursor(newText, start);
+        updateTextAndSetCursor(newText, start + updatedSpan.length);
       }
     } else {
       // 没有span标签，直接添加新的
       const styles = { 'color': customColor };
       const formattedText = buildSpanTag(styles, selectedText);
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
-      updateTextAndSetCursor(newText, start + formattedText.indexOf('>') + 1);
+      updateTextAndSetCursor(newText, start + formattedText.length);
     }
   } else {
     // 如果没有选中文本，检查当前行是否已经设置了字体颜色
@@ -1002,14 +1006,18 @@ const formatColorWithCustomColor = (customColor) => {
             const beforeText = text.value.substring(0, lineStart);
             const afterText = text.value.substring(lineEnd);
             newText = beforeText + spanInfo.content + afterText;
-            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+            // 光标位置需要根据相对位置和标签移除后的长度进行调整
+            const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
+            updateTextAndSetCursor(newText, newCursorPosition);
           } else {
             // 否则只更新样式
             const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
             const beforeText = text.value.substring(0, lineStart);
             const afterText = text.value.substring(lineEnd);
             const newText = beforeText + updatedSpan + afterText;
-            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+            // 光标位置需要根据相对位置进行调整
+            const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
+            updateTextAndSetCursor(newText, newCursorPosition);
           }
         } else {
           // 如果颜色不同，则更新字体颜色样式
@@ -1018,7 +1026,9 @@ const formatColorWithCustomColor = (customColor) => {
           const beforeText = text.value.substring(0, lineStart);
           const afterText = text.value.substring(lineEnd);
           const newText = beforeText + updatedSpan + afterText;
-          updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+          // 光标位置需要根据相对位置进行调整
+          const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
+          updateTextAndSetCursor(newText, newCursorPosition);
         }
       } else {
         // 没有span标签，为整行添加新的
@@ -1027,7 +1037,7 @@ const formatColorWithCustomColor = (customColor) => {
         const beforeText = text.value.substring(0, lineStart);
         const afterText = text.value.substring(lineEnd);
         const newText = beforeText + formattedText + afterText;
-        const newCursorPosition = lineStart + formattedText.indexOf('>') + 1 + cursorPositionInLine;
+        const newCursorPosition = Math.min(lineStart + formattedText.length, newText.length);
         updateTextAndSetCursor(newText, newCursorPosition);
       }
     } else {
@@ -1062,26 +1072,28 @@ const formatBackgroundWithCustomColor = (customColor) => {
         let newText;
         if (Object.keys(spanInfo.styles).length === 0) {
           newText = text.value.substring(0, start) + spanInfo.content + text.value.substring(end);
-          updateTextAndSetCursor(newText, start);
+          // 光标位置应该是开始位置加上内容长度（因为标签被移除了）
+          updateTextAndSetCursor(newText, start + spanInfo.content.length);
         } else {
           // 否则只更新样式
           const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
           newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
-          updateTextAndSetCursor(newText, start);
+          // 更新span标签后，光标位置应该是开始位置加上新标签内容的长度
+          updateTextAndSetCursor(newText, start + updatedSpan.length);
         }
       } else {
         // 如果颜色不同，则更新背景颜色样式
         spanInfo.styles['background-color'] = customColor;
         const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
         const newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
-        updateTextAndSetCursor(newText, start);
+        updateTextAndSetCursor(newText, start + updatedSpan.length);
       }
     } else {
       // 没有span标签，直接添加新的
       const styles = { 'background-color': customColor };
       const formattedText = buildSpanTag(styles, selectedText);
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
-      updateTextAndSetCursor(newText, start + formattedText.indexOf('>') + 1);
+      updateTextAndSetCursor(newText, start + formattedText.length);
     }
   } else {
     // 如果没有选中文本，检查当前行是否已经设置了背景颜色
@@ -1102,14 +1114,18 @@ const formatBackgroundWithCustomColor = (customColor) => {
             const beforeText = text.value.substring(0, lineStart);
             const afterText = text.value.substring(lineEnd);
             newText = beforeText + spanInfo.content + afterText;
-            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+            // 光标位置需要根据相对位置和标签移除后的长度进行调整
+            const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
+            updateTextAndSetCursor(newText, newCursorPosition);
           } else {
             // 否则只更新样式
             const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
             const beforeText = text.value.substring(0, lineStart);
             const afterText = text.value.substring(lineEnd);
             const newText = beforeText + updatedSpan + afterText;
-            updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+            // 光标位置需要根据相对位置进行调整
+            const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
+            updateTextAndSetCursor(newText, newCursorPosition);
           }
         } else {
           // 如果颜色不同，则更新背景颜色样式
@@ -1118,7 +1134,9 @@ const formatBackgroundWithCustomColor = (customColor) => {
           const beforeText = text.value.substring(0, lineStart);
           const afterText = text.value.substring(lineEnd);
           const newText = beforeText + updatedSpan + afterText;
-          updateTextAndSetCursor(newText, lineStart + cursorPositionInLine);
+          // 光标位置需要根据相对位置进行调整
+          const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
+          updateTextAndSetCursor(newText, newCursorPosition);
         }
       } else {
         // 没有span标签，为整行添加新的
@@ -1127,7 +1145,7 @@ const formatBackgroundWithCustomColor = (customColor) => {
         const beforeText = text.value.substring(0, lineStart);
         const afterText = text.value.substring(lineEnd);
         const newText = beforeText + formattedText + afterText;
-        const newCursorPosition = lineStart + formattedText.indexOf('>') + 1 + cursorPositionInLine;
+        const newCursorPosition = Math.min(lineStart + formattedText.length, newText.length);
         updateTextAndSetCursor(newText, newCursorPosition);
       }
     } else {

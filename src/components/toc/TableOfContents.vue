@@ -54,6 +54,9 @@ const props = defineProps({
   }
 });
 
+// 定义组件事件
+const emit = defineEmits(['visibilityChange']);
+
 // 响应式数据
 const treeData = ref([]);
 const selectedKeys = ref([]);
@@ -112,8 +115,8 @@ const collapseAllNodes = () => {
 // 切换展开/收起全部
 const toggleExpandAll = () => {
   if (isAllExpanded.value) {
-    // 收起全部
-    expandedKeys.value = [...defaultExpandedKeys.value, ...Array.from(userExpandedKeys.value)];
+    // 收起全部，只保留默认展开的节点
+    expandedKeys.value = [...defaultExpandedKeys.value];
     isAllExpanded.value = false;
   } else {
     // 展开全部
@@ -128,6 +131,8 @@ const toggleExpandAll = () => {
 // 切换显示/隐藏
 const toggleVisibility = () => {
   isVisible.value = !isVisible.value;
+  // 通知父组件显示/隐藏状态已改变
+  emit('visibilityChange', isVisible.value);
 };
 
 // 查找节点路径的辅助函数
@@ -254,7 +259,15 @@ const handleNodeClick = (node) => {
   const id =  node[0]; 
   // 将被点击的节点添加到用户展开的节点集合中
   userExpandedKeys.value.add(id);
-  window.location.hash = id;
+  // 使用replaceState来设置hash，避免产生历史记录
+  const oldHash = window.location.hash;
+  const newURL = window.location.pathname + window.location.search + '#' + id;
+  window.history.replaceState(null, '', newURL);
+  
+  // 手动触发hashchange事件，以便其他组件能响应hash变化
+  if (oldHash !== '#' + id) {
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  }
 };
 </script>
 
