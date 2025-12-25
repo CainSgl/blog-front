@@ -30,7 +30,7 @@
 import { ref, onMounted, computed, watch, h, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { Message, Modal } from '@arco-design/web-vue';
-import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
 import api from '@/api/index.js';
 import { useKbStore } from '../kbStore.js';
 import { IconFilePdf, IconWifi } from '@arco-design/web-vue/es/icon';

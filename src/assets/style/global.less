@@ -9,6 +9,7 @@
 @primary-6: #00aeec; // 常规
 @primary-7: #00b1ec; //点击（click）
 
+@primary-8: #d6e8fc;
 // 2. 功能色系列 - Bilibili风格
 // 成功色
 @success-1: #f0fff5;
@@ -97,6 +98,34 @@
 @size-2: 8px; //8px
 @size-3: 12px; //12px
 @size-4: 16px; //迷你（24px）
+
+// 全局滚动条样式
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: fade(@color-text-4, 30%);
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: fade(@color-text-4, 50%);
+}
+
+// Firefox 滚动条样式
+* {
+  scrollbar-width: thin;
+  scrollbar-color: fade(@color-text-4, 30%) transparent;
+}
 @size-5: 20px; //20px
 @size-N: (4 * N) px; //变量对应的值为 (4 * N)px 大小
 @size-50: 200px; //200px

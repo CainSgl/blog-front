@@ -1,6 +1,6 @@
 <template>
 
-  <div class="cainsgl-markdown-preview">
+  <div ref="previewContainerRef" class="cainsgl-markdown-preview">
     
     <div ref="previewContentRef" :style="{ height: height }" class="cainsgl-preview-content"
       v-html="renderedMarkdown" />
@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed, nextTick, onMounted, onUpdated, ref } from 'vue';
+import { defineProps, computed, nextTick, onMounted, onUpdated, onUnmounted, ref } from 'vue';
 import { createApp, h } from 'vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -57,10 +57,11 @@ const props = defineProps({
 });
 
 const previewContentRef = ref(null);
+const previewContainerRef = ref(null);
 
 const renderer = new marked.Renderer();
 
-// 自定义代码块渲染器 - 创建一个特殊的占位符
+// 自定义代码块渲染器 - 创建一个特殊的占位符 
 let codeBlockIdCounter = 0; // 用于生成自增ID
 renderer.code = function (code, language) {
   let codeText, lang;
@@ -257,12 +258,7 @@ const processDynamicComponents = async () => {
             fit: 'scale-down', // 使用 scale-down 模式，保持宽高比且不放大图片
             'show-loader': true,
             'lazy': true,
-            'preview': {
-              visible: true,
-              closable: true,
-              maskClosable: true,
-              actionsLayout: ['zoomIn', 'zoomOut', 'rotateLeft', 'rotateRight', 'fullscreen'],
-            },
+            preview: true,
             style: {
               borderRadius: '6px',
               margin: '16px 0',
@@ -307,8 +303,121 @@ onMounted(() => {
   processDynamicComponents();
 });
 
+// 处理URL中的hash并平滑滚动到对应元素
+const scrollToHashElement = () => {
+  // 等待DOM更新完成
+  nextTick(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      let elementId ="cainsgl-titile-"+ hash.substring(1); // 移除 # 号
+      // 解码URL编码的ID，处理中文字符
+      elementId = decodeURIComponent(elementId);
+      const element = document.getElementById(elementId);
+      if (element) {
+        // 设置滚动标志，表示正在程序触发的滚动
+        isScrollingToElement = true;
+        
+        // 使用平滑滚动到目标元素
+        element.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+        
+        // 在滚动结束后重置滚动标志
+        setTimeout(() => {
+          isScrollingToElement = false;
+        }, 500); // 500ms应该足够完成平滑滚动
+      }
+    }
+  });
+};
+let hashChangeCounter = 0; // 计数器，用于控制hashchange事件处理
+
+// 添加滚动状态标志
+let isScrollingToElement = false; // 标记是否正在滚动到元素（由程序触发，而非用户手动滚动）
+
+// 自定义设置hash的函数，避免在程序滚动时修改hash
+const setHash = (encodedTargetHash) => {
+  // 只有在非滚动状态下才允许设置hash
+  if (!isScrollingToElement) {
+    hashChangeCounter++;
+    window.location.hash = encodedTargetHash;
+  }
+};
+
+// 监听hash变化事件
+const handleHashChange = () => {
+  if (hashChangeCounter > 0) {
+    // 如果计数器大于0，减少计数器但不执行滚动逻辑
+    hashChangeCounter--;
+  } else {
+    // 只有当计数器为0时，才执行滚动逻辑
+    scrollToHashElement();
+  }
+};
+
+// 滚动监听函数，检测当前可视区域的标题元素
+const handleScroll = () => {
+  if (!previewContainerRef.value || !previewContentRef.value) return;
+
+  // 获取所有标题元素
+  const headings = previewContentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  if (!headings.length) return;
+
+  let currentHeading = null;
+  const scrollPosition = previewContainerRef.value.scrollTop;
+
+  // 遍历所有标题元素，找到当前可视区域内的标题
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
+    const headingPosition = heading.offsetTop - previewContentRef.value.offsetTop;
+
+    // 如果标题位置小于等于滚动位置，则认为是当前标题
+    if (headingPosition <= scrollPosition) {
+      currentHeading = heading;
+    } else {
+      // 如果下一个标题已经超过了滚动位置，则当前标题就是上一个标题
+      break;
+    }
+  }
+
+  if (currentHeading) {
+    // 获取标题的ID
+    const headingId = currentHeading.id;
+    const targetHash = headingId.replace('cainsgl-titile-', '');
+    const encodedTargetHash = encodeURIComponent(targetHash);
+    if (headingId && window.location.hash !== `#${encodedTargetHash}`) {
+      // 使用自定义setHash函数，避免在程序滚动时修改hash
+      setHash(encodedTargetHash);
+    }
+  }
+};
+
+onMounted(() => {
+  processDynamicComponents();
+  // 组件挂载后检查是否有hash，如果有则滚动到对应元素
+  scrollToHashElement();
+  // 添加hash变化监听器
+  window.addEventListener('hashchange', handleHashChange);
+  // 添加滚动监听器
+  if (previewContainerRef.value) {
+    previewContainerRef.value.addEventListener('scroll', handleScroll);
+  }
+});
+
 onUpdated(() => {
   processDynamicComponents();
+  // 组件更新后也检查hash，以防内容变化导致元素重新渲染
+  scrollToHashElement();
+});
+
+// 在组件卸载时移除事件监听器
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleHashChange);
+  // 移除滚动监听器
+  if (previewContainerRef.value) {
+    previewContainerRef.value.removeEventListener('scroll', handleScroll);
+  }
 });
 </script>
 

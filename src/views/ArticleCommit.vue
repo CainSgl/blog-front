@@ -139,7 +139,7 @@ import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { Message, Spin, Upload } from '@arco-design/web-vue';
 import { useKbStore } from './kb/kbStore.js';
-import MarkdownPreview from '../components/MarkdownPreview.vue';
+import MarkdownPreview from '../components/md/MarkdownPreview.vue';
 import ImageCropperModal from '../components/ImageCropperModal.vue';
 import {
     IconArrowLeft,

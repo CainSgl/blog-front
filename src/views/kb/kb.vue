@@ -23,8 +23,9 @@
         <IconDoubleRight v-if="isCollapsed" class="collapse-icon" size="large"></IconDoubleRight>
         <IconDoubleLeft v-else class="collapse-icon" size="large"> </IconDoubleLeft>
       </div>
-
     </div>
+
+    <div class="divider"></div>
 
     <div class="content">
       <router-view />
@@ -35,7 +36,7 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
-import TreeMenu from '@/components/TreeMenuWrapper.vue';
+import TreeMenu from '@/components/treemenu/TreeMenuWrapper.vue';
 import LikeButton from '@/components/LikeButton.vue';
 import api from '@/api/index.js';
 import { IconHome, IconDoubleLeft, IconDoubleRight } from '@arco-design/web-vue/es/icon';
@@ -55,8 +56,13 @@ const kbInfo = ref({
 const kbStore = useKbStore();
 
 // collapse-button 精细控制相关状态
-const showCollapseButton = ref(false);
+const showCollapseButton = ref(window.innerWidth >= 800);  // 默认根据屏幕宽度决定是否显示
 const hideTimer = ref(null);
+
+// 检查屏幕宽度的函数
+function checkScreenSize() {
+  return window.innerWidth >= 800;
+}
 function handleLike() {
 
 }
@@ -91,7 +97,26 @@ onMounted(async () => {
     //重定向到404页面
     router.push({ name: 'NotFound' });
   }
+  
+  // 初始化时检查屏幕尺寸
+  if (!checkScreenSize()) {
+    showCollapseButton.value = false;
+  }
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize);
 });
+
+// 窗口大小变化处理函数
+function handleResize() {
+  if (!checkScreenSize()) {
+    showCollapseButton.value = false;
+    isCollapsed.value = true;  // 在小屏幕上默认折叠侧边栏
+  } else {
+    // 在大屏幕上恢复显示按钮
+    showCollapseButton.value = true;
+  }
+}
 
 const kbId = ref('-1');
 function handleClickPost(node) {
@@ -116,15 +141,22 @@ function toggleCollapse() {
 
 // collapse-button 精细控制方法
 function handleMouseMove(event) {
+  // 如果屏幕宽度小于800px，不显示收起按钮
+  if (!checkScreenSize()) {
+    showCollapseButton.value = false;
+    return;
+  }
+  
   const screenWidth = window.innerWidth;
   const mouseX = event.clientX;
-  const threshold = isCollapsed.value ? screenWidth * 0.1 : screenWidth * 0.3;
+  const threshold = isCollapsed.value ? screenWidth * 0.1 : screenWidth * 0.2+80;
 
   if (mouseX <= threshold) {
     showCollapseButton.value = true;
     handleMouseLeave();
-  } else {
-    handleMouseLeave();
+  }else{
+    clearHideTimer();
+     showCollapseButton.value = false;
   }
 }
 
@@ -145,6 +177,8 @@ function clearHideTimer() {
 // 组件卸载时清理定时器
 onUnmounted(() => {
   clearHideTimer();
+  // 移除窗口大小变化监听器
+  window.removeEventListener('resize', handleResize);
 });
 
 
@@ -174,6 +208,12 @@ onUnmounted(() => {
   }
 }
 
+.divider {
+  width: 16px;
+  background: transparent;
+
+}
+
 .sidebar.collapsed .tree-menu,
 .sidebar.collapsed .like-button-wrapper {
   opacity: 0;
@@ -185,6 +225,8 @@ onUnmounted(() => {
   height: 100%;
   overflow: hidden;
 }
+
+
 
 .content {
   flex: 1;
@@ -244,10 +286,10 @@ onUnmounted(() => {
 .collapse-button {
   user-select: none;
   position: absolute;
-  top: 50%;
-  right: -22px;
-  transform: translateY(-50%);
-  width: 20px;
+  top: 25%;
+  right: -16px;
+  transform: translateY(-25%);
+  width: 14px;
   height: 60px;
   background: #ffffff;
   border: 1px solid #e5e6eb;
@@ -275,7 +317,7 @@ onUnmounted(() => {
 }
 
 .sidebar.collapsed .collapse-button {
-  right: -12px;
+  right: -17px;
 }
 
 

@@ -25,10 +25,7 @@ export function parseMarkdownToTree(markdown) {
   
   // 最终返回的树结构
   const tree = [];
-  
-  // 用于生成唯一 key 的计数器
-  let keyCounter = 0;
-  
+
   // 正则表达式匹配标题行，包括可能的锚点
   // 匹配格式如: # 标题 或 # 标题{#anchor-id}
   const headingRegex = /^(#{1,6})\s+(.+?)(?:\{#[^}]*\})?$/;
@@ -52,8 +49,7 @@ export function parseMarkdownToTree(markdown) {
       const id = generateId(title);
       const node = {
         title: title,
-        key: `node-${++keyCounter}`,
-        to: id,  // 添加 to 属性，用于目录跳转
+        key: id,
         level: level
       };
       

@@ -20,7 +20,7 @@
         </a-layout-header>
       </div>
       <div style="height: 100%;">
-        <MarkdownPreview :content="textContent" :height="previewHeight" />
+       <MarkdownPreviewWrapper :content="textContent" :height="previewHeight" />
       </div>
     </div>
   </a-spin>
@@ -30,11 +30,12 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
-import MarkdownPreview from '@/components/MarkdownPreview.vue';
+
 import api from '@/api/index.js';
 import { useKbStore } from '../kbStore.js';
 import { IconFilePdf, IconWifi } from '@arco-design/web-vue/es/icon';
 
+import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();
@@ -198,6 +199,17 @@ watch(treeData, (newVal) => {
     }
   }
 }, { deep: true });
+
+// 监听路由参数变化
+watch(
+  () => route.query.p,
+  async (newPostId, oldPostId) => {
+    if (newPostId && newPostId !== oldPostId) {
+      loadPostContent(newPostId);
+      buildBreadcrumb(newPostId);
+    }
+  }
+);
 
 // 组件挂载时的逻辑
 onMounted(() => {
