@@ -39,9 +39,16 @@
           <!-- 标签 -->
           <div class="post-tags" v-if="post.tags && post.tags.length > 0">
             <a-space wrap>
-              <a-tag v-for="(tag, index) in post.tags" :key="index" color="arcoblue">
-                {{ tag }}
-              </a-tag>
+              <template v-for="(tag, index) in post.tags" :key="index">
+                <a-tooltip v-if="getTagScore(tag)" :content="getTagScore(tag)" position="top">
+                  <a-tag color="arcoblue">
+                    {{ getTagDisplayName(tag) }}
+                  </a-tag>
+                </a-tooltip>
+                <a-tag v-else color="arcoblue">
+                  {{ getTagDisplayName(tag) }}
+                </a-tag>
+              </template>
             </a-space>
           </div>
           
@@ -74,7 +81,7 @@
 </template>
 
 <script setup>
-import { Card, Tag, Space, Image } from '@arco-design/web-vue'
+import { Card, Tag, Space, Image, Tooltip } from '@arco-design/web-vue'
 import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon'
 import { computed } from 'vue'
 
@@ -131,6 +138,25 @@ const handleLikeClick = (event) => {
   // 这里可以添加点赞/取消点赞的逻辑
 }
 
+// 获取标签显示名称（去掉分数部分）
+const getTagDisplayName = (tag) => {
+  if (typeof tag === 'string' && tag.includes(':')) {
+    return tag.split(':')[0];
+  }
+  return tag;
+}
+
+// 获取标签分数（如果存在）
+const getTagScore = (tag) => {
+  if (typeof tag === 'string' && tag.includes(':')) {
+    const parts = tag.split(':');
+    if (parts.length > 1) {
+      return `作者认为该标签相关度为: ${parts[1]}`;
+    }
+  }
+  return null; // 如果没有分数部分，则不显示tooltip
+}
+
 // 处理卡片点击事件
 const handleCardClick = () => {
   // 可以在这里添加跳转到文章详情页的逻辑
@@ -153,6 +179,10 @@ const handleCardClick = () => {
     &:hover {
       border-color: @primary-6;
       box-shadow: 0 4px 12px 0 rgba(0, 174, 236, 0.15);
+      
+      .arco-image {
+        transform: scale(1.05);
+      }
     }
   }
   
@@ -195,6 +225,7 @@ const handleCardClick = () => {
       display: block;
       width: 100%;
       height: 100%;
+      transition: transform 0.3s ease;
     }
   }
   

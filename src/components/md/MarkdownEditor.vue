@@ -515,7 +515,7 @@ const updateTextAndSetCursor = (newText, cursorPosition, cursorEndPosition = nul
 
     // 确保光标位置在有效范围内
     const adjustedCursorPosition = Math.max(0, Math.min(cursorPosition, newText.length));
-    const adjustedEndPosition = cursorEndPosition !== null 
+    const adjustedEndPosition = cursorEndPosition !== null
       ? Math.max(0, Math.min(cursorEndPosition, newText.length))
       : adjustedCursorPosition;
 
@@ -1278,6 +1278,8 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
+@import '@/assets/style/markdown-styles.less';
+
 .editor-container {
   position: relative;
 }
@@ -1301,7 +1303,7 @@ onMounted(async () => {
   gap: 20px;
   padding: 4px 4px;
   margin-bottom: 10px;
-  background-color: rgb(248, 248, 248);
+  background-color: @editor-bg;
   border-radius: 15px;
 }
 
@@ -1322,49 +1324,6 @@ onMounted(async () => {
 
 .stat-item {
   margin: 10px
-}
-
-
-
-// 与MarkdownPreview.vue保持一致的样式
-:deep(.cainsgl-markdown-blockquote) {
-  margin: 16px 0;
-  padding: 12px 16px;
-  border-left: 4px solid @primary-4;
-  background-color: #f9fafb;
-  color: #4b5563;
-  border-radius: 0 4px 4px 0;
-  position: relative;
-}
-
-:deep(.cainsgl-markdown-table) {
-
-  border-collapse: collapse;
-  margin: 16px 0;
-  font-size: 0.9em;
-  font-family: inherit;
-  background-color: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-:deep(.cainsgl-markdown-table th),
-:deep(.cainsgl-markdown-table td) {
-  padding: 8px 12px;
-  text-align: left;
-  border: 1px solid #d1d5db;
-  word-wrap: break-word;
-  white-space: normal;
-}
-:deep(.cainsgl-markdown-table th) {
-  background-color: #f3f4f6;
-  font-weight: 600;
-  color: #374151;
-}
-
-:deep(.cainsgl-markdown-table tr:nth-child(even)) {
-  background-color: #f9fafb;
 }
 
 :deep(.cainsgl-task-list-item-container) {
@@ -1392,7 +1351,7 @@ onMounted(async () => {
 :deep(.cainsgl-task-list-checkmark) {
   width: 16px;
   height: 16px;
-  border: 1px solid #d1d5da;
+  border: 1px solid @task-list-border-color;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -1413,8 +1372,8 @@ onMounted(async () => {
 }
 
 :deep(.cainsgl-task-list-checkbox input[type="checkbox"]:checked + .cainsgl-task-list-checkmark) {
-  background-color: #42b983;
-  border-color: #42b983;
+  background-color: @task-list-checked-bg;
+  border-color: @task-list-checked-border;
 }
 
 :deep(.cainsgl-task-list-checkbox input[type="checkbox"]:checked + .cainsgl-task-list-checkmark::after) {
@@ -1430,60 +1389,43 @@ onMounted(async () => {
   max-width: 100%;
   margin: 1rem auto;
   border-radius: 6px;
-  border: 1px solid #eaecef;
-}
-
-:deep(.cainsgl-markdown-image) {
-  max-width: 100%;
-  height: auto;
-  border-radius: 6px;
-  margin: 16px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
+  border: 1px solid @image-border-color;
 }
 
 // 覆盖默认的链接样式，确保与MarkdownPreview.vue保持一致
 :deep(.vuepress-markdown-body a) {
-  color: #3b82f6 !important; // 蓝色链接
+  color: @link-color !important; // 蓝色链接
   text-decoration: underline !important;
 
   &.arco-link {
-    color: #3b82f6 !important;
+    color: @link-color !important;
   }
 
   &:hover {
-    color: #2563eb !important; // 深蓝色悬停效果
+    color: @link-hover-color !important; // 深蓝色悬停效果
   }
 }
 
 // 确保外部链接样式正确应用
 :deep(.vuepress-markdown-body a.arco-link.arco-link-status-normal) {
-  color: #3b82f6 !important;
+  color: @link-color !important;
   text-decoration: underline !important;
 
   &:hover {
-    color: #2563eb !important;
+    color: @link-hover-color !important;
   }
 }
 
-@border-color: #d0d7de;
-@header-bg: #f6f8fa;
-@text-color: #24292e;
-@title-color: #57606a;
-@code-bg: #f6f8fa;
-@vscode-bg: #ffffff;
-@vscode-comment: #6a9955;
-@vscode-keyword: #569cd6;
-@vscode-string: #ce9178;
-@vscode-function: #dcdcaa;
-@vscode-constant: #9cdcfe;
-@vscode-property: #9cdcfe;
-@vscode-punctuation: #d4d4d4;
-@vscode-operator: #d4d4d4;
+:deep(.cainsgl-markdown-blockquote) {
+  margin: 16px 0px;
+  padding: 12px 16px;
+  border-left: 4px solid @primary-4;
+  background-color: @blockquote-bg;
+  color: @blockquote-color;
+  border-radius: 0 4px 4px 0;
+  position: relative;
+}
+
 
 :deep(.cainsgl-code-container) {
   margin: 16px 0;
@@ -1502,13 +1444,14 @@ onMounted(async () => {
 
   }
 }
+
 :deep(.cainsgl-code-title) {
   font-size: 0.85em;
   font-weight: 600;
   color: @title-color;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding:10px;
+  padding: 10px;
   border-bottom: 1px solid @border-color;
 }
 
@@ -1536,7 +1479,7 @@ onMounted(async () => {
   padding: 0;
   border: none;
   display: block;
-  color: @text-color;
+  color: @default-color;
 
   overflow-x: auto;
 }
@@ -1547,7 +1490,7 @@ onMounted(async () => {
   background-color: @vscode-bg;
   overflow: auto; // 同时支持水平和垂直滚动 
 
-  color: @text-color;
+  color: @default-color;
   border: none;
 }
 
@@ -1556,7 +1499,7 @@ onMounted(async () => {
   background: @vscode-bg !important;
   padding: 0 !important;
   margin: 0;
-  color: @text-color;
+  color: @default-color;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-comment),
@@ -1593,7 +1536,7 @@ onMounted(async () => {
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-subst) {
-  color: @text-color !important;
+  color: @default-color !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-type),
@@ -1629,11 +1572,11 @@ onMounted(async () => {
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-deletion) {
-  background: #fdd !important;
+  background: @hljs-deletion-bg !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-addition) {
-  background: #dfd !important;
+  background: @hljs-addition-bg !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-emphasis) {
@@ -1642,75 +1585,5 @@ onMounted(async () => {
 
 :deep(.cainsgl-code-container code.hljs .hljs-strong) {
   font-weight: bold !important;
-}
-
-:deep(.cainsgl-task-list-item) {
-  display: flex;
-  align-items: flex-start;
-  margin: 8px 0;
-
-  & .cainsgl-task-list-checkbox {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    margin-top: 4px; // 垂直对齐文本
-    cursor: default; // 使用默认光标
-
-    & input[type="checkbox"] {
-      display: none; // 隐藏原生复选框
-
-      &+.cainsgl-task-list-checkmark {
-        display: inline-block;
-        width: 14px; // 减小宽度
-        height: 14px; // 减小高度
-        border: 1px solid #d1d5db;
-        border-radius: 3px;
-        position: relative;
-        cursor: default; // 使用默认光标
-        transition: all 0.2s ease;
-
-        &:after {
-          content: "";
-          position: absolute;
-          display: none;
-          left: 3px;
-          top: 0px;
-          width: 4px;
-          height: 7px;
-          border: solid white;
-          border-width: 0 1px 1px 0;
-          transform: rotate(45deg);
-        }
-      }
-
-      &:checked+.cainsgl-task-list-checkmark {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
-
-        &:after {
-          display: block;
-        }
-      }
-    }
-  }
-
-  & .cainsgl-task-list-content {
-    flex: 1;
-    line-height: 1.6;
-
-    & p {
-      margin: 0;
-      padding: 0;
-      display: inline-block;
-      vertical-align: top;
-      line-height: 1.6;
-    }
-  }
-
-  & input[type="checkbox"]:checked+.cainsgl-task-list-checkmark+.cainsgl-task-list-content {
-    text-decoration: line-through;
-    color: #9ca3af;
-  }
 }
 </style>

@@ -1,25 +1,11 @@
 <template>
   <a-spin :loading="loading" tip="正在加载文章内容..." style="display: block;">
-    <div style="padding:10px 0px;">
-      <div>
-        <a-layout-header style="display: flex;justify-content: space-between; align-items: center;">
-          <a-breadcrumb>
-            <a-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="item.id"
-              :class="{ 'last-item': index === breadcrumbItems.length - 1 }">
-              {{ item.name }}
-            </a-breadcrumb-item>
-          </a-breadcrumb>
-          <div style="display: flex; align-items: center;margin-right: 10px">
-            <a-tooltip v-if="postInfo.status" :content="getStatusTooltip()">
-              <component :is="getStatusIcon()" style="cursor: pointer;font-size: 20px;" size="large" />
-            </a-tooltip>
-            <span v-if="postInfo.updatedAt" style="color: #666; margin-left: 10px; font-size: 15px;">
-              上次更新时间：{{ formatUpdateTime(postInfo.updatedAt) }}
-            </span>
-          </div>
-        </a-layout-header>
+    <div>
+      <div style="padding:10px 0px;">
+        <KBCardHeader :post-info="postInfo" :kb-id="kbId" :tree-data="treeData" :kb-info="kbInfo"
+          :on-back="goBackFromHeader" />
       </div>
-      <div style="height: 100%;">
+      <div style="height: 100%;padding-left:16px;">
         <MarkdownEditor v-model="textContent" :height="editorHeight" @go-back="goBack" />
       </div>
     </div>
@@ -31,9 +17,9 @@ import { ref, onMounted, computed, watch, h, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { Message, Modal } from '@arco-design/web-vue';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
+import KBCardHeader from '@/components/kb/KBCardHeader.vue';
 import api from '@/api/index.js';
 import { useKbStore } from '../kbStore.js';
-import { IconFilePdf, IconWifi } from '@arco-design/web-vue/es/icon';
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();
@@ -45,11 +31,8 @@ const lastAutoSavedContent = ref(''); // 存储上次自动保存的内容
 const lastAutoSavedTime = ref(0); // 存储上次自动保存的时间戳
 let isAutoSave = false; // 自动保存的定时器（非响应式）
 let diff = 0; // 跟踪内容变化是否达到200字
-const editorHeight = ref('calc(100vh - 124px)');
+const editorHeight = ref('calc(100vh - 194px)');
 const loading = ref(false); // 控制文章加载时的旋转动画
-const breadcrumbItems = ref([
-  { id: 'home', name: kbStore.kbInfo?.name || '知识库' }
-]);
 
 // 从store中获取treeData
 const treeData = computed(() => kbStore.treeData);
@@ -63,11 +46,16 @@ const isContentChanged = computed(() => {
 
 
 
-// 返回函数
+// 页头返回函数 - 直接返回上一级，不询问是否发布
+const goBackFromHeader = () => {
+  router.push({ name: 'KBIndex', query: { kb: kbId.value } });
+};
+
+// 返回函数 - 从编辑器的返回按钮调用，会询问是否发布
 const goBack = () => {
   const postId = route.query.p;
   if (postInfo.value.content != textContent.value) {
-     const modalInstance =Modal.info({
+    const modalInstance = Modal.info({
       title: '发布文章',
       content: '是否前往发布页发布你的文章？\n注意：你当前修改的内容其他人无法访问，其他人只能看见曾经发布的版本 ',
       okText: '发布',
@@ -263,7 +251,7 @@ watch(treeData, (newVal) => {
   if (newVal && newVal.length > 0) {
     const postId = route.query.p;
     if (postId) {
-      buildBreadcrumb(postId);
+      // 面包屑现在由 KBCardHeader 组件处理
     }
   }
 }, { deep: true });
@@ -335,11 +323,7 @@ watch(
     if (newPostId && newPostId !== oldPostId) {
       // 检查是否有未保存的更改
       if (isContentChanged.value) {
-        let currentPostName = '文章';
-        const currentResult = findNodeByPostId(treeData.value, oldPostId);
-        if (currentResult && currentResult.node) {
-          currentPostName = currentResult.node.name || '文章';
-        }
+        let currentPostName = postInfo.value.title || '文章';
         const shouldContinue = await new Promise((resolve) => {
           showUnsavedChangesModal(currentPostName, oldPostId, resolve);
         });
@@ -349,7 +333,6 @@ watch(
       }
     }
     loadPostContent(newPostId);
-    buildBreadcrumb(newPostId);
     isRestoringRoute = false;
   }
 );
@@ -376,11 +359,6 @@ onMounted(() => {
   if (postId) {
     // 先加载文章内容
     loadPostContent(postId);
-
-    // 如果treeData已经存在，则构建面包屑
-    if (treeData.value && treeData.value.length > 0) {
-      buildBreadcrumb(postId);
-    }
   }
 
   // 初始化上次自动保存的内容和时间 
@@ -408,14 +386,8 @@ onBeforeRouteLeave(async (to, from) => {
   // 检查是否有未保存的更改
   if (isContentChanged.value && !saveLock) {
     // 获取当前文章名称
-    let currentPostName = '文章';
+    let currentPostName = postInfo.value.title || '文章';
     const postId = route.query.p;
-    if (postId) {
-      const result = findNodeByPostId(treeData.value, postId);
-      if (result && result.node) {
-        currentPostName = result.node.name || '文章';
-      }
-    }
 
     // 显示未保存提醒对话框
     const shouldContinue = await new Promise((resolve) => {
@@ -429,126 +401,11 @@ onBeforeRouteLeave(async (to, from) => {
   }
 });
 
-// 根据postId在树形结构中查找节点
-const findNodeByPostId = (nodes, postId) => {
-  if (!Array.isArray(nodes)) return null;
-
-  // 确保postId是字符串类型
-  const targetPostId = String(postId);
-
-  for (const node of nodes) {
-    // 确保node.postId也是字符串类型进行比较
-    if (String(node.postId) === targetPostId) {
-      return { node, path: [node] };
-    }
-
-    // 递归查找子节点
-    if (node.children && node.children.length > 0) {
-      const result = findNodeByPostId(node.children, postId);
-      if (result) {
-        // 将当前节点添加到路径开头
-        result.path.unshift(node);
-        return result;
-      }
-    }
-  }
-
-  return null;
-};
-
-// 构建面包屑路径
-const buildBreadcrumb = (postId) => {
-  if (!postId || !treeData.value) {
-    console.log('Missing postId or treeData');
-    return;
-  }
-
-  const result = findNodeByPostId(treeData.value, postId);
-
-  if (result) {
-    // 构建面包屑项
-    const items = [
-      { id: 'home', name: kbStore.kbInfo?.name || '知识库' },
-      ...result.path.map(node => ({
-        id: node.id,
-        name: node.name
-      }))
-    ];
-    breadcrumbItems.value = items;
-  } else {
-    // 如果找不到节点，至少显示知识库名称
-    breadcrumbItems.value = [
-      { id: 'home', name: kbStore.kbInfo?.name || '知识库' }
-    ];
-  }
-};
-
 const postInfo = ref({})
-
-// 根据状态获取对应的图标组件
-const getStatusIcon = () => {
-  if (!postInfo.value.status) return null;
-
-  if (postInfo.value.status === '草稿') {
-    return IconFilePdf;
-  } else if (postInfo.value.status === '已发布') {
-    return IconWifi;
-  }
-  return null;
-};
-
-// 获取状态提示信息
-const getStatusTooltip = () => {
-  if (!postInfo.value.status) return '';
-
-  const statusMap = {
-    '草稿': '草稿：互联网的所有人都无法访问你的文章',
-    '已发布': '已发布：互联网的所有人都能访问你的文章'
-  };
-
-  return statusMap[postInfo.value.status] || postInfo.value.status;
-};
-
-// 格式化更新时间
-const formatUpdateTime = (time) => {
-  if (!time) return '';
-
-  // 假设time是时间戳或可被Date解析的字符串
-  const date = new Date(time);
-  const now = new Date();
-
-  // 如果是今天，显示时:分
-  if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  // 如果是今年，显示月-日 时:分
-  if (date.getFullYear() === now.getFullYear()) {
-    return date.toLocaleDateString('zh-CN', {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  // 其他情况显示年-月-日 时:分
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 
 const loadPostContent = async (postId) => {
   // 获取文章名称用于加载提示
   let postName = '文章';
-  const result = findNodeByPostId(treeData.value, postId);
-  if (result && result.node) {
-    postName = result.node.name || '文章';
-  }
 
   // 开始加载，设置loading为true
   loading.value = true;
@@ -588,5 +445,4 @@ const loadPostContent = async (postId) => {
 .unsaved-changes-modal .arco-modal-footer button {
   margin-right: 10px;
 }
-
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave">
     <!-- 搜索框 -->
-    <div class="search-container" v-if="edit">
+    <div class="search-container">
       <Input v-model="searchText" placeholder="找不到？搜索一下吧..." allow-clear @input="handleSearch">
         <template #prefix>
           <IconSearch />
@@ -9,7 +9,7 @@
       </Input>
 
       <!-- 搜索框右侧操作图标 -->
-      <div class="search-actions">
+      <div class="search-actions" v-if="edit">
         <Dropdown trigger="hover" placement="bottom"
           :popup-visible="menuState.openNodeId === 'search' && menuState.openMenuType === 'add'"
           @select="(key) => handleMenuSelect(key, null)" @popup-visible-change="(visible) => {
@@ -129,6 +129,9 @@
       <div class="node-content" :style="{ paddingLeft: `${dragState.sourceNode?.depth * 20 || 0}px` }">
         <span v-if="dragState.sourceNode?.children && dragState.sourceNode.children.length > 0" class="expand-icon">
           <IconRight />
+        </span>
+        <span v-else-if="node.postId" class="expand-icon">
+          <IconFile />
         </span>
         <!-- <span v-else class="expand-icon-placeholder">•</span> -->
         <span class="node-name">{{ dragState.sourceNode?.name }}</span>
@@ -264,7 +267,7 @@ const actionHandlers = {
     //创建并跳转
     try {
       let parentId = null;
-      let docName = '不建议文档创建在根目录噢';
+      let docName = '未命名文档';
       if (node) {
         parentId = node.id;
         docName = node.name + '下的文档';

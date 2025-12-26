@@ -297,8 +297,8 @@ const publishArticle = async () => {
         // 发布成功提示
         Message.success('文章发布成功！');
 
-        // 可以考虑跳转到文章详情页或其他操作
-        // router.push(`/article/${articleForm.value.id}`);
+        // 跳转到文章列表页
+        router.push('/p');
     } catch (error) {
         console.error('发布文章失败:', error);
         // 发布失败提示

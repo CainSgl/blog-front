@@ -96,27 +96,14 @@ const copyCode = async () => {
 </script>
 
 <style lang="less">
-@border-color: #d0d7de;
-@header-bg: #f6f8fa;
-@text-color: #24292e;
-@title-color: #57606a;
-@code-bg: #f6f8fa;
-@vscode-bg: #ffffff;
-@vscode-comment: #6a9955;
-@vscode-keyword: #569cd6;
-@vscode-string: #ce9178;
-@vscode-function: #dcdcaa;
-@vscode-constant: #9cdcfe;
-@vscode-property: #9cdcfe;
-@vscode-punctuation: #d4d4d4;
-@vscode-operator: #d4d4d4;
+@import '@/assets/style/markdown-styles.less';
 
 .cainsgl-code-container {
   margin: 16px 0;
   border: 1px solid @border-color;
   border-radius: 6px;
   overflow: hidden;
-  background-color: @vscode-bg;
+  background-color: @code-bg-codeblock;
 
   .cainsgl-code-header {
     display: flex;
@@ -175,11 +162,11 @@ const copyCode = async () => {
   .cainsgl-code-block {
     margin: 0;
     padding: 12px;
-    background-color: @vscode-bg;
+    background-color: @code-bg-codeblock;
     overflow: auto;  // 同时支持水平和垂直滚动
     font-size: 0.9em;
     line-height: 1.5;
-    color: @text-color;
+    color: @default-color;
     border: none;
     font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
 
@@ -188,16 +175,16 @@ const copyCode = async () => {
       padding: 0;
       border: none;
       display: block;
-      color: @text-color;
+      color: @default-color;
       font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
       overflow-x: auto;
     }
 
     .hljs {
-      background: @vscode-bg !important;
+      background: @code-bg-codeblock !important;
       padding: 0 !important;
       margin: 0;
-      color: @text-color;
+      color: @default-color;
     }
     
     /* VSCode Light Theme 语法高亮配色 */
@@ -206,7 +193,10 @@ const copyCode = async () => {
       color: @vscode-comment;
       font-style: italic;
     }
-    
+    .hljs-params{
+      color: @vscode-params;
+    }
+
     .hljs-keyword,
     .hljs-selector-tag,
     .hljs-subst {

@@ -215,6 +215,11 @@ onMounted(() => {
 // 组件卸载时移除监听器
 onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashChange);
+  // 组件卸载时清除hash值
+  if (window.location.hash) {
+    const newURL = window.location.pathname + window.location.search;
+    window.history.replaceState(null, '', newURL);
+  }
 });
 
 // 处理节点展开/收起事件

@@ -1,9 +1,10 @@
 <template>
 
   <div ref="previewContainerRef" class="cainsgl-markdown-preview">
-    
-    <div ref="previewContentRef" :style="{ height: height }" class="cainsgl-preview-content"
+    <a-back-top target-container="#markdown-container" :style="{position:'absolute'}" />
+    <div id="markdown-container" ref="previewContentRef" :style="{ height: height }" class="cainsgl-preview-content"
       v-html="renderedMarkdown" />
+    
   </div>
 </template>
 
@@ -58,6 +59,26 @@ const props = defineProps({
 
 const previewContentRef = ref(null);
 const previewContainerRef = ref(null);
+
+// 节流函数
+const throttle = (func, delay) => {
+  let timeoutId;
+  let lastExecTime = 0;
+  return function (...args) {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastExecTime > delay) {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
+};
 
 const renderer = new marked.Renderer();
 
@@ -296,6 +317,9 @@ const processDynamicComponents = async () => {
       // 挂载到容器
       codeBlockApp.mount(container);
     });
+    
+    // 内容更新后，标记标题缓存无效，需要重新获取
+    headingsCacheValid = false;
   }
 };
 
@@ -364,20 +388,41 @@ const handleHashChange = () => {
   }
 };
 
+// 缓存标题元素，避免重复查询
+let cachedHeadings = [];
+let headingsCacheValid = false;
+
+// 更新标题缓存
+const updateHeadingsCache = () => {
+  if (previewContentRef.value) {
+    cachedHeadings = Array.from(previewContentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+    headingsCacheValid = true;
+  }
+};
+
 // 滚动监听函数，检测当前可视区域的标题元素
 const handleScroll = () => {
   if (!previewContainerRef.value || !previewContentRef.value) return;
 
-  // 获取所有标题元素
-  const headings = previewContentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  if (!headings.length) return;
+  // 如果缓存无效，更新缓存
+  if (!headingsCacheValid) {
+    updateHeadingsCache();
+  }
+
+  if (!cachedHeadings.length) return;
 
   let currentHeading = null;
   const scrollPosition = previewContainerRef.value.scrollTop;
 
   // 遍历所有标题元素，找到当前可视区域内的标题
-  for (let i = 0; i < headings.length; i++) {
-    const heading = headings[i];
+  for (let i = 0; i < cachedHeadings.length; i++) {
+    const heading = cachedHeadings[i];
+    // 检查元素是否仍然存在于DOM中
+    if (!previewContentRef.value.contains(heading)) {
+      headingsCacheValid = false;
+      return;
+    }
+    
     const headingPosition = heading.offsetTop - previewContentRef.value.offsetTop;
 
     // 如果标题位置小于等于滚动位置，则认为是当前标题
@@ -401,6 +446,9 @@ const handleScroll = () => {
   }
 };
 
+// 应用节流的滚动处理函数
+const throttledHandleScroll = throttle(handleScroll, 100); // 100ms 节流间隔
+
 onMounted(() => {
   processDynamicComponents();
   // 组件挂载后检查是否有hash，如果有则滚动到对应元素
@@ -409,12 +457,14 @@ onMounted(() => {
   window.addEventListener('hashchange', handleHashChange);
   // 添加滚动监听器
   if (previewContainerRef.value) {
-    previewContainerRef.value.addEventListener('scroll', handleScroll);
+    previewContainerRef.value.addEventListener('scroll', throttledHandleScroll);
   }
 });
 
 onUpdated(() => {
   processDynamicComponents();
+  // 更新标题缓存
+  headingsCacheValid = false;
   // 组件更新后也检查hash，以防内容变化导致元素重新渲染
   scrollToHashElement();
 });
@@ -424,14 +474,18 @@ onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashChange);
   // 移除滚动监听器
   if (previewContainerRef.value) {
-    previewContainerRef.value.removeEventListener('scroll', handleScroll);
+    previewContainerRef.value.removeEventListener('scroll', throttledHandleScroll);
+  }
+  // 组件卸载时清除hash值
+  if (window.location.hash) {
+    const newURL = window.location.pathname + window.location.search;
+    window.history.replaceState(null, '', newURL);
   }
 });
 </script>
 
 <style lang="less">
-
-
+@import '@/assets/style/markdown-styles.less';
 
 .cainsgl {
   &-markdown-preview {
@@ -444,145 +498,10 @@ onUnmounted(() => {
     padding: 16px;
     line-height: 1.6;
     font-size: 16px;
-    color: #333;
+    color: @text-color;
 
-    & .cainsgl-markdown-code {
-        font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
-        font-size: 0.9em;
-        background-color: #f3f4f6;
-        padding: 2px 6px;
-        border-radius: 4px;
-        border: 1px solid #e5e7eb;
-      }
-      
-      & .code-block-container {
-        margin: 16px 0;
-      }
-
-    & .cainsgl-markdown-blockquote {
+    & .code-block-container {
       margin: 16px 0;
-      padding: 12px 16px;
-      border-left: 4px solid @primary-4;
-      background-color: #f9fafb;
-      color: #4b5563;
-      border-radius: 0 4px 4px 0;
-      position: relative;
-    }
-
-    & .cainsgl-markdown-table {
-
-      border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 0.9em;
-      font-family: inherit;
-      background-color: #fff;
- 
-      border-radius: 6px;
-
-
-      th,
-      td {
-        padding: 8px 12px;
-        text-align: left;
-        border: 1px solid #d1d5db;
-        word-wrap: break-word;
-        white-space: normal;
-      }
-
-      th {
-        background-color: #f3f4f6;
-        font-weight: 600;
-        color: #374151;
-      }
-
-      tr:nth-child(even) {
-        background-color: #f9fafb;
-      }
-
-
-    }
-
-    & .cainsgl-markdown-image {
-      max-width: 100%;
-      height: auto;
-      border-radius: 6px;
-      margin: 16px 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: box-shadow 0.3s ease;
-
-      &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-    }
-    
-    & .cainsgl-task-list-item {
-      display: flex;
-      align-items: flex-start;
-      margin: 8px 0;
-      
-      & .cainsgl-task-list-checkbox {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 12px;
-        margin-top: 4px; // 垂直对齐文本
-        cursor: default; // 使用默认光标
-        
-        & input[type="checkbox"] {
-          display: none; // 隐藏原生复选框
-          
-          & + .cainsgl-task-list-checkmark {
-            display: inline-block;
-            width: 14px;  // 减小宽度
-            height: 14px; // 减小高度
-            border: 1px solid #d1d5db;
-            border-radius: 3px;
-            position: relative;
-            cursor: default; // 使用默认光标
-            transition: all 0.2s ease;
-            
-            &:after {
-              content: "";
-              position: absolute;
-              display: none;
-              left: 3px;
-              top: 0px;
-              width: 4px;
-              height: 7px;
-              border: solid white;
-              border-width: 0 1px 1px 0;
-              transform: rotate(45deg);
-            }
-          }
-          
-          &:checked + .cainsgl-task-list-checkmark {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
-            
-            &:after {
-              display: block;
-            }
-          }
-        }
-      }
-      
-      & .cainsgl-task-list-content {
-        flex: 1;
-        line-height: 1.6;
-        
-        & p {
-          margin: 0;
-          padding: 0;
-          display: inline-block;
-          vertical-align: top;
-          line-height: 1.6;
-        }
-      }
-      
-      & input[type="checkbox"]:checked + .cainsgl-task-list-checkmark + .cainsgl-task-list-content {
-        text-decoration: line-through;
-        color: #9ca3af;
-      }
     }
   }
 }

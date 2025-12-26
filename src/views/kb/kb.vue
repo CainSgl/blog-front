@@ -14,7 +14,7 @@
               </span>
             </div>
           </div>
-          <TreeMenu :tree-data="treeData" :edit="true" @clickPost="handleClickPost" :kb-id="kbId" />
+          <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId" />
           <LikeButton :initial-like-count="kbInfo.likeCount" :kb-id="kbId" @like="handleLike" v-if="!noKb" class="like-button-wrapper" />
         </div>
       </div>
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="divider"></div>
+  
 
     <div class="content">
       <router-view />
@@ -42,6 +42,7 @@ import api from '@/api/index.js';
 import { IconHome, IconDoubleLeft, IconDoubleRight } from '@arco-design/web-vue/es/icon';
 import { useRoute, useRouter } from 'vue-router';
 import { useKbStore } from './kbStore.js';
+import { useUserStore } from '@/store/user';
 
 
 
@@ -53,6 +54,7 @@ const kbInfo = ref({
   name: '获取中...',
   likeCount: 0
 });
+const edit=ref(false)
 const kbStore = useKbStore();
 
 // collapse-button 精细控制相关状态
@@ -76,9 +78,13 @@ onMounted(async () => {
       kbId.value = data.first.id;
       kbInfo.value = data.first;
       treeData.value = data.second;
-
+      const userInfo=await useUserStore().getUserInfo();
+      if(data.first.userId==userInfo.id){
+        edit.value=true
+      }
       // Store data in Pinia store
       kbStore.setKbId(data.first.id);
+      console.log("获取到kb信息",data.first);
       kbStore.setKbInfo(data.first);
       kbStore.setTreeData(data.second);
     }
@@ -123,7 +129,7 @@ function handleClickPost(node) {
   const pageName = route.name;
   //是的话跳转到查看页面，否则不改变页面
   console.log(pageName)
-  if (pageName === 'KBIndex') {
+  if (pageName === 'KBIndex'||pageName === 'NoPermission') {
     router.push({ name: 'KBView', query: { kb: kbId.value, p: node.postId } });
   } else {
     router.push({ name: pageName, query: { kb: kbId.value, p: node.postId } });
@@ -208,11 +214,7 @@ onUnmounted(() => {
   }
 }
 
-.divider {
-  width: 16px;
-  background: transparent;
 
-}
 
 .sidebar.collapsed .tree-menu,
 .sidebar.collapsed .like-button-wrapper {

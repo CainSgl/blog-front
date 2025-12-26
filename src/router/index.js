@@ -12,6 +12,11 @@ const routes = [
     component: () => import('@/views/Components.vue'),
   },
   {
+    path: '/p',
+    name: 'Post',
+    component: () => import('@/views/post/post.vue'),
+  },
+  {
     path: '/kb',
     name: 'KB',
     component: () => import('@/views/kb/kb.vue'),
@@ -30,6 +35,11 @@ const routes = [
         path: 'edit',
         name: 'KBEdit',
         component: () => import('@/views/kb/children/edit.vue')
+      },
+      {
+        path: 'no-permission',
+        name: 'NoPermission',
+        component: () => import('@/views/kb/children/NoPermission.vue')
       }
     ]
   },
