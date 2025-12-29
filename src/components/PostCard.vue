@@ -6,7 +6,7 @@
       <div class="post-content-wrapper">
         <!-- 文章图片 -->
         <div v-if="post.img" class="post-image">
-          <a-image 
+          <c-img
             :src="post.img" 
             :alt="post.title"
             width="100%"
@@ -81,9 +81,9 @@
 </template>
 
 <script setup>
-import { Card, Tag, Space, Image, Tooltip } from '@arco-design/web-vue'
 import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon'
 import { computed } from 'vue'
+import CImg from './cImg.vue'
 
 const props = defineProps({
   post: {
@@ -108,6 +108,7 @@ const props = defineProps({
     })
   }
 })
+
 
 
 

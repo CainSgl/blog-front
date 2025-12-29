@@ -42,12 +42,12 @@
                             <PostCard :post="articleForm"></PostCard>
                             <a-divider></a-divider>
                             <a-form :model="articleForm" layout="vertical">
-                                <a-form-item label="文章标题">
+                                <a-form-item label="文章标题" required>
                                     <a-input v-model="articleForm.title" placeholder="请输入文章标题" :maxlength="150"
                                         show-word-limit />
                                 </a-form-item>
 
-                                <a-form-item label="文章摘要">
+                                <a-form-item label="文章摘要" required>
                                     <div class="summary-input-group">
                                         <a-textarea v-model="articleForm.summary" placeholder="请输入文章摘要"
                                             :auto-size="{ minRows: 3, maxRows: 5 }" :maxlength="300" show-word-limit />
@@ -58,7 +58,7 @@
                                     </div>
                                 </a-form-item>
 
-                                <a-form-item label="文章标签">
+                                <a-form-item label="文章标签" required>
                                     <div class="tag-input-group">
                                         <a-select v-model="articleForm.tags" multiple allow-create filterable
                                             placeholder="请选择或输入标签" class="tag-select" :max-tag-count="8"
@@ -143,11 +143,9 @@ import MarkdownPreview from '../components/md/MarkdownPreview.vue';
 import ImageCropperModal from '../components/ImageCropperModal.vue';
 import {
     IconArrowLeft,
-    IconArrowRise,
     IconSend,
     IconPlus
 } from '@arco-design/web-vue/lib/icon';
-import { API_BASE_URL } from '@/config';
 import PostCard from '@/components/PostCard.vue'
 import api from '@/api/index.js';
 const router = useRouter();
@@ -346,7 +344,7 @@ const handleCroppedImage = async (croppedFile) => {
                 'Content-Type': 'multipart/form-data'
             }
         });
-        articleForm.value.img = API_BASE_URL + "/file?f=" + data.shortUrl;
+        articleForm.value.img = data.shortUrl;
 
         // 显示成功信息
         Message.success({
@@ -356,7 +354,7 @@ const handleCroppedImage = async (croppedFile) => {
         });
 
         // 可以将上传的图片URL添加到文章内容中
-        const imageUrl = '/api/file?f=' + data.shortUrl; // 假设API_BASE_URL为'/api'
+        const imageUrl =data.shortUrl; 
         console.log('裁剪后图片上传成功，URL:', imageUrl);
 
         cropperModalVisible.value = false;

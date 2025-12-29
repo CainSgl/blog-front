@@ -1,7 +1,7 @@
 <template>
   <div class="editor-container">
     <div class="tool-list">
-      <a-tooltip content="返回">
+      <a-tooltip v-if="hashGoBack" content="返回">
         <a-button type="primary" shape="round" @click="goBack"><icon-arrow-left /></a-button>
       </a-tooltip>
       <a-button-group>
@@ -22,7 +22,7 @@
             {{ '预览' }}
           </a-button>
         </a-tooltip>
-        <a-tooltip content="大纲">
+        <a-tooltip content="大纲" v-if="hasToc">
           <a-button :type="showToc ? 'primary' : 'outline'" @click="toggleToc">
             {{ '目录导航' }}
           </a-button>
@@ -198,19 +198,26 @@
       <span class="stat-item">字数: {{ wordCount }}</span>
       <span class="stat-item">行数: {{ lineCount }}</span>
     </div>
+
+    <!-- 图片裁剪模态框 -->
+    <ImageCropperModal 
+      ref="imageCropperRef" 
+      v-model="cropperModalVisible"
+      :auto="true"
+      @confirm="handleCroppedImage" 
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, shallowRef, watch, computed, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onMounted, ref, shallowRef, watch, computed, nextTick, useAttrs } from 'vue';
 import api from '@/api/index.js';
-import { Message, Dropdown, Doption } from '@arco-design/web-vue';
-import { API_BASE_URL } from '@/config';
+import { Message } from '@arco-design/web-vue';
 import { IconArrowLeft, IconBold, IconItalic, IconImage, IconMoreVertical, IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote, IconDown, IconH1, IconH2, IconH3, IconH4 } from '@arco-design/web-vue/es/icon';
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
+import ImageCropperModal from '@/components/ImageCropperModal.vue';
 
 // 定义 props
 const props = defineProps({
@@ -221,6 +228,14 @@ const props = defineProps({
   height: {
     type: String,
     default: 'calc(100vh - 40px)'
+  },
+  hashGoBack:{
+    type: Boolean,
+    default: true
+  },
+  hasToc:{
+    type: Boolean,
+    default: true
   }
 });
 
@@ -229,7 +244,7 @@ const emit = defineEmits(['update:modelValue', 'go-back']);
 
 // 使用 shallowRef 而不是 ref 来避免对象被冻结的问题
 const text = shallowRef(props.modelValue);
-const router = useRouter();
+
 
 // 监听 modelValue 的变化
 watch(() => props.modelValue, (newVal) => {
@@ -268,6 +283,11 @@ const showEmojiPicker = ref(false); // 控制表情选择器显示
 // 颜色选择器相关数据
 const fontColor = ref('#0080ff'); // 默认字体颜色
 const backgroundColor = ref('#ffff00'); // 默认背景颜色
+
+// 图片裁剪相关数据
+const cropperModalVisible = ref(false);
+const imageCropperRef = ref();
+const currentImageFile = ref(null);
 
 // 编辑器模式
 const editorMode = ref('both'); // 'edit', 'preview', 'both'
@@ -317,7 +337,7 @@ const undo = () => {
     editorRef.value.undo();
   } else {
     // 如果编辑器没有提供undo方法，则使用浏览器的execCommand
-    document.execCommand('undo', false, null);
+   // document.execCommand('undo', false, null);
   }
 };
 
@@ -327,47 +347,101 @@ const redo = () => {
     editorRef.value.redo();
   } else {
     // 如果编辑器没有提供redo方法，则使用浏览器的execCommand
-    document.execCommand('redo', false, null);
+  //  document.execCommand('redo', false, null);
   }
 };
 
-const handleUploadImage = async (event, insertImage, files) => {
-  const file = files[0];
+
+
+// 保存insertImage回调函数
+let insertImageCallback = null;
+
+// 处理裁剪后的图片
+const handleCroppedImage = async (croppedFile) => {
   try {
     Message.loading({
-      id: 'upload-image:' + file.name,
-      content: file.name + '图片上传中...',
+      id: 'upload-cropped-image:' + croppedFile.name,
+      content: croppedFile.name + '图片上传中...',
       duration: 15000,
     });
-    // 创建FormData对象
+
+    // 创建FormData对象 
     const formData = new FormData();
-    formData.append('file', file);
-    // 使用api上传文件
+    formData.append('file', croppedFile);
+
+    // 使用api上传文件 
     const { data } = await api.post('/file/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-    // 插入图片到编辑器
-    insertImage({
-      url: API_BASE_URL + "/file?f=" + data.shortUrl,
-      desc: file.name,
-      width: 'auto',
-      height: 'auto',
-    });
+    
+    // 使用保存的回调函数插入图片
+    if (insertImageCallback) {
+      insertImageCallback({
+        url:  data.shortUrl,
+        desc: croppedFile.name,
+        width: 'auto',
+        height: 'auto',
+      });
+    }
+
+    // 显示成功信息
     Message.success({
-      id: 'upload-image:' + file.name,
-      content: '图片上传成功，',
+      id: 'upload-cropped-image:' + croppedFile.name,
+      content: '图片上传成功',
       duration: 3000,
     });
+
+    cropperModalVisible.value = false;
+    currentImageFile.value = null;
+    insertImageCallback = null; // 重置回调函数
   } catch (error) {
-    console.error('文件上传失败:', error);
+    console.error('裁剪后图片上传失败:', error);
     Message.error({
-      id: 'upload-image:' + file.name,
+      id: 'upload-cropped-image:' + croppedFile.name,
       content: '图片上传失败，请稍后重试',
       duration: 3000,
     });
+    throw error;
   }
+};
+
+// 修改handleUploadImage函数以保存insertImage回调
+const handleUploadImage = async (event, insertImage, files) => {
+  const file = files[0];
+  
+  // 保存insertImage回调函数
+  insertImageCallback = insertImage;
+  
+  // 检查是否为图片
+  if (!file.type.startsWith('image/')) {
+    Message.error('请选择图片文件');
+    return;
+  }
+
+  // 创建图片对象用于裁剪组件
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  img.onload = async () => {
+    // 将原始文件保存到currentImageFile，用于裁剪
+    currentImageFile.value = file;
+
+    // 显示裁剪模态框
+    cropperModalVisible.value = true;
+
+    // 等待模态框打开后设置图片
+    await nextTick();
+    setTimeout(() => {
+      if (imageCropperRef.value) {
+        imageCropperRef.value.setImage(img);
+      }
+    }, 100);
+  };
+  img.onerror = () => {
+    console.error('图片加载失败');
+    Message.error('图片加载失败');
+  };
 };
 
 // 保存选区状态
@@ -1300,11 +1374,45 @@ onMounted(async () => {
   padding-left: 10px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 4px 4px;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 8px;
   margin-bottom: 10px;
   background-color: @editor-bg;
   border-radius: 15px;
+}
+
+/* 响应式调整：在小屏幕下增加按钮组间距 */
+@media (max-width: 768px) {
+  .tool-list {
+    gap: 8px;
+    padding: 6px 6px;
+  }
+  
+  .tool-list > * {
+    flex-shrink: 0; /* 防止某些元素被压缩 */
+  }
+}
+
+/* 在超小屏幕上进一步调整 */
+@media (max-width: 480px) {
+  .tool-list {
+    gap: 6px;
+    padding: 4px 4px;
+  }
+}
+
+/* 确保按钮组也能在小屏幕上适当换行 */
+.tool-list > a-button-group,
+.tool-list > .arco-btn {
+  flex-shrink: 0; /* 防止按钮被压缩 */
+}
+
+/* 在小屏幕上缩小按钮间距 */
+@media (max-width: 768px) {
+  .tool-list > a-button-group {
+    margin-right: 0; /* 移除默认的右边距 */
+  }
 }
 
 

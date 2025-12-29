@@ -17,14 +17,63 @@ const routes = [
     component: () => import('@/views/post/post.vue'),
   },
   {
+        path: '/space/:id',
+        name: 'User',
+        component: () => import('@/views/user/user.vue'),
+        children: [
+          {
+            path: '',
+            name: 'UserHome',
+            component: () => import('@/views/user/children/home/Home.vue'),
+            children: [
+              {
+                path: '',
+                name: 'UserHomeIndex',
+                component: () => import('@/views/user/children/home/children/index.vue')
+              },
+              {
+                path: 'followers',
+                name: 'UserFollowers',
+                component: () => import('@/views/user/children/home/children/Followers.vue')
+              },
+              {
+                path: 'following',
+                name: 'UserFollowing',
+                component: () => import('@/views/user/children/home/children/Following.vue')
+              },
+            ]
+          },
+          {
+            path: 'knowledge',
+            name: 'UserKnowledge',
+            component: () => import('@/views/user/children/Knowledge.vue')
+          },
+          {
+            path: 'docs',
+            name: 'UserDocs',
+            component: () => import('@/views/user/children/Docs.vue')
+          },
+          {
+            path: 'cloud',
+            name: 'UserCloud',
+            component: () => import('@/views/user/children/Cloud.vue')
+          }
+        ]
+  },
+  {
     path: '/kb',
     name: 'KB',
     component: () => import('@/views/kb/kb.vue'),
     children: [
         {
-        path: 'index',
+        path: '',
         name: 'KBIndex',
         component: () => import('@/views/kb/children/index.vue')
+      },
+       {
+        path: 'settings',
+        name: 'KBIndexEdit',
+        component: () => import('@/views/kb/children/editIndex.vue')
       },
       {
         path: 'view',
@@ -37,7 +86,7 @@ const routes = [
         component: () => import('@/views/kb/children/edit.vue')
       },
       {
-        path: 'no-permission',
+        path: 'no',
         name: 'NoPermission',
         component: () => import('@/views/kb/children/NoPermission.vue')
       }

@@ -129,10 +129,13 @@
       <div class="node-content" :style="{ paddingLeft: `${dragState.sourceNode?.depth * 20 || 0}px` }">
         <span v-if="dragState.sourceNode?.children && dragState.sourceNode.children.length > 0" class="expand-icon">
           <IconRight />
+
         </span>
         <span v-else-if="node.postId" class="expand-icon">
           <IconFile />
+
         </span>
+
         <!-- <span v-else class="expand-icon-placeholder">•</span> -->
         <span class="node-name">{{ dragState.sourceNode?.name }}</span>
       </div>

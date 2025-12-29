@@ -35,8 +35,36 @@ export const useUserStore = defineStore('user', () =>
   };
 
   // 获取用户信息
-  const getUserInfo = async () => 
+  let userInfoPromise = null;
+  const userInfoPromises = new Map(); // 为不同ID的用户信息请求创建Promise缓存
+  const getUserInfo = async (id=null) => 
   {
+    if(id)
+    {
+      //说明是获取别人的信息
+      // 如果已经有相同ID的请求在进行中，直接返回同一个Promise
+      if (userInfoPromises.has(id)) {
+        return userInfoPromises.get(id);
+      }
+      
+      // 创建一个新的请求 Promise 并缓存它
+      const promise = api.get('/user', { id: id })
+        .then(response => {
+          return response.data;
+        })
+        .catch(error => {
+          console.error('获取用户信息失败:', error);
+          return {};
+        })
+        .finally(() => {
+          // 请求完成后从缓存中移除，允许后续请求
+          userInfoPromises.delete(id);
+        });
+      
+      userInfoPromises.set(id, promise);
+      return promise;
+    }
+
     if (userInfo.value) 
     {
       return userInfo.value;
@@ -46,17 +74,24 @@ export const useUserStore = defineStore('user', () =>
       const token = getToken();
       if (token) 
       {
-        //说明有token，但是没有用户信息，需要从后端获取
-        try
-        {
-          const { data } = await api.get('/user/current');
-          userInfo.value = data;  
+        // 如果已经有请求在进行中，直接返回同一个 Promise
+        if (userInfoPromise) {
+          return userInfoPromise;
         }
-        catch(error)
-        {
-          console.error('获取用户信息失败:', error);
-          return {};
-        }
+        
+        // 否则创建一个新的请求 Promise
+        userInfoPromise = api.get('/user/current')
+          .then(response => {
+            userInfo.value = response.data;
+            return response.data;
+          })
+          .catch(error => {
+            console.error('获取用户信息失败:', error);
+            userInfoPromise = null; // 重置 Promise，允许后续重试
+            return {};
+          });
+        
+        return userInfoPromise;
       }
     }
     return userInfo.value;

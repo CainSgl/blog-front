@@ -3,7 +3,7 @@
     <a-page-header
       :style="{ background: 'var(--color-bg-2)' }"
       :title="postInfo.title"
-      :subtitle="postInfo.version"
+      :subtitle="postInfo.version ? '版本：' + postInfo.version : undefined"
       :show-back="true"
       @back="handleBack"
     >

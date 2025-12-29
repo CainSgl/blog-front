@@ -35,10 +35,9 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import TreeMenu from '@/components/treemenu/TreeMenuWrapper.vue';
 import LikeButton from '@/components/LikeButton.vue';
-import api from '@/api/index.js';
 import { IconHome, IconDoubleLeft, IconDoubleRight } from '@arco-design/web-vue/es/icon';
 import { useRoute, useRouter } from 'vue-router';
 import { useKbStore } from './kbStore.js';
@@ -71,28 +70,35 @@ function handleLike() {
 onMounted(async () => {
   const kbParam = route.query.kb;
   if (kbParam) {
-    const kbIdreq = kbParam;
     try {
-      const { data } = await api.get('/kb', { id: kbIdreq });
-      //TODO，现在全部是正确的，后续加隐私设置
-      kbId.value = data.first.id;
-      kbInfo.value = data.first;
-      treeData.value = data.second;
-      const userInfo=await useUserStore().getUserInfo();
-      if(data.first.userId==userInfo.id){
-        edit.value=true
+      const kbData = await kbStore.getKbInfo(kbParam);
+      if (kbData) {
+        kbId.value = kbData.id;
+        kbInfo.value = kbData;
+        const userInfo = await useUserStore().getUserInfo();
+        if (kbData.userId == userInfo.id) {
+          edit.value = true;
+        }
+        
+        // 如果当前路由是KB父路由（没有子路由匹配），则跳转到KBIndex
+        if (route.name === 'KB') {
+          router.push({ name: 'KBIndex', query: { kb: kbId.value } });
+        }
+      } else {
+        // 获取知识库信息失败，重定向到404页面
+        router.push({ name: 'NoKb' });
+        noKb.value = true;
       }
-      // Store data in Pinia store
-      kbStore.setKbId(data.first.id);
-      console.log("获取到kb信息",data.first);
-      kbStore.setKbInfo(data.first);
-      kbStore.setTreeData(data.second);
     }
     catch (error) {
       console.error(error);
       //要么没登陆，要么资源不存在(权限不足也是这个)
-      if (error.data.code == '40004') {
+      if (error.data?.code == '40004') {
         //展示404
+        router.push({ name: 'NoKb' });
+        noKb.value = true;
+      } else {
+        // 其他错误也重定向到404页面
         router.push({ name: 'NoKb' });
         noKb.value = true;
       }
@@ -129,13 +135,14 @@ function handleClickPost(node) {
   const pageName = route.name;
   //是的话跳转到查看页面，否则不改变页面
   console.log(pageName)
-  if (pageName === 'KBIndex'||pageName === 'NoPermission') {
-    router.push({ name: 'KBView', query: { kb: kbId.value, p: node.postId } });
-  } else {
+  if (pageName === 'KBEdit') {
     router.push({ name: pageName, query: { kb: kbId.value, p: node.postId } });
+  }else
+  {
+    router.push({ name: 'KBView', query: { kb: kbId.value, p: node.postId } });
   }
 }
-const treeData = ref([]);
+const treeData = computed(() => kbStore.treeData);
 
 function goToHome() {
   router.push({ name: 'KBIndex', query: { kb: kbId.value } });

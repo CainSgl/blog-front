@@ -1,0 +1,123 @@
+<template>
+  <div class="follow-item" :bordered="true">
+    <div class="follow-user-info">
+      <a-avatar :size="size" v-if="follower" class="user-avatar" @click="goToUserSpace">
+        <c-img v-if="follower.avatarUrl" :src="follower.avatarUrl" :width="size" :height="size"/>
+        <icon-user :size="size" v-else />
+      </a-avatar>
+      <div class="follow-user-details">
+        <div class="follow-user-name">
+          <span class="user-link" @click="goToUserSpace">
+            {{ follower.nickname }}
+          </span>
+          <a-tag color="arcoblue" size="small" style="margin-left: 8px;">LV.{{ follower.level }}</a-tag>
+          <icon-man v-if="follower.gender === '男'"
+            :style="{ color: '#55acee', fontSize: '16px', marginLeft: '8px' }" />
+          <icon-woman v-else-if="follower.gender === '女'"
+            :style="{ color: '#e85695', fontSize: '16px', marginLeft: '8px' }" />
+        </div>
+        <div class="follow-user-actions">
+          <FollowButton :user-id="follower.id" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+import { 
+  IconUser,
+  IconMan,
+  IconWoman
+} from '@arco-design/web-vue/es/icon';
+import { useRouter } from 'vue-router';
+import FollowButton from '@/components/user/home/FollowButton.vue';
+import cImg from '@/components/cImg.vue';
+
+// 定义组件接收的属性
+const props = defineProps({
+  follower: {
+    type: Object,
+    required: true,
+    default: () => ({
+      id: '',
+      nickname: '',
+      avatarUrl: '',
+      level: 0,
+      gender: ''
+    })
+  },
+  size: {
+    type: Number,
+    default: 48
+  }
+});
+
+const router = useRouter();
+
+// 跳转到用户空间页面
+const goToUserSpace = () => {
+  if (props.follower) {
+    const routeData = router.resolve({ name: 'User', params: { id: props.follower.id } });
+    window.open(routeData.href, '_blank');
+  }
+};
+</script>
+
+<style scoped lang="less">
+.follow-item {
+  margin-bottom: 12px;
+  padding: @size-3;
+  background-color: @color-fill-1;
+  border-radius: @border-radius-large;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: @color-fill-2;
+    .user-link {
+      cursor: pointer;
+      user-select: none;
+      color: @primary-6;
+    }
+  }
+
+  .follow-user-info {
+    display: flex;
+    align-items: center;
+
+    .user-avatar {
+      margin-right: 12px;
+      flex-shrink: 0;
+      cursor: pointer;
+      background-color: @primary-6;
+    }
+
+    .follow-user-details {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-left: 16px;
+
+      .follow-user-name {
+        display: flex;
+        align-items: center;
+
+        .user-link {
+          font-size: 16px;
+          font-weight: 500;
+          color: @color-text-1;
+          text-decoration: none;
+          cursor: pointer;
+        }
+      }
+
+      .follow-user-actions {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+}
+</style>

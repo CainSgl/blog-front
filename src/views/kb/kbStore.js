@@ -1,58 +1,126 @@
 import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import api from '@/api/index.js';
 
-export const useKbStore = defineStore('kb', {
-  state: () => ({
-    treeData: [],
-    kbId: '',
-    kbInfo: {
-      name: '获取中...',
-      likeCount: 0
-    },
-    postInfo: {
+export const useKbStore = defineStore('kb', () => {
+  // 知识库信息状态
+  const treeData = ref([]);
+  const kbId = ref('');
+  const kbInfo = ref({
+    name: '',
+    likeCount: 0,
+    title: '',
+    coverUrl: '',
+    status: '草稿'
+  });
+  const postInfo = ref({
+    postId: '',
+    content: ''
+  });
+
+  // 用于共享获取 kbInfo 的 Promise
+  let kbInfoPromise = null;
+
+  // 设置树形数据
+  const setTreeData = (data) => {
+    treeData.value = data;
+  };
+
+  // 设置知识库信息
+  const setKbInfo = (info) => {
+    kbInfo.value = info;
+  };
+
+  // 设置知识库ID
+  const setKbId = (id) => {
+    kbId.value = id;
+  };
+
+  // 设置提交信息
+  const setCommitInfo = (postInfoData, newContent) => {
+    postInfo.value = {
+      ...postInfoData,
+      newContent
+    };
+  };
+
+  // 获取提交数据的便捷方法
+  const getCommitData = () => {
+    return postInfo.value;
+  };
+
+  // 清除提交数据
+  const clearCommitData = () => {
+    postInfo.value = {
       postId: '',
-      content: ''
-    },
-    
-  }),
-  
-  actions: {
-    setTreeData(data) {
-      this.treeData = data;
-    },
-    
-    setKbInfo(info) {
-      this.kbInfo = info;
-    },
-    
-    setKbId(id) {
-      this.kbId = id;
-    },
-    setCommitInfo(postInfo, newContent) {
-      this.postInfo={
-        ...postInfo,
-        newContent
-      }
-      console.log("发布的文章信息",this.postInfo)
-    },
-    // 获取发布数据的便捷方法
-    getCommitData() {
-      return this.postInfo;
-    },
-    // 清除发布数据
-    clearCommitData() { 
-      this.postInfo = {
-        postId: '',
-        content: '',
-      };
-    },
-    reset() {
-      this.treeData = [];
-      this.kbId = '';
-      this.kbInfo = {
-        name: '获取中...',
-        likeCount: 0
-      };
-      this.clearCommitData();
+      content: '',
+    };
+  };
+
+  // 异步获取知识库信息
+  const getKbInfo = async (kbParam) => {
+    // 如果已经有缓存的信息，直接返回
+    if (kbInfo.value && kbInfo.value.id) {
+      return kbInfo.value;
     }
-  }
+
+    // 如果没有提供 kb 参数且当前 store 中没有 kbId，返回 null
+    if (!kbParam && !kbId.value) {
+      return null;
+    }
+
+    const kbIdToUse = kbParam || kbId.value;
+
+    // 如果已经有请求在进行中，直接返回同一个 Promise
+    if (kbInfoPromise) {
+      return kbInfoPromise;
+    }
+
+    // 否则创建一个新的请求 Promise
+    kbInfoPromise = api.get('/kb', { id: kbIdToUse })
+      .then(response => {
+        // 更新 store 中的信息
+        if (response.data && response.data.first) {
+          kbInfo.value = response.data.first;
+          setTreeData(response.data.second);
+          setKbId(response.data.first.id);
+        }
+        return response.data.first;
+      })
+      .catch(error => {
+        console.error('获取知识库信息失败:', error);
+        kbInfoPromise = null; // 重置 Promise，允许后续重试
+        return null;
+      });
+
+    return kbInfoPromise;
+  };
+
+  // 重置 store 状态
+  const reset = () => {
+    treeData.value = [];
+    kbId.value = '';
+    kbInfo.value = {
+      name: '获取中...',
+      likeCount: 0,
+      title: '',
+      coverUrl: ''
+    };
+    clearCommitData();
+  };
+
+  return {
+    treeData,
+    kbId,
+    kbInfo,
+    postInfo,
+    setTreeData,
+    setKbInfo,
+    setKbId,
+    setCommitInfo,
+    getCommitData,
+    clearCommitData,
+    getKbInfo,
+    reset,
+  };
 });
