@@ -1,12 +1,16 @@
 <template>
+  <a-image-preview-group 
+    v-model:visible="previewVisible" 
+    v-model:current="previewCurrent"
+    infinite
+    :srcList="previewImageList"
+  />
   <div class="user-cloud">
-    <a-page-header 
-      title="云存储" 
-      subtitle="管理您的云端文件"
-      @back="handleBack"
-    >
+    <!-- 图片预览弹窗 -->
+    <a-page-header title="云存储" :subtitle="userInfo?`用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的云存储`:''"
+      @back="handleBack">
       <template #extra>
-        <a-space>
+        <!-- <a-space>
           <a-button>
             <template #icon>
               <icon-export />
@@ -19,20 +23,15 @@
             </template>
             上传文件
           </a-button>
-        </a-space>
+        </a-space> -->
       </template>
     </a-page-header>
-    
+
     <div class="storage-overview" style="margin-top: 20px;">
       <a-card :bordered="false">
         <a-space direction="vertical" style="width: 100%;">
           <a-typography-title :heading="6">存储使用情况</a-typography-title>
-          <a-progress 
-            :percent="usedPercent" 
-            :size="'large'" 
-            :animation="true"
-            :color="'var(--color-primary-light-4)'"
-          >
+          <a-progress :percent="usedPercent" :size="'large'" :animation="true">
             <template #text>
               <span>{{ usedStorage }} / {{ totalStorage }}</span>
             </template>
@@ -51,7 +50,7 @@
         </a-space>
       </a-card>
     </div>
-    
+
     <div class="file-manager" style="margin-top: 20px;">
       <a-card :bordered="false">
         <a-row style="margin-bottom: 16px;">
@@ -62,102 +61,53 @@
             </a-breadcrumb>
           </a-col>
           <a-col :span="12" style="text-align: right;">
-            <a-radio-group 
-              v-model="viewMode" 
-              type="button"
-              @change="handleViewModeChange"
-            >
+            <a-radio-group v-model="viewMode" type="button" @change="handleViewModeChange">
               <a-radio value="list">列表</a-radio>
               <a-radio value="grid">网格</a-radio>
             </a-radio-group>
           </a-col>
         </a-row>
-        
-        <a-table 
-          v-if="viewMode === 'list'"
-          :columns="columns" 
-          :data="files" 
-          :pagination="false"
-          @cell-click="handleRowClick"
-        >
-          <template #file-icon="{ record }">
-            <a-avatar :size="32" shape="square">
-              <icon-file v-if="record.type === 'doc'" />
-              <icon-file-text v-else-if="record.type === 'md'" />
-              <icon-file-image v-else-if="record.type === 'image'" />
-              <icon-file-pdf v-else-if="record.type === 'pdf'" />
-              <icon-drive-file v-else />
-            </a-avatar>
-          </template>
-          <template #name="{ record }">
-            <a-typography-text 
-              :ellipsis="{ 
-                rows: 1, 
-                tooltip: { 
-                  content: record.name 
-                } 
-              }"
-            >
-              {{ record.name }}
-            </a-typography-text>
-          </template>
-          <template #size="{ record }">
-            {{ formatFileSize(record.size) }}
-          </template>
-          <template #updatedAt="{ record }">
-            {{ formatDate(record.updatedAt) }}
-          </template>
-          <template #actions="{ record }">
-            <a-space>
-              <a-button size="small" @click="handlePreview(record)">预览</a-button>
-              <a-button size="small" @click="handleDownload(record)">下载</a-button>
-              <a-dropdown trigger="click">
-                <a-button size="small" type="text">
-                  <icon-more />
-                </a-button>
-                <template #content>
-                  <a-doption @click="handleShare(record)">分享</a-doption>
-                  <a-doption @click="handleRename(record)">重命名</a-doption>
-                  <a-doption @click="handleDelete(record)" style="color: var(--color-danger)">删除</a-doption>
-                </template>
-              </a-dropdown>
-            </a-space>
-          </template>
-        </a-table>
-        
+
+        <div v-if="viewMode === 'list'" class="list-view">
+          <a-table :columns="columns" :data="files" :pagination="false" @cell-click="handleRowClick">
+            <template #file-icon="{ record }">
+              <a-avatar :size="32" shape="square">
+                <icon-file-image v-if="isImageFile(record.name)" />
+                <icon-file-pdf v-else-if="isPdfFile(record.name)" />
+                <icon-file v-else-if="isTextFile(record.name)" />
+                <icon-drive-file  v-else />
+              </a-avatar>
+            </template>
+            <template #name="{ record }">
+              <a-typography-text :ellipsis="{
+                rows: 1,
+                tooltip: {
+                  content: record.name
+                }
+              }">
+                {{ record.name }}
+              </a-typography-text>
+            </template>
+            <template #size="{ record }">
+              <span v-if="record.fileSize">{{ formatFileSize(record.fileSize) }}</span>
+              <span v-else>未知</span>
+            </template>
+            <template #updatedAt="{ record }">
+              {{ formatDate(record.createdAt) }}
+            </template>
+            <template #actions="{ record }">
+              <a-space>
+                <a-button size="small" @click="handlePreview(record)">预览</a-button>
+                <a-button size="small" @click="handleDownload(record)" :loading="record.download">下载</a-button>
+              </a-space>
+            </template>
+          </a-table>
+        </div>
+
         <div v-else class="grid-view">
           <a-grid :cols="8" :col-gap="12" :row-gap="12">
-            <a-grid-item 
-              v-for="file in files" 
-              :key="file.id"
-              @click="handleFileClick(file)"
-            >
-              <a-card 
-                hoverable 
-                class="file-card"
-                :style="{ textAlign: 'center', cursor: 'pointer' }"
-              >
-                <div style="margin: 12px;">
-                  <a-avatar :size="48" shape="square" style="margin-bottom: 8px;">
-                    <icon-file v-if="file.type === 'doc'" />
-                    <icon-file-text v-else-if="file.type === 'md'" />
-                    <icon-file-image v-else-if="file.type === 'image'" />
-                    <icon-file-pdf v-else-if="file.type === 'pdf'" />
-                    <icon-drive-file v-else />
-                  </a-avatar>
-                  <a-typography-paragraph 
-                    :ellipsis="{ 
-                      rows: 2 
-                    }"
-                    style="margin: 0; font-size: 12px;"
-                  >
-                    {{ file.name }}
-                  </a-typography-paragraph>
-                  <div style="font-size: 12px; color: var(--color-text-3); margin-top: 4px;">
-                    {{ formatFileSize(file.size) }}
-                  </div>
-                </div>
-              </a-card>
+            <a-grid-item v-for="file in files" :key="file.shortUrl">
+              <FileCard :file="file" @file-click="handleFileClick" />
             </a-grid-item>
           </a-grid>
         </div>
@@ -167,84 +117,189 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { 
-  IconUpload, 
-  IconExport, 
-  IconFile, 
-
-  IconFileImage, 
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useUserStore } from '@/store/user.js';
+import {
+  IconUpload,
+  IconExport,
+  IconFile,
+  IconFileImage,
   IconFilePdf,
-  IconDriveFile,
   IconMore,
 } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
+import FileCard from './FileCard.vue';
+import cImg from '@/components/cImg.vue';
+import api from '@/api/index.js';
 
-const viewMode = ref('list'); // 'list' or 'grid'
+const viewMode = ref('list');
+const route = useRoute();
 
-const files = ref([
-  {
-    id: 1,
-    name: '项目计划书.docx',
-    type: 'doc',
-    size: 1048576,
-    updatedAt: '2025-12-28T10:30:00',
-    owner: '当前用户'
-  },
-  {
-    id: 2,
-    name: '年度总结.pdf',
-    type: 'pdf',
-    size: 2097152,
-    updatedAt: '2025-12-27T15:45:00',
-    owner: '当前用户'
-  },
-  {
-    id: 3,
-    name: '产品设计图.png',
-    type: 'image',
-    size: 5242880,
-    updatedAt: '2025-12-26T09:20:00',
-    owner: '当前用户'
-  },
-  {
-    id: 4,
-    name: '技术文档.md',
-    type: 'md',
-    size: 102400,
-    updatedAt: '2025-12-25T14:10:00',
-    owner: '当前用户'
-  },
-  {
-    id: 5,
-    name: '会议记录.docx',
-    type: 'doc',
-    size: 51200,
-    updatedAt: '2025-12-24T11:30:00',
-    owner: '当前用户'
-  },
-  {
-    id: 6,
-    name: '数据报告.xlsx',
-    type: 'doc',
-    size: 1048576,
-    updatedAt: '2025-12-23T16:20:00',
-    owner: '当前用户'
+const userInfo = ref(null); // 用户信息
+const files = ref([]);
+const totalStorageBytes = ref(3 * 1024 * 1024 * 1024); // 3GB in bytes
+const totalStorage = computed(() => formatBytes(totalStorageBytes.value));
+const usedStorageBytes = ref(0); // 实际使用的字节数
+const usedStorage = computed(() => formatBytes(usedStorageBytes.value)); // 格式化后的已用存储
+const lastId = ref('0'); // 用于游标分页
+const hasMore = ref(true); // 是否还有更多数据
+
+// 初始化 userId，并监听路由变化
+const userId = ref(route.params.id);
+
+import { API_BASE_URL } from '@/config';
+
+// 图片预览相关状态
+const previewVisible = ref(false);
+const previewCurrent = ref(0);
+const previewImageList = computed(() => {
+  // 只获取图片类型的文件，并处理其 URL
+  return files.value
+    .filter(file => isImageFile(file.name))
+    .map(file => {
+      // 处理图片 URL，类似 cImg 组件中的逻辑
+      if (!file.shortUrl) {
+        return '';
+      }
+      // 如果已经是完整的 URL，则直接返回
+      if (file.shortUrl.startsWith('http')) {
+        return file.shortUrl;
+      }
+      // 否则拼接 API_BASE_URL
+      return `${API_BASE_URL}/file?f=${file.shortUrl}`;
+    });
+});
+
+// 监听路由参数变化
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      userId.value = newId;
+      // 重新加载数据
+      refreshData();
+    }
   }
-]);
+);
 
-const totalStorage = ref('10 GB');
-const usedStorage = ref('4.2 GB');
+// 刷新数据函数
+const refreshData = async () => {
+  Message.loading({ id: "cloudLoading", content: "加载数据中" });
 
+  // 清空现有数据
+  files.value = [];
+  lastId.value = '0';
+  hasMore.value = true;
+
+  // 重新获取用户信息和文件列表
+  if (userId.value) {
+    try {
+      await fetchUserInfo(userId.value);
+      await fetchFileList();
+      Message.success({ id: "cloudLoading", content: "加载成功" });
+    } catch (error) {
+      Message.error('数据加载失败: ' + error.message);
+    } finally {
+      loadingMessage.close();
+    }
+  } else {
+    loadingMessage.close();
+  }
+};
+
+// 计算存储使用百分比
 const usedPercent = computed(() => {
-  // 计算使用百分比，这里简化处理
-  return 42; // 4.2GB / 10GB = 42%
+  if (!usedStorageBytes.value || !totalStorageBytes.value) return 0;
+  return usedStorageBytes.value / totalStorageBytes.value;
 });
 
 const availableStorage = computed(() => {
-  return (10 - 4.2).toFixed(1) + ' GB';
+  if (!usedStorageBytes.value || !totalStorageBytes.value) return '0 GB';
+  const availableBytes = totalStorageBytes.value - usedStorageBytes.value;
+  return formatBytes(Math.max(0, availableBytes)); // 确保不会显示负数
 });
 
-const columns = ref([
+
+
+// 获取用户信息
+const fetchUserInfo = async (id) => {
+  try {
+    const response = await api.get('/user', { id: id });
+    userInfo.value = response.data;
+    // 更新存储使用情况
+    if (response.data.usedMemory !== undefined) {
+      // 直接存储字节数
+      usedStorageBytes.value = response.data.usedMemory;
+    }
+  } catch (err) {
+    console.error('获取用户信息失败:', err);
+    throw err; // 重新抛出错误，以便上层处理
+  }
+};
+
+// 获取文件列表
+const fetchFileList = async () => {
+  try {
+    const params = {
+      id: userId.value,
+      lastId: lastId.value,
+    };
+    const { data } = await api.post('/file/list', params);
+    const newFiles = data
+    if (newFiles.length > 0) {
+      lastId.value = newFiles[newFiles.length - 1].shortUrl;
+      hasMore.value = newFiles.length === 30;
+    } else {
+      hasMore.value = false;
+    }
+    files.value = [...files.value, ...newFiles];
+  } catch (error) {
+    console.error('获取文件列表失败:', error);
+    throw error; // 重新抛出错误，以便上层处理
+  }
+};
+
+// 将字节数转换为可读格式
+const formatBytes = (bytes, decimals = 2) => {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+};
+const router = useRouter();
+// 组件挂载时加载数据
+onMounted(async () => {
+  if (userId.value) {
+    Message.loading({ id: "cloudLoading", content: "加载数据中" });
+    try {
+      // 先获取用户信息以获得存储使用情况
+      await fetchUserInfo(userId.value);
+      // 然后获取文件列表
+      await fetchFileList();
+      Message.success({ id: "cloudLoading", content: "加载成功" });
+    } catch (error) {
+      Message.error('数据加载失败: ' + error.message);
+    }
+  }
+}
+);
+
+const handleBack = () => {
+  router.push(`/space/${userId.value}`);
+};
+
+const handleViewModeChange = (value) => {
+  console.log('视图模式切换为:', value);
+};
+
+// 定义表格列
+const columns = [
   {
     title: '文件',
     dataIndex: 'file-icon',
@@ -264,7 +319,7 @@ const columns = ref([
     width: 100
   },
   {
-    title: '修改时间',
+    title: '创建时间',
     dataIndex: 'updatedAt',
     slotName: 'updatedAt',
     width: 180
@@ -274,44 +329,112 @@ const columns = ref([
     slotName: 'actions',
     width: 200
   }
-]);
+];
 
-const handleBack = () => {
-  console.log('返回');
-};
-
-const handleViewModeChange = (value) => {
-  console.log('视图模式切换为:', value);
-};
-
+// 处理行点击事件
 const handleRowClick = (record) => {
-  console.log('点击文件:', record);
+  console.log('点击文件行:', record);
 };
 
-const handleFileClick = (file) => {
-  console.log('点击文件卡片:', file);
-};
-
+// 处理预览事件
 const handlePreview = (record) => {
   console.log('预览文件:', record);
+  if (isImageFile(record.name)) {
+    // 如果是图片文件，找到该图片在图片列表中的索引
+    const imageIndex = files.value
+      .filter(file => isImageFile(file.name))
+      .findIndex(file => file.shortUrl === record.shortUrl);
+    
+    if (imageIndex !== -1) {
+      // 设置当前预览的图片索引
+      previewCurrent.value = imageIndex;
+      // 打开预览弹窗
+      previewVisible.value = true;
+    }
+  } else {
+    Message.info('暂不支持该类型文件的预览');
+  }
 };
 
-const handleDownload = (record) => {
+// 处理下载事件
+const handleDownload = async (record) => {
   console.log('下载文件:', record);
+  record.download=true
+  try {
+    Message.loading({ id: "downloadLoading", content: "获取临时url中" });
+    // 从用户store获取token
+    const userStore = useUserStore();
+    const token = userStore.getToken();
+    
+    // 使用fetch API进行下载，这样可以携带认证头
+    const response = await fetch(`${API_BASE_URL}/file/download?f=${encodeURIComponent(record.shortUrl)}`, {
+      method: 'GET',
+      headers: {
+        'token': token, 
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`下载失败: ${response.status} ${response.statusText}`);
+    }
+    
+    // 获取文件blob数据
+    const blob = await response.blob();
+    
+    // 创建下载链接
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = record.name || 'download'; // 使用文件名，如果没有则使用'download'
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+  } catch (error) {
+    console.error('下载失败:', error);
+    Message.error({ id: "downloadLoading", content: record.name+"，下载失败，因为"+error.message });
+  } finally {
+    record.download = false;
+  }
 };
 
+// 处理分享事件
 const handleShare = (record) => {
   console.log('分享文件:', record);
 };
 
+// 处理重命名事件
 const handleRename = (record) => {
   console.log('重命名文件:', record);
 };
 
+// 处理删除事件
 const handleDelete = (record) => {
   console.log('删除文件:', record);
 };
 
+// 判断文件类型
+const isImageFile = (fileName) => {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+  const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
+  return imageExtensions.includes(ext);
+};
+
+const isPdfFile = (fileName) => {
+  return fileName.toLowerCase().endsWith('.pdf');
+};
+
+const isTextFile = (fileName) => {
+  const textExtensions = ['.txt', '.md', '.json', '.xml', '.html', '.css', '.js', '.ts', '.vue'];
+  const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
+  return textExtensions.includes(ext);
+};
+
+// 格式化文件大小
 const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -320,10 +443,16 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+// 格式化日期
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN');
 };
+
+const handleFileClick = (file) => {
+  console.log('点击文件卡片:', file);
+};
+
 </script>
 
 <style lang="less" scoped>
@@ -333,25 +462,27 @@ const formatDate = (dateString) => {
       background: linear-gradient(135deg, var(--color-primary-light-1), var(--color-secondary-light-1));
     }
   }
-  
+
   .file-manager {
     .grid-view {
       .file-card {
         transition: all 0.3s ease;
-        
+
         &:hover {
           transform: translateY(-4px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
       }
     }
-    
-    :deep(.arco-table) {
-      .arco-table-td {
-        cursor: pointer;
-        
-        &:hover {
-          background-color: var(--color-fill-1);
+
+    .list-view {
+      :deep(.arco-table) {
+        .arco-table-td {
+          cursor: pointer;
+
+          &:hover {
+            background-color: var(--color-fill-1);
+          }
         }
       }
     }

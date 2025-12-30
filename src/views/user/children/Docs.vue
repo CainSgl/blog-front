@@ -1,335 +1,404 @@
 <template>
   <div class="user-docs">
     <a-page-header 
-      title="我的文档" 
-      subtitle="管理您的文档"
+      title="文章列表" 
+      :subtitle="userInfo?`用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的文章`:''"
       @back="handleBack"
     >
       <template #extra>
         <a-space>
-          <a-button>
-            <template #icon>
-              <icon-import />
+          <a-button-group size="medium"  style="margin-right: 16px;">
+            <a-button 
+              :type="sortBy === 'published_at' ? 'primary' : 'outline'" 
+              @click="handleSortButtonClick('published_at')"
+               size="medium"
+            >
+              最新发布
+            </a-button>
+            <a-button 
+              :type="sortBy === 'view_count' ? 'primary' : 'outline'" 
+              @click="handleSortButtonClick('view_count')"
+              size="medium"
+            >
+              最多观看
+            </a-button>
+            <a-button 
+              :type="sortBy === 'like_count' ? 'primary' : 'outline'" 
+              @click="handleSortButtonClick('like_count')"
+               size="medium"
+            >
+              最多点赞
+            </a-button>
+          </a-button-group>
+          <a-auto-complete v-model="searchValue" :data="searchOptions" placeholder="搜索文章..."
+            :style="{ width: '300px' }" @search="handleSearch" @select="handleSearchSelect"
+            @press-enter="handleSearchEnter" allow-clear>
+            <template #prefix>
+              <IconSearch />
             </template>
-            导入
-          </a-button>
-          <a-button type="primary">
-            <template #icon>
-              <icon-plus />
-            </template>
-            新建文档
-          </a-button>
+          </a-auto-complete>
         </a-space>
       </template>
     </a-page-header>
     
     <div class="content-area" style="margin-top: 20px;">
       <a-card :bordered="false">
-        <a-tabs default-active-key="recent" type="rounded">
-          <a-tab-pane key="recent" title="最近">
-            <a-table 
-              :columns="columns" 
-              :data="recentDocs" 
-              :pagination="false"
-              @cell-click="handleRowClick"
-            >
-              <template #file-icon="{ record }">
-                <a-avatar :size="32" shape="square">
-                  <icon-file v-if="record.type === 'doc'" />
-                  <icon-file-text v-else-if="record.type === 'md'" />
-                  <icon-file-image v-else-if="record.type === 'image'" />
-                  <icon-file-pdf v-else />
-                </a-avatar>
-              </template>
-              <template #title="{ record }">
-                <a-typography-text 
-                  :ellipsis="{ 
-                    rows: 1, 
-                    tooltip: { 
-                      content: record.title 
-                    } 
-                  }"
-                >
-                  {{ record.title }}
-                </a-typography-text>
-              </template>
-              <template #size="{ record }">
-                {{ formatFileSize(record.size) }}
-              </template>
-              <template #updatedAt="{ record }">
-                {{ formatDate(record.updatedAt) }}
-              </template>
-              <template #actions="{ record }">
-                <a-space>
-                  <a-button size="small" @click="handleEdit(record)">编辑</a-button>
-                  <a-button size="small" @click="handleDownload(record)">下载</a-button>
-                  <a-dropdown trigger="click">
-                    <a-button size="small" type="text">
-                      <icon-more />
-                    </a-button>
-                    <template #content>
-                      <a-doption @click="handleShare(record)">分享</a-doption>
-                      <a-doption @click="handleRename(record)">重命名</a-doption>
-                      <a-doption @click="handleDelete(record)" style="color: var(--color-danger)">删除</a-doption>
-                    </template>
-                  </a-dropdown>
-                </a-space>
-              </template>
-            </a-table>
-          </a-tab-pane>
-          <a-tab-pane key="all" title="全部">
-            <a-table 
-              :columns="columns" 
-              :data="allDocs" 
-              :pagination="{ 
-                showTotal: true, 
-                showJumper: true, 
-                pageSize: 10 
-              }"
-              @cell-click="handleRowClick"
-            >
-              <template #file-icon="{ record }">
-                <a-avatar :size="32" shape="square">
-                  <icon-file v-if="record.type === 'doc'" />
-                  <icon-file-text v-else-if="record.type === 'md'" />
-                  <icon-file-image v-else-if="record.type === 'image'" />
-                  <icon-file-pdf v-else />
-                </a-avatar>
-              </template>
-              <template #title="{ record }">
-                <a-typography-text 
-                  :ellipsis="{ 
-                    rows: 1, 
-                    tooltip: { 
-                      content: record.title 
-                    } 
-                  }"
-                >
-                  {{ record.title }}
-                </a-typography-text>
-              </template>
-              <template #size="{ record }">
-                {{ formatFileSize(record.size) }}
-              </template>
-              <template #updatedAt="{ record }">
-                {{ formatDate(record.updatedAt) }}
-              </template>
-              <template #actions="{ record }">
-                <a-space>
-                  <a-button size="small" @click="handleEdit(record)">编辑</a-button>
-                  <a-button size="small" @click="handleDownload(record)">下载</a-button>
-                  <a-dropdown trigger="click">
-                    <a-button size="small" type="text">
-                      <icon-more />
-                    </a-button>
-                    <template #content>
-                      <a-doption @click="handleShare(record)">分享</a-doption>
-                      <a-doption @click="handleRename(record)">重命名</a-doption>
-                      <a-doption @click="handleDelete(record)" style="color: var(--color-danger)">删除</a-doption>
-                    </template>
-                  </a-dropdown>
-                </a-space>
-              </template>
-            </a-table>
-          </a-tab-pane>
-          <a-tab-pane key="favorites" title="收藏">
-            <a-result status="info" title="暂无收藏的文档" sub-title="您可以收藏喜欢的文档到这里">
-              <template #extra>
-                <a-button type="primary">去收藏</a-button>
-              </template>
-            </a-result>
-          </a-tab-pane>
-        </a-tabs>
+        <a-spin :loading="loading" tip="正在加载文章...">
+          <div class="posts-list-container" :style="{ width: containerWidth + 'px' }">
+            <div class="posts-list">
+              <!-- 文章卡片将在这里展示 -->
+               <div v-for="post in posts">
+                   <PostCard  :key="post.id" :post="post"/>
+               </div>
+              <a-empty v-if="posts.length === 0 && !loading" style="padding: 40px 0;" description="暂无文章" />
+              <div v-else-if="posts.length === 0" style="height: 50vh;"></div>
+            </div>
+            <div class="pagination-wrapper">
+              <a-pagination 
+                size="large" 
+                :total="total" 
+                :current="currentPage" 
+                :page-size="pageSize" 
+                show-total
+                show-jumper 
+                @change="handlePageChange" 
+              />
+            </div>
+          </div>
+        </a-spin>
       </a-card>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { 
-  IconPlus, 
-  IconImport, 
-  IconFile, 
-  IconFileImage, 
-  IconFilePdf,
-  IconMore,
-  IconClose 
+  IconPlus,
+  IconSearch
 } from '@arco-design/web-vue/es/icon';
+import api from '@/api/index.js';
+import PostCard from '@/components/PostCard.vue';
+import { debounce } from 'lodash-es';
 
-const recentDocs = ref([
-  {
-    id: 1,
-    title: 'Vue3响应式系统详解.md',
-    type: 'md',
-    size: 102400,
-    updatedAt: '2025-12-28T10:30:00',
-    owner: '当前用户'
-  },
-  {
-    id: 2,
-    title: '前端性能优化指南.pdf',
-    type: 'pdf',
-    size: 2048000,
-    updatedAt: '2025-12-27T15:45:00',
-    owner: '当前用户'
-  },
-  {
-    id: 3,
-    title: 'JavaScript高级程序设计笔记.docx',
-    type: 'doc',
-    size: 512000,
-    updatedAt: '2025-12-26T09:20:00',
-    owner: '当前用户'
-  },
-  {
-    id: 4,
-    title: 'React最佳实践总结.md',
-    type: 'md',
-    size: 76800,
-    updatedAt: '2025-12-25T14:10:00',
-    owner: '当前用户'
-  }
-]);
+const router = useRouter();
+const route = useRoute();
+// 从路由参数获取用户ID
+const userId = ref(route.params.id);
+const userInfo = ref(null);
 
-const allDocs = ref([
-  {
-    id: 1,
-    title: 'Vue3响应式系统详解.md',
-    type: 'md',
-    size: 102400,
-    updatedAt: '2025-12-28T10:30:00',
-    owner: '当前用户'
-  },
-  {
-    id: 2,
-    title: '前端性能优化指南.pdf',
-    type: 'pdf',
-    size: 2048000,
-    updatedAt: '2025-12-27T15:45:00',
-    owner: '当前用户'
-  },
-  {
-    id: 3,
-    title: 'JavaScript高级程序设计笔记.docx',
-    type: 'doc',
-    size: 512000,
-    updatedAt: '2025-12-26T09:20:00',
-    owner: '当前用户'
-  },
-  {
-    id: 4,
-    title: 'React最佳实践总结.md',
-    type: 'md',
-    size: 76800,
-    updatedAt: '2025-12-25T14:10:00',
-    owner: '当前用户'
-  },
-  {
-    id: 5,
-    title: 'CSS布局技巧汇总.docx',
-    type: 'doc',
-    size: 256000,
-    updatedAt: '2025-12-24T11:30:00',
-    owner: '当前用户'
-  },
-  {
-    id: 6,
-    title: 'Node.js开发指南.pdf',
-    type: 'pdf',
-    size: 3072000,
-    updatedAt: '2025-12-23T16:20:00',
-    owner: '当前用户'
+// 获取用户信息
+const fetchUserInfo = async (id) => {
+  try {
+    const response = await api.get('/user', { id: id });
+    userInfo.value = response.data;
+  } catch (err) {
+    console.error('获取用户信息失败:', err);
   }
-]);
+};
 
-const columns = ref([
-  {
-    title: '文件',
-    dataIndex: 'file-icon',
-    slotName: 'file-icon',
-    width: 60
-  },
-  {
-    title: '标题',
-    dataIndex: 'title',
-    slotName: 'title',
-    width: 300
-  },
-  {
-    title: '大小',
-    dataIndex: 'size',
-    slotName: 'size',
-    width: 100
-  },
-  {
-    title: '修改时间',
-    dataIndex: 'updatedAt',
-    slotName: 'updatedAt',
-    width: 180
-  },
-  {
-    title: '操作',
-    slotName: 'actions',
-    width: 200
+// 文章数据
+const posts = ref([]);
+const loading = ref(false);
+const total = ref(0);
+const currentPage = ref(1);
+
+// 搜索相关数据
+const searchValue = ref('');
+const searchOptions = ref([]);
+// 排序相关数据
+const sortBy = ref('published_at'); // 默认按最新发布排序
+const pageSize = computed(() => {
+  const widthCount = loadingContainerWNumber.value;
+  const heightCount = loadingContainerHNumber.value;
+  const calculatedSize = Math.floor(widthCount * heightCount);
+  const finalSize = Math.min(calculatedSize, 30);
+  return finalSize;
+});
+
+// 卡片尺寸常量
+const cardWidth = 300;
+const cardHeight = 200;
+const cardGap = 16;
+
+// 响应式容器尺寸
+const containerWidth = ref(0);
+const containerHeight = ref(0);
+
+// 简化的计算：直接计算可用空间能放多少个卡片
+const loadingContainerWNumber = computed(() => {
+  if (containerWidth.value <= 0) return cardWidth;
+  const cardsPerRow = Math.floor(containerWidth.value / (cardWidth + cardGap));
+  return Math.max(1, cardsPerRow);
+});
+
+const loadingContainerHNumber = computed(() => {
+  if (containerHeight.value <= 0) return cardHeight;
+  const rows = Math.floor(containerHeight.value / (cardHeight + cardGap));
+  return Math.max(1, rows);
+});
+
+// 监听容器尺寸变化
+let resizeObserver = null;
+let resizeTimeout = null;
+let resizeCallCount = 0;
+let containerElement = null; // 缓存 DOM 元素
+
+const updateContainerSize = () => {
+  resizeCallCount++;
+  
+  // 清除之前的定时器
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
   }
-]);
+  
+  // 使用 setTimeout 防抖，延迟执行
+  resizeTimeout = setTimeout(() => {
+    // 只在最后一次调用后执行
+    if (containerElement || (containerElement = document.querySelector('.content-area'))) {
+      if (containerElement) {
+        // 确保响应式数据正确更新
+        const newWidth = containerElement.clientWidth;
+        const newHeight = window.innerHeight - 400;
+
+        // 只有真正变化时才更新，避免不必要的重新渲染
+        if (newWidth !== containerWidth.value) {
+          containerWidth.value = newWidth;
+        }
+        if (newHeight !== containerHeight.value) {
+          containerHeight.value = newHeight;
+        }
+      }
+    }
+    
+    // 重置计数器
+    resizeCallCount = 0;
+  }, 100); // 100ms 延迟防抖
+};
+
+// 加载文章列表
+const loadPosts = async (page = 1) => {
+  loading.value = true;
+  try {
+    // 构建请求参数
+    const params = {
+      page: page,
+      size: pageSize.value,
+      userId: userId.value,
+      simple: total.value > 0,
+      option: sortBy.value // 添加排序字段
+    };
+
+    // 如果有搜索关键词，则添加到请求参数中
+    if (useSearch && searchValue.value && searchValue.value.trim()) {
+      params.keyword = searchValue.value.trim();
+    }
+
+    const { data } = await api.post('/post/list', params);
+    posts.value = data.records;
+    if (total.value <= 0) {
+      total.value = data.total;
+    }
+    currentPage.value = page;
+  } catch (error) {
+    console.error('加载文章列表失败:', error);
+    posts.value = [];
+    total.value = 0;
+  } finally {
+    loading.value = false;
+  }
+};
 
 const handleBack = () => {
-  console.log('返回');
+  // 返回到用户主页
+  router.push(`/space/${userId.value}`);
 };
 
-const handleRowClick = (record) => {
-  console.log('点击文档:', record);
+let useSearch = false
+// 搜索相关事件处理 - 使用防抖优化性能
+const handleSearch = debounce(async (value) => {
+  if (value.trim()) {
+    useSearch = false
+  }
+  console.log("搜索值:", value);
+  if (value.trim()) {
+    try {
+      // 调用API获取搜索建议
+      const params = {
+        page: 1,
+        size: 5,  // 固定大小为5
+        simple: true,
+        userId: userId.value,
+        sortBy: sortBy.value, // 添加排序字段
+        keyword: value  // 添加搜索关键词
+      };
+      const { data } = await api.post('/post/list', params);
+
+      // 将搜索结果转换为下拉选项格式
+      if (data && data.records) {
+        searchOptions.value = data.records.map(post => post.title || `文章 ${post.id}`);
+      } else {
+        searchOptions.value = [];
+      }
+    } catch (error) {
+      console.error('搜索文章失败:', error);
+      searchOptions.value = [];
+    }
+  } else {
+    searchOptions.value = [];
+  }
+}, 300);
+
+const handleSearchSelect = (value) => {
+  console.log('选中搜索项:', value);
+  // 替换搜索框的文字为选中的标题
+  searchValue.value = value;
+  currentPage.value = 1
+  total.value = -1
+  useSearch = true
+  // 重新加载文章，带上搜索关键词
+  loadPosts(currentPage.value);
 };
 
-const handleEdit = (record) => {
-  console.log('编辑文档:', record);
+const handleSearchEnter = () => {
+  console.log('搜索:', searchValue.value);
+  currentPage.value = 1
+  total.value = -1
+  useSearch = true
+  // 重新加载文章，带上搜索关键词
+  loadPosts(currentPage.value);
 };
 
-const handleDownload = (record) => {
-  console.log('下载文档:', record);
+// 处理排序变化
+const handleSortChange = () => {
+  // 排序变化时重置到第一页并重新加载
+  currentPage.value = 1;
+  loadPosts(1);
 };
 
-const handleShare = (record) => {
-  console.log('分享文档:', record);
+// 处理排序按钮点击
+const handleSortButtonClick = (value) => {
+  if (sortBy.value !== value) {
+    sortBy.value = value;
+    handleSortChange();
+  }
 };
 
-const handleRename = (record) => {
-  console.log('重命名文档:', record);
+// 处理分页变化
+const handlePageChange = (page) => {
+  loadPosts(page);
 };
 
-const handleDelete = (record) => {
-  console.log('删除文档:', record);
-};
+// 监听pageSize变化，自动重新加载数据
+watch(pageSize, (newSize, oldSize) => {
+  if (newSize !== oldSize && oldSize > 0) {
+    // pageSize变化时重置到第一页并重新加载
+    currentPage.value = 1;
+    loadPosts(1);
+  }
+});
 
-const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
+// 组件挂载时加载数据
+onMounted(async () => {
+  // 获取用户信息
+  if (userId.value) {
+    fetchUserInfo(userId.value);
+  }
+  // 等待DOM渲染完成
+  await nextTick();
+  updateContainerSize();
+  // 初始化ResizeObserver监听尺寸变化
+  resizeObserver = new ResizeObserver(() => {
+    updateContainerSize();
+  });
+  // 在ResizeObserver中使用懒加载方式获取元素
+  const contentArea = document.querySelector('.content-area');
+  if (contentArea) {
+    resizeObserver.observe(contentArea);
+  }
+  // 监听窗口大小变化
+  window.addEventListener('resize', updateContainerSize);
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('zh-CN');
-};
+  // 加载文章列表
+  loadPosts(currentPage.value);
+});
+
+// 组件卸载时清理监听
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+  }
+  window.removeEventListener('resize', updateContainerSize);
+  
+  // 清理定时器
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
+});
 </script>
 
 <style lang="less" scoped>
 .user-docs {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+
+  .posts-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: flex-start;
+    padding: 16px 0;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
   .content-area {
     min-height: 400px;
   }
-  
-  :deep(.arco-table) {
-    .arco-table-td {
-      cursor: pointer;
-      
-      &:hover {
-        background-color: var(--color-fill-1);
-      }
+
+  // 加载状态容器
+  .posts-loading-container {
+    position: relative;
+    transition: height 0.3s ease;
+  }
+
+  .posts-loading-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    height: 100%;
+  }
+
+  .posts-loading-card {
+    flex-shrink: 0;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .posts-loading-card-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f5f5f5 25%, #e8e8e8 37%, #f5f5f5 63%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+    border-radius: 6px;
+  }
+
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0 50%;
     }
   }
 }

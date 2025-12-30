@@ -7,9 +7,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { defineProps, defineEmits } from 'vue';
-import api from '@/api/index.js';
 import { Modal } from '@arco-design/web-vue';
 import { useUserStore } from '@/store/user.js';
+import followCache from './followCache.js';
 
 const props = defineProps({
   userId: {
@@ -30,8 +30,9 @@ const fetchFollowStatus = async () => {
 
   loading.value = true;
   try {
-    const response = await api.get('/follow', { id: props.userId });
-    isFollowing.value = response.data;
+    // 使用缓存获取关注状态
+    const response = await followCache.getFollowStatus(props.userId);
+    isFollowing.value = response;
   } catch (err) {
     console.error('获取关注状态失败:', err);
     isFollowing.value = false;
@@ -45,7 +46,7 @@ const toggleFollow = async () => {
   if (!props.userId) return;
   loading.value = true;
   // 检查是否正在关注自己
-  const currentUserInfo =await userStore.getUserInfo();
+  const currentUserInfo = await userStore.getUserInfo();
   if (currentUserInfo && currentUserInfo.id === props.userId) {
     Modal.warning({
       title: '提示',
@@ -59,13 +60,13 @@ const toggleFollow = async () => {
   try {
     if (isFollowing.value) {
       // 取消关注
-      await api.delete('/follow', { id: props.userId });
-      isFollowing.value =false;
+      await followCache.unfollow(props.userId);
+      isFollowing.value = false;
       emit('followChanged', isFollowing.value);
     } else {
       // 关注
-      await api.post('/follow', { id: props.userId });
-      isFollowing.value =true;
+      await followCache.follow(props.userId);
+      isFollowing.value = true;
       emit('followChanged', isFollowing.value);
     }
   } catch (err) {

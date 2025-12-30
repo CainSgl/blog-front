@@ -56,7 +56,7 @@ const loading = ref(false);
 // 加载更多状态
 const loadingMore = ref(false);
 // 是否还有更多数据
-const hasMore = ref(true);
+const hasMore = ref(false);
 // 最后一项ID，用于分页
 const lastId = ref('0');
 
