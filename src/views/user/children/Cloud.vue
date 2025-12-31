@@ -128,7 +128,8 @@ import {
   IconFilePdf,
   IconMore,
 } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import { Message, Modal } from '@arco-design/web-vue';
+import { showLoginModal } from '@/services/authService';
 import FileCard from './FileCard.vue';
 import cImg from '@/components/cImg.vue';
 import api from '@/api/index.js';
@@ -361,10 +362,25 @@ const handleDownload = async (record) => {
   console.log('下载文件:', record);
   record.download=true
   try {
-    Message.loading({ id: "downloadLoading", content: "获取临时url中" });
     // 从用户store获取token
     const userStore = useUserStore();
     const token = userStore.getToken();
+    if(!token)
+    {
+      // 未登录时提示用户并打开登录窗口
+      Modal.warning({
+        title: '未登录',
+        content: '您需要先登录才能下载文件',
+        okText: '去登录',
+        cancelText: '取消',
+        onOk: () => {
+          showLoginModal();
+        }
+      });
+      return;
+    } 
+
+    Message.loading({ id: "downloadLoading", content: "获取临时url中" });
     
     // 使用fetch API进行下载，这样可以携带认证头
     const response = await fetch(`${API_BASE_URL}/file/download?f=${encodeURIComponent(record.shortUrl)}`, {

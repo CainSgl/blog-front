@@ -39,7 +39,42 @@
                     <div class="left-panel">
                         <a-card title="文章信息">
                             <h3>预览</h3>
-                            <PostCard :post="articleForm"></PostCard>
+                            <a-split :style="{
+                                height: '600px',
+                                width: '100%',
+                                border: '1px solid var(--color-border)',
+                                userSelect: 'none'
+                            }" :default-size="0.6" @moving="onSplit">
+                                <template #first >
+                                    <a-split  style="overflow: hidden;height: 100%;" direction="vertical"  :default-size="0.7" @moving="onSplit">
+                                        <template #first>
+                                            <div ref="postCardContainerRef" style="overflow: hidden; height: 100%;">
+                                                <div style="padding:10px">
+                                                     <PostCard :height="dynamicHeight" :width="dynamicWidth"
+                                                    :post="articleForm"></PostCard>
+                                                </div>
+                                               
+                                            </div>
+                                        </template>
+                                        <template #second>
+                                            <div style="padding:20px">
+                                               <span>你可以调整卡片的高度或宽度以查看在不同条件下的适配效果！</span>
+                                            </div>
+                                        </template>
+                                    </a-split>
+                                </template>
+                                <template #second>
+                                    <div style="height: 580px; padding: 10px; overflow-y: hidden;">
+                                        <h4>文章信息</h4>
+                                        <p><strong>标题:</strong> {{ articleForm.title || '未设置' }}</p>
+                                        <p><strong>摘要:</strong> {{ articleForm.summary || '未设置' }}</p>
+                                        <p><strong>标签:</strong> {{ articleForm.tags && articleForm.tags.length > 0 ?
+                                            articleForm.tags.join(', ') : '未设置' }}</p>
+                                        <p><strong>字数:</strong> {{ wordCount }}</p>
+                                        <p><strong>状态:</strong> {{ articleForm.status }}</p>
+                                    </div>
+                                </template>
+                            </a-split>
                             <a-divider></a-divider>
                             <a-form :model="articleForm" layout="vertical">
                                 <a-form-item label="文章标题" required>
@@ -77,7 +112,7 @@
                                     </div>
                                 </a-form-item>
                             </a-form>
-                                     <!-- 图片上传区域 -->
+                            <!-- 图片上传区域 -->
                             <div class="image-upload-section">
                                 <h4>上传封面</h4>
                                 <Upload :custom-request="customRequest" :show-file-list="false" :multiple="true"
@@ -98,7 +133,7 @@
                             <MarkdownPreview :content="articleForm.newContent" height="400px"
                                 style="max-height: 400px;" />
 
-                   
+
                         </a-card>
                     </div>
                     <!-- 右侧：发布设置 -->
@@ -116,7 +151,7 @@
 
                                 <a-divider></a-divider>
                                 <h4 style="user-select: none;">文章统计</h4>
-                                <a-space  direction="vertical" size="large" style="width: 100%;">
+                                <a-space direction="vertical" size="large" style="width: 100%;">
                                     <a-statistic title="字数统计" :value="wordCount" suffix="字" show-group-separator />
                                     <a-statistic title="阅读数" :value="articleForm.viewCount" show-group-separator />
                                     <a-statistic title="点赞数" :value="articleForm.likeCount" show-group-separator />
@@ -137,7 +172,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { Message, Spin, Upload } from '@arco-design/web-vue';
+import { Message, Spin, Upload, Split } from '@arco-design/web-vue';
 import { useKbStore } from './kb/kbStore.js';
 import MarkdownPreview from '../components/md/MarkdownPreview.vue';
 import ImageCropperModal from '../components/ImageCropperModal.vue';
@@ -155,7 +190,8 @@ const kbStore = useKbStore();
 const components = {
     ImageCropperModal,
     MarkdownPreview,
-    PostCard
+    PostCard,
+    Split
 }
 
 // 表单数据
@@ -195,10 +231,17 @@ const aiGeneratedSummary = ref('');
 // 上传图片相关状态
 const uploadingImage = ref(false);
 
+// 动态调整 PostCard 尺寸的状态
+const dynamicHeight = ref(300);
+const dynamicWidth = ref(600);
+
 // 图片裁剪相关状态
 const cropperModalVisible = ref(false);
 const currentImageFile = ref(null);
 const imageCropperRef = ref(null);
+
+// PostCard 容器相关 ref
+const postCardContainerRef = ref(null);
 
 
 
@@ -207,6 +250,26 @@ const wordCount = computed(() => {
     // 现在直接从 articleForm 中获取内容
     return articleForm.value.content ? articleForm.value.content.length : 0;
 });
+
+// 节流函数实现
+const throttle = (func, delay) => {
+  let timeoutId;
+  let lastExecTime = 0;
+  return function (...args) {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastExecTime > delay) {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
+};
 
 // 标签选择变化处理
 const onTagChange = (value) => {
@@ -217,7 +280,17 @@ const onTagChange = (value) => {
     }
 };
 
-// 方法
+const onSplitBase = () => {
+    nextTick(() => {
+        if (postCardContainerRef.value) {
+            dynamicWidth.value =  postCardContainerRef.value.offsetWidth-20;
+            dynamicHeight.value =  postCardContainerRef.value.offsetHeight-50;
+        }
+    });
+};
+
+const onSplit = throttle(onSplitBase, 30);
+
 const goBack = () => {
     router.go(-1);
 };
@@ -354,7 +427,7 @@ const handleCroppedImage = async (croppedFile) => {
         });
 
         // 可以将上传的图片URL添加到文章内容中
-        const imageUrl =data.shortUrl; 
+        const imageUrl = data.shortUrl;
         console.log('裁剪后图片上传成功，URL:', imageUrl);
 
         cropperModalVisible.value = false;
@@ -418,13 +491,14 @@ onMounted(() => {
             Message.warning('未找到文章内容，请返回编辑页面');
             return;
         }
-        commitData.status='发布中'
+        commitData.status = '发布中'
         articleForm.value = commitData;
     } catch (error) {
         console.error('Error initializing article form:', error);
         Message.error('初始化失败');
         router.go(-1);
     }
+    onSplit();
 });
 </script>
 

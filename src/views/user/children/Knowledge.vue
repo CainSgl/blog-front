@@ -1,22 +1,17 @@
 <template>
   <div class="user-knowledge">
-    <a-page-header title="知识库" :subtitle="userInfo?`用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的知识库`:''"
+    <a-page-header title="知识库"
+      :subtitle="userInfo ? `用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的知识库` : ''"
       @back="handleBack">
       <template #extra>
         <a-space>
           <a-button-group size="medium" style="margin-right: 16px;">
-            <a-button 
-              :type="sortBy === 'created_at' ? 'primary' : 'outline'" 
-              @click="handleSortButtonClick('created_at')"
-              size="medium"
-            >
+            <a-button :type="sortBy === 'created_at' ? 'primary' : 'outline'"
+              @click="handleSortButtonClick('created_at')" size="medium">
               最新发布
             </a-button>
-            <a-button 
-              :type="sortBy === 'like_count' ? 'primary' : 'outline'" 
-              @click="handleSortButtonClick('like_count')"
-              size="medium"
-            >
+            <a-button :type="sortBy === 'like_count' ? 'primary' : 'outline'"
+              @click="handleSortButtonClick('like_count')" size="medium">
               最多点赞
             </a-button>
           </a-button-group>
@@ -38,17 +33,20 @@
             <div class="kb-list">
               <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="kb" />
             </div>
-            
+
             <a-empty v-if="knowledgeBases.length === 0 && !loading" style="padding: 40px 0;" description="暂无知识库" />
             <div v-else-if="knowledgeBases.length === 0" style="height: 50vh;"></div>
-            <div class="pagination-wrapper">
-              <a-pagination size="large" :total="total" :current="currentPage" :page-size="pageSize" show-total
-                show-jumper @change="handlePageChange" />
-            </div>
+
           </div>
+     
         </a-spin>
+
       </a-card>
     </div>
+     <div class="pagination-wrapper">
+            <a-pagination size="large" :total="total" :current="currentPage" :page-size="pageSize" show-total
+              show-jumper @change="handlePageChange" />
+      </div>
   </div>
 </template>
 
@@ -91,7 +89,7 @@ const pageSize = computed(() => {
   const widthCount = loadingContainerWNumber.value;
   const heightCount = loadingContainerHNumber.value;
   const calculatedSize = Math.floor(widthCount * heightCount);
-  const finalSize = Math.min(calculatedSize, 30);
+  const finalSize = Math.min(calculatedSize, 100);
   return finalSize;
 });
 
@@ -114,7 +112,7 @@ const loadingContainerWNumber = computed(() => {
 const loadingContainerHNumber = computed(() => {
   if (containerHeight.value <= 0) return cardHeight;
   const rows = Math.floor(containerHeight.value / (cardHeight + cardGap));
-  return Math.max(1, rows);
+  return Math.max(2, rows);
 });
 
 // 监听容器尺寸变化
@@ -125,12 +123,12 @@ let containerElement = null; // 缓存 DOM 元素
 
 const updateContainerSize = () => {
   resizeCallCount++;
-  
+
   // 清除之前的定时器
   if (resizeTimeout) {
     clearTimeout(resizeTimeout);
   }
-  
+
   // 使用 setTimeout 防抖，延迟执行
   resizeTimeout = setTimeout(() => {
     // 只在最后一次调用后执行
@@ -138,7 +136,7 @@ const updateContainerSize = () => {
       if (containerElement) {
         // 确保响应式数据正确更新
         const newWidth = containerElement.clientWidth;
-        const newHeight = window.innerHeight - 400;
+        const newHeight = window.innerHeight - 600;
 
         // 只有真正变化时才更新，避免不必要的重新渲染
         if (newWidth !== containerWidth.value) {
@@ -149,7 +147,7 @@ const updateContainerSize = () => {
         }
       }
     }
-  
+
     // 重置计数器
     resizeCallCount = 0;
   }, 100); // 100ms 延迟防抖
@@ -305,7 +303,7 @@ onUnmounted(() => {
     resizeObserver.disconnect();
   }
   window.removeEventListener('resize', updateContainerSize);
-  
+
   // 清理定时器
   if (resizeTimeout) {
     clearTimeout(resizeTimeout);
@@ -314,9 +312,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="less" scoped>
-
 .user-knowledge {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 
@@ -335,7 +331,8 @@ onUnmounted(() => {
   }
 
   .content-area {
-    min-height: 400px;
+    min-height: 600px;
+    height: calc(100vh - 400px);
   }
 
   // 加载状态容器
@@ -376,6 +373,13 @@ onUnmounted(() => {
     100% {
       background-position: 0 50%;
     }
+  }
+}
+
+// 响应式布局：当屏幕宽度小于1080px时，为PageHeader的extra插槽内容添加上边距
+@media (max-width: 1080px) {
+  :deep(.arco-page-header .arco-page-header-extra) {
+    margin-top: 16px;
   }
 }
 </style>

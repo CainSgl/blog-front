@@ -1,38 +1,25 @@
 <template>
   <div class="user-docs">
-    <a-page-header 
-      title="文章列表" 
-      :subtitle="userInfo?`用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的文章`:''"
-      @back="handleBack"
-    >
+    <a-page-header title="文章列表"
+      :subtitle="userInfo ? `用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的文章` : ''" @back="handleBack">
       <template #extra>
         <a-space>
-          <a-button-group size="medium"  style="margin-right: 16px;">
-            <a-button 
-              :type="sortBy === 'published_at' ? 'primary' : 'outline'" 
-              @click="handleSortButtonClick('published_at')"
-               size="medium"
-            >
+          <a-button-group size="medium" style="margin-right: 16px;">
+            <a-button :type="sortBy === 'published_at' ? 'primary' : 'outline'"
+              @click="handleSortButtonClick('published_at')" size="medium">
               最新发布
             </a-button>
-            <a-button 
-              :type="sortBy === 'view_count' ? 'primary' : 'outline'" 
-              @click="handleSortButtonClick('view_count')"
-              size="medium"
-            >
+            <a-button :type="sortBy === 'view_count' ? 'primary' : 'outline'"
+              @click="handleSortButtonClick('view_count')" size="medium">
               最多观看
             </a-button>
-            <a-button 
-              :type="sortBy === 'like_count' ? 'primary' : 'outline'" 
-              @click="handleSortButtonClick('like_count')"
-               size="medium"
-            >
+            <a-button :type="sortBy === 'like_count' ? 'primary' : 'outline'"
+              @click="handleSortButtonClick('like_count')" size="medium">
               最多点赞
             </a-button>
           </a-button-group>
-          <a-auto-complete v-model="searchValue" :data="searchOptions" placeholder="搜索文章..."
-            :style="{ width: '300px' }" @search="handleSearch" @select="handleSearchSelect"
-            @press-enter="handleSearchEnter" allow-clear>
+          <a-auto-complete v-model="searchValue" :data="searchOptions" placeholder="搜索文章..." :style="{ width: '400px' }"
+            @search="handleSearch" @select="handleSearchSelect" @press-enter="handleSearchEnter" allow-clear>
             <template #prefix>
               <IconSearch />
             </template>
@@ -40,33 +27,28 @@
         </a-space>
       </template>
     </a-page-header>
-    
+
     <div class="content-area" style="margin-top: 20px;">
       <a-card :bordered="false">
         <a-spin :loading="loading" tip="正在加载文章...">
           <div class="posts-list-container" :style="{ width: containerWidth + 'px' }">
             <div class="posts-list">
               <!-- 文章卡片将在这里展示 -->
-               <div v-for="post in posts">
-                   <PostCard  :key="post.id" :post="post"/>
-               </div>
+              <div v-for="post in posts">
+                <PostCard :height="cardHeight" :width="cardWidth" :key="post.id" :post="post" />
+              </div>
               <a-empty v-if="posts.length === 0 && !loading" style="padding: 40px 0;" description="暂无文章" />
               <div v-else-if="posts.length === 0" style="height: 50vh;"></div>
             </div>
-            <div class="pagination-wrapper">
-              <a-pagination 
-                size="large" 
-                :total="total" 
-                :current="currentPage" 
-                :page-size="pageSize" 
-                show-total
-                show-jumper 
-                @change="handlePageChange" 
-              />
-            </div>
+
           </div>
         </a-spin>
       </a-card>
+
+    </div>
+    <div class="pagination-wrapper">
+      <a-pagination size="large" :total="total" :current="currentPage" :page-size="pageSize" show-total show-jumper
+        @change="handlePageChange" />
     </div>
   </div>
 </template>
@@ -74,7 +56,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { 
+import {
   IconPlus,
   IconSearch
 } from '@arco-design/web-vue/es/icon';
@@ -118,8 +100,8 @@ const pageSize = computed(() => {
 });
 
 // 卡片尺寸常量
-const cardWidth = 300;
-const cardHeight = 200;
+const cardWidth =  ref(300);
+const cardHeight = ref(400);
 const cardGap = 16;
 
 // 响应式容器尺寸
@@ -128,15 +110,15 @@ const containerHeight = ref(0);
 
 // 简化的计算：直接计算可用空间能放多少个卡片
 const loadingContainerWNumber = computed(() => {
-  if (containerWidth.value <= 0) return cardWidth;
-  const cardsPerRow = Math.floor(containerWidth.value / (cardWidth + cardGap));
+  if (containerWidth.value <= 0) return cardWidth.value;
+  const cardsPerRow = Math.floor(containerWidth.value / (cardWidth.value + cardGap));
   return Math.max(1, cardsPerRow);
 });
 
 const loadingContainerHNumber = computed(() => {
-  if (containerHeight.value <= 0) return cardHeight;
-  const rows = Math.floor(containerHeight.value / (cardHeight + cardGap));
-  return Math.max(1, rows);
+  if (containerHeight.value <= 0) return cardHeight.value;
+  const rows = Math.floor(containerHeight.value / (cardHeight.value + cardGap));
+  return Math.max(2, rows);
 });
 
 // 监听容器尺寸变化
@@ -147,12 +129,12 @@ let containerElement = null; // 缓存 DOM 元素
 
 const updateContainerSize = () => {
   resizeCallCount++;
-  
+
   // 清除之前的定时器
   if (resizeTimeout) {
     clearTimeout(resizeTimeout);
   }
-  
+
   // 使用 setTimeout 防抖，延迟执行
   resizeTimeout = setTimeout(() => {
     // 只在最后一次调用后执行
@@ -171,7 +153,7 @@ const updateContainerSize = () => {
         }
       }
     }
-    
+
     // 重置计数器
     resizeCallCount = 0;
   }, 100); // 100ms 延迟防抖
@@ -330,7 +312,7 @@ onUnmounted(() => {
     resizeObserver.disconnect();
   }
   window.removeEventListener('resize', updateContainerSize);
-  
+
   // 清理定时器
   if (resizeTimeout) {
     clearTimeout(resizeTimeout);
@@ -340,7 +322,7 @@ onUnmounted(() => {
 
 <style lang="less" scoped>
 .user-docs {
-  max-width: 1200px;
+
   margin: 0 auto;
   padding: 0 20px;
 
@@ -359,7 +341,8 @@ onUnmounted(() => {
   }
 
   .content-area {
-    min-height: 400px;
+
+    min-height: calc(100vh - 400px);
   }
 
   // 加载状态容器
@@ -400,6 +383,13 @@ onUnmounted(() => {
     100% {
       background-position: 0 50%;
     }
+  }
+}
+
+// 响应式布局：当屏幕宽度小于1080px时，为PageHeader的extra插槽内容添加上边距
+@media (max-width: 1080px) {
+  :deep(.arco-page-header .arco-page-header-extra) {
+    margin-top: 16px;
   }
 }
 </style>

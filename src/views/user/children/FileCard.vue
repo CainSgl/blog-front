@@ -78,4 +78,10 @@ const handleFileClick = () => {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
+// 响应式布局：当屏幕宽度小于1080px时，为PageHeader的extra插槽内容添加上边距
+@media (max-width: 1080px) {
+  :deep(.arco-page-header .arco-page-header-extra) {
+    margin-top: 16px;
+  }
+}
 </style>
