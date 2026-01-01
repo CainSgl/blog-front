@@ -27,7 +27,7 @@
             </div>
 
             <!-- 状态标签 -->
-            <a-tag v-if="kbInfo.status" :color="kbInfo.status === '已发布' ? 'green' : 'orange'" class="kb-status-tag">
+            <a-tag v-if="showStatus&&kbInfo.status" :color="kbInfo.status === '已发布' ? 'green' : 'orange'" class="kb-status-tag">
                 {{ kbInfo.status  === '已发布' ? '已公开' : kbInfo.status }}
             </a-tag>
         </a-card>
@@ -54,6 +54,10 @@ const props = defineProps({
             coverUrl: '',
             postCount:0
         })
+    },
+    showStatus: {
+        type: Boolean,
+        default: true
     }
 })
 

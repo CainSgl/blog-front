@@ -31,39 +31,57 @@
         <a-spin :loading="loading" tip="正在加载知识库...">
           <div class="kb-list-container" :style="{ width: containerWidth + 'px' }">
             <div class="kb-list">
-              <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="kb" />
+              <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="kb" :show-status="isCurrentUser" />
+              <div v-if="isCurrentUser" class="create-kb-card" @click="handleCreateKb">
+                <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }">
+                  <div class="kb-cover-empty">
+                    <div class="create-icon">
+                      <IconPlus />
+                    </div>
+                    <div class="create-text">创建知识库</div>
+                  </div>
+                </a-card>
+              </div>
             </div>
 
             <a-empty v-if="knowledgeBases.length === 0 && !loading" style="padding: 40px 0;" description="暂无知识库" />
             <div v-else-if="knowledgeBases.length === 0" style="height: 50vh;"></div>
 
           </div>
-     
+
         </a-spin>
 
       </a-card>
     </div>
-     <div class="pagination-wrapper">
-            <a-pagination size="large" :total="total" :current="currentPage" :page-size="pageSize" show-total
-              show-jumper @change="handlePageChange" />
-      </div>
+    <div class="pagination-wrapper">
+      <a-pagination size="large" :total="total" :current="currentPage" :page-size="pageSize" show-total show-jumper
+        @change="handlePageChange" />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { IconSearch } from '@arco-design/web-vue/es/icon';
+import { IconSearch, IconPlus } from '@arco-design/web-vue/es/icon';
 import KbCard from '@/components/kb/KbCard.vue';
 import api from '@/api/index.js';
 import { debounce } from 'lodash-es';
-
+import { useUserStore } from '@/store/user.js';
 
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStore();
+
 // 从路由参数获取用户ID
 const userId = ref(route.params.id);
 const userInfo = ref(null);
+const currentUserInfo = ref({ id: -1 });
+
+// 计算当前是否为访问自己的知识库
+const isCurrentUser = computed(() => {
+  return currentUserInfo.value.id == userId.value;
+});
 
 const knowledgeBases = ref([]);
 const loading = ref(true);
@@ -104,7 +122,7 @@ const containerHeight = ref(0);
 
 // 简化的计算：直接计算可用空间能放多少个卡片
 const loadingContainerWNumber = computed(() => {
-  if (containerWidth.value <= 0) return cardWidth;
+  if (containerWidth.value <= 0) return cardWidth/(cardWidth+cardGap);
   const cardsPerRow = Math.floor(containerWidth.value / (cardWidth + cardGap));
   return Math.max(1, cardsPerRow);
 });
@@ -123,12 +141,10 @@ let containerElement = null; // 缓存 DOM 元素
 
 const updateContainerSize = () => {
   resizeCallCount++;
-
   // 清除之前的定时器
   if (resizeTimeout) {
     clearTimeout(resizeTimeout);
   }
-
   // 使用 setTimeout 防抖，延迟执行
   resizeTimeout = setTimeout(() => {
     // 只在最后一次调用后执行
@@ -147,7 +163,6 @@ const updateContainerSize = () => {
         }
       }
     }
-
     // 重置计数器
     resizeCallCount = 0;
   }, 100); // 100ms 延迟防抖
@@ -164,7 +179,10 @@ const loadKnowledgeBases = async (page = 1) => {
       simple: total.value > 0,
       option: sortBy.value // 添加排序字段
     };
-
+    const currentUserInfo = await userStore.getUserInfo();
+    if (currentUserInfo.id == userId.value) {
+      params.size = pageSize.value - 1;
+    }
     // 如果有搜索关键词，则添加到请求参数中
     if (useSearch && searchValue.value && searchValue.value.trim()) {
       params.keyword = searchValue.value.trim();
@@ -264,12 +282,14 @@ const handlePageChange = (page) => {
   loadKnowledgeBases(page);
 };
 
-
+// 处理创建知识库
+const handleCreateKb = () => {
+  
+};
 
 // 监听pageSize变化，自动重新加载数据
 watch(pageSize, (newSize, oldSize) => {
   if (newSize !== oldSize && oldSize > 0) {
-    // pageSize变化时重置到第一页并重新加载
     currentPage.value = 1;
     loadKnowledgeBases(1);
   }
@@ -277,13 +297,15 @@ watch(pageSize, (newSize, oldSize) => {
 
 // 组件挂载时加载数据
 onMounted(async () => {
-  // 获取用户信息
-  if (userId.value) {
-    fetchUserInfo(userId.value);
-  }
-  // 等待DOM渲染完成
-  await nextTick();
   updateContainerSize();
+  if (userId.value) {
+    const [currentUserInfoData, userInfoData] = await Promise.all([
+      userStore.getUserInfo(),
+      fetchUserInfo(userId.value)
+    ]);
+    currentUserInfo.value = currentUserInfoData;
+  }
+
   // 初始化ResizeObserver监听尺寸变化
   resizeObserver = new ResizeObserver(() => {
     updateContainerSize();
@@ -322,6 +344,7 @@ onUnmounted(() => {
     gap: 16px;
     justify-content: flex-start;
     padding: 16px 0;
+    align-items: flex-start;
   }
 
   .pagination-wrapper {
@@ -333,6 +356,71 @@ onUnmounted(() => {
   .content-area {
     min-height: 600px;
     height: calc(100vh - 400px);
+  }
+
+  // 创建知识库卡片样式
+  .create-kb-card {
+    width: 180px;
+    position: relative;
+    height: 262px;
+    .kb-card-container {
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      height: 100%;
+      border: 1px dashed #d9d9d9;
+
+      &:hover {
+        border-color: #4080ff;
+        box-shadow: 0 4px 12px 0 rgba(0, 174, 236, 0.15);
+      }
+    }
+
+    .kb-cover-empty {
+      width: 100%;
+      height: 262px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #fafafa;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #f0f3f8;
+      }
+    }
+
+    .create-icon {
+      font-size: 48px;
+      color: #86909c;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      width: 100%;
+    }
+
+    .create-text {
+      font-size: 14px;
+      color: #86909c;
+      transition: all 0.3s ease;
+      margin-top: 0;
+      line-height: 1.4;
+      width: 100%;
+      text-align: center;
+    }
+
+    &:hover {
+
+      .create-icon,
+      .create-text {
+        color: #4080ff;
+      }
+    }
   }
 
   // 加载状态容器

@@ -1,37 +1,38 @@
 <template>
-  <a-modal v-model:visible="modalVisible" title="编辑个人信息" :footer="false" :mask-closable="false" :width="600"
-    @cancel="handleCancel">
-    <a-form :model="form" :rules="rules" :label-col-props="{ span: 6 }" :wrapper-col-props="{ span: 18 }"
-      @submit="handleSubmit" ref="formRef">
-      <a-form-item field="nickname" label="昵称" required>
-        <a-input v-model="form.nickname" placeholder="请输入昵称" :max-length="30" show-word-limit />
-      </a-form-item>
+  <a-modal v-model:visible="modalVisible" title="编辑个人信息" :footer="null" @cancel="handleCancel" width="auto">
+    <a-space class="edit-user-info-modal" direction="vertical">
+      <a-form :model="form" :rules="rules" :label-col-props="{ span: 3 }" :wrapper-col-props="{ span: 20 }"
+        @submit="handleSubmit" ref="formRef" class="form-container">
+        <a-form-item field="username" label="用户名">
+          <a-input v-model="form.username" disabled />
+        </a-form-item>
+        <a-form-item field="nickname" label="昵称" required>
+          <a-input v-model="form.nickname" placeholder="请输入昵称" :max-length="30" show-word-limit />
+        </a-form-item>
+        <a-form-item field="gender" label="性别">
+          <a-radio-group v-model="form.gender">
+            <a-radio value="男">男</a-radio>
+            <a-radio value="女">女</a-radio>
+            <a-radio value="">保密</a-radio>
+          </a-radio-group>
+        </a-form-item>
 
-      <a-form-item field="username" label="用户名">
-        <a-input v-model="form.username" disabled />
-      </a-form-item>
+        <a-form-item field="bio" label="个人简介">
+          <a-textarea v-model="form.bio" placeholder="介绍一下自己吧" :max-length="200" :rows="4" show-word-limit />
+        </a-form-item>
 
-      <a-form-item field="gender" label="性别">
-        <a-radio-group v-model="form.gender">
-          <a-radio value="男">男</a-radio>
-          <a-radio value="女">女</a-radio>
-          <a-radio value="">保密</a-radio>
-        </a-radio-group>
-      </a-form-item>
-
-      <a-form-item field="bio" label="个人简介">
-        <a-textarea v-model="form.bio" placeholder="介绍一下自己吧" :max-length="100" :rows="4" show-word-limit />
-      </a-form-item>
-
-      <a-form-item class="form-footer">
-        <a-space size="large">
-          <a-button @click="handleCancel">取消</a-button>
-          <a-button type="primary" html-type="submit" :disabled="!hasChanges || submitting" :loading="submitting">
-            {{ submitting ? '保存中...' : '保存' }}
-          </a-button>
-        </a-space>
-      </a-form-item>
-    </a-form>
+        <div class="form-footer-wrapper">
+          <a-form-item class="form-footer">
+            <div class="button-group">
+              <a-button @click="handleCancel">取消</a-button>
+              <a-button type="primary" html-type="submit" :disabled="!hasChanges || submitting" :loading="submitting">
+                {{ submitting ? '保存中...' : '保存' }}
+              </a-button>
+            </div>
+          </a-form-item>
+        </div>
+      </a-form>
+    </a-space>
   </a-modal>
 </template>
 
@@ -97,11 +98,12 @@ const resetForm = async () => {
   await nextTick();
 
   // 设置表单初始值
+
   form.nickname = props.userInfo?.nickname || '';
   form.username = props.userInfo?.username || '';
   form.gender = props.userInfo?.gender || '';
   form.bio = props.userInfo?.bio || '';
-
+  
   // 备份原始数据
   Object.assign(originalData, {
     nickname: props.userInfo?.nickname || '',
@@ -146,6 +148,7 @@ const handleSubmit = async () => {
     modalVisible.value = false;
     await userStore.updateUserInfo(updateData);
     Message.success({ id: 'saveUserInfo', content: '用户信息更新成功' });
+
     emit('saved');
   } catch (error) {
     modalVisible.value = true;
@@ -162,10 +165,40 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped lang="less">
-.form-footer {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
-  text-align: right;
+.edit-user-info-modal {
+  .form-container {
+    width: calc(60vw - 40px);
+    max-width: 600px;
+    min-width: 500px;
+    padding: 12px;
+  }
+
+  .arco-form-item {
+    margin-bottom: 16px;
+  }
+
+  .arco-form-item .arco-input,
+  .arco-form-item .arco-textarea,
+  .arco-form-item .arco-radio-group {
+    text-align: left;
+  }
+
+  .form-footer-wrapper {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+    margin-top: 16px;
+  }
+
+  .form-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0;
+  }
+  
+  .button-group {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
 }
 </style>

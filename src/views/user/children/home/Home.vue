@@ -10,7 +10,7 @@
               {{ userInfo?.nickname || userInfo?.username || '-' }}
             </a-typography-title>
             <a-tag v-if="userInfo?.status == 'banned'" color="red" size="small" style="margin-left: 8px;">已封禁</a-tag>
-            <a-tag color="arcoblue" size="small" style="margin-left: 2px;">LV.{{ userInfo?.level }}</a-tag>
+            <UserLevel :level="userInfo?.level" v-if="currentUserInfo.id != userId" />
             <icon-man v-if="userInfo?.gender === '男'"
               :style="{ color: '#55acee', fontSize: '16px', marginLeft: '2px' }" />
             <icon-woman v-else-if="userInfo?.gender === '女'"
@@ -20,6 +20,23 @@
             <FollowButton :user-id="userId" @follow-changed="handleFollowChange" />
             <a-button size="large" style="margin-left: 12px;">私信</a-button>
           </div>
+          <div v-else>
+            <!-- 用户经验条 -->
+            <div class="user-experience">
+              <div class="exp-container">
+                <UserLevel :level="userInfo?.level" />
+                <a-progress :percent="currentUserInfo?.experience / currentUserInfo?.nextLevelTotalExp"
+              :show-text="false" class="exp-progress" />
+                <UserLevel  :level="userInfo?.level+1" />
+              </div>
+           
+              <div class="exp-remaining">
+                当前经验{{ currentUserInfo?.experience }}，距离下一级还差经验{{ currentUserInfo?.expToNextLevel }}
+              </div>
+            </div>
+          </div>
+
+
         </div>
 
         <div class="user-stats">
@@ -45,7 +62,8 @@
             <span class="stat-value">{{ userInfo?.articleViewCount || 0 }}</span>
           </div>
         </div>
-        <div class="user-bio" :class="{ 'editable-bio': currentUserInfo.id == userId }" v-if="userInfo?.bio" @click="tryChangeInfo">
+        <div class="user-bio" :class="{ 'editable-bio': currentUserInfo.id == userId }" v-if="userInfo?.bio"
+          @click="tryChangeInfo">
           <p>{{ userInfo.bio }}</p>
         </div>
       </div>
@@ -64,7 +82,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
-  IconUser,
   IconMan,
   IconWoman
 } from '@arco-design/web-vue/es/icon';
@@ -73,11 +90,14 @@ import api from '@/api/index.js';
 import AvatarSection from '@/components/user/home/AvatarSection.vue';
 import FollowButton from '@/components/user/home/FollowButton.vue';
 import EditUserInfoModal from '@/components/user/home/EditUserInfoModal.vue';
+import UserLevel from '@/components/user/UserLevel.vue';
 const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();
 const userInfo = ref(null);
 const showEditModal = ref(false);
+
+
 
 // 获取用户ID
 const userId = computed(() => route.params.id);
@@ -164,8 +184,11 @@ const goToFollowingPage = () => {
 
 onMounted(async () => {
   if (userId.value) {
-    fetchUserInfo(userId.value);
-    currentUserInfo.value = await userStore.getUserInfo();
+      const [currentUserInfoData, userInfoData] = await Promise.all([
+      userStore.getUserInfo(),
+      fetchUserInfo(userId.value)
+    ]);
+    currentUserInfo.value = currentUserInfoData;
   }
 });
 </script>
@@ -312,6 +335,29 @@ onMounted(async () => {
 
     &:hover {
       color: @link-5;
+    }
+  }
+
+  .user-experience {
+    margin-top: 16px;
+    padding: 0 24px;
+    width: 300px;
+
+    .exp-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .exp-progress {
+      flex: 1;
+    }
+
+    .exp-remaining {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 12px;
+      color: #888;
     }
   }
 

@@ -8,6 +8,7 @@
       :post="post"
       :height="computedHeight"
       :width="computedWidth"
+      @clickCard="handleClickCard"
     />
   </div>
 </template>
@@ -15,6 +16,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import PostCard from './PostCard.vue'
+import { defineEmits } from 'vue'
+
+const emit = defineEmits(['clickCard']);
 
 const props = defineProps({
   post: {
@@ -35,6 +39,10 @@ const props = defineProps({
     default: () => ({})
   }
 })
+
+const handleClickCard = (post) => {
+  emit('clickCard', post);
+}
 
 const wrapperRef = ref(null)
 const computedWidth = ref(0)

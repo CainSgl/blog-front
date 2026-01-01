@@ -30,12 +30,18 @@
 
           <div class="content" :style="{ height: `${summaryHight}px` }" v-if="showSummary">
             <!-- 摘要 -->
+            <div v-if="!post.summary" >
+              <div v-if="summaryHight>100">
+                  <a-empty description="摘要里什么都没有" />
+              </div>
+              <div v-else-if="summary>0" class="post-summary">
+                摘要里什么都没有
+              </div>
+            </div>
             <div class="post-summary" :style="{ WebkitLineClamp: summary }">
               {{ post.summary }}
             </div>
-            <div v-if="!post.summary">
-              <a-empty description="摘要里什么都没有" />
-            </div>
+
           </div>
           <div class="footer">
             <!-- 标签 -->
@@ -63,8 +69,8 @@
                       <icon-eye size="large" /> {{ post.viewCount }}
                     </span>
                     <span class="stat-item" @click="handleLikeClick">
-                      <icon-heart-fill size="large"  v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
-                      <icon-thumb-down-fill size="large"  v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
+                      <icon-heart-fill size="large" v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
+                      <icon-thumb-down-fill size="large" v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
                       <icon-thumb-up size="large" v-else />
                       {{ post.likeCount }}
                     </span>
@@ -92,9 +98,9 @@
 
 <script setup>
 import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect,defineEmits } from 'vue'
 import CImg from './cImg.vue'
-
+const emit = defineEmits(['clickCard']);
 const props = defineProps({
   post: {
     type: Object,
@@ -153,7 +159,7 @@ watchEffect(() => {
     summary.value = calculateSummary()
     imageStyle.value = {
       height: `${imageHeight.value}px`,
-     // width: `${width}px`
+      // width: `${width}px`
     };
   } else {
     //图片由高度决定
@@ -162,7 +168,7 @@ watchEffect(() => {
     imageHeight.value = height
     summary.value = calculateSummary()
     imageStyle.value = {
-      height: `${height-20}px`,
+      height: `${height - 20}px`,
       width: `${Math.min(props.width / 2, height * 1.5)}px`
     };
   }
@@ -178,7 +184,7 @@ function calculateSummary() {
 
   // 如果有图片且宽度，说明这个时候是垂直模式，需要减去图片高度
   if (props.post.img && props.width <= 400) {
-    availableHeight -= imageHeight.value ;
+    availableHeight -= imageHeight.value;
   }
   if (props.post.tags && props.post.tags.length > 0) {
     availableHeight -= 50;
@@ -251,7 +257,7 @@ const getTagScore = (tag) => {
 
 // 处理卡片点击事件
 const handleCardClick = () => {
-  console.log('Card clicked for post:', props.post.id)
+  emit('clickCard', props.post)
 }
 </script>
 
@@ -401,7 +407,18 @@ const handleCardClick = () => {
     justify-content: space-between;
     align-items: center;
     padding-top: 12px;
-    border-top: 1px solid #f6f8fa;
+    position: relative;
+  }
+  
+  .post-stats-footer-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #f6f8fa;
+    z-index: -1; /* 确保伪元素在内容下方 */
   }
 
   .post-stats {
@@ -427,7 +444,7 @@ const handleCardClick = () => {
       font-size: 12px;
     }
   }
-  
+
   .post-stats-footer-wrapper {
     position: absolute;
     bottom: 5px;

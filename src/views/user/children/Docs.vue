@@ -1,7 +1,8 @@
 <template>
   <div class="user-docs">
     <a-page-header title="文章列表"
-      :subtitle="userInfo ? `用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的文章` : ''" @back="handleBack">
+      :subtitle="userInfo ? `用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的文章` : ''"
+      @back="handleBack">
       <template #extra>
         <a-space>
           <a-button-group size="medium" style="margin-right: 16px;">
@@ -35,7 +36,8 @@
             <div class="posts-list">
               <!-- 文章卡片将在这里展示 -->
               <div v-for="post in posts">
-                <PostCard :showStatus="userId== post.userId" :height="cardHeight" :width="cardWidth" :key="post.id" :post="post" />
+                <PostCard :showStatus="userId == post.userId" :height="cardHeight" :width="cardWidth" :key="post.id"
+                  :post="post" />
               </div>
               <a-empty v-if="posts.length === 0 && !loading" style="padding: 40px 0;" description="暂无文章" />
               <div v-else-if="posts.length === 0" style="height: 50vh;"></div>
@@ -100,7 +102,7 @@ const pageSize = computed(() => {
 });
 
 // 卡片尺寸常量
-const cardWidth =  ref(260);
+const cardWidth = ref(260);
 const cardHeight = ref(400);
 const cardGap = 16;
 
@@ -283,13 +285,11 @@ watch(pageSize, (newSize, oldSize) => {
 
 // 组件挂载时加载数据
 onMounted(async () => {
+  updateContainerSize();
   // 获取用户信息
   if (userId.value) {
     fetchUserInfo(userId.value);
   }
-  // 等待DOM渲染完成
-  await nextTick();
-  updateContainerSize();
   // 初始化ResizeObserver监听尺寸变化
   resizeObserver = new ResizeObserver(() => {
     updateContainerSize();
