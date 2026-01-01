@@ -88,9 +88,9 @@ import {
 import { useUserStore } from '@/store/user.js';
 import api from '@/api/index.js';
 import AvatarSection from '@/components/user/home/AvatarSection.vue';
-import FollowButton from '@/components/user/home/FollowButton.vue';
+import FollowButton from '@/components/user/home/follow/FollowButton.vue';
 import EditUserInfoModal from '@/components/user/home/EditUserInfoModal.vue';
-import UserLevel from '@/components/user/UserLevel.vue';
+import UserLevel from '@/components/user/base/UserLevel.vue';
 const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();

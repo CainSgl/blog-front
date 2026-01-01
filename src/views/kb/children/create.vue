@@ -1,5 +1,5 @@
 <template>
-  <div class="kb-edit-index-container">
+  <div class="kb-create-container">
     <a-affix :offset-top="0">
       <div class="header">
         <a-button type="text" @click="goBack">
@@ -8,12 +8,12 @@
           </template>
           返回
         </a-button>
-        <h2>编辑知识库</h2>
-        <a-button type="primary" @click="saveContent" :loading="saving">
+        <h2>创建知识库</h2>
+        <a-button type="primary" @click="createKb" :loading="creating">
           <template #icon>
             <IconSave />
           </template>
-          保存
+          创建
         </a-button>
       </div>
     </a-affix>
@@ -31,27 +31,18 @@
                 <KbCard :kbInfo="kbInfo" />
               </div>
             </div>
-            
+
             <a-divider></a-divider>
-            
+
             <a-form layout="vertical" :model="kbInfo">
               <!-- 标题输入框 -->
               <a-form-item label="标题" required>
-                <a-input 
-                  v-model="title" 
-                  placeholder="请输入知识库首页标题" 
-                  :max-length="100"
-                  show-word-limit
-                />
+                <a-input v-model="title" placeholder="请输入知识库标题" :max-length="100" show-word-limit />
               </a-form-item>
-              
+
               <!-- 公开开关 -->
               <a-form-item label="是否公开">
-                <a-switch 
-                  v-model="kbInfo.status"
-                   checked-value="已发布"
-                    unchecked-value="草稿"
-                />
+                <a-switch v-model="status" checked-value="已发布" unchecked-value="草稿" />
               </a-form-item>
 
               <!-- 封面上传 -->
@@ -59,17 +50,13 @@
                 <div class="image-upload-section">
                   <!-- 上传/修改按钮 -->
                   <div class="cover-actions">
-                    <Upload 
-                      :custom-request="customRequest" 
-                      :show-file-list="false" 
-                      :multiple="false"
-                      accept="image/*" 
+                    <Upload :custom-request="customRequest" :show-file-list="false" :multiple="false" accept="image/*"
                       @progress="uploadingImage = true">
                       <a-button type="dashed" :loading="uploadingImage">
                         <template #icon>
                           <IconPlus />
                         </template>
-                        {{ kbInfo.coverUrl?'修改封面' : '上传封面' }}
+                        {{ kbInfo.coverUrl ? '修改封面' : '上传封面' }}
                       </a-button>
                     </Upload>
                   </div>
@@ -78,11 +65,11 @@
             </a-form>
           </a-card>
         </div>
-        
+
         <!-- 下方：编辑器 -->
         <div class="bottom-panel">
           <a-card>
-            <template #title>内容编辑</template>
+            <template #title>首页内容编辑</template>
             <div class="editor-container">
               <MarkdownEditor :hasToc="false" :hashGoBack="false" v-model="content" :height="editorHeight" />
             </div>
@@ -90,56 +77,61 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 图片裁剪模态框 -->
-    <ImageCropperModal 
-      ref="imageCropperRef" 
-      v-model="cropperModalVisible"
-      :aspect-ratio="1" 
-      @confirm="handleCroppedImage" 
-    />
+    <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible" :aspect-ratio="1"
+      @confirm="handleCroppedImage" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed, toRef } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, onMounted, nextTick, computed } from 'vue';
+import { useRouter,useRoute } from 'vue-router';
 import { Message, Upload } from '@arco-design/web-vue';
-import { 
-  IconPlus, 
-  IconDelete,
+import {
+  IconPlus,
   IconArrowLeft,
   IconSave
 } from '@arco-design/web-vue/lib/icon';
 import api from '@/api/index.js';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
-import ImageCropperModal from '@/components/ImageCropperModal.vue';
-import CImg from '../../../components/cImg.vue';
-import KbCard from '../../../components/kb/KbCard.vue';
-import { useKbStore } from '../kbStore.js';
+import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
+import KbCard from '@/components/kb/KbCard.vue';
 
-const route = useRoute();
 const router = useRouter();
-const kbStore = useKbStore();
+const route = useRoute(); // 添加获取路由参数
 const content = ref('');
-const originalContent = ref(''); // 用于比较内容是否变化
-const loading = ref(false);
-const saving = ref(false);
+const creating = ref(false);
 const editorHeight = ref('800px');
 
-// 从store中获取响应式引用
-const kbInfo = toRef(kbStore, 'kbInfo');
+// 知识库信息状态
+const kbInfo = ref({
+  title: '',
+  name: '',
+  coverUrl: '',
+  likeCount: 0,
+  status: '创建中',
+  postCount: 0,
+  createdAt: new Date().toISOString(),
+});
 
-// 使用计算属性来管理标题和封面URL
+const status=ref('');
+
+// 在组件挂载后根据路由参数设置初始状态
+onMounted(() => {
+  const type = route.query.type;
+  // 如果路由参数type为'public'，则设置为已发布（公开），否则为草稿（私有）
+  status.value = type === 'public' ? '已发布' : '草稿';
+});
+
+// 使用计算属性来管理标题
 const title = computed({
   get: () => kbInfo.value.title || kbInfo.value.name || '',
   set: (value) => {
     kbInfo.value.title = value;
+    kbInfo.value.name = value; // 同时更新name字段
   }
 });
-
-
-
 
 // 封面上传相关状态
 const uploadingImage = ref(false);
@@ -147,82 +139,55 @@ const cropperModalVisible = ref(false);
 const imageCropperRef = ref();
 const currentImageFile = ref(null);
 
-// 获取知识库ID
-const kbId = route.query.kb;
-
-// 获取当前首页内容
-const loadCurrentContent = async () => {
-  if (!kbId) {
-    Message.error('缺少知识库ID');
+// 创建知识库
+const createKb = async () => {
+  if (!title.value.trim()) {
+    Message.error('请输入知识库标题');
     return;
   }
-  loading.value = true;
-  try {
-    const { data } = await api.get('/kb/index', { id: kbId });
-    content.value = data.index || '';
-    originalContent.value = data.index || ''; // 保存原始内容用于比较
-  } catch (error) {
-    console.error('加载首页内容失败:', error);
-    Message.error('加载首页内容失败');
-  } finally {
-    loading.value = false;
-  }
-};
 
-// 保存首页内容
-const saveContent = async () => {
-  if (!kbId) {
-    Message.error('缺少知识库ID');
-    return;
-  }
-  
-  saving.value = true;
+  creating.value = true;
   try {
     Message.loading({
-      id: 'save-index',
-      content: '正在保存...',
+      id: 'create-kb',
+      content: '正在创建...',
       duration: 15000
     });
-    
+
     // 构建请求数据
     const requestData = {
-      id: kbId,
-      name: title.value, // 使用计算属性的值
-      coverUrl: kbStore.kbInfo.coverUrl,
-      status: kbStore.kbInfo.status
+      name: title.value,
+      coverUrl: kbInfo.value.coverUrl,
+      status: kbInfo.value.status,
+      content: content.value
     };
-    
-    // 检查内容是否发生变化，如果变化了才添加content字段
-    if (content.value !== originalContent.value) {
-      requestData.content = content.value;
-    }
-    // 保存知识库信息（标题、封面、状态等，以及可能的内容）
-    await api.put('/kb', requestData);
+
+    // 创建知识库
+    const { data } = await api.post('/kb', requestData);
+
     Message.success({
-      id: 'save-index',
-      content: '保存成功',
+      id: 'create-kb',
+      content: '创建成功',
     });
-    // 保存成功后先导航到知识库首页，然后刷新页面以确保数据更新
+
+    // 创建成功后跳转到新创建的知识库首页
     router.push({
       name: 'KBIndex',
-      query: { kb: kbId }
-    }).then(() => {
-      // 导航完成后刷新页面以更新父组件中的数据
-      window.location.reload();
+      query: { kb: data.id }
     });
   } catch (error) {
-    console.error('保存首页内容失败:', error);
+    console.error('创建知识库失败:', error);
     Message.error({
-      id: 'save-index',
-      content: '保存失败，请稍后重试',
+      id: 'create-kb',
+      content: '创建失败，请稍后重试',
     });
   } finally {
-    saving.value = false;
+    creating.value = false;
   }
 };
 
 const goBack = () => {
-  router.go(-1); 
+  router.go(-1);
 };
 
 // 处理裁剪后的图片
@@ -244,9 +209,9 @@ const handleCroppedImage = async (croppedFile) => {
         'Content-Type': 'multipart/form-data'
       }
     });
-    
-    // 更新store中的封面URL
-    kbStore.kbInfo.coverUrl = data.shortUrl;
+
+    // 更新封面URL
+    kbInfo.value.coverUrl = data.shortUrl;
 
     // 显示成功信息
     Message.success({
@@ -307,49 +272,42 @@ const customRequest = async (options) => {
     onError();
   };
 };
-
-
-
-// 初始化加载内容
-onMounted(() => {
-  loadCurrentContent();
-});
 </script>
 
 <style scoped lang="less">
-.kb-edit-index-container {
-    height: 100vh;
-    position: relative;
+.kb-create-container {
+  height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  .header {
+    background: #fff;
+    border-bottom: 1px solid #e5e6eb;
+    padding: 5px 24px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    flex-shrink: 0;
+  }
 
-    .header {
-      background: #fff;
-      border-bottom: 1px solid #e5e6eb;
-      padding: 5px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 100;
-      flex-shrink: 0;
-    }
+  .content {
+    padding: 24px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+  }
 
+  // 响应式设计
+  @media (max-width: 1200px) {
     .content {
-      padding: 24px;
-      margin-top: 20px;
-      position: relative;
-      z-index: 1;
-      flex: 1;
-      overflow: auto;
-      min-height: 0;
+      min-height: auto;
     }
-
-    // 响应式设计
-    @media (max-width: 1200px) {
-      .content {
-        min-height: auto;
-      }
-    }
+  }
 
   .layout-container {
     display: flex;
@@ -416,6 +374,7 @@ onMounted(() => {
 
     .preview-section {
       margin-top: 20px;
+
       h3 {
         margin-top: 0;
         margin-bottom: 15px;

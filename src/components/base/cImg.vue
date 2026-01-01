@@ -7,7 +7,7 @@
 
 <script setup>
 import { computed, useAttrs } from 'vue';
-import { API_BASE_URL } from '@/config';
+import { API_BASE_URL } from '@/config/index.js';
 
 // 定义组件的 props
 const props = defineProps({

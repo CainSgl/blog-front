@@ -30,8 +30,8 @@ import {
   IconWoman
 } from '@arco-design/web-vue/es/icon';
 import { useRouter } from 'vue-router';
-import FollowButton from '@/components/user/home/FollowButton.vue';
-import Avatar from '@/components/Avatar.vue';
+import FollowButton from '@/components/user/home/follow/FollowButton.vue';
+import Avatar from '@/components/user/base/Avatar.vue';
 
 // 定义组件接收的属性
 const props = defineProps({

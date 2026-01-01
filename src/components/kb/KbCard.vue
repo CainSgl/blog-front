@@ -7,7 +7,7 @@
                 <c-img v-if="kbInfo.coverUrl" :src="kbInfo.coverUrl" :alt="kbInfo.name" width="180px" height="180px"
                     fit="cover" :preview="false" lazy-load />
                 <div v-else class="kb-cover-empty">
-                    <a-empty description="暂无封面" :image-style="{ height: '100%', width: '100%' }" />
+                    <a-empty description="无封面" :image-style="{ height: '100%', width: '100%' }" />
                 </div>
             </div>
 
@@ -36,7 +36,7 @@
 
 <script setup>
 import { IconHeart, IconBook } from '@arco-design/web-vue/es/icon'
-import CImg from '../cImg.vue'
+import CImg from '../base/cImg.vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 

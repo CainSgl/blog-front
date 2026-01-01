@@ -218,7 +218,7 @@ import { IconArrowLeft, IconBold, IconItalic, IconImage, IconMoreVertical, IconH
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
-import ImageCropperModal from '@/components/ImageCropperModal.vue';
+import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
 
 // 定义 props
 const props = defineProps({
@@ -1342,7 +1342,7 @@ const insertImage = () => {
       }, files);
     }
   };
-  fileInput.click();
+  fileInput.click(); 
 };
 
 
@@ -1380,9 +1380,10 @@ onMounted(async () => {
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 8px 8px;
+  padding: 1px 8px;
   margin-bottom: 10px;
-  background-color: @editor-bg;
+  background-color:@color-fill-2;
+  border: 1px solid @color-border-1;
   border-radius: 15px;
 }
 

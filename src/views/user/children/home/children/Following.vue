@@ -7,5 +7,5 @@
 </template>
 
 <script setup>
-import FollowList from '@/components/user/home/FollowList.vue';
+import FollowList from '@/components/user/home/follow/FollowList.vue';
 </script>

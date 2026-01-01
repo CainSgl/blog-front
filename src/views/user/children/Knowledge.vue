@@ -32,7 +32,8 @@
           <div class="kb-list-container" :style="{ width: containerWidth + 'px' }">
             <div class="kb-list">
               <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="kb" :show-status="isCurrentUser" />
-              <div v-if="isCurrentUser" class="create-kb-card" @click="handleCreateKb">
+              <div v-if="isCurrentUser" class="create-kb-card">
+              <a-popconfirm content="你要的是创建公开知识库还是私密知识库？（后续可修改）" okText="公开" cancelText="私密" @ok="handleCreateKb(true)" @cancel="handleCreateKb(false)">
                 <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }">
                   <div class="kb-cover-empty">
                     <div class="create-icon">
@@ -41,7 +42,8 @@
                     <div class="create-text">创建知识库</div>
                   </div>
                 </a-card>
-              </div>
+              </a-popconfirm>
+            </div>
             </div>
 
             <a-empty v-if="knowledgeBases.length === 0 && !loading" style="padding: 40px 0;" description="暂无知识库" />
@@ -57,6 +59,7 @@
       <a-pagination size="large" :total="total" :current="currentPage" :page-size="pageSize" show-total show-jumper
         @change="handlePageChange" />
     </div>
+    
   </div>
 </template>
 
@@ -64,6 +67,7 @@
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { IconSearch, IconPlus } from '@arco-design/web-vue/es/icon';
+import { Popconfirm } from '@arco-design/web-vue';
 import KbCard from '@/components/kb/KbCard.vue';
 import api from '@/api/index.js';
 import { debounce } from 'lodash-es';
@@ -122,7 +126,7 @@ const containerHeight = ref(0);
 
 // 简化的计算：直接计算可用空间能放多少个卡片
 const loadingContainerWNumber = computed(() => {
-  if (containerWidth.value <= 0) return cardWidth/(cardWidth+cardGap);
+  if (containerWidth.value <= 0) return cardWidth / (cardWidth + cardGap);
   const cardsPerRow = Math.floor(containerWidth.value / (cardWidth + cardGap));
   return Math.max(1, cardsPerRow);
 });
@@ -282,10 +286,17 @@ const handlePageChange = (page) => {
   loadKnowledgeBases(page);
 };
 
-// 处理创建知识库
-const handleCreateKb = () => {
-  
-};
+function handleCreateKb(isPublic = true) {
+  // 将知识库类型作为查询参数传递
+  const routeData = router.resolve({ 
+    name: 'KBCreate',
+    query: { 
+      type: isPublic ? 'public' : 'private'
+    }
+  });
+  window.open(routeData.href, '_blank');
+}
+
 
 // 监听pageSize变化，自动重新加载数据
 watch(pageSize, (newSize, oldSize) => {
@@ -363,6 +374,7 @@ onUnmounted(() => {
     width: 180px;
     position: relative;
     height: 262px;
+
     .kb-card-container {
       border-radius: 12px;
       overflow: hidden;

@@ -84,12 +84,12 @@ import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import api from '@/api/index.js';
-import { useKbStore } from '../kbStore.js';
-import { useUserStore } from '@/store/user';
+import { useKbStore } from '../../kbStore.js';
+import { useUserStore } from '@/store/user.js';
 import MarkdownPreview from '@/components/md/MarkdownPreview.vue';
 import { IconShareInternal, IconMore, IconEdit, IconSettings, IconCopy } from '@arco-design/web-vue/es/icon';
 import { Input } from '@arco-design/web-vue';
-import AvatarWithInfo from '@/components/AvatarWithInfo.vue';
+import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 
 const route = useRoute();
 const router = useRouter();

@@ -33,8 +33,8 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user.js';
-import PostCard from '@/components/PostCardWrapper.vue';
-import TopPostSelector from '@/components/TopPostSelector.vue';
+import PostCard from '@/components/post/PostCardWrapper.vue';
+import TopPostSelector from '@/components/user/home/index/TopPostSelector.vue';
 import api from '@/api/index.js';
 
 const route = useRoute();

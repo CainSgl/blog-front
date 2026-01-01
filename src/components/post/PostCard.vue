@@ -99,7 +99,7 @@
 <script setup>
 import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon'
 import { computed, ref, watchEffect,defineEmits } from 'vue'
-import CImg from './cImg.vue'
+import CImg from '../base/cImg.vue'
 const emit = defineEmits(['clickCard']);
 const props = defineProps({
   post: {

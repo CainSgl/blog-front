@@ -131,7 +131,7 @@ import {
 import { Message, Modal } from '@arco-design/web-vue';
 import { showLoginModal } from '@/services/authService';
 import FileCard from './FileCard.vue';
-import cImg from '@/components/cImg.vue';
+import cImg from '@/components/base/cImg.vue';
 import api from '@/api/index.js';
 
 const viewMode = ref('list');

@@ -8,7 +8,7 @@
 <script setup>
 import { ref } from 'vue';
 import MarkdownPreview from './MarkdownPreview.vue';
-import TableOfContents from '../toc/TableOfContents.vue';
+import TableOfContents from '../navigation/toc/TableOfContents.vue';
 
 const props = defineProps({
   content: {

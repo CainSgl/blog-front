@@ -63,7 +63,7 @@ import {
   IconSearch
 } from '@arco-design/web-vue/es/icon';
 import api from '@/api/index.js';
-import PostCard from '@/components/PostCard.vue';
+import PostCard from '@/components/post/PostCard.vue';
 import { debounce } from 'lodash-es';
 
 const router = useRouter();

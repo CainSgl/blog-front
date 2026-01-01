@@ -173,15 +173,15 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { Message, Spin, Upload, Split } from '@arco-design/web-vue';
-import { useKbStore } from './kb/kbStore.js';
-import MarkdownPreview from '../components/md/MarkdownPreview.vue';
-import ImageCropperModal from '../components/ImageCropperModal.vue';
+import { useKbStore } from '../kb/kbStore.js';
+import MarkdownPreview from '../../components/md/MarkdownPreview.vue';
+import ImageCropperModal from '../../components/base/ImageCropperModal.vue';
 import {
     IconArrowLeft,
     IconSend,
     IconPlus
 } from '@arco-design/web-vue/lib/icon';
-import PostCard from '@/components/PostCard.vue'
+import PostCard from '@/components/post/PostCard.vue'
 import api from '@/api/index.js';
 const router = useRouter();
 const kbStore = useKbStore();

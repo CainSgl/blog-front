@@ -19,7 +19,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Layout } from '@arco-design/web-vue';
-import UserSidebar from '@/components/UserSidebar.vue';
+import UserSidebar from '@/components/layout/UserSidebar.vue';
 
 const isSiderCollapsed = ref(false);
  

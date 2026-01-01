@@ -17,10 +17,10 @@
 import {
   IconEdit
 } from '@arco-design/web-vue/es/icon';
-import Avatar from '@/components/Avatar.vue';
+import Avatar from '@/components/user/base/Avatar.vue';
 import { useUserStore } from '@/store/user.js';
 import { ref, onMounted, nextTick } from 'vue';
-import ImageCropperModal from '@/components/ImageCropperModal.vue';
+import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
 import api from '@/api/index.js';
 import { Message } from '@arco-design/web-vue';
 

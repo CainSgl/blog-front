@@ -36,8 +36,8 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue';
-import TreeMenu from '@/components/treemenu/TreeMenuWrapper.vue';
-import LikeButton from '@/components/LikeButton.vue';
+import TreeMenu from '@/components/navigation/treemenu/TreeMenuWrapper.vue';
+import LikeButton from '@/components/kb/LikeButton.vue';
 import { IconHome, IconDoubleLeft, IconDoubleRight } from '@arco-design/web-vue/es/icon';
 import { useRoute, useRouter } from 'vue-router';
 import { useKbStore } from './kbStore.js';
