@@ -60,12 +60,12 @@
                 <div class="post-stats">
                   <a-space>
                     <span class="stat-item">
-                      <icon-eye /> {{ post.viewCount }}
+                      <icon-eye size="large" /> {{ post.viewCount }}
                     </span>
                     <span class="stat-item" @click="handleLikeClick">
-                      <icon-heart-fill v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
-                      <icon-thumb-down-fill v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
-                      <icon-thumb-up v-else />
+                      <icon-heart-fill size="large"  v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
+                      <icon-thumb-down-fill size="large"  v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
+                      <icon-thumb-up size="large" v-else />
                       {{ post.likeCount }}
                     </span>
                     <span class="stat-item">
@@ -186,7 +186,6 @@ function calculateSummary() {
     availableHeight -= 10;
   }
   summaryHight.value = availableHeight
-  console.log(availableHeight)
   const lines = Math.floor(availableHeight / lineHeight);
   if (lines <= 0) {
     //不显示了  
@@ -226,8 +225,8 @@ const isDisliked = computed(() => {
 
 // 处理点赞/讨厌点击事件
 const handleLikeClick = (event) => {
+  console.log('Like clicked for post:', props.post.id)
   event.stopPropagation(); // 阻止事件冒泡，避免触发卡片点击
-  console.log('Like clicked for post:', props.post.id);
   // 这里可以添加点赞/取消点赞的逻辑
 }
 
@@ -252,7 +251,6 @@ const getTagScore = (tag) => {
 
 // 处理卡片点击事件
 const handleCardClick = () => {
-  // 可以在这里添加跳转到文章详情页的逻辑
   console.log('Card clicked for post:', props.post.id)
 }
 </script>
@@ -432,7 +430,7 @@ const handleCardClick = () => {
   
   .post-stats-footer-wrapper {
     position: absolute;
-    bottom: 10px;
+    bottom: 5px;
     left: 0;
     right: 0;
     padding: 0 20px; // 与卡片内边距一致

@@ -126,7 +126,21 @@ export const useUserStore = defineStore('user', () =>
     }
     return !!token.value && !!userInfo.value;
   };
-
+  const updateUserInfo = async (updateData) => {
+    const oldUserInfo=userInfo.value;
+    try {
+      // 调用API更新用户信息
+      userInfo.value = { ...userInfo.value, ... updateData };
+      console.log('更新用户信息:', userInfo.value);
+      await api.put('/user', updateData);
+      return;
+    } catch (error) {
+      // 如果更新失败，回滚到旧的用户信息
+      userInfo.value = oldUserInfo;
+      console.error('更新用户信息失败:', error);
+      throw error;
+    }
+  };
   return {
     userInfo,
     token,
@@ -136,5 +150,6 @@ export const useUserStore = defineStore('user', () =>
     getUserInfo,
     getToken,
     isUserLoggedIn,
+    updateUserInfo
   };
 });

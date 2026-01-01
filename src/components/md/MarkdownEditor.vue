@@ -204,6 +204,7 @@
       ref="imageCropperRef" 
       v-model="cropperModalVisible"
       :auto="true"
+      :original-file-name="originalFileName"
       @confirm="handleCroppedImage" 
     />
   </div>
@@ -288,6 +289,7 @@ const backgroundColor = ref('#ffff00'); // 默认背景颜色
 const cropperModalVisible = ref(false);
 const imageCropperRef = ref();
 const currentImageFile = ref(null);
+const originalFileName = ref('');
 
 // 编辑器模式
 const editorMode = ref('both'); // 'edit', 'preview', 'both'
@@ -423,6 +425,8 @@ const handleUploadImage = async (event, insertImage, files) => {
   // 创建图片对象用于裁剪组件
   const img = new Image();
   img.src = URL.createObjectURL(file);
+  // 设置原始文件名
+  originalFileName.value = file.name;
   img.onload = async () => {
     // 将原始文件保存到currentImageFile，用于裁剪
     currentImageFile.value = file;

@@ -32,7 +32,6 @@ const computedUrl = computed(() => {
   if (!props.src) {
     return '';
   }
-  console.log(props.src)
   // 如果已经是完整的 URL，则直接返回
   if (props.src.startsWith('http')) {
     return props.src;

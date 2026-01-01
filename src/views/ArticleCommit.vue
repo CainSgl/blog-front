@@ -50,7 +50,7 @@
                                         <template #first>
                                             <div ref="postCardContainerRef" style="overflow: hidden; height: 100%;">
                                                 <div style="padding:10px">
-                                                     <PostCard :height="dynamicHeight" :width="dynamicWidth"
+                                                     <PostCard :height="dynamicHeight" :width="dynamicWidth" :showStatus="true"
                                                     :post="articleForm"></PostCard>
                                                 </div>
                                                
@@ -78,14 +78,14 @@
                             <a-divider></a-divider>
                             <a-form :model="articleForm" layout="vertical">
                                 <a-form-item label="文章标题" required>
-                                    <a-input v-model="articleForm.title" placeholder="请输入文章标题" :maxlength="150"
+                                    <a-input v-model="articleForm.title" placeholder="请输入文章标题" :maxlength="60"
                                         show-word-limit />
                                 </a-form-item>
 
                                 <a-form-item label="文章摘要" required>
                                     <div class="summary-input-group">
                                         <a-textarea v-model="articleForm.summary" placeholder="请输入文章摘要"
-                                            :auto-size="{ minRows: 3, maxRows: 5 }" :maxlength="300" show-word-limit />
+                                            :auto-size="{ minRows: 4, maxRows: 6 }" :maxlength="255" show-word-limit />
                                         <a-button type="primary" @click="autoGenerateSummary"
                                             :loading="generatingSummary" class="auto-generate-btn">
                                             AI帮我填
@@ -127,7 +127,7 @@
 
                                 <!-- 图片裁剪模态框 -->
                                 <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible"
-                                    :aspect-ratio="1.5" @confirm="handleCroppedImage" />
+                                    :aspect-ratio="1.5" :original-file-name="originalFileName" @confirm="handleCroppedImage" />
                             </div>
                             <p>内容预览</p>
                             <MarkdownPreview :content="articleForm.newContent" height="400px"
@@ -239,6 +239,7 @@ const dynamicWidth = ref(600);
 const cropperModalVisible = ref(false);
 const currentImageFile = ref(null);
 const imageCropperRef = ref(null);
+const originalFileName = ref('');
 
 // PostCard 容器相关 ref
 const postCardContainerRef = ref(null);
@@ -460,6 +461,8 @@ const customRequest = async (options) => {
     // 创建图片对象用于裁剪组件
     const img = new Image();
     img.src = URL.createObjectURL(file);
+    // 设置原始文件名
+    originalFileName.value = file.name;
     img.onload = async () => {
         // 将原始文件保存到currentImageFile，用于裁剪
         currentImageFile.value = file;

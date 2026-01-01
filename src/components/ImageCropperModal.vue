@@ -49,6 +49,13 @@
           <div class="preview-size" v-if="!auto">
             <span>尺寸: 1 × {{ aspectRatio }}</span>
           </div>
+          <a-input  
+            v-if="editFileName"
+            v-model="fileName" 
+            placeholder="输入文件名" 
+            class="file-name-input"
+            @press-enter="confirmCrop"
+          />
           <a-button type="primary" @click="confirmCrop" class="confirm-btn">确定裁剪</a-button>
         </div>
       </div>
@@ -72,6 +79,14 @@ const props = defineProps({
   auto:{
     type:Boolean,
     default:false
+  },
+  originalFileName: {
+    type: String,
+    default: ''
+  },
+  editFileName:{
+    type:Boolean,
+    default:true
   }
 });
 
@@ -105,6 +120,7 @@ const canvasRef = ref(null);
 const previewCanvasRef = ref(null);
 const cropPreviewCanvasRef = ref(null);
 const originalImage = ref(null);
+const fileName = ref('');
 
 // 裁剪区域相关
 const cropStart = ref({ x: 0, y: 0 });
@@ -137,9 +153,25 @@ const cropAreaStyle = computed(() => {
 
 // 设置图片
 const setImage = (img) => {
+  console.log(img);
   originalImage.value = img;
   image.value = new Image();
   image.value.src = img.src;
+  // 使用 props 中的原始文件名，如果未提供则尝试从图片源中提取
+  if (props.originalFileName) {
+    fileName.value = props.originalFileName;
+  } else {
+    // 从图片的src中提取文件名
+    const src = img.src;
+    if (src) {
+      const pathParts = src.split('/');
+      const fileNameWithExtension = pathParts[pathParts.length - 1];
+      const fileNameWithoutExtension = fileNameWithExtension;
+      fileName.value = fileNameWithoutExtension || 'cropped_image';
+    } else {
+      fileName.value = 'cropped_image';
+    }
+  }
   image.value.onload = () => {
     nextTick(() => {
       initCanvas();
@@ -605,8 +637,9 @@ const confirmCrop = async () => {
     // 导出为Blob
     tempCanvas.toBlob((blob) => {
       if (blob) {
-        // 转换为File对象
-        const file = new File([blob], `cropped_image_${Date.now()}.png`, { type: 'image/png' });
+        // 转换为File对象，使用用户输入的文件名
+        const finalFileName = fileName.value || 'cropped_image';
+        const file = new File([blob], `${finalFileName}_${Date.now()}.png`, { type: 'image/png' });
         emit('confirm', file);
         visible.value = false;
       } else {
@@ -842,6 +875,11 @@ defineExpose({
   margin-bottom: 15px;
   font-size: 14px;
   color: #666;
+}
+
+.file-name-input {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .confirm-btn {

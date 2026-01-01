@@ -1,10 +1,8 @@
 <template>
   <div class="follow-item" :bordered="true">
     <div class="follow-user-info">
-      <a-avatar :size="size" v-if="follower" class="user-avatar" @click="goToUserSpace">
-        <c-img v-if="follower.avatarUrl" :src="follower.avatarUrl" :width="size" :height="size"/>
-        <icon-user :size="size" v-else />
-      </a-avatar>
+      <Avatar :size="size" v-if="follower" class="user-avatar" @click="goToUserSpace" :src="follower.avatarUrl">
+      </Avatar>
       <div class="follow-user-details">
         <div class="follow-user-name">
           <span class="user-link" @click="goToUserSpace">
@@ -33,7 +31,7 @@ import {
 } from '@arco-design/web-vue/es/icon';
 import { useRouter } from 'vue-router';
 import FollowButton from '@/components/user/home/FollowButton.vue';
-import cImg from '@/components/cImg.vue';
+import Avatar from '@/components/Avatar.vue';
 
 // 定义组件接收的属性
 const props = defineProps({
@@ -90,7 +88,6 @@ const goToUserSpace = () => {
       margin-right: 12px;
       flex-shrink: 0;
       cursor: pointer;
-      background-color: @primary-6;
     }
 
     .follow-user-details {

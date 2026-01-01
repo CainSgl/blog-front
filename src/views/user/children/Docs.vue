@@ -35,7 +35,7 @@
             <div class="posts-list">
               <!-- 文章卡片将在这里展示 -->
               <div v-for="post in posts">
-                <PostCard :height="cardHeight" :width="cardWidth" :key="post.id" :post="post" />
+                <PostCard :showStatus="userId== post.userId" :height="cardHeight" :width="cardWidth" :key="post.id" :post="post" />
               </div>
               <a-empty v-if="posts.length === 0 && !loading" style="padding: 40px 0;" description="暂无文章" />
               <div v-else-if="posts.length === 0" style="height: 50vh;"></div>
@@ -95,12 +95,12 @@ const pageSize = computed(() => {
   const widthCount = loadingContainerWNumber.value;
   const heightCount = loadingContainerHNumber.value;
   const calculatedSize = Math.floor(widthCount * heightCount);
-  const finalSize = Math.min(calculatedSize, 30);
+  const finalSize = Math.min(calculatedSize, 100);
   return finalSize;
 });
 
 // 卡片尺寸常量
-const cardWidth =  ref(300);
+const cardWidth =  ref(260);
 const cardHeight = ref(400);
 const cardGap = 16;
 
@@ -110,13 +110,13 @@ const containerHeight = ref(0);
 
 // 简化的计算：直接计算可用空间能放多少个卡片
 const loadingContainerWNumber = computed(() => {
-  if (containerWidth.value <= 0) return cardWidth.value;
+  if (containerWidth.value <= 0) return 1;
   const cardsPerRow = Math.floor(containerWidth.value / (cardWidth.value + cardGap));
   return Math.max(1, cardsPerRow);
 });
 
 const loadingContainerHNumber = computed(() => {
-  if (containerHeight.value <= 0) return cardHeight.value;
+  if (containerHeight.value <= 0) return 1;
   const rows = Math.floor(containerHeight.value / (cardHeight.value + cardGap));
   return Math.max(2, rows);
 });
@@ -386,8 +386,7 @@ onUnmounted(() => {
   }
 }
 
-// 响应式布局：当屏幕宽度小于1080px时，为PageHeader的extra插槽内容添加上边距
-@media (max-width: 1080px) {
+@media (max-width: 1380px) {
   :deep(.arco-page-header .arco-page-header-extra) {
     margin-top: 16px;
   }

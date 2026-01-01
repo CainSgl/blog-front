@@ -1,18 +1,15 @@
 <template>
     <a-popover v-if="user" trigger="hover" position="rt"
         :content-style="{ minWidth: '250px', maxWidth: '400px', width: '15vw' }">
-        <a-avatar :size="size" class="user-avatar" :style="{ ...avatarStyle, cursor: 'pointer' }"
-            @click="goToUserSpace">
-            <c-img v-if="user.avatarUrl" :src="user.avatarUrl" :width="size" :height="size" />
-            <icon-user :size="size" v-else />
-        </a-avatar>
+        <Avatar :size="size" class="user-avatar" :style="{ ...avatarStyle, cursor: 'pointer' }" @click="goToUserSpace"
+            :src="user.avatarUrl">
+        </Avatar>
         <template #content>
             <div class="user-info-popover">
                 <div class="user-header">
-                    <a-avatar :size="size+20" class="user-avatar"  @click="goToUserSpace"  :style="{ ...avatarStyle, cursor: 'pointer' }">
-                        <c-img v-if="user.avatarUrl" :src="user.avatarUrl" :width="size+20" :height="size+20" />
-                        <icon-user  :size="size+20" v-else />
-                    </a-avatar>
+                    <Avatar :size="size + 20" class="user-avatar" @click="goToUserSpace" :src="user.avatarUrl"
+                        :style="{ ...avatarStyle, cursor: 'pointer' }">
+                    </Avatar>
                     <div class="user-basic-info">
                         <div class="user-name-row">
                             <span class="user-nickname">{{ user.nickname }}</span>
@@ -50,15 +47,13 @@
             </div>
         </template>
     </a-popover>
-    <a-avatar v-else :size="size" :style="{ ...avatarStyle }" :loading="true">
-        <icon-loading />
-    </a-avatar>
+    <Avatar v-else :size="size" :style="{ ...avatarStyle }" :loading="true" />
 </template>
 
 <script setup>
 import { IconUser, IconMan, IconWoman, IconLoading } from '@arco-design/web-vue/es/icon';
 import { useRouter } from 'vue-router';
-import cImg from '@/components/cImg.vue';
+import Avatar from '@/components/Avatar.vue';
 
 const props = defineProps({
     user: {
@@ -89,17 +84,14 @@ const goToUserSpace = () => {
 <style scoped lang="less">
 .user-avatar {
     margin-right: '12px';
-    flex-shrink: 0;
+
     cursor: 'pointer';
-    background-color: @primary-6;
 }
 
 .user-info-popover {
     padding: 12px;
     user-select: none;
 }
-
-
 
 .user-header {
     display: flex;
