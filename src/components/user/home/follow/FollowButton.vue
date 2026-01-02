@@ -60,12 +60,13 @@ const toggleFollow = async () => {
   try {
     if (isFollowing.value) {
       // 取消关注
-      await followCache.unfollow(props.userId);
+       await followCache.unfollow(props.userId);
+     
       isFollowing.value = false;
       emit('followChanged', isFollowing.value);
     } else {
       // 关注
-      await followCache.follow(props.userId);
+       await followCache.follow(props.userId);
       isFollowing.value = true;
       emit('followChanged', isFollowing.value);
     }

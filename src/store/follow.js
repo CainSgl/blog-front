@@ -1,8 +1,9 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import api from '@/api/index.js';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { useAuthStore } from "./auth.js";
+import api from "@/api/index.js";
 
-export const useFollowStore = defineStore('follow', () => {
+export const useFollowStore = defineStore("follow", () => {
   // 关注状态缓存，使用 Map 存储 {userId: isFollowing}
   const followStatusMap = ref(new Map());
   // 存储正在进行的请求，避免重复请求
@@ -39,7 +40,7 @@ export const useFollowStore = defineStore('follow', () => {
     } catch (error) {
       // 请求失败时，也从待处理请求中移除
       pendingRequests.value.delete(userId);
-      console.error('获取关注状态失败:', error);
+      console.error("获取关注状态失败:", error);
       return false;
     }
   }
@@ -47,10 +48,10 @@ export const useFollowStore = defineStore('follow', () => {
   // 从 API 获取关注状态
   async function fetchFollowStatusFromAPI(userId) {
     try {
-      const response = await api.get('/follow', { id: userId });
+      const response = await api.get("/follow", { id: userId });
       return response.data;
     } catch (err) {
-      console.error('获取关注状态失败:', err);
+      console.error("获取关注状态失败:", err);
       throw err;
     }
   }
@@ -61,23 +62,24 @@ export const useFollowStore = defineStore('follow', () => {
       return false;
     }
 
+
     const currentStatus = followStatusMap.value.get(userId) || false;
     const newStatus = !currentStatus;
 
     try {
       if (newStatus) {
         // 关注
-        await api.post('/follow', { id: userId });
+        const {data} =  await api.post("/follow", { id: userId });
       } else {
         // 取消关注
-        await api.delete('/follow', { id: userId });
+        const {data} =  await api.delete("/follow", { id: userId });
       }
 
       // 成功后更新缓存
       followStatusMap.value.set(userId, newStatus);
       return newStatus;
     } catch (err) {
-      console.error('关注操作失败:', err);
+      console.error("关注操作失败:", err);
       throw err;
     }
   }
@@ -93,11 +95,11 @@ export const useFollowStore = defineStore('follow', () => {
     }
 
     try {
-      await api.post('/follow', { id: userId });
+       const {data} =   await api.post("/follow", { id: userId });
       followStatusMap.value.set(userId, true);
       return true;
     } catch (err) {
-      console.error('关注操作失败:', err);
+      console.error("关注操作失败:", err);
       throw err;
     }
   }
@@ -109,15 +111,16 @@ export const useFollowStore = defineStore('follow', () => {
     }
 
     if (!followStatusMap.value.get(userId)) {
-      return true; // 本来就未关注
+      return true; // 本来就没有关注
     }
 
     try {
-      await api.delete('/follow', { id: userId });
+       const {data} = await api.delete("/follow", { id: userId });
+       
       followStatusMap.value.set(userId, false);
       return true;
     } catch (err) {
-      console.error('取消关注操作失败:', err);
+      console.error("取消关注操作失败:", err);
       throw err;
     }
   }
@@ -128,7 +131,7 @@ export const useFollowStore = defineStore('follow', () => {
     const userIdsToFetch = [];
 
     // 检查哪些用户ID已经在缓存中
-    userIds.forEach(userId => {
+    userIds.forEach((userId) => {
       if (followStatusMap.value.has(userId)) {
         results[userId] = followStatusMap.value.get(userId);
       } else {
@@ -168,6 +171,6 @@ export const useFollowStore = defineStore('follow', () => {
     unfollow,
     getMultipleFollowStatus,
     clearUserCache,
-    clearAllCache
+    clearAllCache,
   };
 });

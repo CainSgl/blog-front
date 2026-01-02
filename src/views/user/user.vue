@@ -38,6 +38,8 @@ const handleCollapseChange = (collapsed) => {
 
   .content-wrapper {
     padding: 24px;
+    max-height: calc(100vh - 48px); // 减去上下padding，确保刚好占满屏幕
+    overflow-y: auto;
   }
 
   .error-message {

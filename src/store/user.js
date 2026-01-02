@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import api from '@/api/index.js';
+const youKe={
+  id:-1,
+}
+
 export const useUserStore = defineStore('user', () => 
 {
   // 用户信息状态
@@ -127,13 +131,15 @@ export const useUserStore = defineStore('user', () =>
           .catch(error => {
             console.error('获取用户信息失败:', error);
             userInfoPromise = null; // 重置 Promise，允许后续重试
-            return {};
+            return youKe;
           });
         
         return userInfoPromise;
+      }else
+      {
+        return youKe;
       }
     }
-    return userInfo.value;
   };
 
   // 获取token
@@ -163,13 +169,13 @@ export const useUserStore = defineStore('user', () =>
         token.value = storedToken;
       }
     }
-    return !!token.value && !!userInfo.value;
+    return token.value;
   };
   const updateUserInfo = async (updateData) => {
-    const oldUserInfo=userInfo.value;
+    const oldUserInfo=await getUserInfo();
     try {
       // 调用API更新用户信息
-      userInfo.value = { ...userInfo.value, ... updateData };
+      userInfo.value = { ...oldUserInfo, ... updateData };
       console.log('更新用户信息:', userInfo.value);
       await api.put('/user', updateData);
       // 更新缓存，包含时间戳

@@ -36,6 +36,12 @@ const computedUrl = computed(() => {
   if (props.src.startsWith('http')) {
     return props.src;
   }
+  if(props.src.startsWith('file')){
+    return props.src;
+  }
+  if(props.src.startsWith('blob')){
+    return props.src;
+  }
   
   // 否则拼接 API_BASE_URL
   return `${API_BASE_URL}/file?f=${props.src}`;

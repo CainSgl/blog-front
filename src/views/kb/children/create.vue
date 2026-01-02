@@ -117,6 +117,9 @@ const kbInfo = ref({
 
 const status=ref('');
 
+// 封面上传相关状态
+const formData = ref(null); // 用于存储裁剪后的图片文件，如果为null则表示没有新的图片需要上传
+
 // 在组件挂载后根据路由参数设置初始状态
 onMounted(() => {
   const type = route.query.type;
@@ -148,19 +151,46 @@ const createKb = async () => {
 
   creating.value = true;
   try {
+
+    // 构建请求数据
+    const requestData = {
+      name: title.value,
+      status: status.value,
+      index: content.value
+    };
+
+    // 如果有新的图片需要上传
+    if (formData.value !== null) {
+      Message.loading({
+        id: 'upload-cover',
+        content: '正在上传封面...',
+        duration: 15000
+      });
+
+      // 上传图片
+      const { data } = await api.post('/file/upload', formData.value, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      // 更新封面URL为上传后的URL
+      const coverUrl = data.shortUrl;
+      // 清空formData
+      formData.value = null;
+      Message.success({
+        id: 'upload-cover',
+        content: '封面上传成功',
+      });
+      requestData.coverUrl = coverUrl;
+    } else {
+      // 如果没有新的封面上传，使用现有的封面URL
+      requestData.coverUrl = kbInfo.value.coverUrl;
+    }
     Message.loading({
       id: 'create-kb',
       content: '正在创建...',
       duration: 15000
     });
-
-    // 构建请求数据
-    const requestData = {
-      name: title.value,
-      coverUrl: kbInfo.value.coverUrl,
-      status: kbInfo.value.status,
-      content: content.value
-    };
 
     // 创建知识库
     const { data } = await api.post('/kb', requestData);
@@ -172,7 +202,7 @@ const createKb = async () => {
 
     // 创建成功后跳转到新创建的知识库首页
     router.push({
-      name: 'KBIndex',
+      name: 'KB',
       query: { kb: data.id }
     });
   } catch (error) {
@@ -193,40 +223,33 @@ const goBack = () => {
 // 处理裁剪后的图片
 const handleCroppedImage = async (croppedFile) => {
   try {
-    Message.loading({
-      id: 'upload-cropped-image:' + croppedFile.name,
-      content: croppedFile.name + '上传中...',
-      duration: 15000,
-    });
-
     // 创建FormData对象 
-    const formData = new FormData();
-    formData.append('file', croppedFile);
+    const newFormData = new FormData();
+    newFormData.append('file', croppedFile);
 
-    // 使用api上传文件 
-    const { data } = await api.post('/file/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    // 存储formData，等待创建时上传
+    formData.value = newFormData;
 
-    // 更新封面URL
-    kbInfo.value.coverUrl = data.shortUrl;
+    // 创建本地预览URL
+    const localUrl = URL.createObjectURL(croppedFile);
+
+    // 更新store中的封面URL为本地预览URL
+    kbInfo.value.coverUrl = localUrl;
 
     // 显示成功信息
     Message.success({
       id: 'upload-cropped-image:' + croppedFile.name,
-      content: '封面上传成功',
+      content: '封面已更新，将在创建时上传',
       duration: 3000,
     });
 
     cropperModalVisible.value = false;
     currentImageFile.value = null;
   } catch (error) {
-    console.error('裁剪后图片上传失败:', error);
+    console.error('处理裁剪图片失败:', error);
     Message.error({
       id: 'upload-cropped-image:' + croppedFile.name,
-      content: '封面上传失败，请稍后重试',
+      content: '处理裁剪图片失败，请稍后重试',
       duration: 3000,
     });
     throw error;

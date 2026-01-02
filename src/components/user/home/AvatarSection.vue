@@ -19,7 +19,7 @@ import {
 } from '@arco-design/web-vue/es/icon';
 import Avatar from '@/components/user/base/Avatar.vue';
 import { useUserStore } from '@/store/user.js';
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, watch } from 'vue';
 import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
 import api from '@/api/index.js';
 import { Message } from '@arco-design/web-vue';
@@ -35,11 +35,16 @@ const currentUserInfo = ref(false);
 const cropperModalVisible = ref(false);
 const imageCropperRef = ref(null);
 const userStore = useUserStore();
-const trigger=ref(null);
+const trigger = ref(null);
+
 onMounted(async () => {
   currentUserInfo.value = await userStore.getUserInfo();
-  trigger.value=currentUserInfo.value.id==props.userInfo?.id ? 'mask' : null;
 });
+
+// 监听 props.userInfo 的变化，更新 trigger 值
+watch(() => props.userInfo, (newUserInfo) => {
+  trigger.value = currentUserInfo.value && newUserInfo?.id === currentUserInfo.value.id ? 'mask' : null;
+}, { immediate: true });
 function getFormattedDate() {
   const now = new Date();
   const year = now.getFullYear();
@@ -98,7 +103,7 @@ const handleCroppedImage = async (croppedFile) => {
     // 创建FormData对象 
     const formData = new FormData();
     formData.append('file', renamedFile);
-
+    api.get('/file/free', { f: props.userInfo?.avatarUrl })
     // 使用api上传文件 
     const { data } = await api.post('/file/upload', formData, {
       headers: {

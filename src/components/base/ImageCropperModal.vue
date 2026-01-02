@@ -224,12 +224,28 @@ const initCanvas = () => {
     defaultWidth = canvasWidth;
     defaultHeight = canvasHeight;
   } else {
-    // 非auto模式下，使用固定尺寸并根据aspectRatio计算
-    defaultWidth = Math.min(200, canvasWidth * 0.5, canvasHeight * 0.5);
-    if (props.aspectRatio > 0) {
+    // 非auto模式下，优先将选择区域高度设置成跟canvas一样，再通过aspectRatio计算宽度
+    defaultHeight = canvasHeight;
+    defaultWidth = defaultHeight * props.aspectRatio;
+    
+    // 如果计算出的宽度超出了canvas宽度，则将宽度设置成canvas宽度，再计算高度
+    if (defaultWidth > canvasWidth) {
+      defaultWidth = canvasWidth;
       defaultHeight = defaultWidth / props.aspectRatio;
-    } else {
-      defaultHeight = defaultWidth;
+    }
+    
+    // 确保裁剪区域不超出canvas范围（兜底方案）
+    defaultWidth = Math.min(defaultWidth, canvasWidth);
+    defaultHeight = Math.min(defaultHeight, canvasHeight);
+    
+    // 如果计算出的尺寸仍然不合理（如过小），则使用默认尺寸作为最终兜底方案
+    if (defaultWidth < 20 || defaultHeight < 20) {
+      defaultWidth = Math.min(200, canvasWidth * 0.5, canvasHeight * 0.5);
+      if (props.aspectRatio > 0) {
+        defaultHeight = defaultWidth / props.aspectRatio;
+      } else {
+        defaultHeight = defaultWidth;
+      }
     }
   }
   // 更新裁剪区域位置，使其居中
