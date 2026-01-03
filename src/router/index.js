@@ -12,9 +12,37 @@ const routes = [
     component: () => import("@/views/misc/Components.vue"),
   },
   {
-    path: "/p",
+    path: "/p/:id",
     name: "Post",
     component: () => import("@/views/post/post.vue"),
+  },
+  {
+    path: "/space",
+    name: "SpaceRedirect",
+    beforeEnter: async (to, from, next) => {
+      // 导入用户store来获取当前用户信息
+      const { useUserStore } = await import('@/store/user.js');
+      const userStore = useUserStore();
+      
+      // 尝试获取用户信息
+      try {
+        const userInfo = await userStore.getUserInfo();
+        if(userInfo.id=='-1')
+        {
+          //必须登录才行，直接跳转到登录页
+            const { showLoginModal } = await import('@/services/authService' );
+            showLoginModal(false)
+          return;
+        }
+        if (userInfo && userInfo.id) {
+          next(`/space/${userInfo.id}`);
+        } else {
+          next('/404');
+        }
+      } catch (error) {
+        next('/404');
+      }
+    }
   },
   {
     path: "/space/:id",

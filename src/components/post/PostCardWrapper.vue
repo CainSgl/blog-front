@@ -8,6 +8,7 @@
       :post="post"
       :height="computedHeight"
       :width="computedWidth"
+      :show-status="showStatus"
       @clickCard="handleClickCard"
     />
   </div>
@@ -23,7 +24,7 @@ const emit = defineEmits(['clickCard']);
 const props = defineProps({
   post: {
     type: Object,
-    required: true
+    default: null
   },
   width: {
     type: [Number, String],
@@ -37,6 +38,10 @@ const props = defineProps({
   style: {
     type: Object,
     default: () => ({})
+  },
+  showStatus: {
+    type: Boolean,
+    default: true
   }
 })
 

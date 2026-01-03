@@ -3,7 +3,7 @@
     :visible="authStore.showLoginModal"
     placement="bottom"
     :height="'100vh'"
-    :mask-closable="false"
+    :mask-closable="authStore.allowClose"
     :closable="false"
     :hide-cancel="true"
     :footer="false"
@@ -17,7 +17,7 @@
       <GradientBackground v-if="authStore.showLoginModal" />
       
       <!-- 关闭按钮 - 移动到右上角 -->
-      <div class="close-button">
+      <div v-if="authStore.allowClose" class="close-button">
         <a-button
           type="text"
           shape="circle"

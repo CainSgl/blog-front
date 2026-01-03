@@ -129,11 +129,9 @@
       <div class="node-content" :style="{ paddingLeft: `${dragState.sourceNode?.depth * 20 || 0}px` }">
         <span v-if="dragState.sourceNode?.children && dragState.sourceNode.children.length > 0" class="expand-icon">
           <IconRight />
-
         </span>
-        <span v-else-if="node.postId" class="expand-icon">
+        <span v-else-if="dragState.sourceNode?.postId" class="expand-icon">
           <IconFile />
-
         </span>
 
         <!-- <span v-else class="expand-icon-placeholder">•</span> -->
@@ -414,8 +412,16 @@ const actionHandlers = {
         'kbId': props.kbId,
         'dirId': node.id
       });
-      if (data > 0)
-        Message.warning(node.name + "目录下的" + data + "个文章已被暂存，这通常不会影响什么。");
+      if (data > 0) {
+        if (node.postId) {
+             Message.success(node.name+"将移入游离文档列表，若需要完全删除，请在个人空间操作。");
+        }else
+        {
+          Message.warning(node.name + "目录下的" + data + "个文章已自动移入游离文档列表，可在个人空间查看。");
+        }
+        
+      }
+
       console.log('本次目录删除影响了', data, '个文章，需要用户注意');
       // 移除对应的dir节点
       removeNode(node);

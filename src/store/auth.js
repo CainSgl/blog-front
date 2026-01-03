@@ -6,12 +6,14 @@ import api from '@/api/index.js';
 export const useAuthStore = defineStore('auth', () => 
 {
   const showLoginModal = ref(false);
+  const allowClose = ref(true);  // 控制是否允许关闭登录弹窗
   const isLoading = ref(false);
   const userStore = useUserStore();
 
-  const openLogin = () => 
+  const openLogin = (b) => 
   {
     showLoginModal.value = true;
+    allowClose.value = b !== undefined ? b : true;  // 如果参数b存在，则使用b的值，否则默认为true
   };
 
   const closeLogin = () => 
@@ -45,8 +47,7 @@ export const useAuthStore = defineStore('auth', () =>
   };
   const logout = () => 
   {
-    //调用api请求，但不需要等待结果
-    api.get('/user/logout');
+    api.post('/user/logout');
     userStore.clearUserInfo();
   };
   const checkLogin = () => 
@@ -56,6 +57,7 @@ export const useAuthStore = defineStore('auth', () =>
 
   return {
     showLoginModal,
+    allowClose,
     isLoading,
     openLogin,
     closeLogin,

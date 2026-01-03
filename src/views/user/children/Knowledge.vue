@@ -1,33 +1,33 @@
 <template>
   <div class="user-knowledge">
-    <UserPageHeader 
-      :userId="userId" 
-      title="知识库" 
-      subtitle="知识库"
-      searchPlaceholder="搜索知识库..."
-      searchWidth="300px"
-      :sortOptions="sortOptions"
-      apiUrl="/kb/list"
-      @sort-change="handleSortChangeFromHeader"
-      @search="handleSearchFromHeader"
-      @back="handleBack" />
+    <UserPageHeader :userId="userId" title="知识库" subtitle="知识库" searchPlaceholder="搜索知识库..." searchWidth="300px"
+      :sortOptions="sortOptions" apiUrl="/kb/list" @sort-change="handleSortChangeFromHeader"
+      @search="handleSearchFromHeader" @back="handleBack" />
 
-    <ContentArea 
-      :loading="loading" 
-      :list-data="knowledgeBases" 
-      loading-tip="正在加载知识库..."
-      :card-width="cardWidth"
-      :card-height="cardHeight"
-      :height-offset="600"
-      @page-size-change="handlePageSizeChange"
-      emptyHeight="50vh"
+    <!-- 为当前用户添加状态选择ContentArea -->
+    <div v-if="isCurrentUser" class="status-filter-area">
+      <div class="status-filter-container">
+
+        <a-radio-group v-model="kbStatus" type="button" @change="handleStatusChange">
+          <a-radio value="">全部</a-radio>
+          <a-radio value="草稿">草稿</a-radio>
+          <a-radio value="已发布">已公开</a-radio>
+          <a-radio value="待审核">审核中</a-radio>
+          <a-radio value="已下架">已下架</a-radio>
+        </a-radio-group>
+      </div>
+    </div>
+
+    <ContentArea :loading="loading" :list-data="knowledgeBases" loading-tip="正在加载知识库..." :card-width="cardWidth"
+      :card-height="cardHeight" :height-offset="600" @page-size-change="handlePageSizeChange" emptyHeight="50vh"
       emptyWidth="80vw">
-      <template #default="{ pageSize: currentPageSize, containerWidth: currentContainerWidth, containerHeight: currentContainerHeight }">
+      <template
+        #default="{ pageSize: currentPageSize, containerWidth: currentContainerWidth, containerHeight: currentContainerHeight }">
         <div class="kb-list">
-          <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="kb" :show-status="isCurrentUser" />
+          <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="loading?{}:kb" :show-status="kbStatus!=''" />
           <div v-if="isCurrentUser" class="create-kb-card">
-            <a-popconfirm content="你要的是创建公开知识库还是私密知识库？（后续可修改）" okText="公开" cancelText="私密"
-              @ok="handleCreateKb(true)" @cancel="handleCreateKb(false)">
+            <a-popconfirm content="创建公开知识库还是私密知识库？（后续可修改）" okText="公开" cancelText="私密" @ok="handleCreateKb(true)"
+              @cancel="handleCreateKb(false)">
               <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }">
                 <div class="kb-cover-empty">
                   <div class="create-icon">
@@ -105,8 +105,11 @@ const pageSize = ref(10); // 默认值
 
 // 卡片尺寸常量
 const cardWidth = 180;
-const cardHeight = 180;
+const cardHeight = 200;
+// 知识库状态筛选
+const kbStatus = ref(''); // 默认为全部
 
+const searchValue = ref('');
 const loadKnowledgeBases = async (page = 1) => {
   loading.value = true;
   try {
@@ -118,6 +121,12 @@ const loadKnowledgeBases = async (page = 1) => {
       simple: total.value > 0,
       option: sortBy.value // 添加排序字段
     };
+
+    // 添加状态筛选参数
+    if (kbStatus.value) {
+      params.status = kbStatus.value;
+    }
+
     const currentUserInfo = await userStore.getUserInfo();
     if (currentUserInfo.id == userId.value) {
       params.size = pageSize.value - 1;
@@ -158,12 +167,29 @@ const handleSortChangeFromHeader = (value) => {
 };
 
 const handleSearchFromHeader = (value) => {
-  console.log('从头部组件接收搜索:', value);
   currentPage.value = 1
   total.value = -1
-  useSearch = true
-  // 重新加载知识库，带上搜索关键词
-  loadKnowledgeBases(currentPage.value);
+  if (value && value.trim()) {
+    useSearch = true
+    loadKnowledgeBases(currentPage.value);
+  } else {
+    if (useSearch) {
+      console.log("之前搜索过，现在是复原")
+      useSearch = false
+      loadKnowledgeBases(currentPage.value);
+    }
+  }
+  searchValue.value = value
+
+};
+
+// 处理状态选择变化
+const handleStatusChange = (value) => {
+  kbStatus.value = value;
+  console.log(value)
+  // 状态变化时重置到第一页并重新加载
+  currentPage.value = 1;
+  loadKnowledgeBases(1);
 };
 
 // 处理分页变化
@@ -196,15 +222,11 @@ onMounted(async () => {
   }
 });
 
-// 组件卸载时清理监听
-onUnmounted(() => {
-});
-
 // 处理pageSize变化事件
 const handlePageSizeChange = (newPageSize) => {
   // 更新本地的 pageSize 值
   pageSize.value = newPageSize;
-  
+
   // pageSize变化时重置到第一页并重新加载
   currentPage.value = 1;
   loadKnowledgeBases(1);
@@ -232,8 +254,22 @@ const handlePageSizeChange = (newPageSize) => {
   }
 
   .content-area {
-    min-height:350px;
+    min-height: 350px;
     height: calc(100vh - 400px);
+  }
+
+  // 状态筛选区域样式
+  .status-filter-area {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+
+    .status-filter-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+
+    }
   }
 
   // 创建知识库卡片样式

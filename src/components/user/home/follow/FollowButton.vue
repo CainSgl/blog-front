@@ -1,11 +1,11 @@
 <template>
-  <a-button :type="isFollowing ? 'outline' : 'primary'" size="large" :loading="loading" @click="toggleFollow">
+  <a-button v-if="userId" :type="isFollowing ? 'outline' : 'primary'" size="large" :loading="loading" @click="toggleFollow">
     {{ loading ? '' : (isFollowing ? '已关注' : '关注') }}
   </a-button>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { defineProps, defineEmits } from 'vue';
 import { Modal } from '@arco-design/web-vue';
 import { useUserStore } from '@/store/user.js';
@@ -79,6 +79,16 @@ const toggleFollow = async () => {
 
 onMounted(() => {
   fetchFollowStatus();
+});
+
+// 监听 userId 变化，当 userId 改变时重新获取关注状态
+watch(() => props.userId, (newUserId) => {
+  if (newUserId) {
+    fetchFollowStatus();
+  } else {
+    // 当 userId 为 null 或空时，重置状态
+    isFollowing.value = false;
+  }
 });
 </script>
 

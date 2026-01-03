@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-wrapper">
+  <div class="menu-wrapper"  >
     <!-- 展开状态的菜单 -->
     <a-menu v-if="!isCollapsed" :selected-keys="selectedKeys" :default-opened-keys="openedKeys"
       @menu-item-click="handleMenuItemClick" class="enlarged-menu">
@@ -27,21 +27,29 @@
 
     <a-menu v-else :selected-keys="selectedKeys" :default-opened-keys="openedKeys"
       @menu-item-click="handleMenuItemClick" class="collapsed-menu">
-      <a-menu-item key="UserHomeIndex" :style="selectedKeys[0] === 'UserHomeIndex' ? { backgroundColor: menuBackgroundColors['UserHomeIndex'], borderRadius: '35px' } : {}">
-        <icon-home :size="24" :style="selectedKeys[0] === 'UserHomeIndex' ? { color: '#0842A0', backgroundColor: '#A8C7FA' } : {}" />
+      <a-menu-item key="UserHomeIndex"
+        :style="selectedKeys[0] === 'UserHomeIndex' ? { backgroundColor: menuBackgroundColors['UserHomeIndex'], borderRadius: '35px' } : {}">
+        <icon-home :size="24"
+          :style="selectedKeys[0] === 'UserHomeIndex' ? { color: '#0842A0', backgroundColor: '#A8C7FA' } : {}" />
         <span>主页</span>
       </a-menu-item>
-      <a-menu-item key="UserKnowledge" :style="selectedKeys[0] === 'UserKnowledge' ? { backgroundColor: menuBackgroundColors['UserKnowledge'], borderRadius: '35px' } : {}">
-        <icon-book :size="24" :style="selectedKeys[0] === 'UserKnowledge' ? { color: '#0F5223', backgroundColor: '#6DD58C' } : {}" />
-         <span>知识库</span>
+      <a-menu-item key="UserKnowledge"
+        :style="selectedKeys[0] === 'UserKnowledge' ? { backgroundColor: menuBackgroundColors['UserKnowledge'], borderRadius: '35px' } : {}">
+        <icon-book :size="24"
+          :style="selectedKeys[0] === 'UserKnowledge' ? { color: '#0F5223', backgroundColor: '#6DD58C' } : {}" />
+        <span>知识库</span>
       </a-menu-item>
-      <a-menu-item key="UserDocs" :style="selectedKeys[0] === 'UserDocs' ? { backgroundColor: menuBackgroundColors['UserDocs'], borderRadius: '35px' } : {}">
-        <icon-file :size="24" :style="selectedKeys[0] === 'UserDocs' ? { color: '#5629A4', backgroundColor: '#D9BAFD' } : {}" />
-         <span>文档</span>
+      <a-menu-item key="UserDocs"
+        :style="selectedKeys[0] === 'UserDocs' ? { backgroundColor: menuBackgroundColors['UserDocs'], borderRadius: '35px' } : {}">
+        <icon-file :size="24"
+          :style="selectedKeys[0] === 'UserDocs' ? { color: '#5629A4', backgroundColor: '#D9BAFD' } : {}" />
+        <span>文档</span>
       </a-menu-item>
-      <a-menu-item key="UserCloud" :style="selectedKeys[0] === 'UserCloud' ? { backgroundColor: menuBackgroundColors['UserCloud'], borderRadius: '35px' } : {}">
-        <icon-cloud :size="24" :style="selectedKeys[0] === 'UserCloud' ? { color: '#004A77', backgroundColor: '#7FCFFF' } : {}" />
-         <span>云存储</span>
+      <a-menu-item key="UserCloud"
+        :style="selectedKeys[0] === 'UserCloud' ? { backgroundColor: menuBackgroundColors['UserCloud'], borderRadius: '35px' } : {}">
+        <icon-cloud :size="24"
+          :style="selectedKeys[0] === 'UserCloud' ? { color: '#004A77', backgroundColor: '#7FCFFF' } : {}" />
+        <span>云存储</span>
       </a-menu-item>
     </a-menu>
   </div>
@@ -97,15 +105,13 @@ defineEmits(['menu-item-click']);
 <style lang="less" scoped>
 .menu-wrapper {
 
-
   :deep(.arco-menu) {
-    
-    height: 100%;
     border-right: none;
   }
 
   :deep(.enlarged-menu) {
-      margin-top: 25vh;
+    margin-top: 25vh;
+
     .arco-menu-item {
       font-size: 16px;
       height: 48px;
@@ -186,7 +192,8 @@ defineEmits(['menu-item-click']);
   }
 
   :deep(.collapsed-menu) {
-      margin-top: 30vh;
+    margin-top: 30vh;
+
     .arco-menu-item {
       display: flex;
       flex-direction: column;

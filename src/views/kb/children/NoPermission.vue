@@ -22,11 +22,19 @@ const route = useRoute();
 const router = useRouter();
 
 const goBack = () => {
-  const kbId = route.query.kb;
-  if (kbId) {
-    router.push({ name: 'KBIndex', query: { kb: kbId } });
+  const requireType = route.query.require;
+  
+  // 如果 require 为 "kb"，则跳转到首页
+  if (requireType === 'kb') {
+    router.push({ name: 'Home' }); // 返回首页
   } else {
-    router.push({ name: 'KB' });
+    // 否则按原有逻辑处理
+    const kbId = route.query.kb;
+    if (kbId) {
+      router.push({ name: 'KBIndex', query: { kb: kbId } });
+    } else {
+      router.push({ name: 'KB' });
+    }
   }
 };
 </script>

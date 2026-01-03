@@ -64,8 +64,12 @@
     </div>
 
     <a-spin :loading="loading" tip="正在加载知识库首页内容..." style="display: block;">
-      <div>
-        <avatarWithInfo :user="masterUser" :size="40" />
+      <div class="user-info">
+        <div class="user-info-content">
+          <avatarWithInfo :user="masterUser" :size="40" />
+          <div v-if="masterUser" class="user-name">{{ masterUser.nickname }}</div>
+        </div>
+        <FollowButton :userId="masterUser?.id" @followChanged="handleFollowChanged" />
       </div>
       <div v-if="content" class="content-container">
         <MarkdownPreview :content="content" :height="height" />
@@ -80,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import api from '@/api/index.js';
@@ -88,8 +92,8 @@ import { useKbStore } from '../../kbStore.js';
 import { useUserStore } from '@/store/user.js';
 import MarkdownPreview from '@/components/md/MarkdownPreview.vue';
 import { IconShareInternal, IconMore, IconEdit, IconSettings, IconCopy } from '@arco-design/web-vue/es/icon';
-import { Input } from '@arco-design/web-vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
+import FollowButton from '@/components/user/home/follow/FollowButton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -102,7 +106,7 @@ const renaming = ref(false); // 添加重命名状态
 const newName = ref('');
 const renameInputRef = ref(); // 添加重命名输入框引用
 const shareVisible = ref(false);
-const linkInputRef = ref();
+const masterUser = ref(null)
 const shareLink = computed(() => {
   if (kbInfo.value && kbInfo.value.id) {
     return `${window.location.origin}/kb?kb=${kbInfo.value.id}`;
@@ -112,27 +116,24 @@ const shareLink = computed(() => {
 // 从store中获取kbInfo
 const kbInfo = computed(() => {
   checkEditPermission(kbStore.kbInfo)
-
+  console.log(kbStore.kbInfo.userId)
   return kbStore.kbInfo;
 });
+
+// 监听kbInfo变化，当kbInfo更新时获取用户信息
+watch(() => kbInfo.value.userId, async (newUserId) => {
+  if (newUserId) {
+    masterUser.value = await userStore.getUserInfo(newUserId);
+  }
+}, { immediate: true });
 async function checkEditPermission(info) {
   const userInfo = await userStore.getUserInfo();
-   if (userInfo.id ==info.userId) {
+  if (userInfo.id == info.userId) {
     edit.value = true;
   }
 }
-const masterUser=ref(null)
+
 const edit = ref(false);
-
-// 检查编辑权限
-onMounted(async () => {
-  loadKbIndexContent()
-  userStore.getUserInfo()
-  //获取用户信息
-  masterUser.value=await userStore.getUserInfo(kbInfo.value.userId)
-});
-
-
 // 获取知识库首页内容
 const loadKbIndexContent = async () => {
   const kbParam = route.query.kb;
@@ -149,6 +150,29 @@ const loadKbIndexContent = async () => {
     }
   }
 };
+
+// 检查编辑权限
+onMounted(async () => {
+  loadKbIndexContent()
+  userStore.getUserInfo()
+  //获取用户信息
+});
+
+// 监听路由参数变化
+watch(() => route.query, async (newQuery) => {
+  // 处理用户信息加载
+  const returnUrl = newQuery.returnUrl;
+  if (returnUrl && newQuery.userId) {
+    masterUser.value = await userStore.getUserInfo(newQuery.userId);
+  }
+  
+  // 处理知识库内容加载
+  if (newQuery.kb) {
+    loadKbIndexContent();
+  }
+}, { immediate: true });
+
+
 
 // 复制分享链接
 const copyLink = async () => {
@@ -243,7 +267,20 @@ const handleMoreAction = (value) => {
 };
 
 
+// 处理关注状态变化
+const handleFollowChanged = (isFollowing) => {
+  // 可以在这里添加关注状态变化后的逻辑
+  // 例如刷新页面或更新UI状态
+  console.log('关注状态变化:', isFollowing);
+  Message.success(isFollowing ? '关注成功' : '已取消关注');
 
+  // 检查是否有returnUrl参数，如果有则重定向
+  const returnUrl = route.query.returnUrl;
+  if (returnUrl) {
+    // 解码URL并重定向
+    window.location.href = decodeURIComponent(returnUrl);
+  }
+};
 
 </script>
 
@@ -302,6 +339,24 @@ const handleMoreAction = (value) => {
       gap: 4px;
     }
   }
+
+  .user-info {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-left: 20px; /* 添加左边距以更好地控制位置 */
+  }
+
+  .user-info-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+ 
 
   .content-container {
     height: 100%;

@@ -1,6 +1,6 @@
 <template>
     <a-popover v-if="user" trigger="hover" position="rt"
-        :content-style="{ minWidth: '250px', maxWidth: '400px', width: '15vw' }">
+        :content-style="{ minWidth: '300px', maxWidth: '400px' }">
         <Avatar :size="size" class="user-avatar" :style="{ ...avatarStyle, cursor: 'pointer' }" @click="goToUserSpace"
             :src="user.avatarUrl">
         </Avatar>
@@ -19,7 +19,7 @@
                                 :style="{ color: '#e85695', fontSize: '16px', marginLeft: '2px' }" />
                             <a-tag color="arcoblue" size="small" style="margin-left: 2px;">LV.{{ user.level }}</a-tag>
                         </div>
-
+                            
                         <div class="user-stats">
                             <span class="stat-item">
                                 <strong>{{ user.followerCount }}</strong> 粉丝
@@ -58,7 +58,6 @@ import Avatar from '@/components/user/base/Avatar.vue';
 const props = defineProps({
     user: {
         type: Object,
-        required: true,
     },
     size: {
         type: [Number, String],
@@ -91,6 +90,8 @@ const goToUserSpace = () => {
 .user-info-popover {
     padding: 12px;
     user-select: none;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .user-header {

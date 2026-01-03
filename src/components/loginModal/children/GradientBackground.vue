@@ -489,6 +489,7 @@ function resetCharacterAndCreateParticles(char)
 function handleKeyDown(event) 
 {
   // 获取按下的键值并转换为大写
+
   const keyPressed = event.key.toUpperCase();
   
   // 检查是否为字母键或数字键

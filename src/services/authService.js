@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/store/auth';
 import { useUserStore } from '@/store/user';
+import { backgroundBlurriness } from 'three/tsl';
 
 // 使用工厂函数创建登录服务，避免循环依赖
 let loginServiceInstance = null;
@@ -17,9 +18,11 @@ export const getLoginService = () =>
       isLoggedIn: () => authStore.checkLogin(),
       
       // 打开登录弹窗
-      showLogin: () => 
+      //b代表是否允许关闭
+      showLogin: (b) => 
       {
-        authStore.openLogin();
+      
+        authStore.openLogin(b);
       },
       
       // 关闭登录弹窗
@@ -73,10 +76,10 @@ export const requireLogin = () =>
   return true;
 };
 
-export const showLoginModal = () => 
+export const showLoginModal = (b) => 
 {
   const loginService = getLoginService();
-  loginService.showLogin();
+  loginService.showLogin(b);
 };
 
 export const hideLoginModal = () => 

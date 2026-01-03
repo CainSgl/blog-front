@@ -44,6 +44,7 @@ export const useUserStore = defineStore('user', () =>
     userInfo.value = null;
     token.value = null;
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userInfo');
   };
 
   // 获取用户信息
@@ -58,6 +59,7 @@ export const useUserStore = defineStore('user', () =>
   
   const getUserInfo = async (id=null) => 
   {
+    
     if(id)
     {
       //说明是获取别人的信息
@@ -83,7 +85,6 @@ export const useUserStore = defineStore('user', () =>
       userInfoPromises.set(id, promise);
       return promise;
     }
-
     if (userInfo.value) 
     {
       return userInfo.value;

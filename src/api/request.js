@@ -103,7 +103,7 @@ service.interceptors.response.use(
       showLoginModal();
       return;
     }
-    if (code == 40101) {
+    if (code == "40101") {
       // 检查是否已有相同ID的消息，如果有则先移除
       if (messageMap.has("40101")) {
         try {
@@ -129,7 +129,7 @@ service.interceptors.response.use(
     const errorMsgId = error.message
     const msgInstance = Message.error({
       id: errorMsgId,
-      content: error.message || "服务器异常",
+      content: errorMsgId || "服务器异常",
       duration: 3000,
       onClose: () => {
         // 消息关闭时从映射表中移除

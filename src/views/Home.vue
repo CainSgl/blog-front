@@ -1,77 +1,51 @@
 <template>
-  <div class="home">
-    <h1>欢迎来到首页</h1>
-    <p>这是一个使用 Vite + Vue 3 + Vue Router + Arco Design + Pinia 的项目</p>
-    
-    <!-- 主题切换按钮 -->
-    <div class="theme-toggle">
-      <a-button @click="toggleTheme">
-        切换到{{ isDarkMode ? '亮色' : '暗黑' }}模式
-      </a-button>
-    </div>
-    
-    <!-- 用户信息展示 -->
-    <p>{{userInfo}}</p> 
-    
-    <div class="test-section">
-      <a-space direction="vertical" size="large">
-        <a-button type="primary" @click="testShowLogin">测试登录弹窗</a-button>
-        <a-button @click="testRequireLogin">测试需要登录的功能</a-button>
-        <a-button type="outline" @click="testLogout">测试登出</a-button>
-      </a-space>
-    </div>
+  <Header />
+  <div class="header-container"></div>
+  <div class="container">
+    <h2 class="section-title">最新文章</h2>
+    <NewHomePostList></NewHomePostList>
   </div>
+ 
 </template>
 
 <script setup>
-import { showLoginModal, requireLogin } from '@/services/authService';
-import { useUserStore } from '@/store/user';
-import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { onMounted } from 'vue'
+import Header from '@/components/layout/Header.vue'
 
-const userStore = useUserStore();
-const { userInfo } = storeToRefs(userStore);
+import NewHomePostList from '@/components/home/children/NewHomePostList.vue'
 
-// 组件挂载时获取用户信息
-onMounted(async () => 
-{
-  await userStore.getUserInfo();
-});
 
-const testShowLogin = () => 
-{
-  showLoginModal();
-};
-
-const testRequireLogin = () => 
-{
-  if (!requireLogin()) 
-  {
-    console.log('需要登录才能执行此操作');
-  }
-  else 
-  {
-    console.log('已登录，可以执行操作');
-  }
-};
-
-const testLogout = () => 
-{
-  // 使用用户存储来清除用户信息
-  userStore.clearUserInfo();
-  console.log('已登出');
-};
+// 页面加载时获取数据
+onMounted(() => {
+  
+})
 </script>
 
 <style scoped>
-.home {
-  padding: 32px;
-  text-align: center;
+.container {
+  width: 100%;
+  max-width: 80vw;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-.test-section {
-  margin-top: 48px;
-  display: flex;
-  justify-content: center;
+@media screen and (max-width: 1080px) {
+  .container {
+    max-width: none;
+    width: 95vw; 
+  }
+}
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+    width: calc(100% - 5px);
+  }
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0;
+  color: #333;
 }
 </style>

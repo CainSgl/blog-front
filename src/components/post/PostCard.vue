@@ -1,7 +1,7 @@
 <template>
   <div class="post-card" :style="{ height: `${props.height}px`, width: `${props.width}px` }">
 
-    <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick">
+    <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick" v-if="post.id">
       <!-- 图片和内容容器，用于响应式布局 -->
       <div class="post-content-wrapper"
         :class="{ 'horizontal-layout': props.width > 400, 'vertical-layout': props.width <= 400, 'no-image': !post.img }">
@@ -22,7 +22,8 @@
               </div>
               <!-- 状态 -->
               <div v-if="showStatus">
-                <a-tag v-if="post.status === '已发布'" color="green">{{ post.status }}</a-tag>
+                <a-tag v-if="post.status === '仅粉丝'" :color="primary4Color">{{ post.status }}</a-tag>
+                <a-tag v-else-if="post.status === '已发布'" color="green">{{ post.status }}</a-tag>
                 <a-tag v-else color="gray">{{ post.status }}</a-tag>
               </div>
             </div>
@@ -30,11 +31,11 @@
 
           <div class="content" :style="{ height: `${summaryHight}px` }" v-if="showSummary">
             <!-- 摘要 -->
-            <div v-if="!post.summary" >
-              <div v-if="summaryHight>100">
-                  <a-empty description="摘要里什么都没有" />
+            <div v-if="!post.summary">
+              <div v-if="summaryHight > 100">
+                <a-empty description="摘要里什么都没有" />
               </div>
-              <div v-else-if="summary>0" class="post-summary">
+              <div v-else-if="summary > 0" class="post-summary">
                 摘要里什么都没有
               </div>
             </div>
@@ -81,7 +82,7 @@
                 </div>
 
                 <!-- 时间信息 -->
-                <div class="post-footer">
+                <div class="post-footer" v-if="props.width>240">
                   <span class="post-date">{{ formatDate(post.createdAt) }}</span>
                 </div>
               </div>
@@ -93,35 +94,23 @@
         </div>
       </div>
     </a-card>
+    <div  class="post-card-loading" v-else>
+      <a-skeleton :animation="true">
+        <a-skeleton-shape :style="{ height: `${props.height}px`, width: `${props.width}px` }"/>
+      </a-skeleton>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon'
-import { computed, ref, watchEffect,defineEmits } from 'vue'
+import { computed, ref, watchEffect, defineEmits } from 'vue'
 import CImg from '../base/cImg.vue'
 const emit = defineEmits(['clickCard']);
 const props = defineProps({
   post: {
     type: Object,
-    required: true,
-    default: () => ({
-      id: '',
-      title: '',
-      status: '草稿',
-      top: false,
-      summary: '',
-      recommend: false,
-      viewCount: 0,
-      likeCount: 0,
-      commentCount: 0,
-      tags: [],
-      userId: '',
-      createdAt: '',
-      updatedAt: '',
-      img: '',
-      operate: []
-    })
+    default: {}
   },
   height: {
     type: Number,
@@ -136,6 +125,9 @@ const props = defineProps({
     default: false
   }
 })
+
+// 定义使用全局样式变量 primary-4 的颜色
+const primary4Color = '#ff6699' // 对应 @primary-4: #ff6699; 在 global.less 中
 
 const imageHeight = ref(0)
 const imageStyle = ref({})
@@ -257,7 +249,9 @@ const getTagScore = (tag) => {
 
 // 处理卡片点击事件
 const handleCardClick = () => {
-  emit('clickCard', props.post)
+  if (props.post.id) {
+    emit('clickCard', props.post)
+  }
 }
 </script>
 
@@ -285,7 +279,14 @@ const handleCardClick = () => {
       }
     }
   }
-
+   .post-card-loading {
+    border-radius: 8px;
+    border: 1px solid #e5e8ef;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
+    overflow: hidden;
+    height: 100%;
+  }
   .post-content-wrapper {
     display: flex;
     flex-direction: column;
@@ -409,7 +410,7 @@ const handleCardClick = () => {
     padding-top: 12px;
     position: relative;
   }
-  
+
   .post-stats-footer-container::before {
     content: '';
     position: absolute;
@@ -418,7 +419,8 @@ const handleCardClick = () => {
     right: 0;
     height: 1px;
     background-color: #f6f8fa;
-    z-index: -1; /* 确保伪元素在内容下方 */
+    z-index: -1;
+    /* 确保伪元素在内容下方 */
   }
 
   .post-stats {

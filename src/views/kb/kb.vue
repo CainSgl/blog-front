@@ -1,6 +1,6 @@
 <template>
-  <div class="knowledge-base" @mousemove="handleMouseMove" >
-    <div class="sidebar" :class="{ collapsed: isCollapsed }">
+  <div class="knowledge-base" @mousemove="handleMouseMove">
+    <div v-if="!hasError" class="sidebar" :class="{ collapsed: isCollapsed }">
       <div v-show="!isCollapsed">
         <div class="tree-menu">
           <div class="kb-header">
@@ -15,17 +15,18 @@
             </div>
           </div>
           <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId" />
-          <LikeButton :initial-like-count="kbInfo.likeCount" :kb-id="kbId" @like="handleLike" v-if="!noKb" class="like-button-wrapper" />
+          <LikeButton :initial-like-count="kbInfo.likeCount" :kb-id="kbId" @like="handleLike" v-if="!noKb"
+            class="like-button-wrapper" />
         </div>
       </div>
 
-      <div class="collapse-button" v-show="showCollapseButton " @click="toggleCollapse">
+      <div class="collapse-button" v-show="showCollapseButton" @click="toggleCollapse">
         <IconDoubleRight v-if="isCollapsed" class="collapse-icon" size="large"></IconDoubleRight>
         <IconDoubleLeft v-else class="collapse-icon" size="large"> </IconDoubleLeft>
       </div>
     </div>
 
-  
+
 
     <div class="content">
       <router-view />
@@ -42,8 +43,9 @@ import { IconHome, IconDoubleLeft, IconDoubleRight } from '@arco-design/web-vue/
 import { useRoute, useRouter } from 'vue-router';
 import { useKbStore } from './kbStore.js';
 import { useUserStore } from '@/store/user';
-
-
+import { messageManager } from '@/api/request.js';
+import { Message } from '@arco-design/web-vue';
+const hasError = ref(false);
 
 const route = useRoute();
 const router = useRouter();
@@ -53,7 +55,7 @@ const kbInfo = ref({
   name: '获取中...',
   likeCount: 0
 });
-const edit=ref(false)
+const edit = ref(false)
 const kbStore = useKbStore();
 
 // collapse-button 精细控制相关状态
@@ -72,6 +74,7 @@ onMounted(async () => {
   if (kbParam) {
     try {
       const kbData = await kbStore.getKbInfo(kbParam);
+      //如果是无权限操作，说明
       if (kbData) {
         kbId.value = kbData.id;
         kbInfo.value = kbData;
@@ -79,7 +82,6 @@ onMounted(async () => {
         if (kbData.userId == userInfo.id) {
           edit.value = true;
         }
-        
         // 如果当前路由是KB父路由（没有子路由匹配），则跳转到KBIndex
         if (route.name === 'KB') {
           router.push({ name: 'KBIndex', query: { kb: kbId.value } });
@@ -91,17 +93,42 @@ onMounted(async () => {
       }
     }
     catch (error) {
-      console.error(error);
-      //要么没登陆，要么资源不存在(权限不足也是这个)
-      if (error.data?.code == '40004') {
-        //展示404
-        router.push({ name: 'NoKb' });
-        noKb.value = true;
-      } else {
-        // 其他错误也重定向到404页面
-        router.push({ name: 'NoKb' });
-        noKb.value = true;
+      hasError.value = true;
+      if (messageManager.hasMessage("由于私密性设置无法访问该知识库")) {
+        router.push({ name: 'NoPermission', query: { kb: kbParam, require: "kb" } });
+        Message.warning({
+          id: "由于私密性设置无法访问该知识库",
+          content: '该知识库由于私密性设置无法访问',
+          duration: 3000,
+        });
+        return;
       }
+      if (error.data.code == "40000" && error.data.msg) {
+        if (messageManager.hasMessage(error.data.msg)) {
+          let returnUrl = route.query.returnUrl;
+          if (!returnUrl) {
+            // 构造当前URL作为returnUrl参数
+            const currentUrl = window.location.href;
+            returnUrl = encodeURIComponent(currentUrl);
+          }
+          Message.warning({
+            id: error.data.msg,
+            content: '该知识库仅粉丝可见，请先关注。',
+            duration: 3000,
+          });
+
+          // 跳转到KBIndex页面并携带returnUrl参数
+          router.push({
+            name: 'KBIndex',
+            query: {
+              kb: kbParam,
+              userId: error.data.msg,
+              returnUrl: returnUrl,
+            }
+          });
+        }
+      }
+
     }
   }
   else {
@@ -109,12 +136,12 @@ onMounted(async () => {
     //重定向到404页面
     router.push({ name: 'NotFound' });
   }
-  
+
   // 初始化时检查屏幕尺寸
   if (!checkScreenSize()) {
     showCollapseButton.value = false;
   }
-  
+
   // 监听窗口大小变化
   window.addEventListener('resize', handleResize);
 });
@@ -137,8 +164,7 @@ function handleClickPost(node) {
   console.log(pageName)
   if (pageName === 'KBEdit') {
     router.push({ name: pageName, query: { kb: kbId.value, p: node.postId } });
-  }else
-  {
+  } else {
     router.push({ name: 'KBView', query: { kb: kbId.value, p: node.postId } });
   }
 }
@@ -159,17 +185,17 @@ function handleMouseMove(event) {
     showCollapseButton.value = false;
     return;
   }
-  
+
   const screenWidth = window.innerWidth;
   const mouseX = event.clientX;
-  const threshold = isCollapsed.value ? screenWidth * 0.1 : screenWidth * 0.2+80;
+  const threshold = isCollapsed.value ? screenWidth * 0.1 : screenWidth * 0.2 + 80;
 
   if (mouseX <= threshold) {
     showCollapseButton.value = true;
     handleMouseLeave();
-  }else{
+  } else {
     clearHideTimer();
-     showCollapseButton.value = false;
+    showCollapseButton.value = false;
   }
 }
 
@@ -214,6 +240,7 @@ onUnmounted(() => {
   border-right: 1px solid #e5e6eb;
   position: relative;
   transition: width 0.3s ease;
+
   &.collapsed {
     width: 0;
     min-width: 0;
@@ -310,6 +337,7 @@ onUnmounted(() => {
   justify-content: center;
   z-index: 1;
   transition: all 0.3s ease;
+
   &:hover {
     background: #f7f7f7;
   }
@@ -317,7 +345,7 @@ onUnmounted(() => {
   .collapse-icon {
     color: #666;
     transition: transform 0.3s ease;
-   
+
 
     &:hover {
       color: #333;
@@ -328,6 +356,4 @@ onUnmounted(() => {
 .sidebar.collapsed .collapse-button {
   right: -17px;
 }
-
-
 </style>

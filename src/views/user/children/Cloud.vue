@@ -1,29 +1,12 @@
 <template>
-  <a-image-preview-group 
-    v-model:visible="previewVisible" 
-    v-model:current="previewCurrent"
-    infinite
-    :srcList="previewImageList"
-  />
+  <a-image-preview-group v-model:visible="previewVisible" v-model:current="previewCurrent" infinite
+    :srcList="previewImageList" />
   <div class="user-cloud">
     <!-- 图片预览弹窗 -->
-    <a-page-header title="云存储" :subtitle="userInfo?`用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的云存储`:''"
+    <a-page-header title="云存储"
+      :subtitle="userInfo ? `用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的云存储` : ''"
       @back="handleBack">
       <template #extra>
-        <!-- <a-space>
-          <a-button>
-            <template #icon>
-              <icon-export />
-            </template>
-            导出
-          </a-button>
-          <a-button type="primary">
-            <template #icon>
-              <icon-upload />
-            </template>
-            上传文件
-          </a-button>
-        </a-space> -->
       </template>
     </a-page-header>
 
@@ -61,6 +44,14 @@
             </a-breadcrumb>
           </a-col>
           <a-col :span="12" style="text-align: right;">
+            <!-- 当有文件被选中时显示操作按钮 -->
+            <div v-if="selectedRowKeys.length > 0" style="display: inline-block; margin-right: 16px;">
+              <a-space>
+                <a-button type="primary" status="danger" @click="handleBatchDelete" size="small">
+                  删除 ({{ selectedRowKeys.length }})
+                </a-button>
+              </a-space>
+            </div>
             <a-radio-group v-model="viewMode" type="button" @change="handleViewModeChange">
               <a-radio value="list">列表</a-radio>
               <a-radio value="grid">网格</a-radio>
@@ -69,13 +60,15 @@
         </a-row>
 
         <div v-if="viewMode === 'list'" class="list-view">
-          <a-table :columns="columns" :data="files" :pagination="false" @cell-click="handleRowClick">
+          <a-table :row-selection="rowSelection" row-key="shortUrl" :columns="columns" :data="files" :pagination="false"
+            @cell-click="handleRowClick" @select="handleTableSelect" @select-all="handleSelectAll"
+            @selection-change="handleSelectionChange">
             <template #file-icon="{ record }">
               <a-avatar :size="32" shape="square">
                 <icon-file-image v-if="isImageFile(record.name)" />
                 <icon-file-pdf v-else-if="isPdfFile(record.name)" />
                 <icon-file v-else-if="isTextFile(record.name)" />
-                <icon-drive-file  v-else />
+                <icon-drive-file v-else />
               </a-avatar>
             </template>
             <template #name="{ record }">
@@ -121,17 +114,14 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/store/user.js';
 import {
-  IconUpload,
-  IconExport,
   IconFile,
   IconFileImage,
   IconFilePdf,
-  IconMore,
+  IconDriveFile,
 } from '@arco-design/web-vue/es/icon';
 import { Message, Modal } from '@arco-design/web-vue';
 import { showLoginModal } from '@/services/authService';
 import FileCard from './FileCard.vue';
-import cImg from '@/components/base/cImg.vue';
 import api from '@/api/index.js';
 
 const viewMode = ref('list');
@@ -150,6 +140,8 @@ const hasMore = ref(true); // 是否还有更多数据
 const userId = ref(route.params.id);
 
 import { API_BASE_URL } from '@/config';
+
+
 
 // 图片预览相关状态
 const previewVisible = ref(false);
@@ -172,42 +164,6 @@ const previewImageList = computed(() => {
     });
 });
 
-// 监听路由参数变化
-watch(
-  () => route.params.id,
-  (newId) => {
-    if (newId) {
-      userId.value = newId;
-      // 重新加载数据
-      refreshData();
-    }
-  }
-);
-
-// 刷新数据函数
-const refreshData = async () => {
-  Message.loading({ id: "cloudLoading", content: "加载数据中" });
-
-  // 清空现有数据
-  files.value = [];
-  lastId.value = '0';
-  hasMore.value = true;
-
-  // 重新获取用户信息和文件列表
-  if (userId.value) {
-    try {
-      await fetchUserInfo(userId.value);
-      await fetchFileList();
-      Message.success({ id: "cloudLoading", content: "加载成功" });
-    } catch (error) {
-      Message.error('数据加载失败: ' + error.message);
-    } finally {
-      loadingMessage.close();
-    }
-  } else {
-    loadingMessage.close();
-  }
-};
 
 // 计算存储使用百分比
 const usedPercent = computed(() => {
@@ -294,9 +250,9 @@ onMounted(async () => {
 const handleBack = () => {
   router.push(`/space/${userId.value}`);
 };
-
 const handleViewModeChange = (value) => {
-  console.log('视图模式切换为:', value);
+
+  //切换自己的选中状态
 };
 
 // 定义表格列
@@ -332,9 +288,57 @@ const columns = [
   }
 ];
 
+
+// 选中的行 key 数组
+const selectedRowKeys = ref([]);
+
+// 根据选中的行 keys 自动计算行选择配置
+const rowSelection = computed(() => {
+  if (selectedRowKeys.value.length === 0) {
+    // 如果没有选中任何行，则返回 null（不显示选择框）
+    return null;
+  } else {
+    // 返回选择配置
+    return {
+      type: 'checkbox',
+      showCheckedAll: true,
+      selectedRowKeys: selectedRowKeys.value,
+    };
+  }
+});
+
+// 处理表格选择事件
+const handleTableSelect = (selectedRowKeys2) => {
+  // 更新选中的行
+  selectedRowKeys.value = selectedRowKeys2;
+};
+
+// 处理全选事件
+const handleSelectAll = (checked) => {
+  if (checked) {
+    // 全选，将所有文件的 key 添加到 selectedRowKeys
+    selectedRowKeys.value = files.value.map(file => file.shortUrl);
+  } else {
+    // 取消全选
+    selectedRowKeys.value = [];
+  }
+};
+
+// 处理选择变化事件
+const handleSelectionChange = (newSelectedRowKeys) => {
+  selectedRowKeys.value = newSelectedRowKeys;
+};
+
 // 处理行点击事件
 const handleRowClick = (record) => {
-  console.log('点击文件行:', record);
+  const isSelected = selectedRowKeys.value.includes(record.shortUrl);
+  if (isSelected) {
+    // 当前行已选中，取消选中
+    selectedRowKeys.value = selectedRowKeys.value.filter(key => key !== record.shortUrl);
+  } else {
+    // 当前行未选中，添加到选中列表
+    selectedRowKeys.value = [...selectedRowKeys.value, record.shortUrl];
+  }
 };
 
 // 处理预览事件
@@ -345,7 +349,7 @@ const handlePreview = (record) => {
     const imageIndex = files.value
       .filter(file => isImageFile(file.name))
       .findIndex(file => file.shortUrl === record.shortUrl);
-    
+
     if (imageIndex !== -1) {
       // 设置当前预览的图片索引
       previewCurrent.value = imageIndex;
@@ -360,13 +364,12 @@ const handlePreview = (record) => {
 // 处理下载事件
 const handleDownload = async (record) => {
   console.log('下载文件:', record);
-  record.download=true
+  record.download = true
   try {
     // 从用户store获取token
     const userStore = useUserStore();
     const token = userStore.getToken();
-    if(!token)
-    {
+    if (!token) {
       // 未登录时提示用户并打开登录窗口
       Modal.warning({
         title: '未登录',
@@ -378,41 +381,41 @@ const handleDownload = async (record) => {
         }
       });
       return;
-    } 
+    }
 
     Message.loading({ id: "downloadLoading", content: "获取临时url中" });
-    
+
     // 使用fetch API进行下载，这样可以携带认证头
     const response = await fetch(`${API_BASE_URL}/file/download?f=${encodeURIComponent(record.shortUrl)}`, {
       method: 'GET',
       headers: {
-        'token': token, 
+        'token': token,
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`下载失败: ${response.status} ${response.statusText}`);
     }
-    
+
     // 获取文件blob数据
     const blob = await response.blob();
-    
+
     // 创建下载链接
     const downloadUrl = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = record.name || 'download'; // 使用文件名，如果没有则使用'download'
     link.style.display = 'none';
-    
+
     document.body.appendChild(link);
     link.click();
-    
+
     // 清理
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
     console.error('下载失败:', error);
-    Message.error({ id: "downloadLoading", content: record.name+"，下载失败，因为"+error.message });
+    Message.error({ id: "downloadLoading", content: record.name + "，下载失败，因为" + error.message });
   } finally {
     record.download = false;
   }
@@ -431,6 +434,80 @@ const handleRename = (record) => {
 // 处理删除事件
 const handleDelete = (record) => {
   console.log('删除文件:', record);
+  Modal.warning({
+    title: '确认删除',
+    content: `确定要删除文件 "${record.name}" 吗？`,
+    okText: '确定',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        const userStore = useUserStore();
+        const token = userStore.getToken();
+        if (!token) {
+          showLoginModal();
+          return;
+        }
+
+        Message.loading({ id: "deleteLoading", content: "删除中..." });
+        // 调用删除API
+        await api.post('/file/delete', {
+          fileIds: [record.shortUrl] // 单个文件删除
+        }, {
+          headers: {
+            'token': token,
+          }
+        });
+
+        Message.success({ id: "deleteLoading", content: "删除成功" });
+        // 从本地列表中移除已删除的文件
+        files.value = files.value.filter(file => file.shortUrl !== record.shortUrl);
+        // 重置选择状态
+        selectedRowKeys.value = [];
+      } catch (error) {
+        console.error('删除失败:', error);
+        Message.error({ id: "deleteLoading", content: "删除失败: " + error.message });
+      }
+    }
+  });
+};
+
+// 处理批量删除事件
+const handleBatchDelete = () => {
+  if (selectedRowKeys.value.length === 0) {
+    Message.info('请先选择要删除的文件');
+    return;
+  }
+
+  Modal.warning({
+    title: '确认批量删除',
+    content: `确定要删除选中的 ${selectedRowKeys.value.length} 个文件吗？`,
+    okText: '确定',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        const userStore = useUserStore();
+        const token = userStore.getToken();
+        if (!token) {
+          showLoginModal();
+          return;
+        }
+
+        Message.loading({ id: "batchDeleteLoading", content: "批量删除中...",duration:30000 });
+        // 调用批量删除API
+        const { data } = await api.get('/file/batchFree', {
+          f: selectedRowKeys.value // 传递选中的文件ID数组
+        });
+        Message.success({ id: "batchDeleteLoading", content: "批量删除成功" });
+        // 从本地列表中移除已删除的文件
+        files.value = files.value.filter(file => !selectedRowKeys.value.includes(file.shortUrl));
+        // 重置选择状态
+        selectedRowKeys.value = [];
+      } catch (error) {
+        console.error('批量删除失败:', error);
+        Message.error({ id: "batchDeleteLoading", content: "批量删除失败: " + error.message,duration:800 });
+      }
+    }
+  });
 };
 
 // 判断文件类型

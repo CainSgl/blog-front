@@ -45,20 +45,21 @@
                                 border: '1px solid var(--color-border)',
                                 userSelect: 'none'
                             }" :default-size="0.6" @moving="onSplit">
-                                <template #first >
-                                    <a-split  style="overflow: hidden;height: 100%;" direction="vertical"  :default-size="0.7" @moving="onSplit">
+                                <template #first>
+                                    <a-split style="overflow: hidden;height: 100%;" direction="vertical"
+                                        :default-size="0.7" @moving="onSplit">
                                         <template #first>
                                             <div ref="postCardContainerRef" style="overflow: hidden; height: 100%;">
                                                 <div style="padding:10px">
-                                                     <PostCard :height="dynamicHeight" :width="dynamicWidth" :showStatus="true"
-                                                    :post="articleForm"></PostCard>
+                                                    <PostCard :height="dynamicHeight" :width="dynamicWidth"
+                                                        :showStatus="true" :post="articleForm"></PostCard>
                                                 </div>
-                                               
+
                                             </div>
                                         </template>
                                         <template #second>
                                             <div style="padding:20px">
-                                               <span>你可以调整卡片的高度或宽度以查看在不同条件下的适配效果！</span>
+                                                <span>你可以调整卡片的高度或宽度以查看在不同条件下的适配效果！</span>
                                             </div>
                                         </template>
                                     </a-split>
@@ -82,6 +83,14 @@
                                         show-word-limit />
                                 </a-form-item>
 
+                                <a-form-item label="可见性" required>
+                                    <a-select v-model="articleForm.status" placeholder="请选择文章状态">
+                                        <a-option value="草稿">私密</a-option>
+                                        <a-option value="已发布">公开</a-option>
+                                        <a-option value="仅粉丝">仅粉丝</a-option>
+                                    </a-select>
+                                </a-form-item>
+
                                 <a-form-item label="文章摘要" required>
                                     <div class="summary-input-group">
                                         <a-textarea v-model="articleForm.summary" placeholder="请输入文章摘要"
@@ -99,7 +108,7 @@
                                             placeholder="请选择或输入标签" class="tag-select" :max-tag-count="8"
                                             @change="onTagChange">
                                             <a-option v-for="tag in articleForm.tags" :key="tag" :value="tag">{{ tag
-                                                }}</a-option>
+                                            }}</a-option>
                                         </a-select>
                                         <a-button type="primary" @click="autoGenerateTags" :loading="generatingTags"
                                             class="auto-generate-btn">
@@ -127,7 +136,8 @@
 
                                 <!-- 图片裁剪模态框 -->
                                 <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible"
-                                    :aspect-ratio="1.5" :original-file-name="originalFileName" @confirm="handleCroppedImage" />
+                                    :aspect-ratio="1.5" :original-file-name="originalFileName"
+                                    @confirm="handleCroppedImage" />
                             </div>
                             <p>内容预览</p>
                             <MarkdownPreview :content="articleForm.newContent" height="400px"
@@ -199,7 +209,7 @@ const articleForm = ref({
     title: '',
     summary: '',
     content: '',
-    status: '已发布',
+    status: '已发布', // 默认为已发布（公开）
     top: false,
     recommend: false,
     viewCount: 0,
@@ -254,22 +264,22 @@ const wordCount = computed(() => {
 
 // 节流函数实现
 const throttle = (func, delay) => {
-  let timeoutId;
-  let lastExecTime = 0;
-  return function (...args) {
-    const currentTime = Date.now();
-    
-    if (currentTime - lastExecTime > delay) {
-      func.apply(this, args);
-      lastExecTime = currentTime;
-    } else {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        func.apply(this, args);
-        lastExecTime = Date.now();
-      }, delay - (currentTime - lastExecTime));
-    }
-  };
+    let timeoutId;
+    let lastExecTime = 0;
+    return function (...args) {
+        const currentTime = Date.now();
+
+        if (currentTime - lastExecTime > delay) {
+            func.apply(this, args);
+            lastExecTime = currentTime;
+        } else {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+                lastExecTime = Date.now();
+            }, delay - (currentTime - lastExecTime));
+        }
+    };
 };
 
 // 标签选择变化处理
@@ -284,8 +294,8 @@ const onTagChange = (value) => {
 const onSplitBase = () => {
     nextTick(() => {
         if (postCardContainerRef.value) {
-            dynamicWidth.value =  postCardContainerRef.value.offsetWidth-20;
-            dynamicHeight.value =  postCardContainerRef.value.offsetHeight-50;
+            dynamicWidth.value = postCardContainerRef.value.offsetWidth - 20;
+            dynamicHeight.value = postCardContainerRef.value.offsetHeight - 50;
         }
     });
 };
@@ -357,20 +367,17 @@ const publishArticle = async () => {
             id: articleForm.value.id,
             title: articleForm.value.title,
             summary: articleForm.value.summary,
-            status: '已发布',
+            status: articleForm.value.status,
             isTop: articleForm.value.top,
             tags: articleForm.value.tags,
             img: articleForm.value.img,
         });
-
         // 然后发布文章
         await api.post('/post/publish', { id: articleForm.value.id });
-
         // 发布成功提示
         Message.success('文章发布成功！');
-
         // 跳转到文章列表页
-        router.push('/p');
+        router.push({ name: 'Post', params: { id: articleForm.value.id } })
     } catch (error) {
         console.error('发布文章失败:', error);
         // 发布失败提示
@@ -494,7 +501,10 @@ onMounted(() => {
             Message.warning('未找到文章内容，请返回编辑页面');
             return;
         }
-        commitData.status = '发布中'
+        // 如果 commitData 中没有状态，则设置默认状态为"已发布"
+        if (!commitData.status) {
+            commitData.status = '已发布';
+        }
         articleForm.value = commitData;
     } catch (error) {
         console.error('Error initializing article form:', error);

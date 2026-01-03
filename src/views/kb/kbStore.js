@@ -87,12 +87,7 @@ export const useKbStore = defineStore('kb', () => {
         }
         return response.data.first;
       })
-      .catch(error => {
-        console.error('获取知识库信息失败:', error);
-        kbInfoPromise = null; // 重置 Promise，允许后续重试
-        return null;
-      });
-
+    
     return kbInfoPromise;
   };
 

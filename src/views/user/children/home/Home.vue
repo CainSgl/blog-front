@@ -62,6 +62,10 @@
             <span class="stat-value">{{ userInfo?.articleViewCount || 0 }}</span>
           </div>
         </div>
+        <div class="user-registration">
+          <span class="registration-label">注册时间：</span>
+          <span class="registration-value">{{ new Date(userInfo?.createdAt).toLocaleString('zh-CN') }}</span>
+        </div>
         <div class="user-bio" :class="{ 'editable-bio': currentUserInfo.id == userId }" v-if="userInfo?.bio"
           @click="tryChangeInfo">
           <p>{{ userInfo.bio }}</p>
@@ -268,6 +272,23 @@ onMounted(async () => {
           }
         }
       }
+    }
+  }
+
+  .user-registration {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    margin: 16px 0;
+    padding: 0 24px;
+
+    .registration-label {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .registration-value {
+      color: #555;
     }
   }
 

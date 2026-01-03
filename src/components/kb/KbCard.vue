@@ -1,7 +1,7 @@
 <template>
     <div class="kb-card">
-
-        <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }" @click="handleCardClick">
+        <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }" @click="handleCardClick"
+            v-if="kbInfo.id">
             <!-- 封面图片 -->
             <div class="kb-cover">
                 <c-img v-if="kbInfo.coverUrl" :src="kbInfo.coverUrl" :alt="kbInfo.name" width="180px" height="180px"
@@ -27,10 +27,18 @@
             </div>
 
             <!-- 状态标签 -->
-            <a-tag v-if="showStatus&&kbInfo.status" :color="kbInfo.status === '已发布' ? 'green' : 'orange'" class="kb-status-tag">
-                {{ kbInfo.status  === '已发布' ? '已公开' : kbInfo.status }}
-            </a-tag>
+            <div v-if="showStatus && kbInfo.status"    class="kb-status-tag">
+                <a-tag v-if="kbInfo.status === '仅粉丝'" :color="primary4Color">粉丝专属</a-tag>
+                <a-tag v-if="kbInfo.status === '已发布'" color="green">公开</a-tag>
+                <a-tag v-if="kbInfo.status === '草稿'" color="gray">私密</a-tag>
+            </div>
+
         </a-card>
+        <div class="kb-card-loading" v-else>
+            <a-skeleton :animation="true">
+               <a-skeleton-shape :style="{ height: `260px`, width: `180px` }"/>
+            </a-skeleton>
+        </div>
     </div>
 </template>
 
@@ -52,7 +60,7 @@ const props = defineProps({
             status: '草稿',
             likeCount: 0,
             coverUrl: '',
-            postCount:0
+            postCount: 0
         })
     },
     showStatus: {
@@ -60,6 +68,9 @@ const props = defineProps({
         default: true
     }
 })
+
+
+const primary4Color = '#ff6699' 
 
 // 格式化日期
 const formatDate = (dateString) => {
@@ -76,6 +87,8 @@ const handleCardClick = () => {
     const routeData = router.resolve({ name: 'KB', query: { kb: props.kbInfo.id } });
     window.open(routeData.href, '_blank');
 }
+
+
 </script>
 
 <style scoped lang="less">
@@ -98,6 +111,14 @@ const handleCardClick = () => {
             box-shadow: 0 4px 12px 0 rgba(0, 174, 236, 0.15);
             /* 减轻 hover 阴影 */
         }
+    }
+
+    .kb-card-loading {
+         border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        height: 100%;
+        border: 1px solid #e5e8ef;
     }
 
     .kb-cover {
