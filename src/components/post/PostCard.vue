@@ -23,8 +23,8 @@
               <!-- 状态 -->
               <div v-if="showStatus">
                 <a-tag v-if="post.status === '仅粉丝'" :color="primary4Color">{{ post.status }}</a-tag>
-                <a-tag v-else-if="post.status === '已发布'" color="green">{{ post.status }}</a-tag>
-                <a-tag v-else color="gray">{{ post.status }}</a-tag>
+                <a-tag v-else-if="post.status === '已发布'&&!onlyFans" color="green">{{ post.status }}</a-tag>
+                <a-tag v-else-if="!onlyFans" color="gray">{{ post.status }}</a-tag>
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@
 
                 <!-- 时间信息 -->
                 <div class="post-footer" v-if="props.width>240">
-                  <span class="post-date">{{ formatDate(post.createdAt) }}</span>
+                  <span class="post-date">{{ formatDate(post.updatedAt) }}</span>
                 </div>
               </div>
             </div>
@@ -122,6 +122,10 @@ const props = defineProps({
   },
   showStatus: {
     type: Boolean,
+    default: false
+  },
+  onlyFans:{
+     type: Boolean,
     default: false
   }
 })
@@ -200,16 +204,32 @@ function calculateSummary() {
 
 
 
-
-// 格式化日期
 const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  })
-}
+  const now = new Date();
+  const targetDate = new Date(dateString);
+  const diffMs = now - targetDate;
+  const diffSeconds = Math.floor(diffMs / 1000);
+
+  // 超过7天（604800秒）显示日期
+  if (diffSeconds > 604800) {
+    return targetDate.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })+'更新';
+  }
+
+  // 7天内：根据时间差返回 "XX前"
+  if (diffSeconds < 60) {
+    return `${diffSeconds}秒前更新`;
+  } else if (diffSeconds < 3600) {
+    return `${Math.floor(diffSeconds / 60)}分钟前更新`;
+  } else if (diffSeconds < 86400) {
+    return `${Math.floor(diffSeconds / 3600)}小时前更新`;
+  } else {
+    return `${Math.floor(diffSeconds / 86400)}天前更新`;
+  }
+};
 
 // 计算属性：判断是否已点赞
 const isLiked = computed(() => {

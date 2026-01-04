@@ -29,7 +29,7 @@
         <div class="posts-list">
           <!-- 文章卡片将在这里展示 -->
           <div v-for="post in posts">
-            <PostCard :showStatus="postStatus!=''" :height="cardHeight" :width="cardWidth" :key="post.id"
+            <PostCard :showStatus="postStatus==''" :height="cardHeight" :width="cardWidth" :key="post.id"
               :post="loading?{}:post" />
           </div>
         </div>

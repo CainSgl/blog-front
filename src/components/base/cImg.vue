@@ -2,6 +2,7 @@
   <a-image 
     :src="computedUrl" 
     v-bind="filteredAttrs"
+    class="c-img"
   />
 </template>
 
@@ -47,9 +48,16 @@ const computedUrl = computed(() => {
   return `${API_BASE_URL}/file?f=${props.src}`;
 });
 
-// 使用 defineOptions 来设置 inheritAttrs 为 false
-// 这样可以更好地控制属性的传递
 defineOptions({
   inheritAttrs: false
 });
 </script>
+
+<style scoped>
+.c-img :deep(.arco-image-img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+</style>

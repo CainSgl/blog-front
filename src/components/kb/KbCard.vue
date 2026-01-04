@@ -25,12 +25,12 @@
                     <div class="kb-date">{{ formatDate(kbInfo.createdAt) }}</div>
                 </div>
             </div>
-
+        
             <!-- 状态标签 -->
             <div v-if="showStatus && kbInfo.status"    class="kb-status-tag">
                 <a-tag v-if="kbInfo.status === '仅粉丝'" :color="primary4Color">粉丝专属</a-tag>
-                <a-tag v-if="kbInfo.status === '已发布'" color="green">公开</a-tag>
-                <a-tag v-if="kbInfo.status === '草稿'" color="gray">私密</a-tag>
+                <a-tag v-if="kbInfo.status === '已发布'&&!onlyFans" color="green">公开</a-tag>
+                <a-tag v-if="kbInfo.status === '草稿' && !onlyFans" color="gray">私密</a-tag>
             </div>
 
         </a-card>
@@ -66,22 +66,43 @@ const props = defineProps({
     showStatus: {
         type: Boolean,
         default: true
+    },
+    onlyFans:{
+      type:Boolean,
+      default: false
     }
 })
 
 
 const primary4Color = '#ff6699' 
 
-// 格式化日期
-const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    })
-}
 
+const formatDate = (dateString) => {
+  const now = new Date();
+  const targetDate = new Date(dateString);
+  const diffMs = now - targetDate;
+  const diffSeconds = Math.floor(diffMs / 1000);
+
+  // 超过7天（604800秒）显示日期
+  if (diffSeconds > 604800) {
+    return targetDate.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })+'创建';
+  }
+
+  // 7天内：根据时间差返回 "XX前"
+  if (diffSeconds < 60) {
+    return `${diffSeconds}秒前创建`;
+  } else if (diffSeconds < 3600) {
+    return `${Math.floor(diffSeconds / 60)}分钟前创建`;
+  } else if (diffSeconds < 86400) {
+    return `${Math.floor(diffSeconds / 3600)}小时前创建`;
+  } else {
+    return `${Math.floor(diffSeconds / 86400)}天前创建`;
+  }
+};
 // 处理卡片点击事件
 const handleCardClick = () => {
     const routeData = router.resolve({ name: 'KB', query: { kb: props.kbInfo.id } });

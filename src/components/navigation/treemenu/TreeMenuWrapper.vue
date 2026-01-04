@@ -1,5 +1,6 @@
 <template>
-  <div class="tree-menu-wrapper">
+  <div ref="wrapperRef" class="tree-menu-wrapper">
+
     <div v-if="showSkeleton" class="tree-menu-skeleton">
       <!-- 模拟搜索框 -->
       <div class="search-container-skeleton">
@@ -18,18 +19,20 @@
         </div>
       </div>
     </div>
+   
     <TreeMenuNew 
       v-else
       :tree-data="treeData" 
       :edit="edit" 
       :kb-id="kbId"
       v-bind="$attrs"
+      :style="{ height: height }"
     />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted, nextTick } from 'vue';
 import TreeMenuNew from './TreeMenuNew.vue';
 import { SkeletonLine } from '@arco-design/web-vue/es/skeleton';
 
@@ -50,12 +53,25 @@ const props = defineProps({
   kbId: {
     type: String,
     default: '-1'
+  },
+  height: {
+    type: String,
+    default: '100%'
   }
 });
 
 // 判断是否显示骨架屏
 const showSkeleton = computed(() => {
   return !props.kbId || parseInt(props.kbId) < 1;
+});
+
+// 创建ref引用
+const wrapperRef = ref(null);
+
+
+// 组件挂载后计算高度
+onMounted(async () => {
+  await nextTick();
 });
 </script>
 

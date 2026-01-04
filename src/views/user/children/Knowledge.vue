@@ -11,6 +11,7 @@
         <a-radio-group v-model="kbStatus" type="button" @change="handleStatusChange">
           <a-radio value="">全部</a-radio>
           <a-radio value="草稿">草稿</a-radio>
+          <a-radio value="仅粉丝">仅粉丝</a-radio>
           <a-radio value="已发布">已公开</a-radio>
           <a-radio value="待审核">审核中</a-radio>
           <a-radio value="已下架">已下架</a-radio>
@@ -24,7 +25,7 @@
       <template
         #default="{ pageSize: currentPageSize, containerWidth: currentContainerWidth, containerHeight: currentContainerHeight }">
         <div class="kb-list">
-          <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="loading?{}:kb" :show-status="kbStatus!=''" />
+          <KbCard v-for="kb in knowledgeBases" :key="kb.id" :kb-info="loading ? {} : kb" :showStatus="kbStatus == ''" />
           <div v-if="isCurrentUser" class="create-kb-card">
             <a-popconfirm content="创建公开知识库还是私密知识库？（后续可修改）" okText="公开" cancelText="私密" @ok="handleCreateKb(true)"
               @cancel="handleCreateKb(false)">

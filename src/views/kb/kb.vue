@@ -14,7 +14,7 @@
               </span>
             </div>
           </div>
-          <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId" />
+          <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId" :height="treeMenuHeight"  />
           <LikeButton :initial-like-count="kbInfo.likeCount" :kb-id="kbId" @like="handleLike" v-if="!noKb"
             class="like-button-wrapper" />
         </div>
@@ -158,6 +158,8 @@ function handleResize() {
 }
 
 const kbId = ref('-1');
+const treeMenuHeight = ref('calc(100vh - 220px)'); // 默认高度计算
+
 function handleClickPost(node) {
   const pageName = route.name;
   //是的话跳转到查看页面，否则不改变页面

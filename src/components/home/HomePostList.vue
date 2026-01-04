@@ -1,13 +1,12 @@
 <template>
   <div ref="containerRef" class="home-post-list">
     <div class="post-grid">
-      <PostCard v-for="post in posts" :key="post.id || post.tempId" :width="postCardWidth" :height="postCardHeight"
+      <PostCard v-for="post in posts" :key="post.id || post.tempId" :width="postCardWidth" :height="postCardHeight" :onlyFans="true"
         :post="post" :show-status="true" @clickCard="handlePostClick" />
     </div>
 
     <!-- 显示没有更多内容的提示 -->
     <div v-if="!hasMore && posts.length > 0" class="no-more-tips">
-
       {{ hasMoreText }}
     </div>
 
@@ -32,6 +31,10 @@ const props = defineProps({
   hasMoreText: {
     type: String,
     default: '没有更多内容了'
+  },
+  listenWindowScroll: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -60,7 +63,12 @@ onMounted(() => {
     // 根据初始容器宽度设置卡片尺寸
     updateCardSize()
     loadMoreData()
+  }
 
+  // 根据属性决定监听容器滚动还是窗口滚动
+  if (props.listenWindowScroll) {
+    window.addEventListener('scroll', handleScroll);
+  } else if (containerRef.value) {
     // 添加滚动事件监听器
     containerRef.value.addEventListener('scroll', handleScroll);
   }
@@ -81,9 +89,9 @@ function getExpectCount() {
     // 平板端：每行显示 2-3 个卡片
     return Math.max(3, Math.min(3, Math.floor(containerWidth.value / 250)));
   } else if (containerWidth.value <= 1780) {
-    return Math.max(3, Math.min(2, Math.floor(containerWidth.value / 350)));
+    return Math.max(3, Math.min(3, Math.floor(containerWidth.value / 300)));
   } else {
-    return Math.max(4, Math.min(3, Math.floor(containerWidth.value / 300)));
+    return Math.max(4, Math.min(4, Math.floor(containerWidth.value / 350)));
   }
 }
 
@@ -109,7 +117,7 @@ const updateCardSize = () => {
   expectWidth = containerWidth.value / getExpectCount() - 20
   expectHeight = Math.floor(getMinHeightCount() * expectWidth)
   if (containerWidth.value <= 768) {
-    expectWidth = containerWidth.value / getExpectCount()-20
+    expectWidth = containerWidth.value / getExpectCount() - 20
     expectHeight = Math.floor(getMinHeightCount() * expectWidth)
   }
   postCardWidth.value = expectWidth
@@ -122,7 +130,9 @@ const getPageSize = () => {
   // 计算需要补齐的数量，如果 posts.value.length 能被 expectCount 整除，则不需要补齐
   const remainder = posts.value.length % expectCount;
   const fillCount = (remainder === 0) ? 0 : expectCount - remainder;
-  return expectCount * 4 + fillCount;
+  //需要计算横向的卡片数量
+
+  return expectCount*4 + fillCount;
 }
 
 let loadingData = false
@@ -193,30 +203,42 @@ onBeforeUnmount(() => {
   if (resizeObserver) {
     resizeObserver.disconnect()
   }
-  // 移除滚动事件监听器
-  if (containerRef.value) {
+  // 根据属性决定移除窗口滚动监听器还是容器滚动监听器
+  if (props.listenWindowScroll) {
+    window.removeEventListener('scroll', handleScroll);
+  } else if (containerRef.value) {
     containerRef.value.removeEventListener('scroll', handleScroll);
   }
 })
 
 // 检查是否需要加载更多数据
 const shouldLoadMore = () => {
-  if (!containerRef.value) return;
-
-  const { scrollTop, scrollHeight, clientHeight } = containerRef.value;
-  // 检查是否滚动到底部（阈值为100px，防止需要精确滚动到最底部）
+  let scrollTop, scrollHeight, clientHeight;
+  
+  if (props.listenWindowScroll) {
+    // 如果监听窗口滚动，使用文档相关属性
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
+    clientHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0;
+  } else {
+    // 如果监听容器滚动，使用容器属性
+    if (!containerRef.value) return false;
+    const { scrollTop: containerScrollTop, scrollHeight: containerScrollHeight, clientHeight: containerClientHeight } = containerRef.value;
+    scrollTop = containerScrollTop;
+    scrollHeight = containerScrollHeight;
+    clientHeight = containerClientHeight;
+  }
+  
+  // 检查是否滚动到底部（阈值为400px，防止需要精确滚动到最底部）
   if (scrollHeight - scrollTop - clientHeight < 400) {
     return true
   }
+  return false;
 };
 
 // 滚动事件处理函数
 const handleScroll = () => {
-  if (!containerRef.value || loadingData) return;
-
-  const { scrollTop, scrollHeight, clientHeight } = containerRef.value;
-  // 检查是否滚动到底部（阈值为100px，防止需要精确滚动到最底部）
-  if (scrollHeight - scrollTop - clientHeight < 400) {
+  if (shouldLoadMore()) {
     loadMoreData();
   }
 };
@@ -235,22 +257,28 @@ const handlePostClick = (post) => {
 
 <style scoped lang="less">
 .home-post-list {
-  padding: 20px;
-  width: 100%;
-
   overflow-x: hidden;
-
+  overflow-y: hidden;
 }
 
 .post-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  width: 100%;
+
 }
 
 /* 手机屏幕下 gap 为 5px */
 @media (max-width: 768px) {
+  .home-post-list {
+    width: 100%;
+    max-width: 100%
+  }
+
+  .no-more-tips {
+    width: calc(80vw-20px);
+  }
+
   .post-grid {
     gap: 5px;
   }
@@ -263,5 +291,8 @@ const handlePostClick = (post) => {
   color: #999;
   width: 100%;
   margin-top: 20px;
+  word-wrap: break-word;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 </style>

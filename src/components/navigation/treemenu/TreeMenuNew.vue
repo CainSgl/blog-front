@@ -1,6 +1,6 @@
 <template>
-  <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave">
-    <!-- 搜索框 -->
+  <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave" @mouseenter="()=> {mouseInTreeMenu = true}">
+    <!-- 搜索框 --> 
     <div class="search-container">
       <Input v-model="searchText" placeholder="找不到？搜索一下吧..." allow-clear @input="handleSearch">
         <template #prefix>
@@ -38,7 +38,8 @@
         </Dropdown>
       </div>
     </div>
-    <TransitionGroup name="node-list" tag="div">
+    <TransitionGroup name="node-list" tag="div" style="height:100%;"
+      :style="{ overflow: mouseInTreeMenu ? 'auto' : 'hidden' }">
       <div v-for="(node, index) in flatNodes" :key="node.id" class="tree-node" :class="getNodeClasses(node, index)"
         :style="{ marginLeft: `${node.depth * 20}px` }" @mousedown="handleMouseDown($event, node, index)">
         <div class="node-content" :class="{ renaming: node.showInput }">
@@ -176,6 +177,7 @@ const emit = defineEmits(['clickPost', 'trigger']);
 const router = useRouter();
 
 // 创建内部loading状态
+const mouseInTreeMenu = ref(false);
 const loading = ref(0);
 const loadingTip = computed(() => {
   if (loading.value === 1) {
@@ -414,12 +416,11 @@ const actionHandlers = {
       });
       if (data > 0) {
         if (node.postId) {
-             Message.success(node.name+"将移入游离文档列表，若需要完全删除，请在个人空间操作。");
-        }else
-        {
+          Message.success(node.name + "将移入游离文档列表，若需要完全删除，请在个人空间操作。");
+        } else {
           Message.warning(node.name + "目录下的" + data + "个文章已自动移入游离文档列表，可在个人空间查看。");
         }
-        
+
       }
 
       console.log('本次目录删除影响了', data, '个文章，需要用户注意');
@@ -895,7 +896,7 @@ function updateShadowPosition(event) {
 // 鼠标移动事件
 function handleMouseMove(event) {
   event.preventDefault();
-
+ 
   // 如果 edit 为 false 或者正在重命名节点，不允许拖拽
   if (!props.edit || lastRenameNode) {
     return;
@@ -1044,6 +1045,7 @@ function handleMouseUp(event) {
 
 // 鼠标离开容器事件
 function handleMouseLeave(event) {
+  mouseInTreeMenu.value = false;
   if (!dragState.isDragging) return;
 
   // 如果鼠标离开容器，尝试目前是不放置
@@ -1568,6 +1570,10 @@ function cleanupDrag() {
 
 /* 加载状态样式 */
 .loading-container {
+  left: 25%;
+  z-index: 1001;
+  position: absolute;
+  bottom: 20px;
   display: flex;
   justify-content: center;
   align-items: center;

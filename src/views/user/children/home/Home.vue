@@ -62,10 +62,6 @@
             <span class="stat-value">{{ userInfo?.articleViewCount || 0 }}</span>
           </div>
         </div>
-        <div class="user-registration">
-          <span class="registration-label">注册时间：</span>
-          <span class="registration-value">{{ new Date(userInfo?.createdAt).toLocaleString('zh-CN') }}</span>
-        </div>
         <div class="user-bio" :class="{ 'editable-bio': currentUserInfo.id == userId }" v-if="userInfo?.bio"
           @click="tryChangeInfo">
           <p>{{ userInfo.bio }}</p>
