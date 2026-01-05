@@ -315,7 +315,7 @@ const autoGenerateTags = async () => {
             return;
         }
 
-        const { data } = await api.post('/ai/tag/generate', { content: articleForm.value.newContent })
+        const { data } = await api.post('/ai/tag/generate', { content: articleForm.value.newContent }, { timeout: 60000 })
         console.log(data)
         const generatedTags = data.map(item => item.tag + ":" + item.core);
         // 将生成的标签添加到现有标签中，去重
@@ -335,7 +335,7 @@ const autoGenerateTags = async () => {
 const autoGenerateSummary = async () => {
     generatingSummary.value = true;
     try {
-        const { data } = await api.post('/ai/summary/generate', { content: articleForm.value.newContent });
+        const { data } = await api.post('/ai/summary/generate', { content: articleForm.value.newContent }, { timeout: 60000 });
         // 限制AI生成的摘要长度不超过300字
         const limitedData = data.length > 300 ? data.substring(0, 300) : data;
         // 保存AI生成的摘要

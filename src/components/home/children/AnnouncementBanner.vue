@@ -1,9 +1,13 @@
 <template>
+  <div class="announcement-banner">
+    <div class="announcement-header">
+      <a-typography-title :heading="5" class="announcement-title-main">公告</a-typography-title>
+    </div>
     <a-timeline :reverse="true" :direction="direction" :mode="mode">
       <div v-for="(item, index) in announcements" :key="item.id">
         <a-timeline-item  class="announcement-item" :label="formatDate(item.createdAt)" @click="goToAnnouncement(item)">
           <a-row class="announcement-content">
-            <cImg width="100" class="announcement-image" :src="item.img" />
+            <cImg width="100" class="announcement-image" :src="item.img" v-if="item.img" />
             <div class="announcement-text">
               <h3 class="announcement-title">{{ item.title }}</h3>
               <div class="announcement-summary">
@@ -14,12 +18,13 @@
         </a-timeline-item>
       </div>
     </a-timeline>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import cImg from '@/components/base/cImg.vue';
-
+import api from '@/api/index';
 // 响应式判断屏幕宽度
 const isMobile = ref(window.matchMedia('(max-width: 1024px)').matches);
 const direction = computed(() => isMobile.value ? 'horizontal' : 'vertical');
@@ -27,45 +32,20 @@ const mode=computed(()=>isMobile.value?'bottom':'bottom')
 const handleResize = () => {
   isMobile.value = window.matchMedia('(max-width: 1024px)').matches;
 };
+const announcements = ref([
+]);
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('resize', handleResize);
+   const {data}= await api.get('/system/announcement')
+   announcements.value=data
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
 });
 
-// 模拟公告数据
-const announcements = ref([
-  {
-    id: "1",
-    title: "系统维护通知",
-    summary: "为了提供更好的服务，我们将在本周六凌晨2点到4点进行系统维护，期间服务将暂时不可用。",
-    viewCount: 120,
-    commentCount: 5,
-    createdAt: "2026-01-04T10:26:53.419565",
-    img: "https://picsum.photos/300/200"
-  },
-  {
-    id: "2",
-    title: "新功能上线",
-    summary: "我们很高兴地宣布，知识库功能正式上线！现在您可以创建和管理个人知识库，与社区分享您的知识。",
-    viewCount: 85,
-    commentCount: 12,
-    createdAt: "2026-01-03T15:30:22.123456",
-    img: "https://picsum.photos/300/200"
-  },
-  {
-    id: "3",
-    title: "春节假期安排",
-    summary: "春节将至，我们将调整客服时间。春节期间（2月10日至2月17日）客服将暂停服务，2月18日起恢复正常。",
-    viewCount: 210,
-    commentCount: 8,
-    createdAt: "2026-01-02T09:15:30.789123",
-    img: "https://picsum.photos/300/200"
-  }
-]);
+
 
 const formatDate = (dateString) => {
   const now = new Date();
@@ -100,6 +80,21 @@ const goToAnnouncement = (item) => {
 </script>
 
 <style lang="less" scoped>
+
+.announcement-banner {
+  width: 100%;
+}
+
+.announcement-header {
+  margin-bottom: 16px;
+  padding: 0 16px;
+  
+  .arco-typography {
+    margin: 0;
+    font-weight: 600;
+    color: #1d2129;
+  }
+}
 
 .announcement-item {
   padding: 8% 0;
@@ -223,8 +218,17 @@ const goToAnnouncement = (item) => {
   }
 }
 
-// 针对移动端时间线样式调整
+// 针对移动端标题和时间线样式调整
 @media (max-width: 1024px) {
+  .announcement-header {
+    margin-bottom: 12px;
+    padding: 0 12px;
+    
+    .arco-typography {
+      font-size: 16px;
+    }
+  }
+  
   :deep(.arco-timeline) {
     padding-left: 0;
     

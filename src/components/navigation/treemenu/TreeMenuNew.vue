@@ -1,5 +1,5 @@
 <template>
-  <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave" @mouseenter="()=> {mouseInTreeMenu = true}">
+  <div class="tree-menu" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseLeave">
     <!-- 搜索框 --> 
     <div class="search-container">
       <Input v-model="searchText" placeholder="找不到？搜索一下吧..." allow-clear @input="handleSearch">
@@ -38,8 +38,7 @@
         </Dropdown>
       </div>
     </div>
-    <TransitionGroup name="node-list" tag="div" style="height:100%;"
-      :style="{ overflow: mouseInTreeMenu ? 'auto' : 'hidden' }">
+    <TransitionGroup name="node-list" tag="div" style="height:100%;overflow: auto" class="menu-nodes-list" >
       <div v-for="(node, index) in flatNodes" :key="node.id" class="tree-node" :class="getNodeClasses(node, index)"
         :style="{ marginLeft: `${node.depth * 20}px` }" @mousedown="handleMouseDown($event, node, index)">
         <div class="node-content" :class="{ renaming: node.showInput }">
@@ -176,8 +175,7 @@ const emit = defineEmits(['clickPost', 'trigger']);
 // 初始化路由
 const router = useRouter();
 
-// 创建内部loading状态
-const mouseInTreeMenu = ref(false);
+
 const loading = ref(0);
 const loadingTip = computed(() => {
   if (loading.value === 1) {
@@ -1045,7 +1043,6 @@ function handleMouseUp(event) {
 
 // 鼠标离开容器事件
 function handleMouseLeave(event) {
-  mouseInTreeMenu.value = false;
   if (!dragState.isDragging) return;
 
   // 如果鼠标离开容器，尝试目前是不放置
@@ -1245,6 +1242,15 @@ function cleanupDrag() {
 </script>
 
 <style scoped lang="less">
+.menu-nodes-list{
+  overflow: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar{
+    display: none!important;
+    width: 0!important;
+    height: 0!important;
+  }
+}
 .tree-menu {
   user-select: none;
 

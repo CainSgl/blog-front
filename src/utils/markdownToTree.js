@@ -1,3 +1,5 @@
+import { marked } from 'marked';
+
 // 生成标题 ID 的辅助函数，与 MarkdownPreview.vue 中保持一致
 const generateId = (text) => {
   // 移除 HTML 标签（如果有的话）
@@ -9,6 +11,28 @@ const generateId = (text) => {
     .replace(/[^\w\u4e00-\u9fa5\s-]/g, '') // 保留字母、数字、中文、空格和连字符
     .replace(/[\s-]+/g, '-') // 多个空格或连字符替换为单个连字符
     .replace(/^-+|-+$/g, ''); // 去除开头和结尾的连字符
+};
+
+// 去除 Markdown 语法，获取纯文本的辅助函数
+const stripMarkdownSyntax = (text) => {
+  try {
+    // 使用 marked 将 Markdown 转换为 HTML，然后移除 HTML 标签获取纯文本
+    const html = marked.parseInline(text);
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  } catch (e) {
+    console.warn('解析 Markdown 语法时出错:', e);
+    // 如果解析失败，使用正则表达式简单移除常见 Markdown 语法
+    return text
+    
+      .replace(/\*\*(.*?)\*\*/g, '$1')  // 粗体 **text**
+      .replace(/\*(.*?)\*/g, '$1')      // 斜体 *text*
+      .replace(/__(.*?)__/g, '$1')      // 粗体 __text__
+      .replace(/_(.*?)_/g, '$1')        // 斜体 _text_
+      .replace(/~~(.*?)~~/g, '$1')      // 删除线 ~~text~~
+      .replace(/`(.*?)`/g, '$1');       // 代码块 `code`
+  }
 };
 
 /**
@@ -25,7 +49,6 @@ export function parseMarkdownToTree(markdown) {
   
   // 最终返回的树结构
   const tree = [];
-
   // 正则表达式匹配标题行，包括可能的锚点
   // 匹配格式如: # 标题 或 # 标题{#anchor-id}
   const headingRegex = /^(#{1,6})\s+(.+?)(?:\{#[^}]*\})?$/;
@@ -46,9 +69,11 @@ export function parseMarkdownToTree(markdown) {
       }
       
       // 创建节点对象
-      const id = generateId(title);
+      const cleanTitle = stripMarkdownSyntax(title);
+      let id = generateId(cleanTitle);
+      
       const node = {
-        title: title,
+        title: cleanTitle,
         key: id,
         level: level
       };

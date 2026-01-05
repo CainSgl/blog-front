@@ -11,8 +11,12 @@
         <!-- 动态背景遮罩层 -->
         <div class="dynamic-overlay">
             <div class="banner-content">
-                <h3 class="banner-title">{{ currentBanner.title }}</h3>
-                <p class="banner-description">{{ currentBanner.description }}</p>
+                <transition name="fade" mode="out-in">
+                    <div :key="currentIndex" class="banner-text">
+                        <h3 class="banner-title">{{ currentBanner.title }}</h3>
+                        <p class="banner-description">{{ currentBanner.description }}</p>
+                    </div>
+                </transition>
             </div>
         </div>
     </div>
@@ -124,6 +128,7 @@ onMounted(async () => {
 
 // 动态背景遮罩层
 .dynamic-overlay {
+    user-select: none;
     position: absolute;
     bottom: 0;
     left: 0;
@@ -135,6 +140,7 @@ onMounted(async () => {
     padding: 30px;
     color: white;
     z-index: 10;
+    pointer-events: none;
 }
 
 .banner-title {
@@ -150,6 +156,20 @@ onMounted(async () => {
     margin: 0;
     color: white;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+// 淡入淡出过渡动画
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
+
+.banner-text {
+    width: 100%;
+    pointer-events: auto;
 }
 
 // 响应式设计 - 平板设备

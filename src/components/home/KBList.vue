@@ -74,9 +74,7 @@ onBeforeUnmount(() => {
   }
 })
 
-const getPageSize = () => {
-  return 8
-}
+
 
 // 加载更多数据
 const loadMoreData = async () => {
@@ -135,6 +133,29 @@ const loadMoreData = async () => {
   }
 }
 
+const getPageSize = () => {
+  if (!containerRef.value) {
+    // 如果容器还未渲染，返回默认值
+    return 4
+  }
+
+  // 获取容器宽度
+  const containerWidth = containerRef.value.clientWidth || window.innerWidth
+  
+  // 每个卡片的固定宽度为180px，加上20px的间隙
+  const cardWidth = 180
+  const gap = 20
+  
+  // 计算每行可以容纳的卡片数量
+  const cardsPerRow = Math.max(1, Math.floor((containerWidth + gap) / (cardWidth + gap)))
+  
+  // 默认显示2行，可以根据需要调整
+  const rows = 2
+  const pageSize = cardsPerRow * rows
+  
+  return pageSize
+}
+
 // 检查是否需要加载更多数据
 const shouldLoadMore = () => {
   let scrollTop, scrollHeight, clientHeight
@@ -144,7 +165,6 @@ const shouldLoadMore = () => {
     scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
     scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0
     clientHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0
-    console.log(scrollHeight,scrollTop,clientHeight,containerRef.value.clientHeight)
   } else {
     // 如果监听容器滚动，使用容器属性
     if (!containerRef.value) return false

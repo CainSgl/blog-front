@@ -185,7 +185,7 @@ export const useUserStore = defineStore('user', () =>
         timestamp: Date.now()
       };
       localStorage.setItem('userInfo', JSON.stringify(cacheData));
-      return;
+
     } catch (error) {
       // 如果更新失败，回滚到旧的用户信息
       userInfo.value = oldUserInfo;

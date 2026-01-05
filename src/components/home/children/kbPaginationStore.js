@@ -11,9 +11,7 @@ export const useKbPaginationStore = defineStore('kbPagination', {
   actions: {
     updatePagination(lastItem) {
       this.lastCreatedAt = lastItem.createdAt
-      console.log(lastItem)
       this.lastLike = lastItem.likeCount
-      console.log("cnm",lastItem.likeCount)
       this.lastId = lastItem.id
     },
     

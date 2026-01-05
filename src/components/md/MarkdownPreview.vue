@@ -1,10 +1,9 @@
 <template>
 
   <div ref="previewContainerRef" class="cainsgl-markdown-preview">
-    <a-back-top target-container="#markdown-container" :style="{position:'absolute'}" />
-    <div id="markdown-container" ref="previewContentRef" :style="{ height: height }" class="cainsgl-preview-content"
+
+    <div ref="previewContentRef" :style="{ height: height }" class="cainsgl-preview-content"
       v-html="renderedMarkdown" />
-    
   </div>
 </template>
 
@@ -28,10 +27,10 @@ const extractImageSize = (src) => {
   }
   const widthMatch = src.match(/^(.+?)(?:\?|&)(width=\d+)$/);
   let width = null;
-  
+
   if (widthMatch) {
     // 提取 width 值
-    const widthValue = widthMatch[2].substring(6); 
+    const widthValue = widthMatch[2].substring(6);
     width = parseInt(widthValue, 10);
     const maxWidth = 1200;
     if (width && width > maxWidth) {
@@ -40,7 +39,7 @@ const extractImageSize = (src) => {
     // 移除 width 参数，得到纯净的 src
     src = src.replace(/[?&]width=\d+$/, ''); // 移除末尾的 ?width=xxx 或 &width=xxx
   }
-  
+
   return {
     src: src,
     width: width
@@ -60,26 +59,6 @@ const props = defineProps({
 const previewContentRef = ref(null);
 const previewContainerRef = ref(null);
 
-// 节流函数
-const throttle = (func, delay) => {
-  let timeoutId;
-  let lastExecTime = 0;
-  return function (...args) {
-    const currentTime = Date.now();
-    
-    if (currentTime - lastExecTime > delay) {
-      func.apply(this, args);
-      lastExecTime = currentTime;
-    } else {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        func.apply(this, args);
-        lastExecTime = Date.now();
-      }, delay - (currentTime - lastExecTime));
-    }
-  };
-};
-
 const renderer = new marked.Renderer();
 
 // 自定义代码块渲染器 - 创建一个特殊的占位符 
@@ -93,7 +72,7 @@ renderer.code = function (code, language) {
     codeText = code || '';
     lang = language;
   }
-  
+
   const uniqueId = `code-block-${++codeBlockIdCounter}`;
 
   return `<div id="${uniqueId}" class="code-block-placeholder" data-code="${encodeURIComponent(codeText)}" data-language="${lang || ''}">Loading code block...</div>`;
@@ -112,7 +91,7 @@ renderer.link = function (href) {
   // 判断是否为外部链接
   let finalHref = href.href;
   let isExternal = false;
-  
+
   try {
     const url = new URL(href.href, window.location.origin);
     // 如果链接的域名与当前域名不同，则使用跳转页面
@@ -125,7 +104,7 @@ renderer.link = function (href) {
     isExternal = true;
     finalHref = `/redirect?url=${encodeURIComponent(href.href)}`;
   }
-  
+
   // 仅对外部链接使用 target="_blank"，内部链接直接跳转
   if (isExternal) {
     return `<a class="arco-link arco-link-status-normal" href="${finalHref}" target="_blank" rel="noopener noreferrer">${href.text}</a>`;
@@ -146,7 +125,7 @@ renderer.table = function (header, body) {
       else if (h.align === 'left') alignStyle = ' style="text-align: left;"';
       return `<th${alignStyle}>${DOMPurify.sanitize(marked.parseInline(h.text || ''))}</th>`;
     }).join('')}</tr>`;
-    
+
     // 构建表体
     const rowsHtml = header.rows.map(row => {
       return `<tr>${row.map(cell => {
@@ -157,7 +136,7 @@ renderer.table = function (header, body) {
         return `<td${alignStyle}>${DOMPurify.sanitize(marked.parseInline(cell.text || ''))}</td>`;
       }).join('')}</tr>`;
     }).join('');
-    
+
     return `<table class="cainsgl-markdown-table"><thead>${headersHtml}</thead><tbody>${rowsHtml}</tbody></table>`;
   } else {
     return `<table class="cainsgl-markdown-table">${header}${body}</table>`;
@@ -174,8 +153,8 @@ renderer.image = function ({ href, title, text }) {
   let width = null;
   if (!src.startsWith('http')) {
     let res = extractImageSize(src)
-    src=API_BASE_URL+'/file?f='+res.src
-    width=res.width
+    src = API_BASE_URL + '/file?f=' + res.src
+    width = res.width
   }
   const uniqueId = `arco-image-${++imageIdCounter}`;
   return `<span id="${uniqueId}" class="arco-image-placeholder" data-src="${src}" data-alt="${alt}" data-title="${finalTitle}" data-width="${width || ''}">Loading image...</span>`;
@@ -186,7 +165,7 @@ const generateId = (text) => {
   // 移除 HTML 标签（如果有的话）
   const cleanText = text.replace(/<[^>]*>/g, '');
   // 移除特殊字符，转换为小写，用连字符连接
-  return "cainsgl-titile-"+cleanText
+  return "cainsgl-titile-" + cleanText
     .toLowerCase()
     .trim()
     .replace(/[^\w\u4e00-\u9fa5\s-]/g, '') // 保留字母、数字、中文、空格和连字符
@@ -208,11 +187,11 @@ renderer.listitem = function (token) {
   let text = token.text || '';
   const task = token.task || false;
   const checked = token.checked || false;
-  
+
   let parsedText = marked(text);
-  
+
   let content = parsedText;
-  
+
   // 检查是否是任务列表项
   if (task) {
     const checkedAttribute = checked ? 'checked' : '';
@@ -226,7 +205,7 @@ renderer.listitem = function (token) {
       </div>
     `;
   }
-  
+
   return `<li>${content}</li>`;
 };
 
@@ -246,7 +225,7 @@ const renderedMarkdown = computed(() => {
   if (!props.content) return '';
   const rawHtml = marked(props.content);
   const clean = DOMPurify.sanitize(rawHtml, {
-    ADD_ATTR: ['target']  
+    ADD_ATTR: ['target']
   });
   return clean;
 });
@@ -317,9 +296,6 @@ const processDynamicComponents = async () => {
       // 挂载到容器
       codeBlockApp.mount(container);
     });
-    
-    // 内容更新后，标记标题缓存无效，需要重新获取
-    headingsCacheValid = false;
   }
 };
 
@@ -333,27 +309,39 @@ const scrollToHashElement = () => {
   nextTick(() => {
     const hash = window.location.hash;
     if (hash) {
-      let elementId ="cainsgl-titile-"+ hash.substring(1); // 移除 # 号
+      let elementId = "cainsgl-titile-" + hash.substring(1); // 移除 # 号
       // 解码URL编码的ID，处理中文字符
       elementId = decodeURIComponent(elementId);
       const element = document.getElementById(elementId);
       if (element) {
         // 设置滚动标志，表示正在程序触发的滚动
         isScrollingToElement = true;
-        
-        // 使用平滑滚动到目标元素
-        element.scrollIntoView({ 
-          behavior: 'smooth',
+        // 使用直接跳转到目标元素
+        element.scrollIntoView({
+          behavior: 'auto',
           block: 'start'
         });
-        
-        // 在滚动结束后重置滚动标志
-        setTimeout(() => {
-          isScrollingToElement = false;
-        }, 500); // 500ms应该足够完成平滑滚动
+
+        // 添加视觉提示效果
+        addVisualHighlight(element);
+
+        // 立即重置滚动标志
+        isScrollingToElement = false;
+
       }
     }
   });
+};
+
+// 添加视觉提示效果
+const addVisualHighlight = (element) => {
+  // 添加临时的高亮类
+  element.classList.add('cainsgl-highlight-target');
+
+  // 3秒后移除高亮效果
+  setTimeout(() => {
+    element.classList.remove('cainsgl-highlight-target');
+  }, 3000);
 };
 let hashChangeCounter = 0; // 计数器，用于控制hashchange事件处理
 
@@ -369,7 +357,7 @@ const setHash = (encodedTargetHash) => {
     const oldHash = window.location.hash;
     const newURL = window.location.pathname + window.location.search + '#' + encodedTargetHash;
     window.history.replaceState(null, '', newURL);
-    
+
     // 手动触发hashchange事件，以便其他组件能响应hash变化
     if (oldHash !== '#' + encodedTargetHash) {
       window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -388,41 +376,20 @@ const handleHashChange = () => {
   }
 };
 
-// 缓存标题元素，避免重复查询
-let cachedHeadings = [];
-let headingsCacheValid = false;
-
-// 更新标题缓存
-const updateHeadingsCache = () => {
-  if (previewContentRef.value) {
-    cachedHeadings = Array.from(previewContentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-    headingsCacheValid = true;
-  }
-};
-
 // 滚动监听函数，检测当前可视区域的标题元素
 const handleScroll = () => {
   if (!previewContainerRef.value || !previewContentRef.value) return;
 
-  // 如果缓存无效，更新缓存
-  if (!headingsCacheValid) {
-    updateHeadingsCache();
-  }
-
-  if (!cachedHeadings.length) return;
+  // 获取所有标题元素
+  const headings = previewContentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  if (!headings.length) return;
 
   let currentHeading = null;
   const scrollPosition = previewContainerRef.value.scrollTop;
 
   // 遍历所有标题元素，找到当前可视区域内的标题
-  for (let i = 0; i < cachedHeadings.length; i++) {
-    const heading = cachedHeadings[i];
-    // 检查元素是否仍然存在于DOM中
-    if (!previewContentRef.value.contains(heading)) {
-      headingsCacheValid = false;
-      return;
-    }
-    
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
     const headingPosition = heading.offsetTop - previewContentRef.value.offsetTop;
 
     // 如果标题位置小于等于滚动位置，则认为是当前标题
@@ -446,9 +413,6 @@ const handleScroll = () => {
   }
 };
 
-// 应用节流的滚动处理函数
-const throttledHandleScroll = throttle(handleScroll, 100); // 100ms 节流间隔
-
 onMounted(() => {
   processDynamicComponents();
   // 组件挂载后检查是否有hash，如果有则滚动到对应元素
@@ -457,14 +421,12 @@ onMounted(() => {
   window.addEventListener('hashchange', handleHashChange);
   // 添加滚动监听器
   if (previewContainerRef.value) {
-    previewContainerRef.value.addEventListener('scroll', throttledHandleScroll);
+    previewContainerRef.value.addEventListener('scroll', handleScroll);
   }
 });
 
 onUpdated(() => {
   processDynamicComponents();
-  // 更新标题缓存
-  headingsCacheValid = false;
   // 组件更新后也检查hash，以防内容变化导致元素重新渲染
   scrollToHashElement();
 });
@@ -474,19 +436,12 @@ onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashChange);
   // 移除滚动监听器
   if (previewContainerRef.value) {
-    previewContainerRef.value.removeEventListener('scroll', throttledHandleScroll);
-  }
-  // 组件卸载时清除hash值
-  if (window.location.hash) {
-    const newURL = window.location.pathname + window.location.search;
-    window.history.replaceState(null, '', newURL);
+    previewContainerRef.value.removeEventListener('scroll', handleScroll);
   }
 });
 </script>
 
 <style lang="less">
-@import '@/assets/style/markdown-styles.less';
-
 .cainsgl {
   &-markdown-preview {
     width: 100%;
@@ -498,10 +453,145 @@ onUnmounted(() => {
     padding: 16px;
     line-height: 1.6;
     font-size: 16px;
-    color: @text-color;
+    color: #333;
+
+    & .cainsgl-markdown-code {
+      font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+      font-size: 0.9em;
+      background-color: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+    }
 
     & .code-block-container {
       margin: 16px 0;
+    }
+
+    & .cainsgl-markdown-blockquote {
+      margin: 16px 0;
+      padding: 12px 16px;
+      border-left: 4px solid @primary-4;
+      background-color: #f9fafb;
+      color: #4b5563;
+      border-radius: 0 4px 4px 0;
+      position: relative;
+    }
+
+    & .cainsgl-markdown-table {
+
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9em;
+      font-family: inherit;
+      background-color: #fff;
+
+      border-radius: 6px;
+
+
+      th,
+      td {
+        padding: 8px 12px;
+        text-align: left;
+        border: 1px solid #d1d5db;
+        word-wrap: break-word;
+        white-space: normal;
+      }
+
+      th {
+        background-color: #f3f4f6;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9fafb;
+      }
+
+
+    }
+
+    & .cainsgl-markdown-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      margin: 16px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    & .cainsgl-task-list-item {
+      display: flex;
+      align-items: flex-start;
+      margin: 8px 0;
+
+      & .cainsgl-task-list-checkbox {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        margin-top: 4px; // 垂直对齐文本
+        cursor: default; // 使用默认光标
+
+        & input[type="checkbox"] {
+          display: none; // 隐藏原生复选框
+
+          &+.cainsgl-task-list-checkmark {
+            display: inline-block;
+            width: 14px; // 减小宽度
+            height: 14px; // 减小高度
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            position: relative;
+            cursor: default; // 使用默认光标
+            transition: all 0.2s ease;
+
+            &:after {
+              content: "";
+              position: absolute;
+              display: none;
+              left: 3px;
+              top: 0px;
+              width: 4px;
+              height: 7px;
+              border: solid white;
+              border-width: 0 1px 1px 0;
+              transform: rotate(45deg);
+            }
+          }
+
+          &:checked+.cainsgl-task-list-checkmark {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+
+            &:after {
+              display: block;
+            }
+          }
+        }
+      }
+
+      & .cainsgl-task-list-content {
+        flex: 1;
+        line-height: 1.6;
+
+        & p {
+          margin: 0;
+          padding: 0;
+          display: inline-block;
+          vertical-align: top;
+          line-height: 1.6;
+        }
+      }
+
+      & input[type="checkbox"]:checked+.cainsgl-task-list-checkmark+.cainsgl-task-list-content {
+        text-decoration: line-through;
+        color: #9ca3af;
+      }
     }
   }
 }

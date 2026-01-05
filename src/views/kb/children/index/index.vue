@@ -153,7 +153,7 @@ const loadKbIndexContent = async () => {
 
 // 检查编辑权限
 onMounted(async () => {
-  loadKbIndexContent()
+  //loadKbIndexContent()
   userStore.getUserInfo()
   //获取用户信息
 });

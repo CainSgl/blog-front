@@ -7,7 +7,7 @@
         <template #content>
             <div class="user-info-popover">
                 <div class="user-header">
-                    <Avatar :size="size + 20" class="user-avatar" @click="goToUserSpace" :src="user.avatarUrl"
+                    <Avatar :size="60" class="user-avatar" @click="goToUserSpace" :src="user.avatarUrl"
                         :style="{ ...avatarStyle, cursor: 'pointer' }">
                     </Avatar>
                     <div class="user-basic-info">
@@ -82,9 +82,8 @@ const goToUserSpace = () => {
 
 <style scoped lang="less">
 .user-avatar {
-    margin-right: '12px';
-
-    cursor: 'pointer';
+    margin-right: 12px;
+    cursor: pointer;
 }
 
 .user-info-popover {
