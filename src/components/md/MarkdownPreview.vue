@@ -431,6 +431,30 @@ onUpdated(() => {
   scrollToHashElement();
 });
 
+// 滚动到顶部或底部的方法
+const scrollToTopOrBottom = (isBottom) => {
+  console.log(isBottom)
+  isScrollingToElement = true;
+  if (previewContainerRef.value) {
+    if (isBottom) {
+      // 平滑跳转到底部
+      previewContainerRef.value.scrollTo({
+        top: previewContainerRef.value.scrollHeight,
+        behavior: 'smooth'
+      });
+    } else {
+      // 平滑跳转到顶部
+      previewContainerRef.value.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }
+  setTimeout(() => {
+    isScrollingToElement = false;
+  }, 3000);
+};
+
 // 在组件卸载时移除事件监听器
 onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashChange);
@@ -438,6 +462,11 @@ onUnmounted(() => {
   if (previewContainerRef.value) {
     previewContainerRef.value.removeEventListener('scroll', handleScroll);
   }
+});
+
+// 暴露方法给父组件
+defineExpose({
+  scrollToTopOrBottom
 });
 </script>
 

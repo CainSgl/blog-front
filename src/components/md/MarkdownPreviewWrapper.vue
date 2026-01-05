@@ -1,9 +1,10 @@
 <template>
   <div ref="wrapperRef" class="markdown-preview-wrapper"
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
-    <MarkdownPreview  :content="content" :height="height" :class="['preview', { 'preview-full': !isTocVisible }]" />
+    <MarkdownPreview ref="markdownPreviewRef" :content="content" :height="height"
+      :class="['preview', { 'preview-full': !isTocVisible }]" @scroll="handleMdScroll" />
     <a-affix :offset-top="0" :target="affixTarget">
-      <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect"
+      <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect" 
         :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange"
         :class="['toc', { 'toc-visible': isTocVisible }]" />
     </a-affix>
@@ -19,6 +20,7 @@
         </template>
       </a-button>
     </div>
+    <ScrollProgress :style="isMobile ? 'right: 10px;' : ''"  class="scroll-progress-container" :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress" @scroll-to-top="handleScrollToTop" />
   </div>
 </template>
 
@@ -26,6 +28,8 @@
 import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue';
 import MarkdownPreview from './MarkdownPreview.vue';
 import TableOfContents from '../navigation/toc/TableOfContents.vue';
+import ScrollProgress from '../base/ScrollProgress.vue';
+import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon';
 
 const props = defineProps({
   content: {
@@ -56,13 +60,41 @@ const isTocVisible = ref(true);
 const wrapperRef = ref(null);
 const tocMaxHeight = ref(''); // 动态计算目录的最大高度
 const isMobile = ref(false); // 跟踪是否为移动端
-
+const markdownPreviewRef = ref(null);
+const currentScrollPercent = ref(0); // 当前滚动进度百分比
+const showScrollProgress = ref(false);
 // 判断是否应该显示目录：在桌面端始终根据isTocVisible决定，
 // 在移动端仅在可见状态下显示，隐藏状态下不显示（包括控制按钮）
 const shouldShowToc = computed(() => {
   return props.showToc && (isMobile.value ? isTocVisible.value : true);
 });
+let closeScrollProgress;
+function handleMdScroll(e) {
+  showScrollProgress.value = true;
+  if (closeScrollProgress) {
+    clearTimeout(closeScrollProgress);
+  }
+  const target = e.target;
+  if (target) {
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
 
+    // 计算滚动进度 (0 到 1)
+    const scrollProgress = clientHeight >= scrollHeight
+      ? 1
+      : scrollTop / (scrollHeight - clientHeight);
+
+    // 确保进度值在 0 到 1 的范围内
+    const progress = Math.max(0, Math.min(1, scrollProgress));
+
+    // 更新进度显示 (乘以100转换为百分比，保留两位小数)
+    currentScrollPercent.value = Math.round(progress * 100 * 100) / 100;
+  }
+  closeScrollProgress = setTimeout(() => {
+    showScrollProgress.value = false;
+  }, 600);
+}
 // 监听容器大小变化
 const updateMobileStatus = () => {
   if (wrapperRef.value) {
@@ -92,6 +124,15 @@ const handleSelect = (item) => {
 // 移动端显示目录
 const showTocOnMobile = () => {
   isTocVisible.value = true;
+};
+
+// 滚动到顶部
+const handleScrollToTop = () => {
+  if (currentScrollPercent.value < 60) {
+    markdownPreviewRef.value.scrollToTopOrBottom(true)
+  } else {
+    markdownPreviewRef.value.scrollToTopOrBottom(false)
+  }
 };
 
 let resizeObserver = null;
@@ -132,7 +173,7 @@ onUnmounted(() => {
 
 <style scoped lang="less">
 .markdown-preview-wrapper {
-
+  position: relative;
   display: flex;
   width: 100%;
   height: 100%;
@@ -146,19 +187,13 @@ onUnmounted(() => {
   }
 
   .toc {
-
     flex: 0 0 30%; // 目录宽度默认为30%
-    max-width: 400px; // 最大宽度为400px
-    min-width: 200px; // 最小宽度为200px，防止过小
     transition: all 0.3s ease; // 添加过渡动画
     overflow: auto;
 
     // 当目录可见时
     &.toc-visible {
-      flex: 0 0 30%;
-      width: 15vw;
-      min-width: 200px;
-      max-width: 400px;
+      width: clamp(200px, 15vw, 400px);
     }
 
     // 当目录不可见时，保留小按钮区域
@@ -170,33 +205,47 @@ onUnmounted(() => {
     }
   }
 
-  // 在移动设备上，当目录隐藏时完全隐藏目录区域
-  @media (max-width: 767px) {
-    .toc:not(.toc-visible) {
-      display: none !important;
-    }
-    .toc-visible{
-      width: 100vw !important;
-    }
-  }
+
 
   .preview {
-    
-    flex: 1; // 预览区域占剩余空间
+    flex: 1;
     overflow-y: auto;
-    transition: all 0.3s ease; // 添加过渡动画
+    transition: all 0.3s ease;
   }
 
   // 当目录隐藏时，预览区域占据剩余空间（减去目录按钮的宽度）
   &.toc-hidden .preview-full {
     flex: 1 !important; // 预览区域占据除目录按钮外的所有剩余空间
   }
-  
+
   .toc-toggle-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 1000; // 确保按钮在最上层
+    z-index: 1; // 确保按钮在最上层
+  }
+
+  .scroll-progress-container {
+    position: absolute;
+    bottom: 10px;
+    width: clamp(100px, 10vw, 140px);
+    right: clamp(220px,15vw + 20px, 420px);
+    transition: right 0.3s ease, left 0.3s ease;
+  }
+
+  &.toc-hidden .scroll-progress-container {
+    right: 120px;
+  }
+
+  &.toc-right .scroll-progress-container {
+    left: clamp(220px, 15vw + 20px, 420px);
+    right: auto;
+  }
+
+  &.toc-right.toc-hidden .scroll-progress-container {
+    left: 120px;
+    right: auto;
   }
 }
+
 </style>
