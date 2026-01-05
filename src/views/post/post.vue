@@ -1,6 +1,6 @@
   <template>
 
-    <div class="post-container" ref="containerRef">
+    <div class="post-container" ref="containerRef" >
       <!-- 文章头部信息 -->
       <div class="post-header" v-if="post">
         <div class="post-user-info">
@@ -26,13 +26,17 @@
       </div>
 
       <!-- 文章内容 -->
-      <div class="post-content">
-        <MarkdownPreviewWrapper :content="post?.content || ''" />
+      <div class="post-content" >
+   
+        <div class="markdown-content">
+          <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content || ''" />
+        </div>
       </div>
       <div>
         评论
       </div>
     </div>
+  
   </template>
 
 <script setup>
@@ -43,14 +47,16 @@ import api from '@/api/index.js';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 import { useUserStore } from "@/store/user.js";
-import TableOfContents from "@/components/navigation/toc/TableOfContents.vue";
+
 const userStore = useUserStore();
 
 const route = useRoute();
-const containerRef = ref(null);
+
 // 响应式数据
 const post = ref(null);
-const author = ref(null)
+const author = ref(null);
+const containerRef = ref(null);
+const lastScrollTop = ref(0);
 const loadPostContent = async (postId) => {
   try {
     const { data } = await api.get(`/post`, { id: postId });
@@ -79,6 +85,42 @@ const formatDate = (dateString) => {
   });
 };
 
+// 节流函数，减少事件触发频率
+const throttle = (func, delay) => {
+  let timer = null;
+  return function(...args) {
+    if (!timer) {
+      timer = setTimeout(() => {
+        func.apply(this, args);
+        timer = null;
+      }, delay);
+    }
+  };
+};
+
+// 处理内容滚动事件
+const handleContentScroll = throttle((event) => {
+  const contentElement = event.target;
+  const scrollTop = contentElement.scrollTop;
+  
+  // 判断滚动方向
+  const isScrollingDown = scrollTop > lastScrollTop.value;
+
+  // 如果是向下滚动
+  if (isScrollingDown) {
+    // 计算本次滚动的距离
+    const scrollDelta = scrollTop - lastScrollTop.value;
+    // 滚动整个页面，但不超过 200px，使用平滑滚动
+    window.scrollTo({
+      top: Math.min(window.scrollY + scrollDelta, 200),
+      behavior: 'smooth'
+    });
+  }
+  
+  // 更新上一次滚动位置
+  lastScrollTop.value = scrollTop;
+}, 50);
+
 // 组件挂载时的逻辑
 onMounted(() => {
   const postId = route.params.id;
@@ -99,7 +141,7 @@ onMounted(() => {
   }
 
   padding: 20px;
-  max-width: 1400px;
+  max-width: 2000px;
   margin: 0 auto;
 
   overflow-y: auto;
@@ -153,5 +195,21 @@ onMounted(() => {
 .post-content {
   padding: 20px 0;
   height: calc(90vh);
+  display: flex;
+  gap: 20px;
+}
+
+.changelog-sidebar {
+  width: 200px;
+  background-color: #f7f8fa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e8ef;
+  height: fit-content;
+}
+
+.markdown-content {
+  flex: 1;
+  overflow-y: auto;
 }
 </style>

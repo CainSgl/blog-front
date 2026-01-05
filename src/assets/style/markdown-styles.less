@@ -28,7 +28,7 @@
 @border-color: #d0d7de;
 @header-bg: @vscode-bg;
 @title-color: #d8d8d8;
-@code-bg-codeblock: @vscode-bg; 
+@code-bg-codeblock: @vscode-bg;
 @vscode-bg: #1E1E1E;
 @vscode-comment: #4EC9B0;
 @vscode-keyword: #569CD6;
@@ -38,7 +38,7 @@
 @vscode-property: #94DBFD;
 @vscode-punctuation: #ffffff;
 @vscode-operator: #ffffff;
-@vscode-params:#94DBFD;
+@vscode-params: #94DBFD;
 // Markdown编辑器和预览组件其他颜色变量
 @editor-bg: rgb(248, 248, 248);
 @task-list-border-color: #d1d5da;
@@ -50,6 +50,7 @@
 
 @task-list-checked-bg: @primary-4;
 @task-list-checked-border: @primary-4;
+
 // 通用markdown样式
 .cainsgl {
   &-markdown-blockquote {
@@ -102,12 +103,12 @@
       box-shadow: @image-shadow-hover;
     }
   }
-  
+
   &-task-list-item {
     display: flex;
     align-items: flex-start;
     margin: 8px 0;
-    
+
     & .cainsgl-task-list-checkbox {
       display: inline-flex;
       align-items: center;
@@ -115,11 +116,11 @@
       margin-right: 12px;
       margin-top: 4px;
       cursor: default;
-      
+
       & input[type="checkbox"] {
         display: none;
-        
-        & + .cainsgl-task-list-checkmark {
+
+        &+.cainsgl-task-list-checkmark {
           display: inline-block;
           width: 14px;
           height: 14px;
@@ -128,7 +129,7 @@
           position: relative;
           cursor: default;
           transition: all 0.2s ease;
-          
+
           &:after {
             content: "";
             position: absolute;
@@ -142,22 +143,22 @@
             transform: rotate(45deg);
           }
         }
-        
-        &:checked + .cainsgl-task-list-checkmark {
+
+        &:checked+.cainsgl-task-list-checkmark {
           background-color: @task-list-checkmark-checked-bg;
           border-color: @task-list-checkmark-checked-border;
-          
+
           &:after {
             display: block;
           }
         }
       }
     }
-    
+
     & .cainsgl-task-list-content {
       flex: 1;
       line-height: 1.6;
-      
+
       & p {
         margin: 0;
         padding: 0;
@@ -166,17 +167,24 @@
         line-height: 1.6;
       }
     }
-    
-    & input[type="checkbox"]:checked + .cainsgl-task-list-checkmark + .cainsgl-task-list-content {
+
+    & input[type="checkbox"]:checked+.cainsgl-task-list-checkmark+.cainsgl-task-list-content {
       text-decoration: line-through;
       color: @task-list-checked-text-color;
     }
   }
-  
+
   &-markdown-code {
     background-color: @code-bg;
     padding: 2px 6px;
     border-radius: 4px;
     border: 1px solid @code-border-color;
   }
+}
+
+a {
+  display: inline-block;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }

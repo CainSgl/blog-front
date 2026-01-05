@@ -293,7 +293,7 @@ const scrollToSelectedItem = (key) => {
         // 只有在元素在视窗下方时才滚动
         if (isBelowViewport) {
           // 滚动到元素位置，确保元素在视窗中间偏上（约15%的位置）
-          let scrollPosition = elementTop - (containerHeight *0.5) - (elementHeight / 2);
+          let scrollPosition = elementTop - (containerHeight *0.15) - (elementHeight / 2);
           
           // 确保滚动位置不会超出容器范围
           scrollPosition = Math.max(0, Math.min(scrollPosition, container.scrollHeight - containerHeight));
@@ -335,6 +335,12 @@ const handleNodeClick = (node) => {
   }
   padding: 10px 5px;
   width: 100%;
+  overflow-x:hidden;
+  overflow-y: hidden;
+  &:hover{
+    overflow-y:auto;
+  }
+  
 }
 
 .toc-controls {

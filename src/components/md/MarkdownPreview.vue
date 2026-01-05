@@ -471,6 +471,15 @@ defineExpose({
 </script>
 
 <style lang="less">
+a {
+  display: inline-block;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+.cainsgl-preview-content{
+  overflow-x: hidden;
+}
 .cainsgl {
   &-markdown-preview {
     width: 100%;

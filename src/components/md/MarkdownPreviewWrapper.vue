@@ -3,11 +3,12 @@
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
     <MarkdownPreview ref="markdownPreviewRef" :content="content" :height="height"
       :class="['preview', { 'preview-full': !isTocVisible }]" @scroll="handleMdScroll" />
-    <a-affix :offset-top="0" :target="affixTarget">
-      <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect" 
-        :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange"
-        :class="['toc', { 'toc-visible': isTocVisible }]" />
-    </a-affix>
+    <div :class="['toc', { 'toc-visible': isTocVisible }]" :target="affixTarget ? affixTarget : null">
+      <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect"
+        :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" />
+    </div>
+
+
 
     <!-- 移动端目录切换按钮 -->
     <div v-if="isMobile && !isTocVisible && props.showToc" class="toc-toggle-container">
@@ -20,8 +21,12 @@
         </template>
       </a-button>
     </div>
-    <ScrollProgress :style="isMobile ? 'right: 10px;' : ''"  class="scroll-progress-container" :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress" @scroll-to-top="handleScrollToTop" />
+    <div class="scroll-progress-container">
+      <ScrollProgress :style="isMobile ? 'right: 10px;' : ''" :current-scroll-percent="currentScrollPercent"
+        :show-scroll-progress="showScrollProgress" @scroll-to-top="handleScrollToTop" />
+    </div>
   </div>
+
 </template>
 
 <script setup>
@@ -54,6 +59,9 @@ const props = defineProps({
     default: null
   }
 });
+
+// 定义事件
+const emit = defineEmits(['scroll']);
 
 // 跟踪目录的可见性状态
 const isTocVisible = ref(true);
@@ -90,6 +98,9 @@ function handleMdScroll(e) {
 
     // 更新进度显示 (乘以100转换为百分比，保留两位小数)
     currentScrollPercent.value = Math.round(progress * 100 * 100) / 100;
+
+    // 向父组件发送滚动事件
+    emit('scroll', e);
   }
   closeScrollProgress = setTimeout(() => {
     showScrollProgress.value = false;
@@ -187,9 +198,14 @@ onUnmounted(() => {
   }
 
   .toc {
-    flex: 0 0 30%; // 目录宽度默认为30%
     transition: all 0.3s ease; // 添加过渡动画
-    overflow: auto;
+    overflow: hidden;
+
+    max-width: 400px;
+
+    &:hover {
+      overflow-y: auto;
+    }
 
     // 当目录可见时
     &.toc-visible {
@@ -202,6 +218,28 @@ onUnmounted(() => {
       min-width: 80px !important;
       max-width: 80px !important;
       overflow: hidden;
+    }
+  }
+
+  // 移动端适配：当屏幕宽度小于768px时，目录宽度为100vw
+  @media (max-width: 767px) {
+    .toc {
+      &.toc-visible {
+      width: 100vw;
+       }
+
+      &:not(.toc-visible) {
+        flex: 0 0 0px !important; // 保留约100px的空间给控制按钮
+        min-width: 0px !important;
+        max-width: 0px !important;
+        overflow: hidden;
+      }
+    }
+
+    .toc .toc-visible {
+      display: block !important;
+      width: calc(100vw - 30px) !important;
+      flex: 0 0 calc(100vw - 30px) !important;
     }
   }
 
@@ -229,23 +267,23 @@ onUnmounted(() => {
     position: absolute;
     bottom: 10px;
     width: clamp(100px, 10vw, 140px);
-    right: clamp(220px,15vw + 20px, 420px);
     transition: right 0.3s ease, left 0.3s ease;
   }
 
-  &.toc-hidden .scroll-progress-container {
-    right: 120px;
+  &.toc-left .scroll-progress-container {
+    right: calc(clamp(200px, 15vw, 200px) + 20px);
   }
 
   &.toc-right .scroll-progress-container {
-    left: clamp(220px, 15vw + 20px, 420px);
-    right: auto;
+    left: calc(clamp(200px, 15vw, 200px) + 20px);
+  }
+
+  &.toc-left.toc-hidden .scroll-progress-container {
+    right: 120px;
   }
 
   &.toc-right.toc-hidden .scroll-progress-container {
     left: 120px;
-    right: auto;
   }
 }
-
 </style>
