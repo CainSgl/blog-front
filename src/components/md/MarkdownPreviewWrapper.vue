@@ -140,8 +140,12 @@ const showTocOnMobile = () => {
 // 滚动到顶部
 const handleScrollToTop = () => {
   if (currentScrollPercent.value < 60) {
+
     markdownPreviewRef.value.scrollToTopOrBottom(true)
   } else {
+    window.scrollTo({
+      top: 0,
+    });
     markdownPreviewRef.value.scrollToTopOrBottom(false)
   }
 };
@@ -225,8 +229,8 @@ onUnmounted(() => {
   @media (max-width: 767px) {
     .toc {
       &.toc-visible {
-      width: 100vw;
-       }
+        width: 100vw;
+      }
 
       &:not(.toc-visible) {
         flex: 0 0 0px !important; // 保留约100px的空间给控制按钮

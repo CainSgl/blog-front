@@ -437,16 +437,16 @@ const scrollToTopOrBottom = (isBottom) => {
   isScrollingToElement = true;
   if (previewContainerRef.value) {
     if (isBottom) {
-      // 平滑跳转到底部
+      // 直接跳转到底部
       previewContainerRef.value.scrollTo({
         top: previewContainerRef.value.scrollHeight,
-        behavior: 'smooth'
+        behavior: 'auto'
       });
     } else {
-      // 平滑跳转到顶部
+      // 直接跳转到顶部
       previewContainerRef.value.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'auto'
       });
     }
   }
@@ -471,12 +471,7 @@ defineExpose({
 </script>
 
 <style lang="less">
-a {
-  display: inline-block;
-  width: 100%;
-  overflow-wrap: break-word;
-  word-break: break-all;
-}
+
 .cainsgl-preview-content{
   overflow-x: hidden;
 }

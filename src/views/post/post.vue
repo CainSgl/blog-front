@@ -1,42 +1,48 @@
   <template>
-
-    <div class="post-container" ref="containerRef" >
-      <!-- 文章头部信息 -->
-      <div class="post-header" v-if="post">
-        <div class="post-user-info">
-          <AvatarWithInfo :user="author" :size="70" />
-          <div class="post-title-section">
-            <h1 class="post-title">{{ post.title }}</h1>
-            <div class="post-meta">
-              <span class="post-date">{{ formatDate(post.updatedAt) }}</span>
-              <span class="post-stats">
-                <span class="stat-item">
-                  <icon-eye /> {{ post.viewCount }} 浏览
+    <div style="display: flex;">
+        <div style="width: 20vw;background-color: red;">123213</div>
+      <div class="post-container" ref="containerRef">
+        <!-- 文章头部信息 -->
+        <div class="post-header" v-if="post">
+          <div class="post-user-info">
+            <AvatarWithInfo :user="author" :size="70" />
+            <div class="post-title-section">
+              <h1 class="post-title">{{ post.title }}</h1>
+              <div class="post-meta">
+                <span class="post-date">{{ formatDate(post.updatedAt) }}</span>
+                <span class="post-stats">
+                  <span class="stat-item">
+                    <icon-eye /> {{ post.viewCount }} 浏览
+                  </span>
+                  <span class="stat-item" style="margin-left: 16px;">
+                    <icon-heart /> {{ post.likeCount }} 点赞
+                  </span>
+                  <span class="stat-item" style="margin-left: 16px;">
+                    <icon-message /> {{ post.commentCount }} 评论
+                  </span>
                 </span>
-                <span class="stat-item" style="margin-left: 16px;">
-                  <icon-heart /> {{ post.likeCount }} 点赞
-                </span>
-                <span class="stat-item" style="margin-left: 16px;">
-                  <icon-message /> {{ post.commentCount }} 评论
-                </span>
-              </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 文章内容 -->
-      <div class="post-content" >
-   
-        <div class="markdown-content">
-          <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content || ''" />
+        <!-- 文章内容 -->
+        <div class="post-content">
+
+          <div class="markdown-content">
+            <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content || ''" />
+          </div>
         </div>
-      </div>
-      <div>
-        评论
+
       </div>
     </div>
-  
+
+    <div class="comments-section">
+      <div class="comments-header">
+        <h2>评论</h2>
+        <div class="comment-count">{{ post.commentCount }}</div>
+      </div>
+    </div>
   </template>
 
 <script setup>
@@ -55,7 +61,6 @@ const route = useRoute();
 // 响应式数据
 const post = ref(null);
 const author = ref(null);
-const containerRef = ref(null);
 const lastScrollTop = ref(0);
 const loadPostContent = async (postId) => {
   try {
@@ -88,7 +93,7 @@ const formatDate = (dateString) => {
 // 节流函数，减少事件触发频率
 const throttle = (func, delay) => {
   let timer = null;
-  return function(...args) {
+  return function (...args) {
     if (!timer) {
       timer = setTimeout(() => {
         func.apply(this, args);
@@ -102,21 +107,19 @@ const throttle = (func, delay) => {
 const handleContentScroll = throttle((event) => {
   const contentElement = event.target;
   const scrollTop = contentElement.scrollTop;
-  
   // 判断滚动方向
   const isScrollingDown = scrollTop > lastScrollTop.value;
-
+  const scrollDelta = scrollTop - lastScrollTop.value;
   // 如果是向下滚动
   if (isScrollingDown) {
     // 计算本次滚动的距离
-    const scrollDelta = scrollTop - lastScrollTop.value;
-    // 滚动整个页面，但不超过 200px，使用平滑滚动
-    window.scrollTo({
-      top: Math.min(window.scrollY + scrollDelta, 200),
-      behavior: 'smooth'
-    });
+    if (window.scrollY < 90) {
+      window.scrollTo({
+        top: 100,
+        behavior: 'smooth'
+      });
+    }
   }
-  
   // 更新上一次滚动位置
   lastScrollTop.value = scrollTop;
 }, 50);
@@ -133,18 +136,19 @@ onMounted(() => {
 <style lang="less" scoped>
 .post-container {
   scrollbar-width: none;
-
   &::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
   }
-
   padding: 20px;
-  max-width: 2000px;
-  margin: 0 auto;
-
+  margin-right:20vw;
+  max-width: 60vw;
   overflow-y: auto;
+  @media screen and (max-width: 768px) {
+    max-width: 100vw;
+    margin-right: 0vw;
+  }
 }
 
 .post-header {
@@ -194,7 +198,7 @@ onMounted(() => {
 
 .post-content {
   padding: 20px 0;
-  height: calc(90vh);
+  max-height: calc(95vh);
   display: flex;
   gap: 20px;
 }
@@ -211,5 +215,37 @@ onMounted(() => {
 .markdown-content {
   flex: 1;
   overflow-y: auto;
+}
+
+
+
+.comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comments-section h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #1d2129;
+}
+
+.comment-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+
+  border-radius: 14px;
+  background-color: #f7f8fa;
+  color: #86909c;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #e5e8ef;
 }
 </style>
