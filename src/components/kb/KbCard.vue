@@ -22,7 +22,7 @@
                         <icon-heart :style="{ marginRight: '4px' }" /> {{ kbInfo.likeCount }}
                         <icon-book :style="{ marginLeft: '12px', marginRight: '4px' }" /> {{ kbInfo.postCount }}
                     </div>
-                    <div class="kb-date">{{ formatDate(kbInfo.createdAt) }}</div>
+                    <div class="kb-date">{{ formatDate(kbInfo.createdAt,'创建') }}</div>
                 </div>
             </div>
         
@@ -46,6 +46,7 @@
 import { IconHeart, IconBook } from '@arco-design/web-vue/es/icon'
 import CImg from '../base/cImg.vue'
 import { useRouter } from 'vue-router'
+import { formatDate } from '@/utils/DateFormatter.js'
 const router = useRouter()
 
 const props = defineProps({
@@ -77,32 +78,6 @@ const props = defineProps({
 const primary4Color = '#ff6699' 
 
 
-const formatDate = (dateString) => {
-  const now = new Date();
-  const targetDate = new Date(dateString);
-  const diffMs = now - targetDate;
-  const diffSeconds = Math.floor(diffMs / 1000);
-
-  // 超过7天（604800秒）显示日期
-  if (diffSeconds > 604800) {
-    return targetDate.toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    })+'创建';
-  }
-
-  // 7天内：根据时间差返回 "XX前"
-  if (diffSeconds < 60) {
-    return `${diffSeconds}秒前创建`;
-  } else if (diffSeconds < 3600) {
-    return `${Math.floor(diffSeconds / 60)}分钟前创建`;
-  } else if (diffSeconds < 86400) {
-    return `${Math.floor(diffSeconds / 3600)}小时前创建`;
-  } else {
-    return `${Math.floor(diffSeconds / 86400)}天前创建`;
-  }
-};
 // 处理卡片点击事件
 const handleCardClick = () => {
     const routeData = router.resolve({ name: 'KB', query: { kb: props.kbInfo.id } });

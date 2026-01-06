@@ -1,6 +1,8 @@
   <template>
     <div style="display: flex;">
-        <div style="width: 20vw;background-color: red;">123213</div>
+      <div class="post-sidebar">
+        <PostHistroy :postId="post?.id" />
+      </div>
       <div class="post-container" ref="containerRef">
         <!-- 文章头部信息 -->
         <div class="post-header" v-if="post">
@@ -53,7 +55,7 @@ import api from '@/api/index.js';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 import { useUserStore } from "@/store/user.js";
-
+import PostHistroy from "@/components/post/PostHistroy.vue";
 const userStore = useUserStore();
 
 const route = useRoute();
@@ -134,19 +136,36 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
+.post-sidebar {
+  min-width: 20vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 20px;
+
+  @media screen and (max-width: 768px) {
+    min-width: 0;
+    width: 0vw;
+    display: none;
+  }
+}
+
 .post-container {
   scrollbar-width: none;
+  width: 60vw;
+
   &::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
   }
+
   padding: 20px;
-  margin-right:20vw;
-  max-width: 60vw;
+  margin-right: 20vw;
   overflow-y: auto;
+
   @media screen and (max-width: 768px) {
-    max-width: 100vw;
+    width: 100vw;
     margin-right: 0vw;
   }
 }
