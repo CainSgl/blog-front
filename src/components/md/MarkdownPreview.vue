@@ -12,10 +12,10 @@ import { defineProps, computed, nextTick, onMounted, onUpdated, onUnmounted, ref
 import { createApp, h } from 'vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import { Image as AImage } from '@arco-design/web-vue';
 import CodeBlock from './CodeBlock.vue';
+import CommentableParagraph from './CommentableParagraph.vue';
 import { API_BASE_URL } from '@/config';
 
 const extractImageSize = (src) => {
@@ -53,6 +53,10 @@ const props = defineProps({
   },
   height: {
     type: String,
+  },
+  showComment: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -60,6 +64,25 @@ const previewContentRef = ref(null);
 const previewContainerRef = ref(null);
 
 const renderer = new marked.Renderer();
+
+// 用于生成 p 标签的自增ID
+let paragraphIdCounter = 0;
+renderer.paragraph = function (obj) {
+  if (obj.tokens[0].type === 'image'||!props.showComment) {
+    return `<p>${this.parser.parseInline(obj.tokens)}</p>`;
+  } else {
+    const commentId = ++paragraphIdCounter;
+    return `<div id="commentable-paragraph-${commentId}" class="commentable-paragraph-placeholder" data-text="${encodeURIComponent(this.parser.parseInline(obj.tokens))}" data-comment-id="${commentId}">Loading paragraph...</div>`;
+  }
+
+  // const containsImageSyntax = /!\[.*?\]\(.*?\)/.test(text);
+
+  // if (props.showComment && !containsImageSyntax) {
+  //   return `<div id="commentable-paragraph-${commentId}" class="commentable-paragraph-placeholder" data-text="${this.parser.parseInline(obj.tokens)}" data-comment-id="${commentId}">Loading paragraph...</div>`;
+  // } else {
+  //   return `<p>${this.parser.parseInline(obj.tokens)}</p>`;
+  // }
+};
 
 // 自定义代码块渲染器 - 创建一个特殊的占位符 
 let codeBlockIdCounter = 0; // 用于生成自增ID
@@ -223,6 +246,10 @@ marked.setOptions({
 // 渲染 Markdown 内容
 const renderedMarkdown = computed(() => {
   if (!props.content) return '';
+
+  // 每次渲染前重置段落ID计数器
+  paragraphIdCounter = 0;
+
   const rawHtml = marked(props.content);
   const clean = DOMPurify.sanitize(rawHtml, {
     ADD_ATTR: ['target']
@@ -230,7 +257,7 @@ const renderedMarkdown = computed(() => {
   return clean;
 });
 
-// 在组件挂载和更新后处理动态组件占位符（图片和代码块）
+// 在组件挂载和更新后处理动态组件占位符（图片、代码块和评论段落）
 const processDynamicComponents = async () => {
   await nextTick();
   if (previewContentRef.value) {
@@ -262,7 +289,6 @@ const processDynamicComponents = async () => {
             style: {
               borderRadius: '6px',
               margin: '16px 0',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
               maxWidth: '100%'
             }
           });
@@ -296,6 +322,33 @@ const processDynamicComponents = async () => {
       // 挂载到容器
       codeBlockApp.mount(container);
     });
+
+    // 处理评论段落占位符
+    if (props.showComment) {
+      const paragraphPlaceholders = previewContentRef.value.querySelectorAll('.commentable-paragraph-placeholder');
+      paragraphPlaceholders.forEach(placeholder => {
+        const text = placeholder.getAttribute('data-text');
+        const commentId = parseInt(placeholder.getAttribute('data-comment-id'));
+
+        // 创建一个容器来放置 CommentableParagraph 组件
+        const container = document.createElement('div');
+        container.className = 'commentable-paragraph-container';
+        placeholder.parentNode.replaceChild(container, placeholder);
+
+        const paragraphApp = createApp({
+          render() {
+            return h(CommentableParagraph, {
+              text: decodeURIComponent(text),
+              commentId: commentId,
+              showComment: props.showComment
+            });
+          }
+        });
+
+        // 挂载到容器
+        paragraphApp.mount(container);
+      });
+    }
   }
 };
 
@@ -471,10 +524,10 @@ defineExpose({
 </script>
 
 <style lang="less">
-
-.cainsgl-preview-content{
+.cainsgl-preview-content {
   overflow-x: hidden;
 }
+
 .cainsgl {
   &-markdown-preview {
     width: 100%;

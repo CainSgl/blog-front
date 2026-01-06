@@ -1,5 +1,5 @@
 <template>
-  <div class="post-card" :style="{ height: `${props.height}px`, width: `${props.width}px` }">
+  <div class="post-card" :style="{ height: `${props.height}px`, width: `${props.width}px` }" :alt="post.summary?post.summary:post.title">
 
     <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick" v-if="post.id">
       <!-- 图片和内容容器，用于响应式布局 -->

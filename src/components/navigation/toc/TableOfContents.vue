@@ -1,6 +1,6 @@
 <template>
   <div v-if="treeData.length > 0" class="table-of-contents" ref="containerRef">
-    <a-affix :offsetTop="0" :target="affixTarget?affixTarget:containerRef">
+    <a-affix :offsetTop="0" :target="affixTarget ? affixTarget : containerRef">
       <div class="toc-controls">
         <a-tooltip :content="isVisible ? '隐藏目录' : '显示目录'">
           <a-button size="small" @click="toggleVisibility">
@@ -30,10 +30,9 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, nextTick, onMounted, onUnmounted } from 'vue';
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { parseMarkdownToTree } from '@/utils/markdownToTree.js';
-import { IconEye, IconEyeInvisible, IconExpand, IconShrink } from '@arco-design/web-vue/es/icon';
-import { replaceDefaultUV } from 'three/src/nodes/TSL.js';
+import { IconEye, IconEyeInvisible, IconShrink } from '@arco-design/web-vue/es/icon';
 
 const containerRef = ref(null);
 // 定义组件props
@@ -42,18 +41,18 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  affixTarget:{
-    type: [String,Element],
+  affixTarget: {
+    type: [String, Element],
     default: null
   },
-  noControle:{
+  noControle: {
     type: Boolean,
     default: false
   }
 });
 
 // 定义组件事件
-const emit = defineEmits(['visibilityChange']);
+const emit = defineEmits(['visibilityChange', 'hasData']);
 
 // 响应式数据
 const treeData = ref([]);
@@ -105,10 +104,6 @@ const expandAllNodes = (nodes) => {
   return Array.from(keys);
 };
 
-// 收起所有节点
-const collapseAllNodes = () => {
-  return [];
-};
 
 // 切换展开/收起全部
 const toggleExpandAll = () => {
@@ -205,6 +200,9 @@ watch(
       treeData.value = [];
       defaultExpandedKeys.value = [];
     }
+
+    // 通知父组件 treeData 是否有数据
+    emit('hasData', treeData.value.length > 0);
   },
   { immediate: true }
 );
@@ -264,16 +262,16 @@ const scrollToSelectedItem = (key) => {
   nextTick(() => {
     // 尝试多种选择器来定位Arco Design Tree节点
     let selectedElement = document.querySelector(`.arco-tree-node[data-key="${key}"]`);
-    
+
     // 如果上面的选择器没找到，尝试另一种可能的选择器
     if (!selectedElement) {
       selectedElement = document.querySelector(`[data-key="${key}"] .arco-tree-node-title`);
     }
-    
+
     if (!selectedElement) {
       selectedElement = document.querySelector(`[data-key="${key}"]`);
     }
-    
+
     if (selectedElement) {
       const container = containerRef.value;
       if (container) {
@@ -282,22 +280,22 @@ const scrollToSelectedItem = (key) => {
         const elementHeight = selectedElement.offsetHeight;
         const containerHeight = container.clientHeight;
         const currentScrollTop = container.scrollTop;
-        
+
         // 计算元素在容器中的位置
         const elementPositionTop = elementTop - currentScrollTop;
-        
+
         // 检查元素是否在可视区域外
         const isAboveViewport = elementPositionTop < 0;
         const isBelowViewport = elementPositionTop + elementHeight > containerHeight;
-        
+
         // 只有在元素在视窗下方时才滚动
         if (isBelowViewport) {
           // 滚动到元素位置，确保元素在视窗中间偏上（约15%的位置）
-          let scrollPosition = elementTop - (containerHeight *0.15) - (elementHeight / 2);
-          
+          let scrollPosition = elementTop - (containerHeight * 0.15) - (elementHeight / 2);
+
           // 确保滚动位置不会超出容器范围
           scrollPosition = Math.max(0, Math.min(scrollPosition, container.scrollHeight - containerHeight));
-          
+
           container.scrollTo({
             top: scrollPosition,
             behavior: 'smooth'
@@ -328,19 +326,17 @@ const handleNodeClick = (node) => {
 <style scoped lang="less">
 .table-of-contents {
   scrollbar-width: none;
-  &::-webkit-scrollbar{
-    display: none!important;
-    width: 0!important;
-    height: 0!important;
+
+  &::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
+
   padding: 10px 5px;
   width: 100%;
   overflow-x:hidden;
-  overflow-y: hidden;
-  &:hover{
-    overflow-y:auto;
-  }
-  
+  overflow-y:auto;
 }
 
 .toc-controls {
@@ -354,7 +350,7 @@ const handleNodeClick = (node) => {
 
 .toc-content {
   width: 100%;
-  overflow: hidden;
+  height: 100%;
 }
 
 .empty-toc {
@@ -370,14 +366,14 @@ const handleNodeClick = (node) => {
   border-radius: 4px;
   transition: all 0.2s;
   white-space: nowrap;
-  overflow: hidden;
+
   text-overflow: ellipsis;
   max-width: 100%;
 }
 
 :deep(.arco-tree-node-title-text) {
   white-space: nowrap;
-  overflow: hidden;
+
   text-overflow: ellipsis;
   display: block;
   max-width: 100%;

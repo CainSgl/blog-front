@@ -1,11 +1,12 @@
 <template>
   <div ref="wrapperRef" class="markdown-preview-wrapper"
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
-    <MarkdownPreview ref="markdownPreviewRef" :content="content" :height="height"
+    <MarkdownPreview :showComment="showComment" ref="markdownPreviewRef" :content="content" :height="height"
       :class="['preview', { 'preview-full': !isTocVisible }]" @scroll="handleMdScroll" />
-    <div :class="['toc', { 'toc-visible': isTocVisible }]" :target="affixTarget ? affixTarget : null">
+    <div :class="['toc', { 'toc-visible': isTocVisible }]" :target="affixTarget ? affixTarget : null"
+      :style="tocHasData ? '' : 'width: 0;'">
       <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect"
-        :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" />
+        :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" @hasData="handleHasData" />
     </div>
 
 
@@ -22,15 +23,16 @@
       </a-button>
     </div>
     <div class="scroll-progress-container">
-      <ScrollProgress :style="isMobile ? 'right: 10px;' : ''" :current-scroll-percent="currentScrollPercent"
-        :show-scroll-progress="showScrollProgress" @scroll-to-top="handleScrollToTop" />
+      <ScrollProgress :style="isMobile || !tocHasData ? tocPosition + ': 10px;' : ''"
+        :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
+        @scroll-to-top="handleScrollToTop" />
     </div>
   </div>
 
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue';
 import MarkdownPreview from './MarkdownPreview.vue';
 import TableOfContents from '../navigation/toc/TableOfContents.vue';
 import ScrollProgress from '../base/ScrollProgress.vue';
@@ -57,6 +59,10 @@ const props = defineProps({
   affixTarget: {
     type: [String, Element],
     default: null
+  },
+  showComment: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -71,12 +77,22 @@ const isMobile = ref(false); // 跟踪是否为移动端
 const markdownPreviewRef = ref(null);
 const currentScrollPercent = ref(0); // 当前滚动进度百分比
 const showScrollProgress = ref(false);
+const tocHasData = ref(true);
 // 判断是否应该显示目录：在桌面端始终根据isTocVisible决定，
 // 在移动端仅在可见状态下显示，隐藏状态下不显示（包括控制按钮）
 const shouldShowToc = computed(() => {
   return props.showToc && (isMobile.value ? isTocVisible.value : true);
 });
 let closeScrollProgress;
+
+
+
+function handleHasData(hasData) {
+  console.log('hasData', hasData);
+  tocHasData.value = hasData;
+}
+
+
 function handleMdScroll(e) {
   showScrollProgress.value = true;
   if (closeScrollProgress) {
@@ -159,6 +175,15 @@ const handleResize = () => {
     updateMobileStatus();
   });
 };
+
+// 监听content变化，重新计算目录高度
+watch(() => props.content, () => {
+  nextTick(() => {
+    calculateTocMaxHeight();
+  });
+}, {
+  immediate: false // 不需要立即执行，因为onMounted中已经计算过一次
+});
 
 onMounted(() => {
   // 组件挂载后计算目录高度
