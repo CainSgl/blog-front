@@ -1,7 +1,7 @@
 <template>
   <div ref="wrapperRef" class="markdown-preview-wrapper"
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
-    <MarkdownPreview :showComment="showComment" ref="markdownPreviewRef" :content="content" :height="height"
+    <MarkdownPreview :showComment="showComment" ref="markdownPreviewRef" :content="content"  :useWindowScroll="useWindowScroll"
       :class="['preview', { 'preview-full': !isTocVisible }]" @scroll="handleMdScroll" />
     <div :class="['toc', { 'toc-visible': isTocVisible }]" :target="affixTarget ? affixTarget : null"
       :style="tocHasData ? '' : 'width: 0;'">
@@ -27,6 +27,7 @@
         :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
         @scroll-to-top="handleScrollToTop" />
     </div>
+    <CommentDrawer />
   </div>
 
 </template>
@@ -37,13 +38,9 @@ import MarkdownPreview from './MarkdownPreview.vue';
 import TableOfContents from '../navigation/toc/TableOfContents.vue';
 import ScrollProgress from '../base/ScrollProgress.vue';
 import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon';
-
+import CommentDrawer from '@/components/comment/CommentDrawer.vue';
 const props = defineProps({
   content: {
-    type: String,
-    default: ''
-  },
-  height: {
     type: String,
     default: ''
   },
@@ -63,6 +60,10 @@ const props = defineProps({
   showComment: {
     type: Boolean,
     default: true
+  },
+  useWindowScroll: {
+    type: Boolean,
+    default: false
   }
 });
 

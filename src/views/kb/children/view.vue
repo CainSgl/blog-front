@@ -4,8 +4,8 @@
       <div style="padding:10px 0px;">
         <KBCardHeader :post-info="postInfo" :kb-id="kbId" :tree-data="treeData" :kb-info="kbInfo" :on-back="goBack" />
       </div>
-      <div style="height: 100%;padding-left:16px;">
-        <MarkdownPreviewWrapper :content="textContent" :height="previewHeight" />
+      <div style="height: 100%;padding-left:16px;" :style="{'height': previewHeight}">
+        <MarkdownPreviewWrapper :content="textContent" :useWindowScroll="true" />
       </div>
     </div>
   </a-spin>

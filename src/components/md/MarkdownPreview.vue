@@ -2,21 +2,32 @@
 
   <div ref="previewContainerRef" class="cainsgl-markdown-preview">
 
-    <div ref="previewContentRef" :style="{ height: height }" class="cainsgl-preview-content"
+    <div ref="previewContentRef"  class="cainsgl-preview-content"
       v-html="renderedMarkdown" />
+      <div v-if="!renderedMarkdown&&content">
+          正在将服务器的数据渲染出来！
+      </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps, computed, nextTick, onMounted, onUpdated, onUnmounted, ref } from 'vue';
+import { defineProps, computed, nextTick, onMounted, onUpdated, onUnmounted, ref, watch } from 'vue';
 import { createApp, h } from 'vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import 'highlight.js/styles/github.css';
 import { Image as AImage } from '@arco-design/web-vue';
 import CodeBlock from './CodeBlock.vue';
-import CommentableParagraph from './CommentableParagraph.vue';
+import CommentableParagraph from '../comment/CommentableParagraph.vue';
 import { API_BASE_URL } from '@/config';
+import containerExtension from '@/plugins/md-tip-info-extens.js';
+import ArcoVue from '@arco-design/web-vue';
+// 使用 marked 的 use 方法注册扩展
+marked.use({
+  extensions: [containerExtension]
+});
+
+
 
 const extractImageSize = (src) => {
   if (!src || typeof src !== 'string') {
@@ -51,10 +62,12 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  height: {
-    type: String,
-  },
+
   showComment: {
+    type: Boolean,
+    default: true
+  },
+  useWindowScroll: {
     type: Boolean,
     default: false
   }
@@ -68,20 +81,14 @@ const renderer = new marked.Renderer();
 // 用于生成 p 标签的自增ID
 let paragraphIdCounter = 0;
 renderer.paragraph = function (obj) {
-  if (obj.tokens[0].type === 'image'||!props.showComment) {
+  // 检查是否为图片段落或未启用评论功能
+  if (obj.tokens[0].type === 'image' || !props.showComment) {
     return `<p>${this.parser.parseInline(obj.tokens)}</p>`;
   } else {
     const commentId = ++paragraphIdCounter;
     return `<div id="commentable-paragraph-${commentId}" class="commentable-paragraph-placeholder" data-text="${encodeURIComponent(this.parser.parseInline(obj.tokens))}" data-comment-id="${commentId}">Loading paragraph...</div>`;
   }
 
-  // const containsImageSyntax = /!\[.*?\]\(.*?\)/.test(text);
-
-  // if (props.showComment && !containsImageSyntax) {
-  //   return `<div id="commentable-paragraph-${commentId}" class="commentable-paragraph-placeholder" data-text="${this.parser.parseInline(obj.tokens)}" data-comment-id="${commentId}">Loading paragraph...</div>`;
-  // } else {
-  //   return `<p>${this.parser.parseInline(obj.tokens)}</p>`;
-  // }
 };
 
 // 自定义代码块渲染器 - 创建一个特殊的占位符 
@@ -246,7 +253,6 @@ marked.setOptions({
 // 渲染 Markdown 内容
 const renderedMarkdown = computed(() => {
   if (!props.content) return '';
-
   // 每次渲染前重置段落ID计数器
   paragraphIdCounter = 0;
 
@@ -344,7 +350,7 @@ const processDynamicComponents = async () => {
             });
           }
         });
-
+        paragraphApp.use(ArcoVue);
         // 挂载到容器
         paragraphApp.mount(container);
       });
@@ -366,18 +372,33 @@ const scrollToHashElement = () => {
       // 解码URL编码的ID，处理中文字符
       elementId = decodeURIComponent(elementId);
       const element = document.getElementById(elementId);
-      if (element) {
+      if (element && previewContainerRef.value) {
+        if (props.useWindowScroll) {
+          // 设置滚动标志，表示正在程序触发的滚动
+          isScrollingToElement = true;
+          // 使用直接跳转到目标元素
+          element.scrollIntoView({
+            behavior: 'auto',
+            block: 'start'
+          });
+          // 添加视觉提示效果
+          addVisualHighlight(element);
+          // 立即重置滚动标志
+          isScrollingToElement = false;
+          return;
+        }
         // 设置滚动标志，表示正在程序触发的滚动
         isScrollingToElement = true;
-        // 使用直接跳转到目标元素
-        element.scrollIntoView({
-          behavior: 'auto',
-          block: 'start'
+        // 计算元素在预览容器中的位置
+        const elementTop = element.offsetTop - previewContentRef.value.offsetTop;
+        // 滚动到元素位置，使其位于容器顶部附近
+        previewContainerRef.value.scrollTo({
+          top: elementTop - 20, // 留出20px的顶部边距
+          behavior: 'auto'
         });
 
         // 添加视觉提示效果
         addVisualHighlight(element);
-
         // 立即重置滚动标志
         isScrollingToElement = false;
 
@@ -431,6 +452,7 @@ const handleHashChange = () => {
 
 // 滚动监听函数，检测当前可视区域的标题元素
 const handleScroll = () => {
+
   if (!previewContainerRef.value || !previewContentRef.value) return;
 
   // 获取所有标题元素
@@ -438,18 +460,24 @@ const handleScroll = () => {
   if (!headings.length) return;
 
   let currentHeading = null;
-  const scrollPosition = previewContainerRef.value.scrollTop;
+  const containerRect = previewContainerRef.value.getBoundingClientRect();
+  const scrollTop = previewContainerRef.value.scrollTop;
 
   // 遍历所有标题元素，找到当前可视区域内的标题
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
-    const headingPosition = heading.offsetTop - previewContentRef.value.offsetTop;
+    // 计算标题相对于容器的偏移位置
+    const headingTop = heading.offsetTop - previewContentRef.value.offsetTop;
+    const headingRect = heading.getBoundingClientRect();
+    const containerTop = previewContainerRef.value.getBoundingClientRect().top;
+    // 计算标题相对于滚动容器的可视位置
+    const relativeTop = headingTop - scrollTop;
 
-    // 如果标题位置小于等于滚动位置，则认为是当前标题
-    if (headingPosition <= scrollPosition) {
+    // 如果标题位置在可视区域内或接近可视区域顶部，则认为是当前标题
+    if (relativeTop <= 100) { // 给一个100px的容差范围
       currentHeading = heading;
     } else {
-      // 如果下一个标题已经超过了滚动位置，则当前标题就是上一个标题
+      // 如果下一个标题已经超过了可视区域，则当前标题就是上一个标题
       break;
     }
   }
@@ -472,10 +500,11 @@ onMounted(() => {
   scrollToHashElement();
   // 添加hash变化监听器
   window.addEventListener('hashchange', handleHashChange);
-  // 添加滚动监听器
+  // 添加滚动监听器到预览容器
   if (previewContainerRef.value) {
     previewContainerRef.value.addEventListener('scroll', handleScroll);
   }
+
 });
 
 onUpdated(() => {
@@ -486,7 +515,7 @@ onUpdated(() => {
 
 // 滚动到顶部或底部的方法
 const scrollToTopOrBottom = (isBottom) => {
-  console.log(isBottom)
+
   isScrollingToElement = true;
   if (previewContainerRef.value) {
     if (isBottom) {
@@ -508,13 +537,23 @@ const scrollToTopOrBottom = (isBottom) => {
   }, 3000);
 };
 
+// 监听 showComment 属性变化，重新处理动态组件
+watch(() => props.showComment, async (newShowComment) => {
+  if (newShowComment) {
+    // 当启用评论功能时，重新处理动态组件以确保评论段落被正确渲染
+    await nextTick();
+    processDynamicComponents();
+  }
+}, { immediate: false });
+
 // 在组件卸载时移除事件监听器
 onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashChange);
-  // 移除滚动监听器
+  // 移除预览容器的滚动监听器
   if (previewContainerRef.value) {
     previewContainerRef.value.removeEventListener('scroll', handleScroll);
   }
+
 });
 
 // 暴露方法给父组件
@@ -540,6 +579,92 @@ defineExpose({
     line-height: 1.6;
     font-size: 16px;
     color: #333;
+
+    & .cainsgl-custom-container {
+      margin: 20px 0;
+      border-radius: 8px;
+      overflow: hidden;
+
+      & .cainsgl-container-title {
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+
+        &::before {
+          margin-right: 8px;
+          font-weight: bold;
+        }
+      }
+
+      & .cainsgl-container-content {
+        padding: 16px;
+
+        &>p:first-child {
+          margin-top: 0;
+        }
+
+        &>p:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      &.cainsgl-container-info {
+        background-color: #eff6ff;
+
+        & .cainsgl-container-title {
+          background-color: #dbeafe;
+          color: #1d4ed8;
+
+        }
+      }
+
+      &.cainsgl-container-tip {
+        background-color: #ecfdf5;
+
+        & .cainsgl-container-title {
+          background-color: #d1fae5;
+          color: #047857;
+
+
+        }
+      }
+
+      &.cainsgl-container-warning {
+        background-color: #fffbeb;
+
+        & .cainsgl-container-title {
+          background-color: #fef3c7;
+          color: #92400e;
+
+        }
+      }
+
+      &.cainsgl-container-danger {
+        background-color: #fef2f2;
+
+        & .cainsgl-container-title {
+          background-color: #fecaca;
+          color: #b91c1c;
+
+
+        }
+      }
+
+      &.cainsgl-container-details {
+        border: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+
+        & .cainsgl-container-title {
+          background-color: #f3f4f6;
+          color: #374151;
+
+
+        }
+      }
+    }
+
 
     & .cainsgl-markdown-code {
       font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
@@ -679,6 +804,29 @@ defineExpose({
         color: #9ca3af;
       }
     }
+
+    // 高亮目标元素的样式
+    & .cainsgl-highlight-target {
+      animation: highlightAnimation 2s ease;
+    }
+  }
+}
+
+@keyframes highlightAnimation {
+  0% {
+    background-color: transparent;
+  }
+
+  25% {
+    background-color: rgba(255, 255, 0, 0.5);
+  }
+
+  50% {
+    background-color: rgba(255, 255, 0, 0.5);
+  }
+
+  100% {
+    background-color: transparent;
   }
 }
 </style>

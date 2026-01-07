@@ -188,7 +188,6 @@ watch(
     if (newContent) {
       try {
         treeData.value = parseMarkdownToTree(newContent);
-        console.log(treeData.value)
         computeDefaultExpandedKeys(); // 更新默认展开的节点
 
       } catch (error) {

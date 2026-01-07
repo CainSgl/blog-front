@@ -5,7 +5,6 @@ import router from './router';
 import ArcoVue from '@arco-design/web-vue';
 import '@arco-design/web-vue/dist/arco.css';
 import './assets/style/global.less';
-import VMdEditor from './plugins/v-md-editor';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -13,7 +12,6 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 app.use(ArcoVue);
-app.use(VMdEditor);
 
 app.config.errorHandler = (err, instance, info) => {
   console.error('全局异常:', err, '组件:', instance, '位置:', info);

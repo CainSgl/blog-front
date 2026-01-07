@@ -20,7 +20,6 @@ import '@kangc/v-md-editor/lib/plugins/highlight-lines/highlight-lines.css';
 import createCopyCodePlugin from '@kangc/v-md-editor/lib/plugins/copy-code/index';
 import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css';
 import createAlignPlugin from '@kangc/v-md-editor/lib/plugins/align';
-
 // External libraries
 import katex from 'katex';
 import mermaid from 'mermaid';
@@ -39,12 +38,9 @@ VMdEditor.use(vuepressTheme, {
       breaks: true
     });
     
-    // 自定义渲染器以匹配MarkdownPreview.vue的样式
-    
     // 自定义列表项渲染 - 处理任务列表
     const defaultListItem = md.renderer.rules.list_item_open;
     md.renderer.rules.list_item_open = function (tokens, idx, options, env, renderer) {
-      const token = tokens[idx];
       const contentToken = tokens[idx + 1];
       
       // 检查是否是任务列表项

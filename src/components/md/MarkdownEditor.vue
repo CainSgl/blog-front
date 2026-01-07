@@ -219,6 +219,7 @@ import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
 import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
+import VMdEditor from '@/plugins/v-md-editor';
 
 // 定义 props
 const props = defineProps({
@@ -1348,9 +1349,6 @@ const insertImage = () => {
 
 
 onMounted(async () => {
-  // const route = useRoute();
-  // const { data } = await api.get('/post', { id: route.query.p })
-  // text.value = data.content
 })
 
 </script>
