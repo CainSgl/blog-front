@@ -1,15 +1,30 @@
 <template>
   <a-drawer v-model:visible="drawerVisible" :footer="false" :header="false" :mask-closable="true" :closable="true"
-    :placement="isMobile ? 'bottom' : 'right'" :width="isMobile ? '100%' : 400" :height="isMobile ? '70vh' : undefined">
-
-    <div class="comments-container" ref="commentsContainerRef">
-      <div class="comments-list">
-        <Comment v-for="comment in comments" :key="comment.id" :comment-data="comment" @reply="handleReply" />
+    :placement="isMobile ? 'bottom' : 'right'" :width="isMobile ? '100%' : 'max(20vw, 350px)'"
+    :height="isMobile ? '70vh' : undefined">
+    <template #header>
+      <p>评论</p>
+    </template>
+    <div class="comments-container-wrapper">
+      <div class="comments-container" ref="commentsContainerRef">
+        <div class="comments-list">
+          <Comment v-for="comment in comments" :key="comment.id" :comment-data="comment" />
+        </div>
+        <div v-if="loading" class="loading-more">加载中...</div>
+        <div v-if="!hasMore" class="no-more">没有更多评论了</div>
       </div>
-      <div v-if="loading" class="loading-more">加载中...</div>
-      <div v-if="!hasMore" class="no-more">没有更多评论了</div>
-    </div>
 
+      <!-- 评论输入框 -->
+      <div class="comment-input-wrapper" :class="{ 'mobile-keyboard-active': isKeyboardActive }">
+        <a-textarea v-model="newCommentContent" placeholder="评论一下吧！" :maxlength="{ length: 255, errorOnly: true }"
+          :auto-size="{ minRows: 1, maxRows: 4 }" @keydown.enter="handleEnterKey" @focus="handleInputFocus"
+          @blur="handleInputBlur" show-word-limit allow-clear ref="commentInputRef" />
+        <a-button type="primary" @click="handleAddComment" :disabled="!newCommentContent.trim()" class="submit-btn"
+          :loading="pushCommentLoading">
+          发送
+        </a-button>
+      </div>
+    </div>
   </a-drawer>
 </template>
 
@@ -17,16 +32,17 @@
 import { onMounted, onUnmounted, computed, ref, nextTick, watch } from 'vue';
 import Comment from '@/components/comment/Comment.vue';
 import { useCommentStore } from '@/components/comment/commentStore.js';
-
+import { Message } from '@arco-design/web-vue';
+import { useUserStore } from '@/store/user.js';
+import api from '@/api/index.js';
 const commentStore = useCommentStore();
-
+const userStore = useUserStore();
 // 评论数据和分页状态
 const comments = ref([]);
-const currentPage = ref(1);
-const pageSize = 10;
 const hasMore = ref(true);
 const loading = ref(false);
-
+const currentPage = ref(1);
+const pushCommentLoading = ref(false);
 // 保持响应性，不直接解构响应式变量
 const drawerVisible = computed({
   get: () => commentStore.drawerVisible,
@@ -34,15 +50,18 @@ const drawerVisible = computed({
     commentStore.drawerVisible = value;
   }
 });
-const newComment = computed({
-  get: () => commentStore.newComment,
-  set: (value) => {
-    commentStore.newComment = value;
-  }
-});
 
 // 屏幕尺寸检测逻辑移到组件中
 const isMobile = ref(false);
+
+// 键盘激活状态（用于手机端适配）
+const isKeyboardActive = ref(false);
+
+// 评论输入框引用
+const commentInputRef = ref(null);
+
+// 新评论内容
+const newCommentContent = ref('');
 
 // 滚动容器引用
 const commentsContainerRef = ref(null);
@@ -63,24 +82,18 @@ const updateScreenSize = () => {
     }
   }
 };
-
-const initScreenSizeDetection = () => {
-  updateScreenSize();
-  window.addEventListener('resize', updateScreenSize);
-};
-
-const cleanupScreenSizeDetection = () => {
-  window.removeEventListener('resize', updateScreenSize);
-};
+const initData = () => {
+  comments.value = [];
+  hasMore.value = true;
+  loading.value = false;
+  newCommentContent.value = '';
+  currentPage.value = 1;
+}
 
 // 加载评论数据
-const loadComments = async (reset = false) => {
-  if (reset) {
-    currentPage.value = 1;
-    comments.value = [];
-  }
+const loadComments = async () => {
 
-  if (!hasMore.value && !reset) {
+  if (!hasMore.value) {
     return;
   }
 
@@ -91,19 +104,12 @@ const loadComments = async (reset = false) => {
   loading.value = true;
 
   try {
-    const result = await commentStore.loadCommentData(currentPage.value, pageSize);
+    const result = await commentStore.loadCommentData(currentPage.value + 1); // 传入页码参数
     if (result.data && result.data.length > 0) {
-      if (reset) {
-        comments.value = [...result.data];
-      } else {
-        comments.value = [...comments.value, ...result.data];
-      }
-    }
-
-    hasMore.value = result.hasMore;
-    if (result.hasMore) {
+      comments.value = [...comments.value, ...result.data];
       currentPage.value++;
     }
+    hasMore.value = result.hasMore;
   } catch (error) {
     console.error('加载评论失败:', error);
   } finally {
@@ -124,20 +130,97 @@ const handleScroll = () => {
   }
 };
 
+// 处理回车键
+const handleEnterKey = (event) => {
+  // 只有在按下 Ctrl+Enter 或 Alt+Enter 时才提交评论
+  if (event.ctrlKey || event.altKey || event.metaKey) {
+    event.preventDefault(); // 阻止默认换行行为
+    handleAddComment();
+  }
+  // 如果只按 Enter 键，则允许换行（默认行为）
+};
+
+// 处理添加评论
+const handleAddComment = async () => {
+  if (!newCommentContent.value.trim()) {
+    Message.warning('请输入评论内容');
+    return;
+  }
+  if (!commentStore.paragrahphId) {
+    Message.error('发生了未知的错误，请重新打开评论区');
+    return;
+  }
+  if (pushCommentLoading.value) {
+    return;
+  }
+  pushCommentLoading.value = true;
+  try {
+    const content = newCommentContent.value
+    newCommentContent.value = ''
+    const { data } = await api.post('/comment', { postId: commentStore.postId, version: commentStore.version, dataId: commentStore.paragrahphId, content })
+    if (data != 'error') {
+       commentStore.incrementCommentCount(commentStore.paragrahphId);
+      Message.success('成功发布评论');
+      const currentUserInfo = await userStore.getUserInfo();
+      const newComment = {
+        userId: currentUserInfo.id,
+        id: data,
+        content: content,
+        createdAt: new Date().toISOString().split('T')[0], // 格式化为 "YYYY-MM-DD"
+        likeCount: 0,
+      };
+      comments.value.unshift(newComment); // 添加到数组开头而不是末尾
+      newCommentContent.value = '';
+      // 滚动到顶部
+      await nextTick();
+      if (commentsContainerRef.value) {
+        commentsContainerRef.value.scrollTop = 0;
+      }
+    } else {
+      Message.error('发布评论失败，异常问题，请联系管理员！');
+    }
+  } finally {
+    pushCommentLoading.value = false;
+  }
+
+};
+
+// 监听键盘事件，用于检测手机端输入法是否激活
+const handleInputFocus = () => {
+  if (isMobile.value) {
+    isKeyboardActive.value = true;
+    // 在手机端聚焦时，尝试滚动到输入框位置
+    nextTick(() => {
+      if (commentInputRef.value) {
+        // 尝试滚动使输入框可见
+        commentInputRef.value.$el?.scrollIntoView?.({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
+    });
+  }
+};
+
+const handleInputBlur = () => {
+  // 延迟设置，以确保键盘完全收起
+  setTimeout(() => {
+    isKeyboardActive.value = false;
+  }, 300);
+};
+
 onMounted(() => {
-  initScreenSizeDetection();
+  updateScreenSize();
+  window.addEventListener('resize', updateScreenSize);
 
   // 监听抽屉显示状态变化
   watch(drawerVisible, async (newVisible) => {
     if (newVisible) {
+      initData();
       // 重新显示时加载初始数据
-      await loadComments(true);
+      await loadComments();
     }
   });
-});
-
-onUnmounted(() => {
-  cleanupScreenSizeDetection();
 });
 
 // 为滚动容器添加事件监听
@@ -161,25 +244,19 @@ onUnmounted(() => {
   if (commentsContainerRef.value) {
     commentsContainerRef.value.removeEventListener('scroll', handleScroll);
   }
-  cleanupScreenSizeDetection();
+  window.removeEventListener('resize', updateScreenSize);
 });
-
-// 回复功能（保持原有逻辑）
-const handleReply = (comment) => {
-  // 这里可以实现回复逻辑
-  console.log('回复评论:', comment);
-};
-
-// 添加评论功能（保持原有逻辑）
-const addComment = () => {
-  // 这里可以实现添加评论逻辑
-  console.log('添加评论:', newComment.value);
-};
 </script>
 
 
 
 <style scoped lang="less">
+.comments-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .comments-container {
   scrollbar-width: none;
 
@@ -194,6 +271,8 @@ const addComment = () => {
 }
 
 .comments-list {
+  padding-top: 30px;
+  margin:0px 16px;
   display: flex;
   flex-direction: column;
 }
@@ -204,5 +283,38 @@ const addComment = () => {
   padding: 10px;
   color: #999;
   font-size: 14px;
+}
+
+.comment-input-wrapper {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #eee;
+  background-color: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+
+  :deep(.arco-input-wrapper),
+  :deep(.arco-textarea-wrapper) {
+    border-radius: 5px !important;
+    flex: 1;
+    align-self: center;
+  }
+
+
+
+  &.mobile-keyboard-active {
+    // 在手机端键盘激活时调整样式
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    background-color: white;
+    border-top: 1px solid #eee;
+    padding: 12px 16px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 </style>

@@ -1,69 +1,79 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-
+import api from "@/api/index.js";
 export const useCommentStore = defineStore("comment", () => {
   // 抽屉显示状态
   const drawerVisible = ref(false);
-  // 当前评论ID
-  const currentCommentId = ref(null);
-  const paragrahphId = ref(-1);
-  
-  // 评论数据相关
-  const comments = ref([]);
-  
+  //记录postId和version，需要使用
+  const postId = ref();
+  const version = ref();
+  const commentCountMap = ref(new Map());
+  const paragrahphId=ref(null);
+  const getParagraphCommentCountByPost = async (postIdCache, versionCache) => {
+    postId.value = postIdCache;
+    version.value = versionCache;
+    const { data } = await api.get("/paragraph/comment", {
+      id: postId.value,
+      version: version.value,
+    });
+    // 将返回的数据转换为Map，以dataId为key，count为value
+    const newMap = new Map();
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        newMap.set(item.dataId, item.count);
+      });
+    }
+    commentCountMap.value = newMap;
+    return commentCountMap.value;
+  };
   // 隐藏抽屉
   const hideCommentDrawer = () => {
     drawerVisible.value = false;
   };
 
   // 切换抽屉显示状态
-  const toggleCommentDrawer = (paragrahphId) => {
+  const toggleCommentDrawer = (paragrahphIdCache) => {
+    paragrahphId.value = paragrahphIdCache;
+    lastCreatedAt=null;
+    lastLikeCount=null;
     drawerVisible.value = !drawerVisible.value;
-    paragrahphId.value = paragrahphId;
   };
-  
+  let lastCreatedAt;
+  let lastLikeCount;
   // 加载评论数据的函数（mock数据）
-  const loadCommentData = async (page, pageSize) => {
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // 生成mock数据
-    const mockComments = [];
-    const startIndex = (page - 1) * pageSize;
-    
-    // 模拟总共只有25条评论，当超过总数时返回空数组或不足数量的数组
-    const totalComments = 25;
-    const remainingComments = totalComments - startIndex;
-    
-    const commentsToAdd = Math.min(pageSize, remainingComments);
-    
-    if (commentsToAdd > 0) {
-      for (let i = 0; i < commentsToAdd; i++) {
-        const commentIndex = startIndex + i;
-        mockComments.push({
-          id: commentIndex + 1,
-          content: `这是第 ${commentIndex + 1} 条评论内容这是第 ${commentIndex + 1} 条评论内容这是第 ${commentIndex + 1} 条评论内容这是第 ${commentIndex + 1} 条评论内容`,
-          author: `用户${commentIndex + 1}`,
-          time: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toLocaleString(),
-          avatar: `https://example.com/avatar${(commentIndex + 1) % 5}.png`,
-          replies: []
-        });
-      }
+  const loadCommentData = async () => {
+    const { data } = await api.get('/comment',{postId:postId.value,version:version.value,dataId:paragrahphId.value,lastCreatedAt:lastCreatedAt,lastLikeCount:lastLikeCount});
+    if(data.length>0){
+      lastCreatedAt=data[data.length-1].createdAt;
+      lastLikeCount=data[data.length-1].likeCount;
     }
-    
     return {
-      data: mockComments,
-      hasMore: startIndex + commentsToAdd < totalComments
+      data: data,
+      hasMore: data.length >10,
     };
+  };
+
+  const getCommentCountById = (commentId) => {
+    return commentCountMap.value.get(commentId) || 0;
+  };
+
+  // 更新指定段落的评论计数
+  const incrementCommentCount = (commentId) => {
+    const currentCount = commentCountMap.value.get(commentId) || 0;
+    commentCountMap.value.set(commentId, currentCount + 1);
   };
 
   return {
     drawerVisible,
-    currentCommentId,
-    paragrahphId,
-    comments,
     hideCommentDrawer,
     toggleCommentDrawer,
     loadCommentData,
+    getParagraphCommentCountByPost,
+    getCommentCountById,
+    incrementCommentCount,
+    paragrahphId,
+    commentCountMap,
+    postId,
+    version,
   };
 });

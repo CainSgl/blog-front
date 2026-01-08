@@ -66,8 +66,10 @@ import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 import {useUserStore} from "@/store/user.js";
 import PostHistroy from "@/components/post/PostHistroy.vue";
+import {useCommentStore} from "@/components/comment/commentStore.js";
 
 const userStore = useUserStore();
+const commentStore = useCommentStore();
 
 const route = useRoute();
 
@@ -81,10 +83,13 @@ const loadPostContent = async (postId) =>
   try
   {
     const {data} = await api.get(`/post`, {id: postId});
+     //获取评论数据
+    commentStore.getParagraphCommentCountByPost(postId,data.version);
     post.value = data;
-    originContent=post.value.content;
     const element = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${data.summary}</p>`
     post.value.content = element + '\n' + data.content;
+    originContent=post.value.content;
+   
     if (data.userId)
     {
       author.value = await userStore.getUserInfo(data.userId)

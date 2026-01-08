@@ -1,5 +1,5 @@
 <template>
-  <a-tag :color="levelColor" size="small" style="margin-left: 2px;">LV.{{ level || 0 }}</a-tag>
+  <a-tag :color="levelColor" :size="size" style="margin-left: 2px;">LV.{{ level || 0 }}</a-tag>
 </template>
 
 <script setup>
@@ -13,6 +13,10 @@ const props = defineProps({
   showGray: {
     type: Boolean,
     default: false
+  },
+  size: {
+    type: String,
+    default: 'small'
   }
 });
 

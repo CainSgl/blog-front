@@ -27,7 +27,7 @@
         :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
         @scroll-to-top="handleScrollToTop" />
     </div>
-    <CommentDrawer />
+    <CommentDrawer v-if="showComment" />
   </div>
 
 </template>
