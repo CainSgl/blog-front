@@ -43,7 +43,10 @@ const computedUrl = computed(() => {
   if(props.src.startsWith('blob')){
     return props.src;
   }
-  
+  if(props.src.startsWith('/')){
+    return`${API_BASE_URL}${props.src}`;
+  }
+
   // 否则拼接 API_BASE_URL
   return `${API_BASE_URL}/file?f=${props.src}`;
 });
@@ -54,10 +57,17 @@ defineOptions({
 </script>
 
 <style scoped>
+.c-img {
+  /* 固定默认尺寸，可以通过 props 或 class 覆盖 */
+  width: 100%;
+  height: 100%; 
+}
+
 .c-img :deep(.arco-image-img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 0; 
+  overflow: hidden; 
 }
 </style>

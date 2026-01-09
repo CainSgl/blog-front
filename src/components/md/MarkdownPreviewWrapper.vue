@@ -1,8 +1,9 @@
 <template>
   <div ref="wrapperRef" class="markdown-preview-wrapper"
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
-    <MarkdownPreview :showComment="showComment" ref="markdownPreviewRef" :content="content"  :useWindowScroll="useWindowScroll"
+    <MarkdownPreview v-show="!(isMobile&&shouldShowToc)" :showComment="showComment" ref="markdownPreviewRef" :content="content"  :useWindowScroll="useWindowScroll"
       :class="['preview', { 'preview-full': !isTocVisible }]" @scroll="handleMdScroll" />
+    <div></div>
     <div :class="['toc', { 'toc-visible': isTocVisible }]" :target="affixTarget ? affixTarget : null"
       :style="tocHasData ? '' : 'width: 0;'">
       <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect"
@@ -287,11 +288,11 @@ onUnmounted(() => {
   }
 
   .toc-toggle-container {
-    position: fixed;
+    position: absolute;
     bottom: 20px;
     right: 20px;
-    z-index: 1; // 确保按钮在最上层
-  }
+    z-index: 1000; // 确保按钮在最上层
+  } 
 
   .scroll-progress-container {
     position: absolute;

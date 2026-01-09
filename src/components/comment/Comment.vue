@@ -1,6 +1,6 @@
 <template>
-  <a-comment class="comment-item" :align="align"
-    :content="commentData.content" :datetime="formatTime(commentData.createdAt)">
+
+  <a-comment class="comment-item" :align="align" :datetime="formatDate(commentData.createdAt)">
     <template #actions>
       <span class="action" key="heart" @click="onLikeChange">
         <span v-if="like">
@@ -11,35 +11,87 @@
         </span>
         {{ commentData.likeCount + (like ? 1 : 0) }}
       </span>
-      <span class="action" key="reply" @click="onReply">
-        <IconMessage /> 回复
+      <span class="view-replies arco-comment-datetime" style="font-size: 14px;" key="reply" @click="toggleReplyInput">
+        回复
       </span>
     </template>
+
     <template #avatar>
-      <AvatarWithInfo :user="userDetail" :size="40"  />
+      <AvatarWithInfo :user="userDetail" :size="44" :position="position" />
     </template>
+
     <template #author>
       <span class="author-with-level">
         {{ userDetail?.nickname }}
-        <UserLevel  v-if="userDetail?.level !== undefined" :level="userDetail?.level" />
+        <UserLevel style=" display: flex;align-items: center;height: 100%;" v-if="userDetail?.level !== undefined"
+          :level="userDetail?.level" />
       </span>
     </template>
-    <slot></slot>
+
+    <template #content>
+      <div style="margin-top: 12px;font-size: 0.98rem;">
+        <span>{{ commentData.content }}</span>
+      </div>
+    </template>
+
+
+
+    <transition name="replies-container" mode="out-in">
+      <div v-if="showReplies && replies.length > 0" class="replies-container" key="replies">
+        <transition-group name="reply-list" tag="div">
+          <CommentReply v-for="replyComment in replies" :key="replyComment.id" :comment-data="replyComment"
+            @reply="handleReply" />
+        </transition-group>
+      </div>
+    </transition>
+    <!-- 回复输入框 -->
+    <ReplyInput v-if="showReplyInput" class="reply-input-wrapper" :on-submit-comment="handleSubmitReply"
+      :placeholder="placeholder" :showSelf="showSelf" />
+    <a-spin v-if="loadingReply" tip="加载更多评论中" />
+    <transition name="toggle-button">
+      <div v-if="commentData.replyCount > 0">
+        <div v-if="!showReplies">
+          <span class="arco-comment-datetime" style="font-size: 14px;">
+            共{{ commentData.replyCount }}条回复，
+          </span>
+          <span class="view-replies arco-comment-datetime" @click="toggleReplies" style="font-size: 14px;">
+            点击查看
+          </span>
+        </div>
+        <div v-else>
+          <span class="arco-comment-datetime" style="font-size: 14px;" v-if="showReplies">
+            共{{ commentData.replyCount }}条回复，
+          </span>
+          <span class="view-replies arco-comment-datetime" v-if="hasMore&&commentData.replyCount>replies.length" @click="loadReply()" style="font-size: 14px;">
+            查看更多，
+          </span>
+          <span class="view-replies arco-comment-datetime" @click="toggleReplies" style="font-size: 14px;">
+            点击收起
+          </span>
+        </div>
+      </div>
+    </transition>
+    <a-divider dashed />
   </a-comment>
 </template>
 
 <script setup>
-import { ref, defineProps, watch, computed } from 'vue';
+import { ref, defineProps, watch, nextTick } from 'vue';
 import { useUserStore } from '@/store/user.js';
+import { Message } from '@arco-design/web-vue';
 import {
   IconHeart,
   IconMessage,
   IconHeartFill,
 } from '@arco-design/web-vue/es/icon';
-import { Comment as AComment } from '@arco-design/web-vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 import UserLevel from '@/components/user/base/UserLevel.vue';
-
+import CommentReply from './CommentReply.vue'; // 引入新的回复组件
+import ReplyInput from './ReplyInput.vue'; // 引入ReplyInput组件
+import api from '@/api/index.js';
+import { formatDate, getDateNow } from '@/utils/DateFormatter.js';
+import { useCommentStore } from '@/components/comment/commentStore.js';
+const commentStore = useCommentStore();
 // 定义组件属性
 const props = defineProps({
   commentData: {
@@ -50,25 +102,44 @@ const props = defineProps({
       content: '',
       createdAt: '',
       likeCount: 0,
+      replyCount: 0,
       starCount: 0
     })
   },
   align: {
     type: [String, Object],
     default: {
-       datetime: "left",
-       actions: "left"
+      datetime: "left",
+      actions: "left"
     }
+  },
+  postComment: {
+    type: Boolean,
+    default: true
+  },
+  showSelf: {
+    type: Boolean,
+    default: true
+  },
+  position: {
+    type: String,
+    default: 'top'
   }
 });
 
 // 点赞状态
 const like = ref(false);
 
+// 回复相关状态
+const showReplies = ref(false);
+const replies = ref([]);
+const showReplyInput = ref(false);
+const placeholder = ref('');
 // 用户信息
 const userStore = useUserStore();
 const userDetail = ref(null);
-
+const hasMore = ref(true);
+const loadingReply = ref(false);
 // 监听 commentData 变化，如果包含 userId 则获取完整用户信息
 watch(
   () => props.commentData,
@@ -77,22 +148,170 @@ watch(
       // 如果 commentData 中有 userId，则获取用户信息
       const userInfo = await userStore.getUserInfo(newCommentData.userId);
       userDetail.value = userInfo;
+      placeholder.value = `回复 @${userInfo.nickname}：`
     }
   },
   { immediate: true }
 );
 
+let lastCreatedAt;
+let lastLikeCount;
+let lastId;
+function buildReplyRequest() {
+  let req;
+  if (props.postComment) {
+    req = {
+      postCommentId: props.commentData.id,
+    }
+  } else {
+    req = {
+      parCommentId: props.commentData.id,
+    }
+  }
+  if (lastCreatedAt) {
+    req.lastCreatedAt = lastCreatedAt;
+    req.lastLikeCount = lastLikeCount;
+    req.lastId = lastId;
+  }
+  return req;
+}
+let replyIdCache = null
 
+function buildReplyPost(content) {
+  let req;
+  if (replyIdCache) {
+    req = {
+      replyId: replyIdCache,
+    }
+  }
+  if (props.postComment) {
+    req = {
+      postCommentId: props.commentData.id,
+    }
+  } else {
+    req = {
+      dataId: commentStore.paragrahphId,
+      parCommentId: props.commentData.id,
+    }
+  }
+  req.postId=commentStore.postId
+  req.version=commentStore.version 
+  req.content = content;
+  return req;
+}
+async function buildReplyMessage(id, content) {
+  const current = await userStore.getUserInfo()
+
+  const message = {
+    id: id,
+    content: content,
+    replyCount: 0,
+    likeCount: 0,
+    createdAt: getDateNow(),
+    userId: current.id,
+  }
+  console.log(message, current)
+  if (replyIdCache) {
+    message.replyId = replyIdCache;
+    return message
+  }
+
+  if (props.postComment) {
+    message.postCommentId = props.commentData.id
+    return message
+  } else {
+    message.parCommentId = props.commentData.id
+    return message
+  }
+}
+
+// 切换显示回复
+const toggleReplies = async () => {
+  if (showReplies.value) {
+    showReplies.value = false;
+  } else {
+    if (replies.value.length === 0) {
+      loadReply();
+    }
+    showReplies.value = true;
+  }
+};
+
+// 切换回复输入框显示/隐藏
+const toggleReplyInput = () => {
+  showReplyInput.value = !showReplyInput.value;
+  replyIdCache = null
+};
+
+
+
+// 处理回复提交
+const handleSubmitReply = async (content) => {
+  if (!content.trim()) {
+    Message.warning('请输入回复内容');
+    return;
+  }
+
+  try {
+    const { data } = await api.post('/comment/reply', buildReplyPost(content));
+    Message.success('成功回复评论');
+    replies.value.unshift(await buildReplyMessage(data, content));
+    // 隐藏输入框
+    showReplyInput.value = false;
+    // 更新回复计数
+    props.commentData.replyCount += 1;
+  } catch (error) {
+    console.error('回复评论失败:', error);
+    Message.error('回复评论失败，请重试！');
+  }
+};
+
+async function loadReply() {
+  loadingReply.value = true
+  try {
+    const { data } = await api.get('/comment/reply', buildReplyRequest());
+    if (data && data.length > 0) {
+      lastCreatedAt = data[data.length - 1].createdAt;
+      lastLikeCount = data[data.length - 1].likeCount;
+      lastId = data[data.length - 1].id;
+    }
+
+    replies.value = [...replies.value, ...data]
+    if (data.length < 10) {
+      hasMore.value = false;
+    }
+
+    showReplies.value = true;
+  } catch (error) {
+    console.error('获取回复评论失败:', error);
+  } finally {
+    loadingReply.value = false
+  }
+}
+let idCache;
+function handleReply({ id, replyId, nickname }) {
+  if (showReplyInput.value) {
+    if (replyIdCache === replyId && idCache === id) {
+      //关闭回复
+      toggleReplyInput();
+      return;
+    } else {
+      replyIdCache = replyId;
+      idCache = id;
+      placeholder.value = `回复 @${nickname}：`
+    }
+  } else {
+    //打开回复
+    toggleReplyInput();
+    placeholder.value = `回复 @${nickname}：`
+    replyIdCache = replyId;
+    idCache = id;
+  }
+}
 // 点赞处理函数
 const onLikeChange = async () => {
-  // 临时更新本地状态
   like.value = !like.value;
-  const change = like.value ? 1 : -1;
-
-  // 这里可以调用API更新点赞状态
   try {
-    // 示例API调用，实际项目中需要替换为真实的API
-    // await api.likeComment(props.commentData.id, like.value);
     console.log(`点赞状态已更新: ${props.commentData.id}, 点赞: ${like.value}`);
   } catch (error) {
     // 如果API调用失败，回滚状态
@@ -101,31 +320,6 @@ const onLikeChange = async () => {
   }
 };
 
-// 回复处理函数
-const onReply = () => {
-  // 触发回复事件，父组件可以监听
-  emit('reply', props.commentData);
-};
-
-// 格式化时间
-const formatTime = (time) => {
-  if (!time) return '';
-  const date = new Date(time);
-  const now = new Date();
-  const diff = now - date;
-
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return '刚刚';
-  if (minutes < 60) return `${minutes}分钟前`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}小时前`;
-
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}天前`;
-
-  return date.toLocaleDateString('zh-CN');
-};
 
 // 定义组件事件
 const emit = defineEmits(['reply']);
@@ -140,18 +334,23 @@ const emit = defineEmits(['reply']);
   user-select: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 0 4px;
+  padding: 0 8px;
   color: var(--color-text-1);
   line-height: 24px;
+  height: 24px;
   background: transparent;
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.1s ease;
+  font-size: 14px;
 }
+
 :deep(.arco-comment-avatar) {
   cursor: default;
 }
+
 .action:hover {
   background: var(--color-fill-3);
 }
@@ -160,10 +359,89 @@ const emit = defineEmits(['reply']);
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  
-  :deep(.arco-comment-author) {
-    font-size: 16px;
-    font-weight: 500;
+  font-size: 18px;
+  font-weight: 500;
+
+}
+
+.view-replies {
+  user-select: none;
+  cursor: pointer;
+
+  &:hover {
+    color: @primary-5;
   }
+}
+
+:deep(.arco-comment-inner-comment) {
+  margin-top: 8px;
+}
+
+.reply-input-wrapper {
+  margin-top: 12px;
+  border-radius: 4px;
+  display: flex;
+
+}
+
+/* 回复列表过渡动画 */
+.reply-list-move,
+.reply-list-enter-active,
+.reply-list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.reply-list-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.reply-list-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.reply-list-move {
+  transition: transform 0.3s ease;
+}
+
+.replies-container {
+  margin-top: 23px;
+}
+
+/* 回复容器整体过渡动画 */
+.replies-container-move,
+.replies-container-enter-active,
+.replies-container-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.replies-container-enter-from {
+  max-height: 0;
+  opacity: 0;
+}
+
+.replies-container-enter-to {
+  max-height: 500px; /* 设置一个足够大的值，确保内容完全显示 */
+  opacity: 1;
+}
+
+.replies-container-leave-to {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* 切换按钮过渡动画 */
+.toggle-button-enter-active,
+.toggle-button-leave-active {
+  transition: all 0.2s ease;
+}
+
+.toggle-button-enter-from,
+.toggle-button-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
 }
 </style>

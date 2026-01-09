@@ -1,9 +1,11 @@
 <template>
-    <a-popover v-if="user" trigger="hover" position="rt"
+    <a-popover v-if="user" trigger="hover" :position="position"
         :content-style="{ minWidth: '300px', maxWidth: '400px' }">
-        <Avatar :size="size" class="user-avatar" :style="{ ...avatarStyle, cursor: 'pointer' }" @click="goToUserSpace"
+        <a :href="`/space/${user.id}`" target="_blank" :hoverable="false">
+        <Avatar :size="size" class="user-avatar" :style="{ ...avatarStyle, cursor: 'pointer' }" :draggable="false"
             :src="user.avatarUrl">
         </Avatar>
+        </a>
         <template #content>
             <div class="user-info-popover">
                 <div class="user-header">
@@ -66,6 +68,10 @@ const props = defineProps({
     avatarStyle: {
         type: Object,
         default: () => ({})
+    },
+    position: {
+        type: String,
+        default: 'rt'
     }
 });
 

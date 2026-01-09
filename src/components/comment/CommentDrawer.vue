@@ -8,7 +8,7 @@
     <div class="comments-container-wrapper">
       <div class="comments-container" ref="commentsContainerRef">
         <div class="comments-list">
-          <Comment v-for="comment in comments" :key="comment.id" :comment-data="comment" />
+          <Comment v-for="comment in comments" :key="comment.id" :comment-data="comment" :post-comment="false" :show-self="false" :position="'LT'" />
         </div>
         <div v-if="loading" class="loading-more">加载中...</div>
         <div v-if="!hasMore" class="no-more">没有更多评论了</div>
@@ -35,6 +35,7 @@ import { useCommentStore } from '@/components/comment/commentStore.js';
 import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/store/user.js';
 import api from '@/api/index.js';
+import {getDateNow} from '@/utils/DateFormatter.js'
 const commentStore = useCommentStore();
 const userStore = useUserStore();
 // 评论数据和分页状态
@@ -104,7 +105,7 @@ const loadComments = async () => {
   loading.value = true;
 
   try {
-    const result = await commentStore.loadCommentData(currentPage.value + 1); // 传入页码参数
+    const result = await commentStore.loadCommentData(); // 传入页码参数
     if (result.data && result.data.length > 0) {
       comments.value = [...comments.value, ...result.data];
       currentPage.value++;
@@ -166,7 +167,7 @@ const handleAddComment = async () => {
         userId: currentUserInfo.id,
         id: data,
         content: content,
-        createdAt: new Date().toISOString().split('T')[0], // 格式化为 "YYYY-MM-DD"
+        createdAt: getDateNow(), // 格式化为 "YYYY-MM-DD"
         likeCount: 0,
       };
       comments.value.unshift(newComment); // 添加到数组开头而不是末尾

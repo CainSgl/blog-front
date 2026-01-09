@@ -8,8 +8,18 @@ export const useCommentStore = defineStore("comment", () => {
   const postId = ref();
   const version = ref();
   const commentCountMap = ref(new Map());
-  const paragrahphId=ref(null);
-  const getParagraphCommentCountByPost = async (postIdCache, versionCache) => {
+  const paragrahphId = ref(null);
+  const getParagraphCommentCountByPost = async (
+    postIdCache,
+    versionCache,
+    orginCommentCountData
+  ) => {
+    if (orginCommentCountData) {
+      postId.value = postIdCache;
+      version.value = versionCache;
+      commentCountMap.value = orginCommentCountData;
+      return commentCountMap.value;
+    }
     postId.value = postIdCache;
     version.value = versionCache;
     const { data } = await api.get("/paragraph/comment", {
@@ -34,22 +44,46 @@ export const useCommentStore = defineStore("comment", () => {
   // 切换抽屉显示状态
   const toggleCommentDrawer = (paragrahphIdCache) => {
     paragrahphId.value = paragrahphIdCache;
-    lastCreatedAt=null;
-    lastLikeCount=null;
+    lastCreatedAt = null;
+    lastLikeCount = null;
     drawerVisible.value = !drawerVisible.value;
   };
   let lastCreatedAt;
   let lastLikeCount;
-  // 加载评论数据的函数（mock数据）
+  let lastId = null;
+  // 加载段落评论数据的函数（mock数据）
   const loadCommentData = async () => {
-    const { data } = await api.get('/comment',{postId:postId.value,version:version.value,dataId:paragrahphId.value,lastCreatedAt:lastCreatedAt,lastLikeCount:lastLikeCount});
-    if(data.length>0){
-      lastCreatedAt=data[data.length-1].createdAt;
-      lastLikeCount=data[data.length-1].likeCount;
+    function buildRequest()
+    {
+      if(lastId)
+      {
+        return {
+          postId: postId.value,
+          version: version.value,
+          dataId: paragrahphId.value,
+          lastCreatedAt: lastCreatedAt,
+          lastLikeCount: lastLikeCount,
+          lastId: lastId,
+        }
+      }else
+      {
+        return {
+          postId: postId.value,
+          version: version.value,
+          dataId: paragrahphId.value,
+        }
+      }
+    }
+
+    const { data } = await api.get("/comment", buildRequest());
+    if (data.length > 0) {
+      lastCreatedAt = data[data.length - 1].createdAt;
+      lastLikeCount = data[data.length - 1].likeCount;
+      lastId = data[data.length - 1].id;
     }
     return {
       data: data,
-      hasMore: data.length >10,
+      hasMore: data.length > 10,
     };
   };
 

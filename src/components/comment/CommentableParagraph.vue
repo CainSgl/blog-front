@@ -148,7 +148,7 @@ onUnmounted(() => {
 <style scoped lang="less">
 .cainsgl-commentable-paragraph {
   position: relative;
-  display: inline-block;
+
 }
 
 .paragraph-text {

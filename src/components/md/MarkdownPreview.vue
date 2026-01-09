@@ -22,6 +22,8 @@ import CommentableParagraph from '../comment/CommentableParagraph.vue';
 import { API_BASE_URL } from '@/config';
 import containerExtension from '@/plugins/md-tip-info-extens.js';
 import ArcoVue from '@arco-design/web-vue';
+import { useTocStore } from '../navigation/toc/toc.js';
+import { storeToRefs } from 'pinia';
 // 使用 marked 的 use 方法注册扩展
 marked.use({
   extensions: [containerExtension]
@@ -75,6 +77,10 @@ const props = defineProps({
 
 const previewContentRef = ref(null);
 const previewContainerRef = ref(null);
+
+// 使用toc store
+const tocStore = useTocStore();
+const { currentTocItem,toHashItem } = storeToRefs(tocStore);
 
 const renderer = new marked.Renderer();
 
@@ -358,20 +364,25 @@ const processDynamicComponents = async () => {
   }
 };
 
+watch(toHashItem, (newValue, oldValue) => {
+  console.log(currentTocItem.value);
+  scrollToTocElement();
+});
+
 onMounted(() => {
   processDynamicComponents();
 });
 
-// 处理URL中的hash并平滑滚动到对应元素
-const scrollToHashElement = () => {
+// 根据toc store中的状态滚动到对应元素
+const scrollToTocElement = () => {
   // 等待DOM更新完成
   nextTick(() => {
-    const hash = window.location.hash;
-    if (hash) {
-      let elementId = "cainsgl-titile-" + hash.substring(1); // 移除 # 号
+    const elementId = currentTocItem.value;
+    if (elementId) {
+      let targetId = "cainsgl-titile-" + elementId;
       // 解码URL编码的ID，处理中文字符
-      elementId = decodeURIComponent(elementId);
-      const element = document.getElementById(elementId);
+      targetId = decodeURIComponent(targetId);
+      const element = document.getElementById(targetId);
       if (element && previewContainerRef.value) {
         if (props.useWindowScroll) {
           // 设置滚动标志，表示正在程序触发的滚动
@@ -417,38 +428,9 @@ const addVisualHighlight = (element) => {
     element.classList.remove('cainsgl-highlight-target');
   }, 3000);
 };
-let hashChangeCounter = 0; // 计数器，用于控制hashchange事件处理
 
 // 添加滚动状态标志
 let isScrollingToElement = false; // 标记是否正在滚动到元素（由程序触发，而非用户手动滚动）
-
-// 自定义设置hash的函数，避免在程序滚动时修改hash，同时不产生历史记录
-const setHash = (encodedTargetHash) => {
-  // 只有在非滚动状态下才允许设置hash
-  if (!isScrollingToElement) {
-    hashChangeCounter++;
-    // 使用replaceState来设置hash，避免产生历史记录
-    const oldHash = window.location.hash;
-    const newURL = window.location.pathname + window.location.search + '#' + encodedTargetHash;
-    window.history.replaceState(null, '', newURL);
-
-    // 手动触发hashchange事件，以便其他组件能响应hash变化
-    if (oldHash !== '#' + encodedTargetHash) {
-      window.dispatchEvent(new HashChangeEvent('hashchange'));
-    }
-  }
-};
-
-// 监听hash变化事件
-const handleHashChange = () => {
-  if (hashChangeCounter > 0) {
-    // 如果计数器大于0，减少计数器但不执行滚动逻辑
-    hashChangeCounter--;
-  } else {
-    // 只有当计数器为0时，才执行滚动逻辑
-    scrollToHashElement();
-  }
-};
 
 // 滚动监听函数，检测当前可视区域的标题元素
 const handleScroll = () => {
@@ -460,7 +442,6 @@ const handleScroll = () => {
   if (!headings.length) return;
 
   let currentHeading = null;
-  const containerRect = previewContainerRef.value.getBoundingClientRect();
   const scrollTop = previewContainerRef.value.scrollTop;
 
   // 遍历所有标题元素，找到当前可视区域内的标题
@@ -468,8 +449,6 @@ const handleScroll = () => {
     const heading = headings[i];
     // 计算标题相对于容器的偏移位置
     const headingTop = heading.offsetTop - previewContentRef.value.offsetTop;
-    const headingRect = heading.getBoundingClientRect();
-    const containerTop = previewContainerRef.value.getBoundingClientRect().top;
     // 计算标题相对于滚动容器的可视位置
     const relativeTop = headingTop - scrollTop;
 
@@ -485,32 +464,31 @@ const handleScroll = () => {
   if (currentHeading) {
     // 获取标题的ID
     const headingId = currentHeading.id;
-    const targetHash = headingId.replace('cainsgl-titile-', '');
-    const encodedTargetHash = encodeURIComponent(targetHash);
-    if (headingId && window.location.hash !== `#${encodedTargetHash}`) {
-      // 使用自定义setHash函数，避免在程序滚动时修改hash
-      setHash(encodedTargetHash);
+    const targetId = headingId.replace('cainsgl-titile-', '');
+    if (headingId) {
+      // 更新toc store中的当前项
+      tocStore.setCurrentTocItem(targetId);
     }
   }
 };
 
+
+
 onMounted(() => {
+  // 初始化toc store，从URL hash获取初始值
+  tocStore.initializeFromUrl();
+  
   processDynamicComponents();
-  // 组件挂载后检查是否有hash，如果有则滚动到对应元素
-  scrollToHashElement();
-  // 添加hash变化监听器
-  window.addEventListener('hashchange', handleHashChange);
+  // 组件挂载后检查toc store中是否有值，如果有则滚动到对应元素
+  scrollToTocElement();
   // 添加滚动监听器到预览容器
   if (previewContainerRef.value) {
     previewContainerRef.value.addEventListener('scroll', handleScroll);
   }
-
 });
 
 onUpdated(() => {
   processDynamicComponents();
-  // 组件更新后也检查hash，以防内容变化导致元素重新渲染
-  scrollToHashElement();
 });
 
 // 滚动到顶部或底部的方法
@@ -548,7 +526,6 @@ watch(() => props.showComment, async (newShowComment) => {
 
 // 在组件卸载时移除事件监听器
 onUnmounted(() => {
-  window.removeEventListener('hashchange', handleHashChange);
   // 移除预览容器的滚动监听器
   if (previewContainerRef.value) {
     previewContainerRef.value.removeEventListener('scroll', handleScroll);

@@ -66,16 +66,16 @@
                 <!-- 统计数据 -->
                 <div class="post-stats">
                   <a-space>
-                    <span class="stat-item">
+                    <span class="stat-item" v-if="post.viewCount">
                       <icon-eye size="large" /> {{ post.viewCount }}
                     </span>
-                    <span class="stat-item" @click="handleLikeClick">
+                    <span class="stat-item" @click="handleLikeClick" v-if="!onlyFans">
                       <icon-heart-fill size="large" v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
                       <icon-thumb-down-fill size="large" v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
                       <icon-thumb-up size="large" v-else />
                       {{ post.likeCount }}
                     </span>
-                    <span class="stat-item">
+                    <span class="stat-item" v-if="post.commentCount!==undefined">
                       <icon-message /> {{ post.commentCount }}
                     </span>
                   </a-space>

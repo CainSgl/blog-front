@@ -1,5 +1,9 @@
 
 const formatDate = (dateString,preFix='') => {
+  if(!dateString)
+  {
+    return '';
+  }
   const now = new Date();
   const targetDate = new Date(dateString);
   const diffMs = now - targetDate;
@@ -25,4 +29,8 @@ const formatDate = (dateString,preFix='') => {
     return `${Math.floor(diffSeconds / 86400)}天前${preFix}`;
   }
 };
-export  {formatDate};
+const getDateNow=()=>
+{
+  return new Date().toISOString().split('T')[0]
+}
+export  {formatDate,getDateNow};

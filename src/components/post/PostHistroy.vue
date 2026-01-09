@@ -1,24 +1,30 @@
 <template>
-  <div class="post-history" v-if="postId&&historyList && historyList.length > 0">
-    <div class="history-title">
-      历史版本
-      <span class="history-limit-hint">至多显示9条记录</span>
-    </div>
-    <a-timeline>
-      <a-timeline-item v-for="(item, index) in historyList" :key="item.id"
-                       :label="formatDate(item.createdAt, '更改')">
-        <div class="history-item" @click="handleHistoryItemClick(item)" :class="item.id===showVersionId?'select-history-item':''">
-          <div class="version-info" v-if="!item.publishVersion"> 版本：v{{ item.version }}</div>
-          <div class="version-info" v-else> 发布版本</div>
+  <div class="post-history" v-if="postId && historyList && historyList.length > 0">
+    <a-collapse :default-active-key="['1', 2]" style="width: 250px;">
+      <a-collapse-item header=" 历史版本" key="1">
+        <div style="min-width: 200px;">
+        
+            <span class="history-limit-hint">至多显示9条记录</span>
+          
+          <a-timeline>
+            <a-timeline-item v-for="(item, index) in historyList" :key="item.id"
+              :label="formatDate(item.createdAt, '更改')">
+              <div class="history-item" @click="handleHistoryItemClick(item)"
+                :class="item.id === showVersionId ? 'select-history-item' : ''">
+                <div class="version-info" v-if="!item.publishVersion"> 版本：v{{ item.version }}</div>
+                <div class="version-info" v-else> 发布版本</div>
+              </div>
+            </a-timeline-item>
+          </a-timeline>
         </div>
-      </a-timeline-item>
-    </a-timeline>
+      </a-collapse-item>
+    </a-collapse>
   </div>
 </template>
 
 <script setup>
-import {defineProps, defineEmits, ref, onMounted, watch} from 'vue'
-import {formatDate} from '@/utils/DateFormatter.js'
+import { defineProps, defineEmits, ref, onMounted, watch } from 'vue'
+import { formatDate } from '@/utils/DateFormatter.js'
 import api from '@/api/index.js'
 
 const props = defineProps({
@@ -37,15 +43,13 @@ const emit = defineEmits(['historyItemClick'])
 const historyList = ref([])
 
 
-const fetchHistoryData = async () =>
-{
+const fetchHistoryData = async () => {
   console.log(props.postId)
-  if (!props.postId)
-  {
+  if (!props.postId) {
     return;
   }
-  const {data} = await api.post('/post/history', {id: props.postId})
-  data.push({
+  const { data } = await api.post('/post/history', { id: props.postId })
+  data.unshift({
     id: 0,
     createdAt: props.post.publishedAt,
     version: props.post.version,
@@ -56,27 +60,21 @@ const fetchHistoryData = async () =>
 }
 
 // 监听 postId 变化，重新获取数据
-watch(() => props.postId, (newPostId) =>
-{
-  if (newPostId)
-  {
+watch(() => props.postId, (newPostId) => {
+  if (newPostId) {
     fetchHistoryData()
-  } else
-  {
+  } else {
     historyList.value = []
   }
-}, {immediate: true})
+}, { immediate: true })
 
 // 处理历史记录点击事件
-const handleHistoryItemClick = (item) =>
-{
-  if(item.publishVersion)
-  {
+const handleHistoryItemClick = (item) => {
+  if (item.publishVersion) {
     switchOriginVersion();
     return;
   }
-  if (showVersionId.value === item.id)
-  {
+  if (showVersionId.value === item.id) {
     //切换到原来的版本
     switchOriginVersion();
     return;
@@ -84,13 +82,11 @@ const handleHistoryItemClick = (item) =>
   //下面这个是切换到原来的version
   switchOtherVersion(item);
 }
-function switchOriginVersion()
-{
-  showVersionId.value=0;
-  emit('historyItemClick', {publishVersion:true})
+function switchOriginVersion() {
+  showVersionId.value = 0;
+  emit('historyItemClick', { publishVersion: true })
 }
-function switchOtherVersion(item)
-{
+function switchOtherVersion(item) {
   showVersionId.value = item.id
   emit('historyItemClick', item)
 }
@@ -101,20 +97,11 @@ function switchOtherVersion(item)
 .post-history {
   padding: 16px;
 
-  .history-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #1f2328;
-    display: flex;
-    align-items: center;
-  }
-
   .history-limit-hint {
     font-size: 12px;
     color: #6e7781;
     font-weight: normal;
-    margin-left: 8px;
+
   }
 
   .history-item {
@@ -135,12 +122,15 @@ function switchOtherVersion(item)
       background-color: #eaecef;
     }
   }
-  .select-history-item{
+
+  .select-history-item {
     background-color: #f6f8fa;
     border-color: #d0d7de;
   }
+
   .version-info {
     font-family: monospace;
+    user-select: none;
     font-size: 14px;
     color: #0969da;
     font-weight: 500;

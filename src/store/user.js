@@ -54,12 +54,6 @@ export const useUserStore = defineStore("user", () => {
 
   const getUserInfo = async (id = null) => {
     if (id) {
-      const self = await getUserInfo();
-      if (id == self.id) {
-        //说明是获取自己的信息
-        return self;
-      }
-      //说明是获取别人的信息
       // 如果已经有相同ID的请求在进行中，直接返回同一个Promise
       if (userInfoPromises.has(id)) {
         return userInfoPromises.get(id);
@@ -75,10 +69,6 @@ export const useUserStore = defineStore("user", () => {
           console.error("获取用户信息失败:", error);
           return {};
         })
-        .finally(() => {
-          // 请求完成后从缓存中移除，允许后续请求
-          userInfoPromises.delete(id);
-        });
 
       userInfoPromises.set(id, promise);
       return promise;

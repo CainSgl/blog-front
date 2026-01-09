@@ -33,6 +33,8 @@
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { parseMarkdownToTree } from '@/utils/markdownToTree.js';
 import { IconEye, IconEyeInvisible, IconShrink } from '@arco-design/web-vue/es/icon';
+import { useTocStore } from './toc.js';
+import { storeToRefs } from 'pinia';
 
 const containerRef = ref(null);
 // 定义组件props
@@ -62,6 +64,10 @@ const expandedKeys = ref([]);
 const userExpandedKeys = ref(new Set()); // 记录用户手动展开的节点
 const isVisible = ref(true); // 控制目录显示/隐藏
 const isAllExpanded = ref(false); // 控制是否全部展开
+
+// 使用Pinia store
+const tocStore = useTocStore();
+const { currentTocItem } = storeToRefs(tocStore);
 
 // 计算默认展开的节点（只展开第一级）
 const computeDefaultExpandedKeys = () => {
@@ -146,14 +152,9 @@ const findNodePath = (nodes, targetKey, path = []) => {
 };
 
 
-// 监听hash变化的函数
-const handleHashChange = () => {
-  let hash = window.location.hash.substring(1); // 移除 # 符号
-  try {
-    hash = decodeURIComponent(hash);
-  } catch (e) {
-    console.warn('无法解码hash值:', hash);
-  }
+// 监听Pinia状态变化的函数
+const handleTocItemChange = () => {
+  const hash = currentTocItem.value;
   if (hash) {
     // 更新选中的节点
     selectedKeys.value = [hash];
@@ -206,17 +207,24 @@ watch(
   { immediate: true }
 );
 
-// 组件挂载时添加hashchange监听器
+// 监听Pinia状态变化
+watch(
+  () => currentTocItem.value,
+  () => {
+    handleTocItemChange();
+  },
+  { immediate: true }
+);
+
+// 组件挂载时添加Pinia状态监听器
 onMounted(() => {
-  window.addEventListener('hashchange', handleHashChange);
-  // 初始化时也检查一次hash
-  handleHashChange();
+  // 初始化toc store
+  tocStore.initializeFromUrl();
+  // 初始化时也检查一次状态
+  handleTocItemChange();
 });
 
-// 组件卸载时移除监听器
-onUnmounted(() => {
-  window.removeEventListener('hashchange', handleHashChange);
-});
+
 
 // 处理节点展开/收起事件
 const handleExpand = (keys) => {
@@ -284,7 +292,6 @@ const scrollToSelectedItem = (key) => {
         const elementPositionTop = elementTop - currentScrollTop;
 
         // 检查元素是否在可视区域外
-        const isAboveViewport = elementPositionTop < 0;
         const isBelowViewport = elementPositionTop + elementHeight > containerHeight;
 
         // 只有在元素在视窗下方时才滚动
@@ -310,15 +317,10 @@ const handleNodeClick = (node) => {
   const id = node[0];
   // 将被点击的节点添加到用户展开的节点集合中
   userExpandedKeys.value.add(id);
-  // 使用replaceState来设置hash，避免产生历史记录
-  const oldHash = window.location.hash;
-  const newURL = window.location.pathname + window.location.search + '#' + id;
-  window.history.replaceState(null, '', newURL);
-
-  // 手动触发hashchange事件，以便其他组件能响应hash变化
-  if (oldHash !== '#' + id) {
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
-  }
+  // 调用Pinia store的方法设置当前TOC项
+  tocStore.setCurrentTocItem(id);
+  // 同步到URL hash
+  tocStore.syncToUrl(id);
 };
 </script>
 

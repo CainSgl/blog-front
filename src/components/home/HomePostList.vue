@@ -1,8 +1,11 @@
 <template>
   <div ref="containerRef" class="home-post-list">
     <div class="post-grid">
-      <PostCard v-for="post in posts" :key="post.id || post.tempId" :width="postCardWidth" :height="postCardHeight" :onlyFans="true"
-        :post="post" :show-status="true" @clickCard="handlePostClick" />
+      <a-link :href="`/p/${post.id}`" target="_blank" v-for="post in posts" :hoverable="false">
+        <PostCard  :key="post.id || post.tempId" :width="postCardWidth" :height="postCardHeight"
+          :onlyFans="true" :post="post" :show-status="true" />
+      </a-link>
+
     </div>
 
     <!-- 显示没有更多内容的提示 -->
@@ -132,7 +135,7 @@ const getPageSize = () => {
   const fillCount = (remainder === 0) ? 0 : expectCount - remainder;
   //需要计算横向的卡片数量
 
-  return expectCount*4 + fillCount;
+  return expectCount * 4 + fillCount;
 }
 
 let loadingData = false
@@ -214,7 +217,7 @@ onBeforeUnmount(() => {
 // 检查是否需要加载更多数据
 const shouldLoadMore = () => {
   let scrollTop, scrollHeight, clientHeight;
-  
+
   if (props.listenWindowScroll) {
     // 如果监听窗口滚动，使用文档相关属性
     scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
@@ -228,7 +231,7 @@ const shouldLoadMore = () => {
     scrollHeight = containerScrollHeight;
     clientHeight = containerClientHeight;
   }
-  
+
   // 检查是否滚动到底部（阈值为400px，防止需要精确滚动到最底部）
   if (scrollHeight - scrollTop - clientHeight < 400) {
     return true
@@ -243,15 +246,6 @@ const handleScroll = () => {
   }
 };
 
-const router = useRouter()
-
-const handlePostClick = (post) => {
-  // 处理帖子点击事件
-  console.log('Post clicked:', post)
-  // 在新窗口中打开帖子详情页
-  const routeData = router.resolve({ name: 'Post', params: { id: post.id } });
-  window.open(routeData.href, '_blank');
-}
 
 </script>
 

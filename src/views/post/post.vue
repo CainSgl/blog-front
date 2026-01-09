@@ -1,119 +1,173 @@
 <template>
   <div style="display: flex;">
-    <div class="post-sidebar">
-      <PostHistroy :postId="post?.id" @history-item-click="handleHistoryClick" :post="post"/>
-    </div>
-    <div class="post-container" ref="containerRef">
-      <!-- 文章头部信息 -->
-      <div class="post-header">
-        <div class="post-user-info">
-          <AvatarWithInfo :user="author" :size="70"/>
-          <div class="post-title-section">
-            <h1 class="post-title">{{ post?.title || '加载中' }}</h1>
-            <div class="post-meta">
-                <span class="post-date">发布于：{{ formatDate(post?.publishedAt) }} <span style="margin-left: 16px;">创建于：{{
-                    formatDate(post?.createdAt)
-                  }}</span></span>
+    <div>
+      <div style="display: flex;">
+        <div class="post-sidebar" v-if="showMoreInfo">
+          <div :style="{ height: placeholderHeight + 'px' }"></div>
+          <PostHistroy :postId="post?.id" @history-item-click="handleHistoryClick" :post="post" />
+          <div></div>
+        </div>
+        <div class="post-container" ref="containerRef">
+          <!-- 文章头部信息 -->
+          <div class="post-header">
+            <div class="post-user-info">
+              <AvatarWithInfo :user="author" :size="70" />
+              <div class="post-title-section">
+                <h1 class="post-title">{{ post?.title || '加载中' }}</h1>
+                <div class="post-meta">
+                  <span class="post-date">发布于：{{ formatDate(post?.publishedAt) }} <span style="margin-left: 16px;"
+                      v-if="showMoreInfo">创建于：{{
+                        formatDate(post?.createdAt)
+                      }}</span></span>
 
-              <span class="post-stats">
-                  <span class="stat-item">
-                    <icon-eye/> {{ post?.viewCount || 0 }} 浏览
+                  <span class="post-stats">
+                    <span class="stat-item">
+                      <icon-eye /> {{ post?.viewCount || 0 }} 浏览
+                    </span>
+                    <span class="stat-item" style="margin-left: 16px;">
+                      <icon-heart /> {{ post?.likeCount || 0 }} 点赞
+                    </span>
+                    <span class="stat-item" style="margin-left: 16px;">
+                      <icon-message /> {{ post?.commentCount || 0 }} 评论
+                    </span>
                   </span>
-                  <span class="stat-item" style="margin-left: 16px;">
-                    <icon-heart/> {{ post?.likeCount || 0 }} 点赞
-                  </span>
-                  <span class="stat-item" style="margin-left: 16px;">
-                    <icon-message/> {{ post?.commentCount || 0 }} 评论
-                  </span>
-                </span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+          <a-divider dashed />
+          <!-- 文章内容 -->
+          <div class="post-content">
 
-      <!-- 文章内容 -->
-      <div class="post-content">
+            <div class="markdown-content" :class="{ 'best-reading-content': !notBestReading }">
+              <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content" :showComment="true" />
+              <div v-show="notBestReading" class="full-screen-tip">
+                <a-tooltip content="点我可回正屏幕获取最佳阅读体验哦">
+                  <a-button type="primary" shape="circle" @click="handleFullScreenClick">
+                    <icon-fullscreen />
+                  </a-button>
+                </a-tooltip>
+              </div>
+            </div>
 
-        <div class="markdown-content" :class="{ 'best-reading-content': !notBestReading }">
-          <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content" :showComment="true"/>
-          <div v-show="notBestReading" class="full-screen-tip">
-            <a-tooltip content="点我可回正屏幕获取最佳阅读体验哦">
-              <a-button type="primary" shape="circle" @click="handleFullScreenClick">
-                <icon-fullscreen/>
-              </a-button>
-            </a-tooltip>
           </div>
+
         </div>
       </div>
+      <div :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
+        <a-divider dashed />
+        <CommentList :version="version" :postId="post?.id" :postCount="post?.commentCount" />
+      </div>
+    </div>
 
+    <div class="post-right-sidebar" v-if="showMoreInfo">
+      <div :style="{ height: placeholderHeight / 3 + 'px' }"></div>
+      <!-- 展示知识库 -->
+      <PostRecommend :postId="post?.id" />
     </div>
   </div>
 
-  <div class="comments-section">
-    <div class="comments-header">
-      <h2>评论</h2>
-      <div class="comment-count">{{ post?.commentCount }}</div>
-    </div>
-  </div>
+  <CodeLoader v-if="codeLoader > 0"></CodeLoader>
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue';
-import {useRoute} from 'vue-router';
-import {IconEye, IconFullscreen, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
+import { onMounted, ref, onBeforeMount } from 'vue';
+import { useRoute } from 'vue-router';
+import { IconEye, IconFullscreen, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
-import {useUserStore} from "@/store/user.js";
+import { useUserStore } from "@/store/user.js";
 import PostHistroy from "@/components/post/PostHistroy.vue";
-import {useCommentStore} from "@/components/comment/commentStore.js";
-
+import PostRecommend from "@/components/post/PostRecommend.vue";
+import { useCommentStore } from "@/components/comment/commentStore.js";
+import CodeLoader from "@/components/base/CodeLoader.vue";
+import CommentList from "@/components/post/children/CommentList.vue";
 const userStore = useUserStore();
 const commentStore = useCommentStore();
 
 const route = useRoute();
 
+// 检测屏幕宽度并在渲染前设置变量
+const showMoreInfo = ref(window.innerWidth >= 768);
+
 // 响应式数据
 const post = ref(null);
 const author = ref(null);
 const lastScrollTop = ref(0);
+const placeholderHeight = ref(0);
+const codeLoader = ref(0);
+const version = ref();
 let originContent;
-const loadPostContent = async (postId) =>
-{
-  try
-  {
-    const {data} = await api.get(`/post`, {id: postId});
-     //获取评论数据
-    commentStore.getParagraphCommentCountByPost(postId,data.version);
+let orginCommentCountData;
+let summaryCache;
+function getSummrayElment(summary) {
+  if (summaryCache) {
+    return summaryCache;
+  }
+  if (!summary) {
+    summary = '这个人没有设置任何摘要哦'
+  }
+  summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>`;
+  return summaryCache;
+}
+const loadPostContent = async (postId) => {
+  codeLoader.value++;
+
+  try {
+    const { data } = await api.get(`/post`, { id: postId });
+    codeLoader.value--;
+    //获取评论数据
+    version.value = data.version;
+    commentStore.getParagraphCommentCountByPost(postId, data.version).then(countMap => {
+      orginCommentCountData = {
+        postId: postId,
+        version: data.version,
+        countMap,
+      };
+    })
     post.value = data;
-    const element = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${data.summary}</p>`
-    post.value.content = element + '\n' + data.content;
-    originContent=post.value.content;
-   
-    if (data.userId)
-    {
+    post.value.content = getSummrayElment(data.summary) + '\n' + data.content;
+    originContent = post.value.content;
+
+    if (data.userId) {
       author.value = await userStore.getUserInfo(data.userId)
     }
-  } catch (error)
-  {
+  } catch (error) {
     console.error('加载文章内容失败:', error);
+    codeLoader.value--;
+  } finally {
+    
   }
+  placeholderHeight.value = getBestReadingTop();
 };
 
-async function handleHistoryClick(item)
-{
-  if(item.publishVersion)
-  {
-    post.value.content = originContent;
-    return;
+async function handleHistoryClick(item) {
+  Message.loading({ id: 'loadingHistory', content: '正在加载文章历史版本...', duration: 10000 });
+  version.value = item.version;
+  try {
+    if (item.publishVersion) {
+      commentStore.getParagraphCommentCountByPost(orginCommentCountData.postId, orginCommentCountData.version, orginCommentCountData.countMap);
+      post.value.content = originContent;
+      Message.success({ id: 'loadingHistory', content: '已恢复到原始版本', duration: 500 });
+      return;
+    }
+    version.value = orginCommentCountData.version;
+    console.log('查看历史记录', item.version);
+    commentStore.getParagraphCommentCountByPost(item.postId, item.version);
+    const { data } = await api.get('/post/history', { postId: item.postId, id: item.id });
+    post.value.content = data
+    Message.success({ id: 'loadingHistory', content: '文章历史版本加载成功', duration: 500 });
+  } catch (error) {
+    console.error('加载文章历史版本失败:', error);
+    Message.error({ id: 'loadingHistory', content: '加载文章历史版本失败', duration: 500 });
   }
-  const {data} = await api.get('/post/history', {postId: item.postId, id: item.id});
-  post.value.content = data
+
 }
 
 // 格式化日期
-const formatDate = (dateString) =>
-{
+const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
@@ -125,42 +179,52 @@ const formatDate = (dateString) =>
 };
 
 // 节流函数，减少事件触发频率
-const throttle = (func, delay) =>
-{
+const throttle = (func, delay) => {
   let timer = null;
-  return function (...args)
-  {
-    if (!timer)
-    {
-      timer = setTimeout(() =>
-      {
+  return function (...args) {
+    if (!timer) {
+      timer = setTimeout(() => {
         func.apply(this, args);
         timer = null;
       }, delay);
     }
   };
 };
-const bestReadingTop = 113;
-
+const containerRef = ref(null);
 const notBestReading = ref(false)
-
-function handleFullScreenClick()
-{
+let firstDivider;
+const getBestReadingTop = () => {
+  if (firstDivider) {
+    const rect = firstDivider.getBoundingClientRect();
+    return window.pageYOffset + rect.top;
+  }
+  const dividers = containerRef.value?.querySelectorAll('.arco-divider') || [];
+  firstDivider = dividers.length > 0 ? dividers[0] : null;
+  if (firstDivider) {
+    const rect = firstDivider.getBoundingClientRect();
+    return window.pageYOffset + rect.top;
+  }
+  return 113;
+};
+function handleFullScreenClick() {
   notBestReading.value = false;
+  console.log("滑动到",getBestReadingTop());
   window.scrollTo({
-    top: bestReadingTop,
+    top: getBestReadingTop(),
     behavior: 'smooth'
   });
 }
 
 // 处理内容滚动事件
-const handleContentScroll = throttle((event) =>
-{
-  if (window.scrollY < bestReadingTop + 5 && window.scrollY > bestReadingTop - 5)
-  {
+const handleContentScroll = throttle((event) => {
+  if (codeLoader.value > 0||!author.value) {
+    return;
+  }
+
+  const currentBestReadingTop = getBestReadingTop();
+  if (window.scrollY < currentBestReadingTop + 5 && window.scrollY > currentBestReadingTop - 5) {
     notBestReading.value = false;
-  } else
-  {
+  } else {
     notBestReading.value = true;
   }
   const contentElement = event.target;
@@ -168,13 +232,11 @@ const handleContentScroll = throttle((event) =>
   // 判断滚动方向
   const isScrollingDown = scrollTop > lastScrollTop.value;
   // 如果是向下滚动
-  if (isScrollingDown)
-  {
+  if (isScrollingDown) {
     // 计算本次滚动的距离
-    if (window.scrollY < bestReadingTop - 5)
-    {
+    if (window.scrollY < currentBestReadingTop - 5) {
       window.scrollTo({
-        top: bestReadingTop,
+        top: currentBestReadingTop,
         behavior: 'smooth'
       });
     }
@@ -183,11 +245,10 @@ const handleContentScroll = throttle((event) =>
 }, 50);
 
 // 组件挂载时的逻辑
-onMounted(() =>
-{
+onMounted(() => {
   const postId = route.params.id;
-  if (postId)
-  {
+  placeholderHeight.value = getBestReadingTop();
+  if (postId) {
     loadPostContent(postId);
   }
 });
@@ -201,11 +262,22 @@ onMounted(() =>
 }
 
 .post-sidebar {
-  padding: 120px 20px 20px 20px;
+  padding: 0px 20px 20px 20px;
   min-width: 20vw;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+
+  @media screen and (max-width: 768px) {
+    min-width: 0;
+    width: 0vw;
+    display: none;
+  }
+}
+
+.post-right-sidebar {
+  padding: 0px 0px 0px 40px;
+  width: 15vw;
 
   @media screen and (max-width: 768px) {
     min-width: 0;
@@ -225,10 +297,10 @@ onMounted(() =>
   }
 
   padding: 20px;
-  margin-right: 20vw;
   overflow-y: auto;
 
   @media screen and (max-width: 768px) {
+    padding: 0px;
     width: 100vw;
     margin-right: 0vw;
   }
@@ -236,7 +308,7 @@ onMounted(() =>
 
 .post-header {
   padding: 20px 0;
-  border-bottom: 1px solid #e5e8ef;
+
   margin-bottom: 20px;
 }
 
@@ -310,12 +382,7 @@ onMounted(() =>
   margin-bottom: 20px;
 }
 
-.comments-section h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: bold;
-  color: #1d2129;
-}
+
 
 .comment-count {
   display: inline-flex;
