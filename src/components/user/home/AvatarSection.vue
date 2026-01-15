@@ -37,15 +37,18 @@ const imageCropperRef = ref(null);
 const userStore = useUserStore();
 const trigger = ref(null);
 
-onMounted(async () => {
+onMounted(async () => 
+{
   currentUserInfo.value = await userStore.getUserInfo();
 });
 
 // 监听 props.userInfo 的变化，更新 trigger 值
-watch(() => props.userInfo, (newUserInfo) => {
+watch(() => props.userInfo, (newUserInfo) => 
+{
   trigger.value = currentUserInfo.value && newUserInfo?.id === currentUserInfo.value.id ? 'mask' : null;
 }, { immediate: true });
-function getFormattedDate() {
+function getFormattedDate() 
+{
   const now = new Date();
   const year = now.getFullYear();
   // 月份补零
@@ -55,28 +58,34 @@ function getFormattedDate() {
   return `${year}/${month}/${day}`;
 }
 // 处理头像点击事件
-const handleAvatarClick = () => {
-   trigger.value=currentUserInfo.value.id==props.userInfo?.id ? 'mask' : null;
+const handleAvatarClick = () => 
+{
+  trigger.value=currentUserInfo.value.id==props.userInfo?.id ? 'mask' : null;
   console.log('props.userInfo:', props.userInfo);
-  if (currentUserInfo.value.id==props.userInfo?.id) {
+  if (currentUserInfo.value.id==props.userInfo?.id) 
+  {
     // 触发文件选择
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = async (e) => {
+    input.onchange = async (e) => 
+    {
       const file = e.target.files[0];
       if (!file) return;
       // 创建图片对象用于裁剪组件
       const img = new Image();
       img.src = URL.createObjectURL(file);
-      img.onload = async () => {
+      img.onload = async () => 
+      {
         // 显示裁剪模态框
         cropperModalVisible.value = true;
 
         // 等待模态框打开后设置图片
         await nextTick();
-        setTimeout(() => {
-          if (imageCropperRef.value) {
+        setTimeout(() => 
+        {
+          if (imageCropperRef.value) 
+          {
             imageCropperRef.value.setImage(img);
           }
         }, 100);
@@ -87,8 +96,10 @@ const handleAvatarClick = () => {
 };
 
 // 处理裁剪后的图片
-const handleCroppedImage = async (croppedFile) => {
-  try {
+const handleCroppedImage = async (croppedFile) => 
+{
+  try 
+  {
     Message.loading({
       id: 'upload-avatar',
       content: '头像上传中...',
@@ -103,7 +114,7 @@ const handleCroppedImage = async (croppedFile) => {
     // 创建FormData对象 
     const formData = new FormData();
     formData.append('file', renamedFile);
-    api.get('/file/free', { f: props.userInfo?.avatarUrl })
+    api.get('/file/free', { f: props.userInfo?.avatarUrl });
     // 使用api上传文件 
     const { data } = await api.post('/file/upload', formData, {
       headers: {
@@ -119,14 +130,18 @@ const handleCroppedImage = async (croppedFile) => {
       content: '头像更新成功',
       duration: 1000,
     });
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('头像上传失败:', error);
     Message.error({
       id: 'upload-avatar',
       content: '头像上传失败，请稍后重试',
       duration: 1000,
     });
-  } finally {
+  }
+  finally 
+  {
     cropperModalVisible.value = false;
   }
 };

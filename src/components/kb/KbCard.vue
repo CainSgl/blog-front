@@ -43,46 +43,47 @@
 </template>
 
 <script setup>
-import { IconHeart, IconBook } from '@arco-design/web-vue/es/icon'
-import CImg from '../base/cImg.vue'
-import { useRouter } from 'vue-router'
-import { formatDate } from '@/utils/DateFormatter.js'
-const router = useRouter()
+import { IconHeart, IconBook } from '@arco-design/web-vue/es/icon';
+import CImg from '../base/cImg.vue';
+import { useRouter } from 'vue-router';
+import { formatDate } from '@/utils/DateFormatter.js';
+const router = useRouter();
 
 const props = defineProps({
-    kbInfo: {
-        type: Object,
-        required: true,
-        default: () => ({
-            id: '',
-            userId: '',
-            name: '',
-            createdAt: '',
-            status: '草稿',
-            likeCount: 0,
-            coverUrl: '',
-            postCount: 0
-        })
-    },
-    showStatus: {
-        type: Boolean,
-        default: true
-    },
-    onlyFans:{
-      type:Boolean,
-      default: false
-    }
-})
+  kbInfo: {
+    type: Object,
+    required: true,
+    default: () => ({
+      id: '',
+      userId: '',
+      name: '',
+      createdAt: '',
+      status: '草稿',
+      likeCount: 0,
+      coverUrl: '',
+      postCount: 0
+    })
+  },
+  showStatus: {
+    type: Boolean,
+    default: true
+  },
+  onlyFans:{
+    type:Boolean,
+    default: false
+  }
+});
 
 
-const primary4Color = '#ff6699' 
+const primary4Color = '#ff6699'; 
 
 
 // 处理卡片点击事件
-const handleCardClick = () => {
-    const routeData = router.resolve({ name: 'KB', query: { kb: props.kbInfo.id } });
-    window.open(routeData.href, '_blank');
-}
+const handleCardClick = () => 
+{
+  const routeData = router.resolve({ name: 'KB', query: { kb: props.kbInfo.id } });
+  window.open(routeData.href, '_blank');
+};
 
 
 </script>

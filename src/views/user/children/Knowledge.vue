@@ -79,7 +79,8 @@ const userInfo = ref(null);
 const currentUserInfo = ref({ id: -1 });
 
 // 计算当前是否为访问自己的知识库
-const isCurrentUser = computed(() => {
+const isCurrentUser = computed(() => 
+{
   return currentUserInfo.value.id == userId.value;
 });
 
@@ -89,11 +90,15 @@ const total = ref(0);
 const currentPage = ref(1);
 
 // 获取用户信息
-const fetchUserInfo = async (id) => {
-  try {
+const fetchUserInfo = async (id) => 
+{
+  try 
+  {
     const response = await api.get('/user', { id: id });
     userInfo.value = response.data;
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('获取用户信息失败:', err);
   }
 };
@@ -111,9 +116,11 @@ const cardHeight = 200;
 const kbStatus = ref(''); // 默认为全部
 
 const searchValue = ref('');
-const loadKnowledgeBases = async (page = 1) => {
+const loadKnowledgeBases = async (page = 1) => 
+{
   loading.value = true;
-  try {
+  try 
+  {
     // 构建请求参数
     const params = {
       page: page,
@@ -124,81 +131,99 @@ const loadKnowledgeBases = async (page = 1) => {
     };
 
     // 添加状态筛选参数
-    if (kbStatus.value) {
+    if (kbStatus.value) 
+    {
       params.status = kbStatus.value;
     }
 
     const currentUserInfo = await userStore.getUserInfo();
-    if (currentUserInfo.id == userId.value) {
+    if (currentUserInfo.id == userId.value) 
+    {
       params.size = pageSize.value - 1;
     }
     // 如果有搜索关键词，则添加到请求参数中
-    if (useSearch && searchValue.value && searchValue.value.trim()) {
+    if (useSearch && searchValue.value && searchValue.value.trim()) 
+    {
       params.keyword = searchValue.value.trim();
     }
 
     const { data } = await api.post('/kb/list', params);
     knowledgeBases.value = data.records;
-    if (total.value <= 0) {
+    if (total.value <= 0) 
+    {
       total.value = data.total;
     }
     currentPage.value = page;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载知识库列表失败:', error);
     knowledgeBases.value = [];
     total.value = 0;
-  } finally {
+  }
+  finally 
+  {
     loading.value = false;
   }
 };
 
-const handleBack = () => {
+const handleBack = () => 
+{
   // 返回到用户主页
   router.push(`/space/${userId.value}`);
 };
 
-let useSearch = false
+let useSearch = false;
 
 // 从公共组件传递的事件处理
-const handleSortChangeFromHeader = (value) => {
+const handleSortChangeFromHeader = (value) => 
+{
   sortBy.value = value;
   // 排序变化时重置到第一页并重新加载
   currentPage.value = 1;
   loadKnowledgeBases(1);
 };
 
-const handleSearchFromHeader = (value) => {
-  currentPage.value = 1
-  total.value = -1
-  if (value && value.trim()) {
-    useSearch = true
+const handleSearchFromHeader = (value) => 
+{
+  currentPage.value = 1;
+  total.value = -1;
+  if (value && value.trim()) 
+  {
+    useSearch = true;
     loadKnowledgeBases(currentPage.value);
-  } else {
-    if (useSearch) {
-      console.log("之前搜索过，现在是复原")
-      useSearch = false
+  }
+  else 
+  {
+    if (useSearch) 
+    {
+      console.log('之前搜索过，现在是复原');
+      useSearch = false;
       loadKnowledgeBases(currentPage.value);
     }
   }
-  searchValue.value = value
+  searchValue.value = value;
 
 };
 
 // 处理状态选择变化
-const handleStatusChange = (value) => {
+const handleStatusChange = (value) => 
+{
   kbStatus.value = value;
-  console.log(value)
+  console.log(value);
   // 状态变化时重置到第一页并重新加载
   currentPage.value = 1;
   loadKnowledgeBases(1);
 };
 
 // 处理分页变化
-const handlePageChange = (page) => {
+const handlePageChange = (page) => 
+{
   loadKnowledgeBases(page);
 };
 
-function handleCreateKb(isPublic = true) {
+function handleCreateKb(isPublic = true) 
+{
   // 将知识库类型作为查询参数传递
   const routeData = router.resolve({
     name: 'KBCreate',
@@ -213,8 +238,10 @@ function handleCreateKb(isPublic = true) {
 
 
 // 组件挂载时加载数据
-onMounted(async () => {
-  if (userId.value) {
+onMounted(async () => 
+{
+  if (userId.value) 
+  {
     const [currentUserInfoData, userInfoData] = await Promise.all([
       userStore.getUserInfo(),
       fetchUserInfo(userId.value)
@@ -224,7 +251,8 @@ onMounted(async () => {
 });
 
 // 处理pageSize变化事件
-const handlePageSizeChange = (newPageSize) => {
+const handlePageSizeChange = (newPageSize) => 
+{
   // 更新本地的 pageSize 值
   pageSize.value = newPageSize;
 

@@ -55,7 +55,7 @@ const kbInfo = ref({
   name: '获取中...',
   likeCount: 0
 });
-const edit = ref(false)
+const edit = ref(false);
 const kbStore = useKbStore();
 
 // collapse-button 精细控制相关状态
@@ -63,50 +63,65 @@ const showCollapseButton = ref(window.innerWidth >= 800);  // 默认根据屏幕
 const hideTimer = ref(null);
 
 // 检查屏幕宽度的函数
-function checkScreenSize() {
+function checkScreenSize() 
+{
   return window.innerWidth >= 800;
 }
-function handleLike() {
+function handleLike() 
+{
 
 }
-onMounted(async () => {
+onMounted(async () => 
+{
   const kbParam = route.query.kb;
-  if (kbParam) {
-    try {
+  if (kbParam) 
+  {
+    try 
+    {
       const kbData = await kbStore.getKbInfo(kbParam);
       //如果是无权限操作，说明
-      if (kbData) {
+      if (kbData) 
+      {
         kbId.value = kbData.id;
         kbInfo.value = kbData;
         const userInfo = await useUserStore().getUserInfo();
-        if (kbData.userId == userInfo.id) {
+        if (kbData.userId == userInfo.id) 
+        {
           edit.value = true;
         }
         // 如果当前路由是KB父路由（没有子路由匹配），则跳转到KBIndex
-        if (route.name === 'KB') {
+        if (route.name === 'KB') 
+        {
           router.push({ name: 'KBIndex', query: { kb: kbId.value } });
         }
-      } else {
+      }
+      else 
+      {
         // 获取知识库信息失败，重定向到404页面
         router.push({ name: 'NoKb' });
         noKb.value = true;
       }
     }
-    catch (error) {
+    catch (error) 
+    {
       hasError.value = true;
-      if (messageManager.hasMessage("由于私密性设置无法访问该知识库")) {
-        router.push({ name: 'NoPermission', query: { kb: kbParam, require: "kb" } });
+      if (messageManager.hasMessage('由于私密性设置无法访问该知识库')) 
+      {
+        router.push({ name: 'NoPermission', query: { kb: kbParam, require: 'kb' } });
         Message.warning({
-          id: "由于私密性设置无法访问该知识库",
+          id: '由于私密性设置无法访问该知识库',
           content: '该知识库由于私密性设置无法访问',
           duration: 3000,
         });
         return;
       }
-      if (error.data.code == "40000" && error.data.msg) {
-        if (messageManager.hasMessage(error.data.msg)) {
+      if (error.data.code == '40000' && error.data.msg) 
+      {
+        if (messageManager.hasMessage(error.data.msg)) 
+        {
           let returnUrl = route.query.returnUrl;
-          if (!returnUrl) {
+          if (!returnUrl) 
+          {
             // 构造当前URL作为returnUrl参数
             const currentUrl = window.location.href;
             returnUrl = encodeURIComponent(currentUrl);
@@ -131,14 +146,16 @@ onMounted(async () => {
 
     }
   }
-  else {
+  else 
+  {
     console.log('没有');
     //重定向到404页面
     router.push({ name: 'NotFound' });
   }
 
   // 初始化时检查屏幕尺寸
-  if (!checkScreenSize()) {
+  if (!checkScreenSize()) 
+  {
     showCollapseButton.value = false;
   }
 
@@ -147,11 +164,15 @@ onMounted(async () => {
 });
 
 // 窗口大小变化处理函数
-function handleResize() {
-  if (!checkScreenSize()) {
+function handleResize() 
+{
+  if (!checkScreenSize()) 
+  {
     showCollapseButton.value = false;
     isCollapsed.value = true;  // 在小屏幕上默认折叠侧边栏
-  } else {
+  }
+  else 
+  {
     // 在大屏幕上恢复显示按钮
     showCollapseButton.value = true;
   }
@@ -160,30 +181,38 @@ function handleResize() {
 const kbId = ref('-1');
 const treeMenuHeight = ref('calc(100vh - 220px)'); // 默认高度计算
 
-function handleClickPost(node) {
+function handleClickPost(node) 
+{
   const pageName = route.name;
   //是的话跳转到查看页面，否则不改变页面
-  console.log(pageName)
-  if (pageName === 'KBEdit') {
+  console.log(pageName);
+  if (pageName === 'KBEdit') 
+  {
     router.push({ name: pageName, query: { kb: kbId.value, p: node.postId } });
-  } else {
+  }
+  else 
+  {
     router.push({ name: 'KBView', query: { kb: kbId.value, p: node.postId } });
   }
 }
 const treeData = computed(() => kbStore.treeData);
 
-function goToHome() {
+function goToHome() 
+{
   router.push({ name: 'KBIndex', query: { kb: kbId.value } });
 }
 
-function toggleCollapse() {
+function toggleCollapse() 
+{
   isCollapsed.value = !isCollapsed.value;
 }
 
 // collapse-button 精细控制方法
-function handleMouseMove(event) {
+function handleMouseMove(event) 
+{
   // 如果屏幕宽度小于800px，不显示收起按钮
-  if (!checkScreenSize()) {
+  if (!checkScreenSize()) 
+  {
     showCollapseButton.value = false;
     return;
   }
@@ -192,31 +221,39 @@ function handleMouseMove(event) {
   const mouseX = event.clientX;
   const threshold = isCollapsed.value ? screenWidth * 0.1 : screenWidth * 0.2 + 80;
 
-  if (mouseX <= threshold) {
+  if (mouseX <= threshold) 
+  {
     showCollapseButton.value = true;
     handleMouseLeave();
-  } else {
+  }
+  else 
+  {
     clearHideTimer();
     showCollapseButton.value = false;
   }
 }
 
-function handleMouseLeave() {
+function handleMouseLeave() 
+{
   clearHideTimer();
-  hideTimer.value = setTimeout(() => {
+  hideTimer.value = setTimeout(() => 
+  {
     showCollapseButton.value = false;
   }, 500);
 }
 
-function clearHideTimer() {
-  if (hideTimer.value) {
+function clearHideTimer() 
+{
+  if (hideTimer.value) 
+  {
     clearTimeout(hideTimer.value);
     hideTimer.value = null;
   }
 }
 
 // 组件卸载时清理定时器
-onUnmounted(() => {
+onUnmounted(() => 
+{
   clearHideTimer();
   // 移除窗口大小变化监听器
   window.removeEventListener('resize', handleResize);

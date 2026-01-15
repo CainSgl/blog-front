@@ -1,15 +1,19 @@
 // 关注状态缓存管理模块
 import { useFollowStore } from '@/store/follow.js';
 
-class FollowCache {
-  constructor() {
+class FollowCache 
+{
+  constructor() 
+  {
     // 使用 Pinia store 来管理关注状态
     this.followStore = useFollowStore();
   }
 
   // 获取关注状态，先检查缓存
-  async getFollowStatus(userId) {
-    if (!userId) {
+  async getFollowStatus(userId) 
+  {
+    if (!userId) 
+    {
       return false;
     }
 
@@ -17,8 +21,10 @@ class FollowCache {
   }
 
   // 执行关注操作并更新缓存
-  async follow(userId) {
-    if (!userId) {
+  async follow(userId) 
+  {
+    if (!userId) 
+    {
       return false;
     }
 
@@ -26,8 +32,10 @@ class FollowCache {
   }
 
   // 执行取消关注操作并更新缓存
-  async unfollow(userId) {
-    if (!userId) {
+  async unfollow(userId) 
+  {
+    if (!userId) 
+    {
       return false;
     }
 
@@ -35,14 +43,17 @@ class FollowCache {
   }
 
   // 清除特定用户的缓存
-  clearUserCache(userId) {
-    if (userId) {
+  clearUserCache(userId) 
+  {
+    if (userId) 
+    {
       this.followStore.clearUserCache(userId);
     }
   }
 
   // 清除所有缓存
-  clearAllCache() {
+  clearAllCache() 
+  {
     this.followStore.clearAllCache();
   }
 }

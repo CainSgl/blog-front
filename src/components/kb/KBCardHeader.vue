@@ -80,22 +80,27 @@ const breadcrumbItems = ref([
 ]);
 
 // 根据postId在树形结构中查找节点
-const findNodeByPostId = (nodes, postId) => {
+const findNodeByPostId = (nodes, postId) => 
+{
   if (!Array.isArray(nodes)) return null;
 
   // 确保postId是字符串类型
   const targetPostId = String(postId);
 
-  for (const node of nodes) {
+  for (const node of nodes) 
+  {
     // 确保node.postId也是字符串类型进行比较
-    if (String(node.postId) === targetPostId) {
+    if (String(node.postId) === targetPostId) 
+    {
       return { node, path: [node] };
     }
 
     // 递归查找子节点
-    if (node.children && node.children.length > 0) {
+    if (node.children && node.children.length > 0) 
+    {
       const result = findNodeByPostId(node.children, postId);
-      if (result) {
+      if (result) 
+      {
         // 将当前节点添加到路径开头
         result.path.unshift(node);
         return result;
@@ -107,15 +112,18 @@ const findNodeByPostId = (nodes, postId) => {
 };
 
 // 构建面包屑路径
-const buildBreadcrumb = (postId) => {
-  if (!postId || !props.treeData) {
+const buildBreadcrumb = (postId) => 
+{
+  if (!postId || !props.treeData) 
+  {
     console.log('Missing postId or treeData');
     return;
   }
 
   const result = findNodeByPostId(props.treeData, postId);
 
-  if (result) {
+  if (result) 
+  {
     // 构建面包屑项
     const items = [
       { id: 'home', name: props.kbInfo?.name || '知识库' },
@@ -125,7 +133,9 @@ const buildBreadcrumb = (postId) => {
       }))
     ];
     breadcrumbItems.value = items;
-  } else {
+  }
+  else 
+  {
     // 如果找不到节点，至少显示知识库名称
     breadcrumbItems.value = [
       { id: 'home', name: props.kbInfo?.name || '知识库' }
@@ -134,19 +144,24 @@ const buildBreadcrumb = (postId) => {
 };
 
 // 根据状态获取对应的图标组件
-const getStatusIcon = () => {
+const getStatusIcon = () => 
+{
   if (!props.postInfo.status) return null;
 
-  if (props.postInfo.status === '草稿') {
+  if (props.postInfo.status === '草稿') 
+  {
     return IconFilePdf;
-  } else if (props.postInfo.status === '已发布') {
+  }
+  else if (props.postInfo.status === '已发布') 
+  {
     return IconWifi;
   }
   return null;
 };
 
 // 获取状态提示信息
-const getStatusTooltip = () => {
+const getStatusTooltip = () => 
+{
   if (!props.postInfo.status) return '';
 
   const statusMap = {
@@ -158,7 +173,8 @@ const getStatusTooltip = () => {
 };
 
 // 格式化更新时间
-const formatUpdateTime = (time) => {
+const formatUpdateTime = (time) => 
+{
   if (!time) return '';
 
   // 假设time是时间戳或可被Date解析的字符串
@@ -166,12 +182,14 @@ const formatUpdateTime = (time) => {
   const now = new Date();
 
   // 如果是今天，显示时:分
-  if (date.toDateString() === now.toDateString()) {
+  if (date.toDateString() === now.toDateString()) 
+  {
     return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
   }
 
   // 如果是今年，显示月-日 时:分
-  if (date.getFullYear() === now.getFullYear()) {
+  if (date.getFullYear() === now.getFullYear()) 
+  {
     return date.toLocaleDateString('zh-CN', {
       month: '2-digit',
       day: '2-digit',
@@ -191,10 +209,14 @@ const formatUpdateTime = (time) => {
 };
 
 // 处理返回事件
-const handleBack = () => {
-  if (props.onBack) {
+const handleBack = () => 
+{
+  if (props.onBack) 
+  {
     props.onBack();
-  } else {
+  }
+  else 
+  {
     router.push({ name: 'KBIndex', query: { kb: props.kbId } });
   }
   emit('back');
@@ -203,8 +225,10 @@ const handleBack = () => {
 // 监听treeData的变化，更新面包屑
 watch(
   () => props.treeData,
-  (newVal) => {
-    if (newVal && newVal.length > 0 && props.postInfo.postId) {
+  (newVal) => 
+  {
+    if (newVal && newVal.length > 0 && props.postInfo.postId) 
+    {
       buildBreadcrumb(props.postInfo.postId);
     }
   },
@@ -214,8 +238,10 @@ watch(
 // 当 postInfo 变化时，更新面包屑
 watch(
   () => props.postInfo,
-  (newVal) => {
-    if (newVal && newVal.postId && props.treeData) {
+  (newVal) => 
+  {
+    if (newVal && newVal.postId && props.treeData) 
+    {
       buildBreadcrumb(newVal.postId);
     }
   },
@@ -225,14 +251,18 @@ watch(
 // 当 kbInfo 变化时，更新面包屑
 watch(
   () => props.kbInfo,
-  (newVal) => {
+  (newVal) => 
+  {
     // 更新面包屑的第一项为知识库名称
-    if (breadcrumbItems.value.length > 0) {
+    if (breadcrumbItems.value.length > 0) 
+    {
       breadcrumbItems.value[0] = { 
         id: 'home', 
         name: newVal?.name || '知识库' 
       };
-    } else {
+    }
+    else 
+    {
       breadcrumbItems.value = [{ 
         id: 'home', 
         name: newVal?.name || '知识库' 
@@ -240,7 +270,8 @@ watch(
     }
     
     // 重新构建完整的面包屑路径
-    if (props.postInfo?.postId && props.treeData) {
+    if (props.postInfo?.postId && props.treeData) 
+    {
       buildBreadcrumb(props.postInfo.postId);
     }
   },

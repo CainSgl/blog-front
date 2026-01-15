@@ -58,31 +58,33 @@ import { useRouter } from 'vue-router';
 import Avatar from '@/components/user/base/Avatar.vue';
 
 const props = defineProps({
-    user: {
-        type: Object,
-    },
-    size: {
-        type: [Number, String],
-        default: 40
-    },
-    avatarStyle: {
-        type: Object,
-        default: () => ({})
-    },
-    position: {
-        type: String,
-        default: 'rt'
-    }
+  user: {
+    type: Object,
+  },
+  size: {
+    type: [Number, String],
+    default: 40
+  },
+  avatarStyle: {
+    type: Object,
+    default: () => ({})
+  },
+  position: {
+    type: String,
+    default: 'rt'
+  }
 });
 
 const router = useRouter();
 
 // 跳转到用户空间页面
-const goToUserSpace = () => {
-    if (props.user) {
-        const routeData = router.resolve({ name: 'User', params: { id: props.user.id } });
-        window.open(routeData.href, '_blank');
-    }
+const goToUserSpace = () => 
+{
+  if (props.user) 
+  {
+    const routeData = router.resolve({ name: 'User', params: { id: props.user.id } });
+    window.open(routeData.href, '_blank');
+  }
 };
 </script>
 

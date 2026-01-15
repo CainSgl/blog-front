@@ -59,15 +59,20 @@ const props = defineProps({
 
 const isExpanded = ref(false);
 
-const validLang = computed(() => {
+const validLang = computed(() => 
+{
   return !props.language || props.language === 'undefined' ? 'plaintext' : props.language;
 });
 
-const highlightedCode = computed(() => {
+const highlightedCode = computed(() => 
+{
   let highlighted;
-  try {
+  try 
+  {
     highlighted = hljs.highlight(props.code, { language: validLang.value }).value;
-  } catch (err) {
+  }
+  catch (err) 
+  {
     // 如果高亮失败，回退到自动检测
     highlighted = hljs.highlightAuto(props.code).value;
   }
@@ -75,20 +80,26 @@ const highlightedCode = computed(() => {
 });
 
 // 计算展开时的最大高度
-const maxHeightValue = computed(() => {
+const maxHeightValue = computed(() => 
+{
   // 使用一个足够大的值来确保代码块完全显示，但仍保持可动画性
   return '9999px';
 });
 
-const toggleExpand = () => {
+const toggleExpand = () => 
+{
   isExpanded.value = !isExpanded.value;
 };
 
-const copyCode = async () => {
-  try {
+const copyCode = async () => 
+{
+  try 
+  {
     await navigator.clipboard.writeText(props.code);
     Message.success('代码已复制到剪贴板');
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('复制失败:', err);
     Message.error('复制失败');
   }

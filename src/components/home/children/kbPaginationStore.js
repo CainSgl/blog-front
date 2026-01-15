@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 export const useKbPaginationStore = defineStore('kbPagination', {
   state: () => ({
@@ -9,27 +9,31 @@ export const useKbPaginationStore = defineStore('kbPagination', {
   }),
   
   actions: {
-    updatePagination(lastItem) {
-      this.lastCreatedAt = lastItem.createdAt
-      this.lastLike = lastItem.likeCount
-      this.lastId = lastItem.id
+    updatePagination(lastItem) 
+    {
+      this.lastCreatedAt = lastItem.createdAt;
+      this.lastLike = lastItem.likeCount;
+      this.lastId = lastItem.id;
     },
     
-    resetPagination() {
-      this.lastCreatedAt = null
-      this.lastLike = null
-      this.lastId = null
+    resetPagination() 
+    {
+      this.lastCreatedAt = null;
+      this.lastLike = null;
+      this.lastId = null;
     },
     
-    buildRequestParams(pageSize) {
-      const req = { pageSize }
-      if (this.lastCreatedAt) {
-        req.lastCreatedAt = this.lastCreatedAt
-        req.lastLike = this.lastLike
-        req.lastId = this.lastId
+    buildRequestParams(pageSize) 
+    {
+      const req = { pageSize };
+      if (this.lastCreatedAt) 
+      {
+        req.lastCreatedAt = this.lastCreatedAt;
+        req.lastLike = this.lastLike;
+        req.lastId = this.lastId;
       }
-      return req
+      return req;
     },
   
   }
-})
+});

@@ -81,11 +81,15 @@ const emit = defineEmits(['sort-change', 'search', 'back']);
 const userInfo = ref(null);
 
 // 获取用户信息
-const fetchUserInfo = async (id) => {
-  try {
+const fetchUserInfo = async (id) => 
+{
+  try 
+  {
     const response = await api.get('/user', { id: id });
     userInfo.value = response.data;
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('获取用户信息失败:', err);
   }
 };
@@ -98,7 +102,8 @@ const isEmptyResult = ref(false);
 const sortBy = ref(props.sortOptions[0]?.value || ''); // 默认选择第一个排序选项
 
 // 计算属性：只显示非特殊状态的搜索选项
-const displaySearchOptions = computed(() => {
+const displaySearchOptions = computed(() => 
+{
   return searchOptions.value.filter(option => option !== 'loading' && option !== 'empty');
 });
 
@@ -106,17 +111,21 @@ const displaySearchOptions = computed(() => {
 fetchUserInfo(props.userId);
 
 // 搜索相关事件处理 - 使用防抖优化性能
-function handleSearchWrapper(value) {
+function handleSearchWrapper(value) 
+{
   isLoading.value = true;
   isEmptyResult.value = false;
-  searchOptions.value = ['']
-  handleSearch(value)
+  searchOptions.value = [''];
+  handleSearch(value);
 }
 
-const handleSearch = debounce(async (value) => {
-  console.log("搜索值:", value);
-  if (value.trim()) {
-    try {
+const handleSearch = debounce(async (value) => 
+{
+  console.log('搜索值:', value);
+  if (value.trim()) 
+  {
+    try 
+    {
       const params = {
         page: 1,
         size: 5,  // 固定大小为5
@@ -126,50 +135,63 @@ const handleSearch = debounce(async (value) => {
         keyword: value  // 添加搜索关键词
       };
       const { data } = await api.post(props.apiUrl, params);
-      if (data.records.length > 0) {
+      if (data.records.length > 0) 
+      {
         searchOptions.value = data.records.map(item => item.title || item.name || item.id);
         isEmptyResult.value = false;
-      } else {
-        searchOptions.value = ['']
+      }
+      else 
+      {
+        searchOptions.value = [''];
         isEmptyResult.value = true;
       }
 
-    } catch (error) {
+    }
+    catch (error) 
+    {
       console.error('搜索失败:', error);
       searchOptions.value = [];
       isEmptyResult.value = false;
     }
-  } else {
+  }
+  else 
+  {
     searchOptions.value = [];
     isEmptyResult.value = false;
   }
   isLoading.value = false;
-  if (!value) {
+  if (!value) 
+  {
     emit('search', value);
   }
 
 }, 300);
 
-const handleSearchSelect = (value) => {
+const handleSearchSelect = (value) => 
+{
   // 替换搜索框的文字为选中的标题
   searchValue.value = value;
   emit('search', value);
 };
 
-const handleSearchEnter = () => {
+const handleSearchEnter = () => 
+{
   console.log('搜索:', searchValue.value);
   emit('search', searchValue.value);
 };
 
 // 处理排序变化
-const handleSortChange = (value) => {
+const handleSortChange = (value) => 
+{
   sortBy.value = value;
   emit('sort-change', value);
 };
 
 // 处理排序按钮点击
-const handleSortButtonClick = (value) => {
-  if (sortBy.value !== value) {
+const handleSortButtonClick = (value) => 
+{
+  if (sortBy.value !== value) 
+  {
     sortBy.value = value;
     handleSortChange(value);
   }
@@ -178,7 +200,8 @@ const handleSortButtonClick = (value) => {
 
 
 // 处理返回
-const handleBack = () => {
+const handleBack = () => 
+{
   emit('back');
 };
 </script>

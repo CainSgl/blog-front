@@ -71,16 +71,21 @@ const userInfo = ref(null);
 const currentUserInfo = ref({ id: -1 });
 
 // 计算当前是否为访问自己的文章列表
-const isCurrentUser = computed(() => {
+const isCurrentUser = computed(() => 
+{
   return currentUserInfo.value.id == userId.value;
 });
 
 // 获取用户信息
-const fetchUserInfo = async (id) => {
-  try {
+const fetchUserInfo = async (id) => 
+{
+  try 
+  {
     const response = await api.get('/user', { id: id });
     userInfo.value = response.data;
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('获取用户信息失败:', err);
   }
 };
@@ -90,24 +95,26 @@ const posts = ref([]);
 const loading = ref(true);
 const total = ref(0);
 const currentPage = ref(1);
-const getCreateTipText = computed(() => {
-  switch(postStatus.value) {
-    case '':
-      return '若需要创建文档，请先创建知识库！';
-    case '草稿':
-      return '文章若是草稿状态，将不会被公开展示。';
-    case '已发布':
-      return '互联网的所有人均可以访问。';
-    case '无知识库归属':
-      return '游离文档是指未绑定到任何知识库的文档。建议绑定知识库以方便管理！';
-    case '待审核':
-      return '你的文档信息将会在审核通过后公开展示。';
-    case '已下架':
-      return '已下架的文档将不再公开展示。若需要重新公开展示，请联系管理员。';
-    case '仅粉丝':
-        return '只有粉丝才能观看该文章！';
-    default:
-      return '若需要创建文档，请先创建知识库！';
+const getCreateTipText = computed(() => 
+{
+  switch(postStatus.value) 
+  {
+  case '':
+    return '若需要创建文档，请先创建知识库！';
+  case '草稿':
+    return '文章若是草稿状态，将不会被公开展示。';
+  case '已发布':
+    return '互联网的所有人均可以访问。';
+  case '无知识库归属':
+    return '游离文档是指未绑定到任何知识库的文档。建议绑定知识库以方便管理！';
+  case '待审核':
+    return '你的文档信息将会在审核通过后公开展示。';
+  case '已下架':
+    return '已下架的文档将不再公开展示。若需要重新公开展示，请联系管理员。';
+  case '仅粉丝':
+    return '只有粉丝才能观看该文章！';
+  default:
+    return '若需要创建文档，请先创建知识库！';
   }
 });
 
@@ -125,9 +132,11 @@ const postStatus = ref(''); // 默认为全部
 
 const searchValue = ref('');
 // 加载文章列表
-const loadPosts = async (page = 1) => {
+const loadPosts = async (page = 1) => 
+{
   loading.value = true;
-  try {
+  try 
+  {
     // 构建请求参数
     const params = {
       page: page,
@@ -138,78 +147,96 @@ const loadPosts = async (page = 1) => {
     };
 
     // 添加状态筛选参数
-    if (postStatus.value) {
+    if (postStatus.value) 
+    {
       params.status = postStatus.value;
     }
 
     // 如果有搜索关键词，则添加到请求参数中
-    if (useSearch && searchValue.value && searchValue.value.trim()) {
+    if (useSearch && searchValue.value && searchValue.value.trim()) 
+    {
       params.keyword = searchValue.value.trim();
     }
 
     const { data } = await api.post('/post/list', params);
     posts.value = data.records;
-    if (total.value <= 0) {
+    if (total.value <= 0) 
+    {
       total.value = data.total;
     }
     currentPage.value = page;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载文章列表失败:', error);
     posts.value = [];
     total.value = 0;
-  } finally {
+  }
+  finally 
+  {
     loading.value = false;
   }
 };
 
-const handleBack = () => {
+const handleBack = () => 
+{
   // 返回到用户主页
   router.push(`/space/${userId.value}`);
 };
 
-let useSearch = false
+let useSearch = false;
 
 // 从公共组件传递的事件处理
-const handleSortChangeFromHeader = (value) => {
+const handleSortChangeFromHeader = (value) => 
+{
   sortBy.value = value;
   // 排序变化时重置到第一页并重新加载
   currentPage.value = 1;
   loadPosts(1);
 };
 
-const handleSearchFromHeader = (value) => {
-  currentPage.value = 1
-  total.value = -1
-  if (value && value.trim()) {
-    useSearch = true
+const handleSearchFromHeader = (value) => 
+{
+  currentPage.value = 1;
+  total.value = -1;
+  if (value && value.trim()) 
+  {
+    useSearch = true;
     loadPosts(currentPage.value);
-  } else {
-    if (useSearch) {
-      console.log("之前搜索过，现在是复原")
-      useSearch = false
+  }
+  else 
+  {
+    if (useSearch) 
+    {
+      console.log('之前搜索过，现在是复原');
+      useSearch = false;
       loadPosts(currentPage.value);
     }
   }
-  searchValue.value = value
+  searchValue.value = value;
 };
 
 // 处理状态选择变化
-const handleStatusChange = (value) => {
+const handleStatusChange = (value) => 
+{
   postStatus.value = value;
-  console.log(value)
+  console.log(value);
   // 状态变化时重置到第一页并重新加载
   currentPage.value = 1;
   loadPosts(1);
 };
 
 // 处理分页变化
-const handlePageChange = (page) => {
+const handlePageChange = (page) => 
+{
   loadPosts(page);
 };
 
 // 组件挂载时加载数据
-onMounted(async () => {
-  if (userId.value) {
+onMounted(async () => 
+{
+  if (userId.value) 
+  {
     const [currentUserInfoData, userInfoData] = await Promise.all([
       userStore.getUserInfo(),
       fetchUserInfo(userId.value)
@@ -220,7 +247,8 @@ onMounted(async () => {
 
 
 // 处理pageSize变化事件
-const handlePageSizeChange = (newPageSize) => {
+const handlePageSizeChange = (newPageSize) => 
+{
   // 更新本地的 pageSize 值
   pageSize.value = newPageSize;
 

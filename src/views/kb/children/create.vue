@@ -121,7 +121,8 @@ const status=ref('');
 const formData = ref(null); // 用于存储裁剪后的图片文件，如果为null则表示没有新的图片需要上传
 
 // 在组件挂载后根据路由参数设置初始状态
-onMounted(() => {
+onMounted(() => 
+{
   const type = route.query.type;
   // 如果路由参数type为'public'，则设置为已发布（公开），否则为草稿（私有）
   status.value = type === 'public' ? '已发布' : '草稿';
@@ -130,7 +131,8 @@ onMounted(() => {
 // 使用计算属性来管理标题
 const title = computed({
   get: () => kbInfo.value.title || kbInfo.value.name || '',
-  set: (value) => {
+  set: (value) => 
+  {
     kbInfo.value.title = value;
     kbInfo.value.name = value; // 同时更新name字段
   }
@@ -143,14 +145,17 @@ const imageCropperRef = ref();
 const currentImageFile = ref(null);
 
 // 创建知识库
-const createKb = async () => {
-  if (!title.value.trim()) {
+const createKb = async () => 
+{
+  if (!title.value.trim()) 
+  {
     Message.error('请输入知识库标题');
     return;
   }
 
   creating.value = true;
-  try {
+  try 
+  {
 
     // 构建请求数据
     const requestData = {
@@ -160,7 +165,8 @@ const createKb = async () => {
     };
 
     // 如果有新的图片需要上传
-    if (formData.value !== null) {
+    if (formData.value !== null) 
+    {
       Message.loading({
         id: 'upload-cover',
         content: '正在上传封面...',
@@ -182,7 +188,9 @@ const createKb = async () => {
         content: '封面上传成功',
       });
       requestData.coverUrl = coverUrl;
-    } else {
+    }
+    else 
+    {
       // 如果没有新的封面上传，使用现有的封面URL
       requestData.coverUrl = kbInfo.value.coverUrl;
     }
@@ -205,24 +213,31 @@ const createKb = async () => {
       name: 'KB',
       query: { kb: data.id }
     });
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('创建知识库失败:', error);
     Message.error({
       id: 'create-kb',
       content: '创建失败，请稍后重试',
     });
-  } finally {
+  }
+  finally 
+  {
     creating.value = false;
   }
 };
 
-const goBack = () => {
+const goBack = () => 
+{
   router.go(-1);
 };
 
 // 处理裁剪后的图片
-const handleCroppedImage = async (croppedFile) => {
-  try {
+const handleCroppedImage = async (croppedFile) => 
+{
+  try 
+  {
     // 创建FormData对象 
     const newFormData = new FormData();
     newFormData.append('file', croppedFile);
@@ -245,7 +260,9 @@ const handleCroppedImage = async (croppedFile) => {
 
     cropperModalVisible.value = false;
     currentImageFile.value = null;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('处理裁剪图片失败:', error);
     Message.error({
       id: 'upload-cropped-image:' + croppedFile.name,
@@ -257,12 +274,14 @@ const handleCroppedImage = async (croppedFile) => {
 };
 
 // Arco Design Upload组件的自定义上传方法
-const customRequest = async (options) => {
+const customRequest = async (options) => 
+{
   const { fileItem, onError, onSuccess } = options;
   const file = fileItem.file;
 
   // 检查是否为图片
-  if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith('image/')) 
+  {
     console.error('请选择图片文件');
     Message.error('请选择图片文件');
     onError();
@@ -272,7 +291,8 @@ const customRequest = async (options) => {
   // 创建图片对象用于裁剪组件
   const img = new Image();
   img.src = URL.createObjectURL(file);
-  img.onload = async () => {
+  img.onload = async () => 
+  {
     // 将原始文件保存到currentImageFile，用于裁剪
     currentImageFile.value = file;
 
@@ -281,15 +301,18 @@ const customRequest = async (options) => {
 
     // 等待模态框打开后设置图片
     await nextTick();
-    setTimeout(() => {
-      if (imageCropperRef.value) {
+    setTimeout(() => 
+    {
+      if (imageCropperRef.value) 
+      {
         imageCropperRef.value.setImage(img);
       }
     }, 100);
 
     onSuccess();
   };
-  img.onerror = () => {
+  img.onerror = () => 
+  {
     console.error('图片加载失败');
     Message.error('图片加载失败');
     onError();

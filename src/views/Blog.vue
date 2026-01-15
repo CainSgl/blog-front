@@ -11,28 +11,31 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import Header from '@/components/layout/Header.vue'
-import BannerCarousel from '@/components/home/children/BannerCarousel.vue'
-import NewHomePostList from '@/components/home/children/NewHomePostList.vue'
-import NewKBList from '@/components/home/children/NewKBList.vue'
-import AnnouncementBanner from '../components/home/children/AnnouncementBanner.vue'
+import { onMounted, ref } from 'vue';
+import Header from '@/components/layout/Header.vue';
+import BannerCarousel from '@/components/home/children/BannerCarousel.vue';
+import NewHomePostList from '@/components/home/children/NewHomePostList.vue';
+import NewKBList from '@/components/home/children/NewKBList.vue';
+import AnnouncementBanner from '../components/home/children/AnnouncementBanner.vue';
 
-const isMobile = ref(true)
-const showNewKBList = ref(true)
+const isMobile = ref(true);
+const showNewKBList = ref(true);
 // 页面加载时获取数据
-onMounted(() => {
-  updateScreenSize()
-  window.addEventListener('resize', updateScreenSize)
-})
+onMounted(() => 
+{
+  updateScreenSize();
+  window.addEventListener('resize', updateScreenSize);
+});
 
-const updateScreenSize = () => {
+const updateScreenSize = () => 
+{
   // 当屏幕宽度大于1024px时，isMobile为false
-  isMobile.value = window.innerWidth <= 1024
-}
-function handleNoData() {
-  console.log("文章没数据了，让他去看看知识库的")
-  showNewKBList.value = false
+  isMobile.value = window.innerWidth <= 1024;
+};
+function handleNoData() 
+{
+  console.log('文章没数据了，让他去看看知识库的');
+  showNewKBList.value = false;
 }
 </script>
 

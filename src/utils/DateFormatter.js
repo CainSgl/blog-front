@@ -1,5 +1,6 @@
 
-const formatDate = (dateString,preFix='') => {
+const formatDate = (dateString,preFix='') => 
+{
   if(!dateString)
   {
     return '';
@@ -10,7 +11,8 @@ const formatDate = (dateString,preFix='') => {
   const diffSeconds = Math.floor(diffMs / 1000);
 
   // 超过7天（604800秒）显示日期
-  if (diffSeconds > 604800) {
+  if (diffSeconds > 604800) 
+  {
     return targetDate.toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
@@ -19,18 +21,25 @@ const formatDate = (dateString,preFix='') => {
   }
 
   // 7天内：根据时间差返回 "XX前"
-  if (diffSeconds < 60) {
+  if (diffSeconds < 60) 
+  {
     return `${diffSeconds}秒前${preFix}`;
-  } else if (diffSeconds < 3600) {
+  }
+  else if (diffSeconds < 3600) 
+  {
     return `${Math.floor(diffSeconds / 60)}分钟前${preFix}`;
-  } else if (diffSeconds < 86400) {
+  }
+  else if (diffSeconds < 86400) 
+  {
     return `${Math.floor(diffSeconds / 3600)}小时前${preFix}`;
-  } else {
+  }
+  else 
+  {
     return `${Math.floor(diffSeconds / 86400)}天前${preFix}`;
   }
 };
 const getDateNow=()=>
 {
-  return new Date().toISOString().split('T')[0]
-}
+  return new Date().toISOString().split('T')[0];
+};
 export  {formatDate,getDateNow};

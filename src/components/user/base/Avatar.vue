@@ -67,12 +67,15 @@ const props = defineProps({
 });
 
 // 计算完整的头像 URL
-const computedAvatarUrl = computed(() => {
-  if (!props.src) {
+const computedAvatarUrl = computed(() => 
+{
+  if (!props.src) 
+  {
     return '';
   }
   // 如果已经是完整的 URL，则直接返回
-  if (props.src.startsWith('http')) {
+  if (props.src.startsWith('http')) 
+  {
     return props.src;
   }
   
@@ -83,7 +86,8 @@ const computedAvatarUrl = computed(() => {
 // 传递点击事件
 const emit = defineEmits(['click']);
 
-const handleClick = (e) => {
+const handleClick = (e) => 
+{
   emit('click', e);
 };
 </script>

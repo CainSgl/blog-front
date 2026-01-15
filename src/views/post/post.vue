@@ -78,12 +78,12 @@ import { Message } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
-import { useUserStore } from "@/store/user.js";
-import PostHistroy from "@/components/post/PostHistroy.vue";
-import PostRecommend from "@/components/post/PostRecommend.vue";
-import { useCommentStore } from "@/components/comment/commentStore.js";
-import CodeLoader from "@/components/base/CodeLoader.vue";
-import CommentList from "@/components/post/children/CommentList.vue";
+import { useUserStore } from '@/store/user.js';
+import PostHistroy from '@/components/post/PostHistroy.vue';
+import PostRecommend from '@/components/post/PostRecommend.vue';
+import { useCommentStore } from '@/components/comment/commentStore.js';
+import CodeLoader from '@/components/base/CodeLoader.vue';
+import CommentList from '@/components/post/children/CommentList.vue';
 const userStore = useUserStore();
 const commentStore = useCommentStore();
 
@@ -102,52 +102,66 @@ const version = ref();
 let originContent;
 let orginCommentCountData;
 let summaryCache;
-function getSummrayElment(summary) {
-  if (summaryCache) {
+function getSummrayElment(summary) 
+{
+  if (summaryCache) 
+  {
     return summaryCache;
   }
-  if (!summary) {
-    summary = '这个人没有设置任何摘要哦'
+  if (!summary) 
+  {
+    summary = '这个人没有设置任何摘要哦';
   }
   summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>`;
   return summaryCache;
 }
-const loadPostContent = async (postId) => {
+const loadPostContent = async (postId) => 
+{
   codeLoader.value++;
 
-  try {
-    const { data } = await api.get(`/post`, { id: postId });
+  try 
+  {
+    const { data } = await api.get('/post', { id: postId });
     codeLoader.value--;
     //获取评论数据
     version.value = data.version;
-    commentStore.getParagraphCommentCountByPost(postId, data.version).then(countMap => {
+    commentStore.getParagraphCommentCountByPost(postId, data.version).then(countMap => 
+    {
       orginCommentCountData = {
         postId: postId,
         version: data.version,
         countMap,
       };
-    })
+    });
     post.value = data;
     post.value.content = getSummrayElment(data.summary) + '\n' + data.content;
     originContent = post.value.content;
 
-    if (data.userId) {
-      author.value = await userStore.getUserInfo(data.userId)
+    if (data.userId) 
+    {
+      author.value = await userStore.getUserInfo(data.userId);
     }
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载文章内容失败:', error);
     codeLoader.value--;
-  } finally {
-    
+  }
+  finally 
+  {
+
   }
   placeholderHeight.value = getBestReadingTop();
 };
 
-async function handleHistoryClick(item) {
+async function handleHistoryClick(item) 
+{
   Message.loading({ id: 'loadingHistory', content: '正在加载文章历史版本...', duration: 10000 });
   version.value = item.version;
-  try {
-    if (item.publishVersion) {
+  try 
+  {
+    if (item.publishVersion) 
+    {
       commentStore.getParagraphCommentCountByPost(orginCommentCountData.postId, orginCommentCountData.version, orginCommentCountData.countMap);
       post.value.content = originContent;
       Message.success({ id: 'loadingHistory', content: '已恢复到原始版本', duration: 500 });
@@ -157,9 +171,11 @@ async function handleHistoryClick(item) {
     console.log('查看历史记录', item.version);
     commentStore.getParagraphCommentCountByPost(item.postId, item.version);
     const { data } = await api.get('/post/history', { postId: item.postId, id: item.id });
-    post.value.content = data
+    post.value.content = data;
     Message.success({ id: 'loadingHistory', content: '文章历史版本加载成功', duration: 500 });
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载文章历史版本失败:', error);
     Message.error({ id: 'loadingHistory', content: '加载文章历史版本失败', duration: 500 });
   }
@@ -167,7 +183,8 @@ async function handleHistoryClick(item) {
 }
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = (dateString) => 
+{
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
@@ -179,11 +196,15 @@ const formatDate = (dateString) => {
 };
 
 // 节流函数，减少事件触发频率
-const throttle = (func, delay) => {
+const throttle = (func, delay) => 
+{
   let timer = null;
-  return function (...args) {
-    if (!timer) {
-      timer = setTimeout(() => {
+  return function (...args) 
+  {
+    if (!timer) 
+    {
+      timer = setTimeout(() => 
+      {
         func.apply(this, args);
         timer = null;
       }, delay);
@@ -191,24 +212,28 @@ const throttle = (func, delay) => {
   };
 };
 const containerRef = ref(null);
-const notBestReading = ref(false)
+const notBestReading = ref(false);
 let firstDivider;
-const getBestReadingTop = () => {
-  if (firstDivider) {
+const getBestReadingTop = () => 
+{
+  if (firstDivider) 
+  {
     const rect = firstDivider.getBoundingClientRect();
     return window.pageYOffset + rect.top;
   }
   const dividers = containerRef.value?.querySelectorAll('.arco-divider') || [];
   firstDivider = dividers.length > 0 ? dividers[0] : null;
-  if (firstDivider) {
+  if (firstDivider) 
+  {
     const rect = firstDivider.getBoundingClientRect();
     return window.pageYOffset + rect.top;
   }
   return 113;
 };
-function handleFullScreenClick() {
+function handleFullScreenClick() 
+{
   notBestReading.value = false;
-  console.log("滑动到",getBestReadingTop());
+  console.log('滑动到', getBestReadingTop());
   window.scrollTo({
     top: getBestReadingTop(),
     behavior: 'smooth'
@@ -216,15 +241,20 @@ function handleFullScreenClick() {
 }
 
 // 处理内容滚动事件
-const handleContentScroll = throttle((event) => {
-  if (codeLoader.value > 0||!author.value) {
+const handleContentScroll = throttle((event) => 
+{
+  if (codeLoader.value > 0 || !author.value) 
+  {
     return;
   }
 
   const currentBestReadingTop = getBestReadingTop();
-  if (window.scrollY < currentBestReadingTop + 5 && window.scrollY > currentBestReadingTop - 5) {
+  if (window.scrollY < currentBestReadingTop + 5 && window.scrollY > currentBestReadingTop - 5) 
+  {
     notBestReading.value = false;
-  } else {
+  }
+  else 
+  {
     notBestReading.value = true;
   }
   const contentElement = event.target;
@@ -232,9 +262,11 @@ const handleContentScroll = throttle((event) => {
   // 判断滚动方向
   const isScrollingDown = scrollTop > lastScrollTop.value;
   // 如果是向下滚动
-  if (isScrollingDown) {
+  if (isScrollingDown) 
+  {
     // 计算本次滚动的距离
-    if (window.scrollY < currentBestReadingTop - 5) {
+    if (window.scrollY < currentBestReadingTop - 5) 
+    {
       window.scrollTo({
         top: currentBestReadingTop,
         behavior: 'smooth'
@@ -245,10 +277,12 @@ const handleContentScroll = throttle((event) => {
 }, 50);
 
 // 组件挂载时的逻辑
-onMounted(() => {
+onMounted(() => 
+{
   const postId = route.params.id;
   placeholderHeight.value = getBestReadingTop();
-  if (postId) {
+  if (postId) 
+  {
     loadPostContent(postId);
   }
 });
@@ -263,23 +297,35 @@ onMounted(() => {
 
 .post-sidebar {
   padding: 0px 20px 20px 20px;
-  min-width: 20vw;
+  width: 20dvw;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  @media screen and (max-width: 1400px) {
+    padding: 0px;
+    width: 20dvw;
+  }
 
   @media screen and (max-width: 768px) {
-    min-width: 0;
+    max-width: 0;
     width: 0vw;
     display: none;
   }
 }
 
 .post-right-sidebar {
-  padding: 0px 0px 0px 40px;
-  width: 15vw;
+  margin-left: auto;
+  width: 20dvw;
+  max-width: 360px;
 
   @media screen and (max-width: 768px) {
+    min-width: 0;
+    width: 0vw;
+    display: none;
+  }
+
+  @media screen and (max-width: 1000px) {
+    /* 当 20vw < 200px 时隐藏侧边栏 */
     min-width: 0;
     width: 0vw;
     display: none;
@@ -287,8 +333,9 @@ onMounted(() => {
 }
 
 .post-container {
+  box-sizing: border-box;
   scrollbar-width: none;
-  width: 60vw;
+  width: 60dvw;
 
   &::-webkit-scrollbar {
     display: none !important;
@@ -298,11 +345,19 @@ onMounted(() => {
 
   padding: 20px;
   overflow-y: auto;
-
+  @media screen and (max-width: 1400px) {
+    padding: 0px;
+    width: calc(70dvw  - 200px);
+    margin-right: 0vw;
+  }
   @media screen and (max-width: 768px) {
     padding: 0px;
-    width: 100vw;
+    width: 100dvw;
     margin-right: 0vw;
+  }
+
+  @media screen and (max-width: 1000px) {
+    width: 70dvw;
   }
 }
 
@@ -353,7 +408,7 @@ onMounted(() => {
 
 .post-content {
   padding: 20px 0;
-  height: calc(95vh);
+  height: 98vh;
   display: flex;
   gap: 20px;
 }

@@ -57,74 +57,93 @@ const topPostSelectorRef = ref(null);
 let resizeObserver = null;
 
 // 根据容器宽度设置卡片高度
-const updateCardHeight = (width) => {
-    if (width < 400) {
-        cardHeight.value = '450px';
-    } else {
-        cardHeight.value = '250px';
-    }
+const updateCardHeight = (width) => 
+{
+  if (width < 400) 
+  {
+    cardHeight.value = '450px';
+  }
+  else 
+  {
+    cardHeight.value = '250px';
+  }
 };
 
 // 获取置顶文章
-const fetchTopPosts = async (id) => {
-    loading.value = true; // 开始加载
-    try {
-        const response = await api.get('/post/top', { id: id });
-        topPosts.value = response.data;
-    } catch (err) {
-        console.error('获取置顶文章失败:', err);
-        topPosts.value = [];
-    } finally {
-        loading.value = false; // 结束加载
-    }
+const fetchTopPosts = async (id) => 
+{
+  loading.value = true; // 开始加载
+  try 
+  {
+    const response = await api.get('/post/top', { id: id });
+    topPosts.value = response.data;
+  }
+  catch (err) 
+  {
+    console.error('获取置顶文章失败:', err);
+    topPosts.value = [];
+  }
+  finally 
+  {
+    loading.value = false; // 结束加载
+  }
 };
 
 // 显示置顶文章选择器
-const showTopPostSelector = () => {
-    if (topPostSelectorRef.value) {
-        topPostSelectorRef.value.showModal();
-    }
+const showTopPostSelector = () => 
+{
+  if (topPostSelectorRef.value) 
+  {
+    topPostSelectorRef.value.showModal();
+  }
 };
 
 // 处理置顶文章选择完成事件
-const handleTopPostSelected = async (post) => {
-    // 重新获取置顶文章列表以更新UI
-    Message.loading({ id: "PostLoading" + post.id, content: "重新拉取数据中..." });
-    await fetchTopPosts(route.params.id);
-    Message.success({ id: "PostLoading" + post.id, content: "拉取完毕" });
+const handleTopPostSelected = async (post) => 
+{
+  // 重新获取置顶文章列表以更新UI
+  Message.loading({ id: 'PostLoading' + post.id, content: '重新拉取数据中...' });
+  await fetchTopPosts(route.params.id);
+  Message.success({ id: 'PostLoading' + post.id, content: '拉取完毕' });
 };
 
 // 处理路由参数变化
-onMounted(async () => {
-    fetchTopPosts(route.params.id);
+onMounted(async () => 
+{
+  fetchTopPosts(route.params.id);
 
-    // 获取当前用户信息
-    currentUserInfo.value = await userStore.getUserInfo();
+  // 获取当前用户信息
+  currentUserInfo.value = await userStore.getUserInfo();
 
-    // 初始化容器宽度监听
-    if (containerRef.value) {
-        // 初始设置高度
-        updateCardHeight(containerRef.value.offsetWidth);
+  // 初始化容器宽度监听
+  if (containerRef.value) 
+  {
+    // 初始设置高度
+    updateCardHeight(containerRef.value.offsetWidth);
 
-        // 创建ResizeObserver监听容器大小变化
-        resizeObserver = new ResizeObserver(entries => {
-            for (let entry of entries) {
-                const width = entry.contentRect.width;
-                updateCardHeight(width);
-            }
-        });
+    // 创建ResizeObserver监听容器大小变化
+    resizeObserver = new ResizeObserver(entries => 
+    {
+      for (let entry of entries) 
+      {
+        const width = entry.contentRect.width;
+        updateCardHeight(width);
+      }
+    });
 
-        resizeObserver.observe(containerRef.value);
-    }
+    resizeObserver.observe(containerRef.value);
+  }
 });
 
 
 
 // 组件卸载时清理监听器
-onUnmounted(() => {
-    if (resizeObserver) {
-        resizeObserver.disconnect();
-    }
+onUnmounted(() => 
+{
+  if (resizeObserver) 
+  {
+    resizeObserver.disconnect();
+  }
 });
 </script>
 

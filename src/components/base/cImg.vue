@@ -22,28 +22,35 @@ const props = defineProps({
 const attrs = useAttrs();
 
 // 过滤掉我们自己处理的属性，其余的传递给 AImage
-const filteredAttrs = computed(() => {
+const filteredAttrs = computed(() => 
+{
   // 从 attrs 中过滤掉 src，将其他属性传递给 AImage
   const { src, ...restAttrs } = attrs;
   return restAttrs;
 });
 
 // 计算完整的图片 URL
-const computedUrl = computed(() => {
-  if (!props.src) {
+const computedUrl = computed(() => 
+{
+  if (!props.src) 
+  {
     return '';
   }
   // 如果已经是完整的 URL，则直接返回
-  if (props.src.startsWith('http')) {
+  if (props.src.startsWith('http')) 
+  {
     return props.src;
   }
-  if(props.src.startsWith('file')){
+  if(props.src.startsWith('file'))
+  {
     return props.src;
   }
-  if(props.src.startsWith('blob')){
+  if(props.src.startsWith('blob'))
+  {
     return props.src;
   }
-  if(props.src.startsWith('/')){
+  if(props.src.startsWith('/'))
+  {
     return`${API_BASE_URL}${props.src}`;
   }
 

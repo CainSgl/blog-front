@@ -23,40 +23,52 @@ const route = useRoute();
 const router = useRouter();
 const decodedUrl = ref('');
 
-onMounted(() => {
-  if (route.query.url) {  
-    try {
+onMounted(() => 
+{
+  if (route.query.url) 
+  {  
+    try 
+    {
       // 解码 URL 并验证其格式
       const url = decodeURIComponent(route.query.url);
       const parsedUrl = new URL(url);
       decodedUrl.value = parsedUrl.href;
-    } catch (error) {
+    }
+    catch (error) 
+    {
       console.error('Invalid URL:', error);
       alert('无效的链接地址');
       router.push('/');
     }
-  } else {
+  }
+  else 
+  {
     router.push('/');
   }
 });
 
-const cancelRedirect = () => {
+const cancelRedirect = () => 
+{
   // 关闭当前标签页
   window.close();
   // 如果 window.close() 不起作用（比如不是通过 JavaScript 打开的窗口），则跳转到首页
-  setTimeout(() => {
+  setTimeout(() => 
+  {
     router.push('/');
   }, 100);
 };
 
-const proceedToUrl = () => {
-  if (decodedUrl.value) {
+const proceedToUrl = () => 
+{
+  if (decodedUrl.value) 
+  {
     // 打开外部链接
     window.open(decodedUrl.value, '_blank', 'noopener,noreferrer');
     // 关闭当前标签页
     window.close();
     // 如果 window.close() 不起作用，则跳转到首页
-    setTimeout(() => {
+    setTimeout(() => 
+    {
       router.push('/');
     }, 100);
   }

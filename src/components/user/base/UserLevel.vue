@@ -21,27 +21,34 @@ const props = defineProps({
 });
 
 // 根据等级计算颜色
-const levelColor = computed(() => {
-  if (props.showGray) {
+const levelColor = computed(() => 
+{
+  if (props.showGray) 
+  {
     return 'default'; // 灰色 - 当showGray为true时显示灰色
   }
   if(!props.level)
   {
-    return 'green'
+    return 'green';
   }
-  if (props.level < 5) {
+  if (props.level < 5) 
+  {
     return 'green'; // 绿色 - 低等级
   }
-  if (props.level < 10) {
+  if (props.level < 10) 
+  {
     return 'arcoblue'; // 蓝色 - 中低等级
   }
-  if (props.level < 20) {
+  if (props.level < 20) 
+  {
     return 'orange'; // 橙色 - 中等级
   }
-  if (props.level < 30) {
+  if (props.level < 30) 
+  {
     return 'red'; // 红色 - 中高等级
   }
-  if (props.level < 40) {
+  if (props.level < 40) 
+  {
     return 'purple'; // 紫色 - 高等级
   }
   return 'gold'; // 金色 - 超高等级

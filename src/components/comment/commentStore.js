@@ -1,7 +1,8 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import api from "@/api/index.js";
-export const useCommentStore = defineStore("comment", () => {
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import api from '@/api/index.js';
+export const useCommentStore = defineStore('comment', () => 
+{
   // 抽屉显示状态
   const drawerVisible = ref(false);
   //记录postId和version，需要使用
@@ -13,8 +14,10 @@ export const useCommentStore = defineStore("comment", () => {
     postIdCache,
     versionCache,
     orginCommentCountData
-  ) => {
-    if (orginCommentCountData) {
+  ) => 
+  {
+    if (orginCommentCountData) 
+    {
       postId.value = postIdCache;
       version.value = versionCache;
       commentCountMap.value = orginCommentCountData;
@@ -22,14 +25,16 @@ export const useCommentStore = defineStore("comment", () => {
     }
     postId.value = postIdCache;
     version.value = versionCache;
-    const { data } = await api.get("/paragraph/comment", {
+    const { data } = await api.get('/paragraph/comment', {
       id: postId.value,
       version: version.value,
     });
     // 将返回的数据转换为Map，以dataId为key，count为value
     const newMap = new Map();
-    if (Array.isArray(data)) {
-      data.forEach((item) => {
+    if (Array.isArray(data)) 
+    {
+      data.forEach((item) => 
+      {
         newMap.set(item.dataId, item.count);
       });
     }
@@ -37,12 +42,14 @@ export const useCommentStore = defineStore("comment", () => {
     return commentCountMap.value;
   };
   // 隐藏抽屉
-  const hideCommentDrawer = () => {
+  const hideCommentDrawer = () => 
+  {
     drawerVisible.value = false;
   };
 
   // 切换抽屉显示状态
-  const toggleCommentDrawer = (paragrahphIdCache) => {
+  const toggleCommentDrawer = (paragrahphIdCache) => 
+  {
     paragrahphId.value = paragrahphIdCache;
     lastCreatedAt = null;
     lastLikeCount = null;
@@ -52,7 +59,8 @@ export const useCommentStore = defineStore("comment", () => {
   let lastLikeCount;
   let lastId = null;
   // 加载段落评论数据的函数（mock数据）
-  const loadCommentData = async () => {
+  const loadCommentData = async () => 
+  {
     function buildRequest()
     {
       if(lastId)
@@ -64,19 +72,21 @@ export const useCommentStore = defineStore("comment", () => {
           lastCreatedAt: lastCreatedAt,
           lastLikeCount: lastLikeCount,
           lastId: lastId,
-        }
-      }else
+        };
+      }
+      else
       {
         return {
           postId: postId.value,
           version: version.value,
           dataId: paragrahphId.value,
-        }
+        };
       }
     }
 
-    const { data } = await api.get("/comment", buildRequest());
-    if (data.length > 0) {
+    const { data } = await api.get('/comment', buildRequest());
+    if (data.length > 0) 
+    {
       lastCreatedAt = data[data.length - 1].createdAt;
       lastLikeCount = data[data.length - 1].likeCount;
       lastId = data[data.length - 1].id;
@@ -87,12 +97,14 @@ export const useCommentStore = defineStore("comment", () => {
     };
   };
 
-  const getCommentCountById = (commentId) => {
+  const getCommentCountById = (commentId) => 
+  {
     return commentCountMap.value.get(commentId) || 0;
   };
 
   // 更新指定段落的评论计数
-  const incrementCommentCount = (commentId) => {
+  const incrementCommentCount = (commentId) => 
+  {
     const currentCount = commentCountMap.value.get(commentId) || 0;
     commentCountMap.value.set(commentId, currentCount + 1);
   };

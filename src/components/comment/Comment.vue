@@ -109,8 +109,8 @@ const props = defineProps({
   align: {
     type: [String, Object],
     default: {
-      datetime: "left",
-      actions: "left"
+      datetime: 'left',
+      actions: 'left'
     }
   },
   postComment: {
@@ -143,12 +143,14 @@ const loadingReply = ref(false);
 // 监听 commentData 变化，如果包含 userId 则获取完整用户信息
 watch(
   () => props.commentData,
-  async (newCommentData) => {
-    if (newCommentData && newCommentData.userId) {
+  async (newCommentData) => 
+  {
+    if (newCommentData && newCommentData.userId) 
+    {
       // 如果 commentData 中有 userId，则获取用户信息
       const userInfo = await userStore.getUserInfo(newCommentData.userId);
       userDetail.value = userInfo;
-      placeholder.value = `回复 @${userInfo.nickname}：`
+      placeholder.value = `回复 @${userInfo.nickname}：`;
     }
   },
   { immediate: true }
@@ -157,50 +159,61 @@ watch(
 let lastCreatedAt;
 let lastLikeCount;
 let lastId;
-function buildReplyRequest() {
+function buildReplyRequest() 
+{
   let req;
-  if (props.postComment) {
+  if (props.postComment) 
+  {
     req = {
       postCommentId: props.commentData.id,
-    }
-  } else {
+    };
+  }
+  else 
+  {
     req = {
       parCommentId: props.commentData.id,
-    }
+    };
   }
-  if (lastCreatedAt) {
+  if (lastCreatedAt) 
+  {
     req.lastCreatedAt = lastCreatedAt;
     req.lastLikeCount = lastLikeCount;
     req.lastId = lastId;
   }
   return req;
 }
-let replyIdCache = null
+let replyIdCache = null;
 
-function buildReplyPost(content) {
+function buildReplyPost(content) 
+{
   let req;
-  if (replyIdCache) {
+  if (replyIdCache) 
+  {
     req = {
       replyId: replyIdCache,
-    }
+    };
   }
-  if (props.postComment) {
+  if (props.postComment) 
+  {
     req = {
       postCommentId: props.commentData.id,
-    }
-  } else {
+    };
+  }
+  else 
+  {
     req = {
       dataId: commentStore.paragrahphId,
       parCommentId: props.commentData.id,
-    }
+    };
   }
-  req.postId=commentStore.postId
-  req.version=commentStore.version 
+  req.postId=commentStore.postId;
+  req.version=commentStore.version; 
   req.content = content;
   return req;
 }
-async function buildReplyMessage(id, content) {
-  const current = await userStore.getUserInfo()
+async function buildReplyMessage(id, content) 
+{
+  const current = await userStore.getUserInfo();
 
   const message = {
     id: id,
@@ -209,28 +222,37 @@ async function buildReplyMessage(id, content) {
     likeCount: 0,
     createdAt: getDateNow(),
     userId: current.id,
-  }
-  console.log(message, current)
-  if (replyIdCache) {
+  };
+  console.log(message, current);
+  if (replyIdCache) 
+  {
     message.replyId = replyIdCache;
-    return message
+    return message;
   }
 
-  if (props.postComment) {
-    message.postCommentId = props.commentData.id
-    return message
-  } else {
-    message.parCommentId = props.commentData.id
-    return message
+  if (props.postComment) 
+  {
+    message.postCommentId = props.commentData.id;
+    return message;
+  }
+  else 
+  {
+    message.parCommentId = props.commentData.id;
+    return message;
   }
 }
 
 // 切换显示回复
-const toggleReplies = async () => {
-  if (showReplies.value) {
+const toggleReplies = async () => 
+{
+  if (showReplies.value) 
+  {
     showReplies.value = false;
-  } else {
-    if (replies.value.length === 0) {
+  }
+  else 
+  {
+    if (replies.value.length === 0) 
+    {
       loadReply();
     }
     showReplies.value = true;
@@ -238,21 +260,25 @@ const toggleReplies = async () => {
 };
 
 // 切换回复输入框显示/隐藏
-const toggleReplyInput = () => {
+const toggleReplyInput = () => 
+{
   showReplyInput.value = !showReplyInput.value;
-  replyIdCache = null
+  replyIdCache = null;
 };
 
 
 
 // 处理回复提交
-const handleSubmitReply = async (content) => {
-  if (!content.trim()) {
+const handleSubmitReply = async (content) => 
+{
+  if (!content.trim()) 
+  {
     Message.warning('请输入回复内容');
     return;
   }
 
-  try {
+  try 
+  {
     const { data } = await api.post('/comment/reply', buildReplyPost(content));
     Message.success('成功回复评论');
     replies.value.unshift(await buildReplyMessage(data, content));
@@ -260,60 +286,81 @@ const handleSubmitReply = async (content) => {
     showReplyInput.value = false;
     // 更新回复计数
     props.commentData.replyCount += 1;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('回复评论失败:', error);
     Message.error('回复评论失败，请重试！');
   }
 };
 
-async function loadReply() {
-  loadingReply.value = true
-  try {
+async function loadReply() 
+{
+  loadingReply.value = true;
+  try 
+  {
     const { data } = await api.get('/comment/reply', buildReplyRequest());
-    if (data && data.length > 0) {
+    if (data && data.length > 0) 
+    {
       lastCreatedAt = data[data.length - 1].createdAt;
       lastLikeCount = data[data.length - 1].likeCount;
       lastId = data[data.length - 1].id;
     }
 
-    replies.value = [...replies.value, ...data]
-    if (data.length < 10) {
+    replies.value = [...replies.value, ...data];
+    if (data.length < 10) 
+    {
       hasMore.value = false;
     }
 
     showReplies.value = true;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('获取回复评论失败:', error);
-  } finally {
-    loadingReply.value = false
+  }
+  finally 
+  {
+    loadingReply.value = false;
   }
 }
 let idCache;
-function handleReply({ id, replyId, nickname }) {
-  if (showReplyInput.value) {
-    if (replyIdCache === replyId && idCache === id) {
+function handleReply({ id, replyId, nickname }) 
+{
+  if (showReplyInput.value) 
+  {
+    if (replyIdCache === replyId && idCache === id) 
+    {
       //关闭回复
       toggleReplyInput();
       return;
-    } else {
+    }
+    else 
+    {
       replyIdCache = replyId;
       idCache = id;
-      placeholder.value = `回复 @${nickname}：`
+      placeholder.value = `回复 @${nickname}：`;
     }
-  } else {
+  }
+  else 
+  {
     //打开回复
     toggleReplyInput();
-    placeholder.value = `回复 @${nickname}：`
+    placeholder.value = `回复 @${nickname}：`;
     replyIdCache = replyId;
     idCache = id;
   }
 }
 // 点赞处理函数
-const onLikeChange = async () => {
+const onLikeChange = async () => 
+{
   like.value = !like.value;
-  try {
+  try 
+  {
     console.log(`点赞状态已更新: ${props.commentData.id}, 点赞: ${like.value}`);
-  } catch (error) {
+  }
+  catch (error) 
+  {
     // 如果API调用失败，回滚状态
     like.value = !like.value;
     console.error('点赞操作失败:', error);

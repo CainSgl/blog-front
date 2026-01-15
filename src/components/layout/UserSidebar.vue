@@ -88,13 +88,16 @@ const selectedKeys = ref([route.name]);
 const openedKeys = ref(['user-follow']); // 默认展开关注子菜单
 
 // 监听路由变化，更新选中的菜单项
-watch(() => route.name, (newRouteName) => {
+watch(() => route.name, (newRouteName) => 
+{
   selectedKeys.value = [newRouteName];
 }, { immediate: true });
 
-const handleMenuItemClick = (key) => {
+const handleMenuItemClick = (key) => 
+{
   // 跳转到对应的路由
-  if (route.name !== key) {
+  if (route.name !== key) 
+  {
     router.push({ name: key });
   }
 };

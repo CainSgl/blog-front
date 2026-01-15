@@ -21,18 +21,25 @@ import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
 
-const goBack = () => {
+const goBack = () => 
+{
   const requireType = route.query.require;
   
   // 如果 require 为 "kb"，则跳转到首页
-  if (requireType === 'kb') {
+  if (requireType === 'kb') 
+  {
     router.push({ name: 'Home' }); // 返回首页
-  } else {
+  }
+  else 
+  {
     // 否则按原有逻辑处理
     const kbId = route.query.kb;
-    if (kbId) {
+    if (kbId) 
+    {
       router.push({ name: 'KBIndex', query: { kb: kbId } });
-    } else {
+    }
+    else 
+    {
       router.push({ name: 'KB' });
     }
   }

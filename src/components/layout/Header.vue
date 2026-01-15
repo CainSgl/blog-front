@@ -1,16 +1,16 @@
 <template>
   <a-layout-header>
-    <div class="header-container">
-      <div class="header-content">
+    <div class="header-container" :class="{ 'transparent-background': transparentBackground }">
+      <div class="header-content" :style="{ borderBottom: showBorder ? `1px solid ${borderColor}` : 'none' }">
         <div>
-          <a-link :href="`/`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/') }">
-            <span>首页</span>
+          <a-link :href="`/`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/') }" :hoverable="hoverable">
+            <span :style="{ color: textColor }">首页</span>
           </a-link>
-          <a-link :href="`/blog`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/blog') }">
-            <span>博客</span>
+          <a-link :href="`/blog`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/blog') }" :hoverable="hoverable">
+            <span :style="{ color: textColor }">博客</span>
           </a-link>
-          <a-link :href="`/knowledge`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/knowledge') }">
-            <span>知识库</span>
+          <a-link :href="`/knowledge`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/knowledge') }" :hoverable="hoverable">
+            <span :style="{ color: textColor }">知识库</span>
           </a-link>
         </div>
 
@@ -123,6 +123,31 @@ import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport
 import { useRouter, useRoute } from 'vue-router';
 import { getLoginService, showLoginModal } from '@/services/authService';
 import { IconHome } from '@arco-design/web-vue/es/icon';
+
+// 定义组件属性
+const props = defineProps({
+  transparentBackground: {
+    type: Boolean,
+    default: false
+  },
+  hoverable:{
+    type: Boolean,
+    default: true
+  },
+  showBorder: {
+    type: Boolean,
+    default: true
+  },
+  borderColor: {
+    type: String,
+    default: '@color-border-1'
+  },
+  textColor: {
+    type: String,
+    default: '@color-text-1'
+  }
+});
+
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
@@ -130,11 +155,13 @@ const route = useRoute();
 const { userInfo } = storeToRefs(userStore);
 
 // 判断当前路由是否与给定路径匹配
-const isActiveRoute = (path) => {
+const isActiveRoute = (path) => 
+{
   return route.path === path || route.path.startsWith(path + '/');
 };
 
-const logout = async () => {
+const logout = async () => 
+{
   const loginService = getLoginService();
   loginService.logout();
   // 退出登录后重定向到首页
@@ -142,8 +169,10 @@ const logout = async () => {
 };
 
 // 在新标签页中打开指定路径
-const openInNewTab = (path) => {
-  if (userInfo.value.id == '-1') {
+const openInNewTab = (path) => 
+{
+  if (userInfo.value.id == '-1') 
+  {
     //必须登录才行，打开登录弹窗
     showLogin();
     return;
@@ -153,11 +182,13 @@ const openInNewTab = (path) => {
 };
 
 // 显示登录弹窗
-const showLogin = () => {
+const showLogin = () => 
+{
   showLoginModal();
 };
 
-onMounted(async () => {
+onMounted(async () => 
+{
   userInfo.value = await userStore.getUserInfo();
 });
 </script>
@@ -166,6 +197,7 @@ onMounted(async () => {
 .header {
   width: 100%;
   height: @header-height;
+
 }
 
 @header-height: 64px;
@@ -179,6 +211,26 @@ onMounted(async () => {
   top: 0;
   left: 0;
   right: 0;
+  border-bottom: 1px solid @color-border-1;
+
+  &.transparent-background {
+    background-color: transparent;
+    border-bottom: none !important;
+    
+    .search-input {
+      :deep(.arco-input) {
+        background-color: rgba(255, 255, 255, 0)!important;
+      }
+      
+      :deep(.arco-input-hover) {
+        background-color: rgba(255, 255, 255, 0.6);
+      }
+      
+      :deep(.arco-input-focused) {
+        background-color: rgba(255, 255, 255, 0.616);
+      }
+    }
+  }
 }
 
 .header-content {
@@ -187,7 +239,7 @@ onMounted(async () => {
   justify-content: space-between;
   padding: 0 20px;
   height: @header-height;
-  border-bottom: 1px solid @color-border-1;
+
 
 
   .search-section {
@@ -327,7 +379,7 @@ onMounted(async () => {
   color: @color-text-1;
   font-size: 16px;
   position: relative;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -340,10 +392,10 @@ onMounted(async () => {
     transition: all 0.3s ease;
     border-radius: 2px;
   }
-  
+
   &:hover {
     color: @arcoblue-6;
-    
+
     &::after {
       width: 70%;
       background-color: @arcoblue-6;
@@ -352,8 +404,8 @@ onMounted(async () => {
 }
 
 .nav-option-active {
-  color: @arcoblue-6 !important;
-  
+  color: @primary-4 !important;
+
   &::after {
     width: 80% !important;
     background-color: @arcoblue-6 !important;

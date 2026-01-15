@@ -36,30 +36,39 @@ const treeData = computed(() => kbStore.treeData);
 const kbInfo = computed(() => kbStore.kbInfo);
 const kbId = computed(() => route.query.kb);
 
-const postInfo = ref({})
+const postInfo = ref({});
 
-const loadPostContent = async (postId) => {
+const loadPostContent = async (postId) => 
+{
   // 获取文章名称用于加载提示
   let postName = '文章';
   // 开始加载，设置loading为true
   loading.value = true;
-  try {
-    const { data } = await api.get(`/post`, { id: postId, simple: true });
+  try 
+  {
+    const { data } = await api.get('/post', { id: postId, simple: true });
     textContent.value = data.content || '';
     postInfo.value = data;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载文章内容失败:', error);
-    if (messageManager.hasMessage("40101")) {
-       Message.warning({
-        id: "40101",
+    if (messageManager.hasMessage('40101')) 
+    {
+      Message.warning({
+        id: '40101',
         content: '该文章由于私密性设置无法访问',
         duration: 3000,
       });
       router.push({ name: 'NoPermission', query: { kb: kbId.value } });
-    } else {
+    }
+    else 
+    {
       Message.error(`加载${postName}失败`);
     }
-  } finally {
+  }
+  finally 
+  {
     // 加载完成，设置loading为false
     loading.value = false;
   }
@@ -68,23 +77,28 @@ const loadPostContent = async (postId) => {
 // 监听路由参数变化
 watch(
   () => route.query.p,
-  async (newPostId, oldPostId) => {
-    if (newPostId && newPostId !== oldPostId) {
+  async (newPostId, oldPostId) => 
+  {
+    if (newPostId && newPostId !== oldPostId) 
+    {
       loadPostContent(newPostId);
     }
   }
 );
 
 // 返回函数
-const goBack = () => {
+const goBack = () => 
+{
   router.push({ name: 'KBIndex', query: { kb: kbId.value } });
 };
 
 // 组件挂载时的逻辑（如果需要）
-onMounted(() => {
+onMounted(() => 
+{
   const postId = route.query.p;
   console.log('Post ID from route:', postId, 'type:', typeof postId);
-  if (postId) {
+  if (postId) 
+  {
     // 先加载文章内容
     loadPostContent(postId);
   }

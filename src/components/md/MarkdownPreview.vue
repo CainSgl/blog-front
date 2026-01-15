@@ -7,6 +7,7 @@
       <div v-if="!renderedMarkdown&&content">
           正在将服务器的数据渲染出来！
       </div>
+      <slot></slot>
   </div>
 </template>
 
@@ -31,8 +32,10 @@ marked.use({
 
 
 
-const extractImageSize = (src) => {
-  if (!src || typeof src !== 'string') {
+const extractImageSize = (src) => 
+{
+  if (!src || typeof src !== 'string') 
+  {
     return {
       src: src,
       width: null
@@ -41,12 +44,14 @@ const extractImageSize = (src) => {
   const widthMatch = src.match(/^(.+?)(?:\?|&)(width=\d+)$/);
   let width = null;
 
-  if (widthMatch) {
+  if (widthMatch) 
+  {
     // 提取 width 值
     const widthValue = widthMatch[2].substring(6);
     width = parseInt(widthValue, 10);
     const maxWidth = 1200;
-    if (width && width > maxWidth) {
+    if (width && width > maxWidth) 
+    {
       width = maxWidth;
     }
     // 移除 width 参数，得到纯净的 src
@@ -86,11 +91,15 @@ const renderer = new marked.Renderer();
 
 // 用于生成 p 标签的自增ID
 let paragraphIdCounter = 0;
-renderer.paragraph = function (obj) {
+renderer.paragraph = function (obj) 
+{
   // 检查是否为图片段落或未启用评论功能
-  if (obj.tokens[0].type === 'image' || !props.showComment) {
+  if (obj.tokens[0].type === 'image' || !props.showComment) 
+  {
     return `<p>${this.parser.parseInline(obj.tokens)}</p>`;
-  } else {
+  }
+  else 
+  {
     const commentId = ++paragraphIdCounter;
     return `<div id="commentable-paragraph-${commentId}" class="commentable-paragraph-placeholder" data-text="${encodeURIComponent(this.parser.parseInline(obj.tokens))}" data-comment-id="${commentId}">Loading paragraph...</div>`;
   }
@@ -99,12 +108,16 @@ renderer.paragraph = function (obj) {
 
 // 自定义代码块渲染器 - 创建一个特殊的占位符 
 let codeBlockIdCounter = 0; // 用于生成自增ID
-renderer.code = function (code, language) {
+renderer.code = function (code, language) 
+{
   let codeText, lang;
-  if (typeof code === 'object' && code !== null) {
+  if (typeof code === 'object' && code !== null) 
+  {
     codeText = code.text || '';
     lang = code.lang || language;
-  } else {
+  }
+  else 
+  {
     codeText = code || '';
     lang = language;
   }
@@ -114,7 +127,8 @@ renderer.code = function (code, language) {
   return `<div id="${uniqueId}" class="code-block-placeholder" data-code="${encodeURIComponent(codeText)}" data-language="${lang || ''}">Loading code block...</div>`;
 };
 
-renderer.blockquote = function (quote) {
+renderer.blockquote = function (quote) 
+{
   // 处理换行符，将换行符替换为 <br> 标签，同时保持段落结构
   const processedText = quote.text
     .replace(/\r\n/g, '<br>')
@@ -123,38 +137,49 @@ renderer.blockquote = function (quote) {
   return `<blockquote class="cainsgl-markdown-blockquote">${processedText}</blockquote>`;
 };
 
-renderer.link = function (href) {
+renderer.link = function (href) 
+{
   // 判断是否为外部链接
   let finalHref = href.href;
   let isExternal = false;
 
-  try {
+  try 
+  {
     const url = new URL(href.href, window.location.origin);
     // 如果链接的域名与当前域名不同，则使用跳转页面
-    if (url.origin !== window.location.origin) {
+    if (url.origin !== window.location.origin) 
+    {
       isExternal = true;
       finalHref = `/redirect?url=${encodeURIComponent(href.href)}`;
     }
-  } catch (e) {
+  }
+  catch (e) 
+  {
     // 如果 URL 格式不正确，也使用跳转页面
     isExternal = true;
     finalHref = `/redirect?url=${encodeURIComponent(href.href)}`;
   }
 
   // 仅对外部链接使用 target="_blank"，内部链接直接跳转
-  if (isExternal) {
+  if (isExternal) 
+  {
     return `<a class="arco-link arco-link-status-normal" href="${finalHref}" target="_blank" rel="noopener noreferrer">${href.text}</a>`;
-  } else {
+  }
+  else 
+  {
     return `<a class="arco-link arco-link-status-normal" href="${href.href}">${href.text}</a>`;
   }
 };
 
 // 自定义表格渲染器
-renderer.table = function (header, body) {
+renderer.table = function (header, body) 
+{
   // 检查 header 是否为对象结构（包含 header 和 rows 属性）
-  if (header && typeof header === 'object' && header.header && header.rows) {
+  if (header && typeof header === 'object' && header.header && header.rows) 
+  {
     // 构建表头
-    const headersHtml = `<tr>${header.header.map(h => {
+    const headersHtml = `<tr>${header.header.map(h => 
+    {
       let alignStyle = '';
       if (h.align === 'center') alignStyle = ' style="text-align: center;"';
       else if (h.align === 'right') alignStyle = ' style="text-align: right;"';
@@ -163,8 +188,10 @@ renderer.table = function (header, body) {
     }).join('')}</tr>`;
 
     // 构建表体
-    const rowsHtml = header.rows.map(row => {
-      return `<tr>${row.map(cell => {
+    const rowsHtml = header.rows.map(row => 
+    {
+      return `<tr>${row.map(cell => 
+      {
         let alignStyle = '';
         if (cell.align === 'center') alignStyle = ' style="text-align: center;"';
         else if (cell.align === 'right') alignStyle = ' style="text-align: right;"';
@@ -174,34 +201,39 @@ renderer.table = function (header, body) {
     }).join('');
 
     return `<table class="cainsgl-markdown-table"><thead>${headersHtml}</thead><tbody>${rowsHtml}</tbody></table>`;
-  } else {
+  }
+  else 
+  {
     return `<table class="cainsgl-markdown-table">${header}${body}</table>`;
   }
 };
 
 // 自定义图片渲染器 - 创建一个特殊的占位符
 let imageIdCounter = 0; // 用于生成自增ID
-renderer.image = function ({ href, title, text }) {
+renderer.image = function ({ href, title, text }) 
+{
   let src = href || '';
   const alt = text || '';
   const finalTitle = title || alt || '';
 
   let width = null;
-  if (!src.startsWith('http')) {
-    let res = extractImageSize(src)
-    src = API_BASE_URL + '/file?f=' + res.src
-    width = res.width
+  if (!src.startsWith('http')) 
+  {
+    let res = extractImageSize(src);
+    src = API_BASE_URL + '/file?f=' + res.src;
+    width = res.width;
   }
   const uniqueId = `arco-image-${++imageIdCounter}`;
   return `<span id="${uniqueId}" class="arco-image-placeholder" data-src="${src}" data-alt="${alt}" data-title="${finalTitle}" data-width="${width || ''}">Loading image...</span>`;
 };
 
 // 生成标题 ID 的辅助函数
-const generateId = (text) => {
+const generateId = (text) => 
+{
   // 移除 HTML 标签（如果有的话）
   const cleanText = text.replace(/<[^>]*>/g, '');
   // 移除特殊字符，转换为小写，用连字符连接
-  return "cainsgl-titile-" + cleanText
+  return 'cainsgl-titile-' + cleanText
     .toLowerCase()
     .trim()
     .replace(/[^\w\u4e00-\u9fa5\s-]/g, '') // 保留字母、数字、中文、空格和连字符
@@ -210,7 +242,8 @@ const generateId = (text) => {
 };
 
 // 自定义标题渲染器 - 为标题添加 ID
-renderer.heading = function (token) {
+renderer.heading = function (token) 
+{
   const text = token.text || '';
   const level = token.depth || 1;
   const id = generateId(text);
@@ -218,7 +251,8 @@ renderer.heading = function (token) {
 };
 
 // 自定义列表项渲染器 - 处理任务列表
-renderer.listitem = function (token) {
+renderer.listitem = function (token) 
+{
   // 从token对象中提取内容和任务相关信息
   let text = token.text || '';
   const task = token.task || false;
@@ -229,7 +263,8 @@ renderer.listitem = function (token) {
   let content = parsedText;
 
   // 检查是否是任务列表项
-  if (task) {
+  if (task) 
+  {
     const checkedAttribute = checked ? 'checked' : '';
     content = `
       <div class="cainsgl-task-list-item">
@@ -257,7 +292,8 @@ marked.setOptions({
 });
 
 // 渲染 Markdown 内容
-const renderedMarkdown = computed(() => {
+const renderedMarkdown = computed(() => 
+{
   if (!props.content) return '';
   // 每次渲染前重置段落ID计数器
   paragraphIdCounter = 0;
@@ -270,12 +306,15 @@ const renderedMarkdown = computed(() => {
 });
 
 // 在组件挂载和更新后处理动态组件占位符（图片、代码块和评论段落）
-const processDynamicComponents = async () => {
+const processDynamicComponents = async () => 
+{
   await nextTick();
-  if (previewContentRef.value) {
+  if (previewContentRef.value) 
+  {
     // 处理图片占位符
     const imagePlaceholders = previewContentRef.value.querySelectorAll('.arco-image-placeholder');
-    imagePlaceholders.forEach(placeholder => {
+    imagePlaceholders.forEach(placeholder => 
+    {
       let src = placeholder.getAttribute('data-src');
       const alt = placeholder.getAttribute('data-alt');
       const title = placeholder.getAttribute('data-title');
@@ -288,7 +327,8 @@ const processDynamicComponents = async () => {
 
       // 创建一个简单的 Vue 应用来渲染 Arco 图片组件
       const imageApp = createApp({
-        render() {
+        render() 
+        {
           return h(AImage, {
             src: src,
             alt: alt,
@@ -313,7 +353,8 @@ const processDynamicComponents = async () => {
 
     // 处理代码块占位符
     const codeBlockPlaceholders = previewContentRef.value.querySelectorAll('.code-block-placeholder');
-    codeBlockPlaceholders.forEach(placeholder => {
+    codeBlockPlaceholders.forEach(placeholder => 
+    {
       const code = decodeURIComponent(placeholder.getAttribute('data-code'));
       const language = placeholder.getAttribute('data-language');
 
@@ -323,7 +364,8 @@ const processDynamicComponents = async () => {
       placeholder.parentNode.replaceChild(container, placeholder);
 
       const codeBlockApp = createApp({
-        render() {
+        render() 
+        {
           return h(CodeBlock, {
             code: code,
             language: language
@@ -336,9 +378,11 @@ const processDynamicComponents = async () => {
     });
 
     // 处理评论段落占位符
-    if (props.showComment) {
+    if (props.showComment) 
+    {
       const paragraphPlaceholders = previewContentRef.value.querySelectorAll('.commentable-paragraph-placeholder');
-      paragraphPlaceholders.forEach(placeholder => {
+      paragraphPlaceholders.forEach(placeholder => 
+      {
         const text = placeholder.getAttribute('data-text');
         const commentId = parseInt(placeholder.getAttribute('data-comment-id'));
 
@@ -348,7 +392,8 @@ const processDynamicComponents = async () => {
         placeholder.parentNode.replaceChild(container, placeholder);
 
         const paragraphApp = createApp({
-          render() {
+          render() 
+          {
             return h(CommentableParagraph, {
               text: decodeURIComponent(text),
               commentId: commentId,
@@ -364,27 +409,34 @@ const processDynamicComponents = async () => {
   }
 };
 
-watch(toHashItem, (newValue, oldValue) => {
+watch(toHashItem, (newValue, oldValue) => 
+{
   console.log(currentTocItem.value);
   scrollToTocElement();
 });
 
-onMounted(() => {
+onMounted(() => 
+{
   processDynamicComponents();
 });
 
 // 根据toc store中的状态滚动到对应元素
-const scrollToTocElement = () => {
+const scrollToTocElement = () => 
+{
   // 等待DOM更新完成
-  nextTick(() => {
+  nextTick(() => 
+  {
     const elementId = currentTocItem.value;
-    if (elementId) {
-      let targetId = "cainsgl-titile-" + elementId;
+    if (elementId) 
+    {
+      let targetId = 'cainsgl-titile-' + elementId;
       // 解码URL编码的ID，处理中文字符
       targetId = decodeURIComponent(targetId);
       const element = document.getElementById(targetId);
-      if (element && previewContainerRef.value) {
-        if (props.useWindowScroll) {
+      if (element && previewContainerRef.value) 
+      {
+        if (props.useWindowScroll) 
+        {
           // 设置滚动标志，表示正在程序触发的滚动
           isScrollingToElement = true;
           // 使用直接跳转到目标元素
@@ -419,12 +471,14 @@ const scrollToTocElement = () => {
 };
 
 // 添加视觉提示效果
-const addVisualHighlight = (element) => {
+const addVisualHighlight = (element) => 
+{
   // 添加临时的高亮类
   element.classList.add('cainsgl-highlight-target');
 
   // 3秒后移除高亮效果
-  setTimeout(() => {
+  setTimeout(() => 
+  {
     element.classList.remove('cainsgl-highlight-target');
   }, 3000);
 };
@@ -433,7 +487,8 @@ const addVisualHighlight = (element) => {
 let isScrollingToElement = false; // 标记是否正在滚动到元素（由程序触发，而非用户手动滚动）
 
 // 滚动监听函数，检测当前可视区域的标题元素
-const handleScroll = () => {
+const handleScroll = () => 
+{
 
   if (!previewContainerRef.value || !previewContentRef.value) return;
 
@@ -445,7 +500,8 @@ const handleScroll = () => {
   const scrollTop = previewContainerRef.value.scrollTop;
 
   // 遍历所有标题元素，找到当前可视区域内的标题
-  for (let i = 0; i < headings.length; i++) {
+  for (let i = 0; i < headings.length; i++) 
+  {
     const heading = headings[i];
     // 计算标题相对于容器的偏移位置
     const headingTop = heading.offsetTop - previewContentRef.value.offsetTop;
@@ -453,19 +509,24 @@ const handleScroll = () => {
     const relativeTop = headingTop - scrollTop;
 
     // 如果标题位置在可视区域内或接近可视区域顶部，则认为是当前标题
-    if (relativeTop <= 100) { // 给一个100px的容差范围
+    if (relativeTop <= 100) 
+    { // 给一个100px的容差范围
       currentHeading = heading;
-    } else {
+    }
+    else 
+    {
       // 如果下一个标题已经超过了可视区域，则当前标题就是上一个标题
       break;
     }
   }
 
-  if (currentHeading) {
+  if (currentHeading) 
+  {
     // 获取标题的ID
     const headingId = currentHeading.id;
     const targetId = headingId.replace('cainsgl-titile-', '');
-    if (headingId) {
+    if (headingId) 
+    {
       // 更新toc store中的当前项
       tocStore.setCurrentTocItem(targetId);
     }
@@ -474,7 +535,8 @@ const handleScroll = () => {
 
 
 
-onMounted(() => {
+onMounted(() => 
+{
   // 初始化toc store，从URL hash获取初始值
   tocStore.initializeFromUrl();
   
@@ -482,27 +544,34 @@ onMounted(() => {
   // 组件挂载后检查toc store中是否有值，如果有则滚动到对应元素
   scrollToTocElement();
   // 添加滚动监听器到预览容器
-  if (previewContainerRef.value) {
+  if (previewContainerRef.value) 
+  {
     previewContainerRef.value.addEventListener('scroll', handleScroll);
   }
 });
 
-onUpdated(() => {
+onUpdated(() => 
+{
   processDynamicComponents();
 });
 
 // 滚动到顶部或底部的方法
-const scrollToTopOrBottom = (isBottom) => {
+const scrollToTopOrBottom = (isBottom) => 
+{
 
   isScrollingToElement = true;
-  if (previewContainerRef.value) {
-    if (isBottom) {
+  if (previewContainerRef.value) 
+  {
+    if (isBottom) 
+    {
       // 直接跳转到底部
       previewContainerRef.value.scrollTo({
         top: previewContainerRef.value.scrollHeight,
         behavior: 'auto'
       });
-    } else {
+    }
+    else 
+    {
       // 直接跳转到顶部
       previewContainerRef.value.scrollTo({
         top: 0,
@@ -510,14 +579,17 @@ const scrollToTopOrBottom = (isBottom) => {
       });
     }
   }
-  setTimeout(() => {
+  setTimeout(() => 
+  {
     isScrollingToElement = false;
   }, 3000);
 };
 
 // 监听 showComment 属性变化，重新处理动态组件
-watch(() => props.showComment, async (newShowComment) => {
-  if (newShowComment) {
+watch(() => props.showComment, async (newShowComment) => 
+{
+  if (newShowComment) 
+  {
     // 当启用评论功能时，重新处理动态组件以确保评论段落被正确渲染
     await nextTick();
     processDynamicComponents();
@@ -525,9 +597,11 @@ watch(() => props.showComment, async (newShowComment) => {
 }, { immediate: false });
 
 // 在组件卸载时移除事件监听器
-onUnmounted(() => {
+onUnmounted(() => 
+{
   // 移除预览容器的滚动监听器
-  if (previewContainerRef.value) {
+  if (previewContainerRef.value) 
+  {
     previewContainerRef.value.removeEventListener('scroll', handleScroll);
   }
 

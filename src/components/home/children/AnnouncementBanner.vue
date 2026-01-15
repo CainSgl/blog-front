@@ -28,33 +28,38 @@ import api from '@/api/index';
 // 响应式判断屏幕宽度
 const isMobile = ref(window.matchMedia('(max-width: 1024px)').matches);
 const direction = computed(() => isMobile.value ? 'horizontal' : 'vertical');
-const mode=computed(()=>isMobile.value?'bottom':'bottom')
-const handleResize = () => {
+const mode=computed(()=>isMobile.value?'bottom':'bottom');
+const handleResize = () => 
+{
   isMobile.value = window.matchMedia('(max-width: 1024px)').matches;
 };
 const announcements = ref([
 ]);
 
-onMounted(async () => {
+onMounted(async () => 
+{
   window.addEventListener('resize', handleResize);
-   const {data}= await api.get('/system/announcement')
-   announcements.value=data
+  const {data}= await api.get('/system/announcement');
+  announcements.value=data;
 });
 
-onUnmounted(() => {
+onUnmounted(() => 
+{
   window.removeEventListener('resize', handleResize);
 });
 
 
 
-const formatDate = (dateString) => {
+const formatDate = (dateString) => 
+{
   const now = new Date();
   const targetDate = new Date(dateString);
   const diffMs = now - targetDate;
   const diffSeconds = Math.floor(diffMs / 1000);
 
   // 超过7天（604800秒）显示日期
-  if (diffSeconds > 604800) {
+  if (diffSeconds > 604800) 
+  {
     return targetDate.toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
@@ -63,18 +68,26 @@ const formatDate = (dateString) => {
   }
 
   // 7天内：根据时间差返回 "XX前"
-  if (diffSeconds < 60) {
+  if (diffSeconds < 60) 
+  {
     return `${diffSeconds}秒前`;
-  } else if (diffSeconds < 3600) {
+  }
+  else if (diffSeconds < 3600) 
+  {
     return `${Math.floor(diffSeconds / 60)}分钟前`;
-  } else if (diffSeconds < 86400) {
+  }
+  else if (diffSeconds < 86400) 
+  {
     return `${Math.floor(diffSeconds / 3600)}小时前`;
-  } else {
+  }
+  else 
+  {
     return `${Math.floor(diffSeconds / 86400)}天前`;
   }
 };
 
-const goToAnnouncement = (item) => {
+const goToAnnouncement = (item) => 
+{
   console.log(`跳转到公告详情页: ${item}`);
 };
 </script>

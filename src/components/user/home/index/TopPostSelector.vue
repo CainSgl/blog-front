@@ -93,7 +93,8 @@ const sortBy = ref('published_at');
 const selectedPostId = ref(null);
 
 // 显示弹窗
-const showModal = () => {
+const showModal = () => 
+{
   visible.value = true;
   searchValue.value = null;
   currentPage.value = 1;
@@ -101,7 +102,8 @@ const showModal = () => {
 };
 let useSearch = false;
 // 隐藏弹窗
-const hideModal = () => {
+const hideModal = () => 
+{
   visible.value = false;
   useSearch = false;
 };
@@ -109,7 +111,8 @@ const hideModal = () => {
 
 
 // 构建请求参数的通用方法
-const buildRequestParams = (page = 1) => {
+const buildRequestParams = (page = 1) => 
+{
   const params = {
     page: page,
     size: 4,
@@ -118,7 +121,8 @@ const buildRequestParams = (page = 1) => {
     option: sortBy.value,
     status: '已发布'
   };
-  if (useSearch && searchValue.value && searchValue.value.trim()) {
+  if (useSearch && searchValue.value && searchValue.value.trim()) 
+  {
     params.keyword = searchValue.value.trim();
   }
 
@@ -126,65 +130,87 @@ const buildRequestParams = (page = 1) => {
 };
 
 // 加载文章列表
-const loadPosts = async (page) => {
+const loadPosts = async (page) => 
+{
   loading.value = true;
 
-  try {
+  try 
+  {
     const params = buildRequestParams(page);
     const { data } = await api.post('/post/list', params);
     posts.value = data.records;
-    if (total.value <= 0 || searchValue.value) {
+    if (total.value <= 0 || searchValue.value) 
+    {
       total.value = data.total;
     }
     currentPage.value = page;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载文章列表失败:', error);
     posts.value = [];
     total.value = 0;
-  } finally {
+  }
+  finally 
+  {
     loading.value = false;
   }
 };
 
 // 搜索相关事件处理 - 使用防抖优化性能
-const handleSearch = debounce(async (value) => {
-  if (value.trim()) {
-    try {
+const handleSearch = debounce(async (value) => 
+{
+  if (value.trim()) 
+  {
+    try 
+    {
       // 使用构建参数的通用方法
       const params = buildRequestParams(1, true);
       const { data } = await api.post('/post/list', params);
       // 将搜索结果转换为下拉选项格式
-      if (data && data.records) {
+      if (data && data.records) 
+      {
         searchOptions.value = data.records.map(post => post.title || `文章 ${post.id}`);
-      } else {
+      }
+      else 
+      {
         searchOptions.value = [];
       }
-    } catch (error) {
+    }
+    catch (error) 
+    {
       console.error('搜索文章失败:', error);
       searchOptions.value = [];
     }
-  } else {
+  }
+  else 
+  {
     searchOptions.value = [];
   }
 }, 300);
 
-const resetAndReload = (totalnum = 0) => {
+const resetAndReload = (totalnum = 0) => 
+{
   currentPage.value = 1;
   total.value = totalnum;
   loadPosts(1);
 };
 
-const handleSearchSelect = (value) => {
+const handleSearchSelect = (value) => 
+{
   console.log('选中搜索项:', value);
   // 替换搜索框的文字为选中的标题
   searchValue.value = value;
   resetAndReload();
 };
 
-const handleSearchEnter = () => {
-  if (searchValue.value && searchValue.value.trim()) {
+const handleSearchEnter = () => 
+{
+  if (searchValue.value && searchValue.value.trim()) 
+  {
     useSearch = true;
-  }else
+  }
+  else
   {
     useSearch = false;
   }
@@ -192,51 +218,61 @@ const handleSearchEnter = () => {
 };
 
 // 处理排序按钮点击
-const handleSortButtonClick = (value) => {
-  if (sortBy.value !== value) {
+const handleSortButtonClick = (value) => 
+{
+  if (sortBy.value !== value) 
+  {
     sortBy.value = value;
     resetAndReload(total.value);
   }
 };
 
 // 处理分页变化
-const handlePageChange = (page) => {
+const handlePageChange = (page) => 
+{
   loadPosts(page);
 };
 
 // 选择文章
-const selectPost = (post) => {
+const selectPost = (post) => 
+{
   selectedPostId.value = post.id;
 };
 
 // 设置为置顶文章
-const setTopPost = async (post) => {
-  Message.loading({id:"topPostLoading"+post.id,content:"设置为置顶中"});
-  try {
-     await api.put('/post', {
+const setTopPost = async (post) => 
+{
+  Message.loading({id:'topPostLoading'+post.id,content:'设置为置顶中'});
+  try 
+  {
+    await api.put('/post', {
       id: post.id,
       isTop:true
     });
-    Message.success({id:"topPostLoading"+post.id,content:"设置成功！"});
+    Message.success({id:'topPostLoading'+post.id,content:'设置成功！'});
     emit('top-post-selected', post);
     // 关闭弹窗
     visible.value = false;
     // 重置选中状态
     selectedPostId.value = null;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('设置置顶文章失败:', error);
     // 显示错误消息
-    Message.error({id:"topPostLoading"+post.id,content:"设置置顶文章失败"});
+    Message.error({id:'topPostLoading'+post.id,content:'设置置顶文章失败'});
   }
 };
 
 // Popconfirm 取消操作
-const handlePopconfirmCancel = () => {
-  selectedPostId.value=null
+const handlePopconfirmCancel = () => 
+{
+  selectedPostId.value=null;
 };
 
 // 处理取消
-const handleCancel = () => {
+const handleCancel = () => 
+{
   emit('cancel');
   selectedPostId.value = null;
 };

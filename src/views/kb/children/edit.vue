@@ -40,21 +40,25 @@ const kbId = computed(() => kbStore.kbId);
 const kbInfo = computed(() => kbStore.kbInfo);
 
 // 检查内容是否发生变化
-const isContentChanged = computed(() => {
+const isContentChanged = computed(() => 
+{
   return textContent.value !== originalContent.value;
 });
 
 
 
 // 页头返回函数 - 直接返回上一级，不询问是否发布
-const goBackFromHeader = () => {
+const goBackFromHeader = () => 
+{
   router.push({ name: 'KBIndex', query: { kb: kbId.value } });
 };
 
 // 返回函数 - 从编辑器的返回按钮调用，会询问是否发布
-const goBack = () => {
+const goBack = () => 
+{
   const postId = route.query.p;
-  if (postInfo.value.content != textContent.value) {
+  if (postInfo.value.content != textContent.value) 
+  {
     const modalInstance = Modal.info({
       title: '发布文章',
       content: '是否前往发布页发布你的文章？\n注意：你当前修改的内容其他人无法访问，其他人只能看见曾经发布的版本 ',
@@ -62,7 +66,8 @@ const goBack = () => {
       footer: () => [
         h('button', {
           class: 'arco-btn arco-btn-primary arco-btn-shape-square arco-btn-size-medium',
-          onClick: () => {
+          onClick: () => 
+          {
             savePostContent(postId, textContent.value);
             // 存储文章发布数据到 kbStore
             kbStore.setCommitInfo(postInfo.value, textContent.value);
@@ -73,7 +78,8 @@ const goBack = () => {
         h('button', {
           class: 'arco-btn arco-btn-secondary arco-btn-shape-square arco-btn-size-medium',
           style: { marginLeft: '12px' },
-          onClick: () => {
+          onClick: () => 
+          {
             router.push({ name: 'KBView', query: { kb: kbId.value, p: postInfo.value.postId } });
             modalInstance.close();
           }
@@ -81,7 +87,9 @@ const goBack = () => {
       ]
     });
     return;
-  } else {
+  }
+  else 
+  {
     //直接不发布，反正也没修改，回到首页
     router.push({ name: 'KBIndex', query: { kb: kbId.value } });
   }
@@ -90,68 +98,81 @@ const goBack = () => {
 };
 let saveLock = false;
 // 保存文章内容
-const savePostContent = async (postId, content, isAuto = false) => {
-  if (saveLock) {
+const savePostContent = async (postId, content, isAuto = false) => 
+{
+  if (saveLock) 
+  {
     return;
   }
   saveLock = true;
 
-  try {
+  try 
+  {
     Message.loading({
-      id: "saveInfo",
-      content: "正在保存中...",
+      id: 'saveInfo',
+      content: '正在保存中...',
       duration: 15000
     });
     await api.put('/post', { id: postId, content, auto: isAuto });
-    if (isAuto) {
-      let know = localStorage.getItem("autoSave:know")
+    if (isAuto) 
+    {
+      let know = localStorage.getItem('autoSave:know');
       Message.success(
         {
-          id: "saveInfo",
-          content: "保存成功",
+          id: 'saveInfo',
+          content: '保存成功',
           duration: know ? 1500 : 3000,
         });
-      if (!know) {
-        setTimeout(() => {
+      if (!know) 
+      {
+        setTimeout(() => 
+        {
           Message.info(
             {
-              id: "saveInfo",
-              content: "自动保存不会生成历史版本信息哦，该信息只会提醒一次",
+              id: 'saveInfo',
+              content: '自动保存不会生成历史版本信息哦，该信息只会提醒一次',
               duration: 15000,
               closable: true,
-              onClose: () => {
-                localStorage.setItem("autoSave:know", true)
+              onClose: () => 
+              {
+                localStorage.setItem('autoSave:know', true);
               }
             });
-        }, 2000)
-        localStorage.setItem("autoSave:know", true)
+        }, 2000);
+        localStorage.setItem('autoSave:know', true);
       }
-    } else {
+    }
+    else 
+    {
       Message.success(
         {
-          id: "saveInfo",
-          content: "保存成功",
+          id: 'saveInfo',
+          content: '保存成功',
           duration: 2000,
         });
     }
     postInfo.value.updatedAt = Date.now();
-    lastAutoSavedTime.value = Date.now()
+    lastAutoSavedTime.value = Date.now();
     // 更新上次自动保存的内容
     lastAutoSavedContent.value = textContent.value;
     // 同时更新原始内容，避免出现未保存提醒
     originalContent.value = textContent.value;
     diff = 0;
     return true;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('保存文章内容失败:', error);
     Message.error({
-      id: "saveInfo",
-      content: "保存失败，已存放入本地缓存！",
+      id: 'saveInfo',
+      content: '保存失败，已存放入本地缓存！',
       duration: 1500
     });
-    for (let i = 0; ; i++) {
-      let a = localStorage.getItem(`lastPostContentCache:${i}`)
-      if (a && a.postId != postId) {
+    for (let i = 0; ; i++) 
+    {
+      let a = localStorage.getItem(`lastPostContentCache:${i}`);
+      if (a && a.postId != postId) 
+      {
         continue;
       }
       localStorage.setItem(`lastPostContentCache:${i}`,
@@ -165,13 +186,16 @@ const savePostContent = async (postId, content, isAuto = false) => {
     }
 
     return false;
-  } finally {
+  }
+  finally 
+  {
     saveLock = false;
   }
 };
 
 // 显示未保存提醒对话框
-const showUnsavedChangesModal = (postName, postId, resolve) => {
+const showUnsavedChangesModal = (postName, postId, resolve) => 
+{
   // 用于控制保存按钮的加载状态
   let isLoading = false;
 
@@ -179,14 +203,16 @@ const showUnsavedChangesModal = (postName, postId, resolve) => {
     content: `当前"${postName}"内容还未保存，是否保存？`,
     okText: '保存',
     cancelText: '取消',
-    onCancel: () => {
+    onCancel: () => 
+    {
       // 取消操作，不跳转
       resolve(false);
     },
     footer: () => [
       h('button', {
         class: `arco-btn arco-btn-primary arco-btn-shape-square arco-btn-size-medium ${isLoading ? 'arco-btn-loading' : 'arco-btn-status-normal'}`,
-        onClick: async () => {
+        onClick: async () => 
+        {
           // 防止重复点击
           if (isLoading) return;
 
@@ -226,7 +252,8 @@ const showUnsavedChangesModal = (postName, postId, resolve) => {
       h('button', {
         class: ' arco-btn arco-btn-secondary arco-btn-shape-square arco-btn-size-medium arco-btn-status-normal ',
         style: { marginRight: '12px' },
-        onClick: () => {
+        onClick: () => 
+        {
           // 取消操作，不跳转
           resolve(false);
           modalInstance.close();
@@ -235,7 +262,8 @@ const showUnsavedChangesModal = (postName, postId, resolve) => {
       h('button', {
         class: 'arco-btn arco-btn-secondary arco-btn-shape-square arco-btn-size-medium arco-btn-status-danger',
         style: { marginRight: '12px' },
-        onClick: () => {
+        onClick: () => 
+        {
           // 放弃修改，直接跳转
           //   textContent.value = originalContent.value;
           resolve(true);
@@ -247,19 +275,24 @@ const showUnsavedChangesModal = (postName, postId, resolve) => {
 };
 
 // 监听treeData的变化
-watch(treeData, (newVal) => {
-  if (newVal && newVal.length > 0) {
+watch(treeData, (newVal) => 
+{
+  if (newVal && newVal.length > 0) 
+  {
     const postId = route.query.p;
-    if (postId) {
+    if (postId) 
+    {
       // 面包屑现在由 KBCardHeader 组件处理
     }
   }
 }, { deep: true });
 
 // 监听文本内容变化，当变化达到200字时设置标志为true
-watch(textContent, (newVal, oldVal) => {
-  if (saveLock) {
-    return
+watch(textContent, (newVal, oldVal) => 
+{
+  if (saveLock) 
+  {
+    return;
   }
   diff++;
   diff += Math.abs(newVal.length - oldVal.length);
@@ -269,17 +302,21 @@ watch(textContent, (newVal, oldVal) => {
 let autoSaveInterval = null;
 
 // 自动保存函数
-const autoSave = async () => {
-  if (isAutoSave || saveLock) {
+const autoSave = async () => 
+{
+  if (isAutoSave || saveLock) 
+  {
     return;
   }
 
   isAutoSave = true;
 
   const currentTime = Date.now();
-  if ((currentTime - lastAutoSavedTime.value > 40000 && diff > 200) || (currentTime - lastAutoSavedTime.value > 10000 && diff > 1000)) {
+  if ((currentTime - lastAutoSavedTime.value > 40000 && diff > 200) || (currentTime - lastAutoSavedTime.value > 10000 && diff > 1000)) 
+  {
     const postId = route.query.p;
-    if (postId) {
+    if (postId) 
+    {
       // 自动保存
       await savePostContent(postId, textContent.value, true);
 
@@ -290,9 +327,11 @@ const autoSave = async () => {
 };
 
 // 启动自动保存定时器
-const startAutoSave = () => {
+const startAutoSave = () => 
+{
   // 先清理可能存在的旧定时器
-  if (autoSaveInterval) {
+  if (autoSaveInterval) 
+  {
     clearInterval(autoSaveInterval);
   }
 
@@ -301,8 +340,10 @@ const startAutoSave = () => {
 };
 
 // 停止自动保存定时器
-const stopAutoSave = () => {
-  if (autoSaveInterval) {
+const stopAutoSave = () => 
+{
+  if (autoSaveInterval) 
+  {
     clearInterval(autoSaveInterval);
     autoSaveInterval = null;
   }
@@ -314,21 +355,27 @@ let isRestoringRoute = false;
 // 监听路由参数变化
 watch(
   () => route.query.p,
-  async (newPostId, oldPostId) => {
+  async (newPostId, oldPostId) => 
+  {
     // 如果正在恢复路由，则不执行检查
-    if (isRestoringRoute) {
+    if (isRestoringRoute) 
+    {
       return;
     }
     isRestoringRoute = true;
-    if (newPostId && newPostId !== oldPostId) {
+    if (newPostId && newPostId !== oldPostId) 
+    {
       // 检查是否有未保存的更改
-      if (isContentChanged.value) {
+      if (isContentChanged.value) 
+      {
         let currentPostName = postInfo.value.title || '文章';
-        const shouldContinue = await new Promise((resolve) => {
+        const shouldContinue = await new Promise((resolve) => 
+        {
           showUnsavedChangesModal(currentPostName, oldPostId, resolve);
         });
-        if (shouldContinue) {
-          console.log("用户放弃或已经保存了")
+        if (shouldContinue) 
+        {
+          console.log('用户放弃或已经保存了');
         }
       }
     }
@@ -338,13 +385,17 @@ watch(
 );
 
 // 处理键盘事件
-const handleKeyDown = (event) => {
+const handleKeyDown = (event) => 
+{
   // 检查是否按下了Ctrl+S或Cmd+S (Mac)
-  if (originalContent.value !== textContent.value) {
-    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+  if (originalContent.value !== textContent.value) 
+  {
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') 
+    {
       event.preventDefault(); // 阻止浏览器默认的保存页面行为
       const postId = route.query.p;
-      if (postId && textContent.value.trim()) {
+      if (postId && textContent.value.trim()) 
+      {
         savePostContent(postId, textContent.value, false); // 手动保存
       }
     }
@@ -353,10 +404,12 @@ const handleKeyDown = (event) => {
 };
 
 // 组件挂载时的逻辑（如果需要）
-onMounted(() => {
+onMounted(() => 
+{
   const postId = route.query.p;
   console.log('Post ID from route:', postId, 'type:', typeof postId);
-  if (postId) {
+  if (postId) 
+  {
     // 先加载文章内容
     loadPostContent(postId);
   }
@@ -373,7 +426,8 @@ onMounted(() => {
 });
 
 // 组件卸载前清理定时器
-onBeforeUnmount(() => {
+onBeforeUnmount(() => 
+{
   // 停止自动保存定时器
   stopAutoSave();
 
@@ -382,37 +436,43 @@ onBeforeUnmount(() => {
 });
 
 // 路由离开前的守卫
-onBeforeRouteLeave(async (to, from) => {
+onBeforeRouteLeave(async (to, from) => 
+{
   // 检查是否有未保存的更改
-  if (isContentChanged.value && !saveLock) {
+  if (isContentChanged.value && !saveLock) 
+  {
     // 获取当前文章名称
     let currentPostName = postInfo.value.title || '文章';
     const postId = route.query.p;
 
     // 显示未保存提醒对话框
-    const shouldContinue = await new Promise((resolve) => {
+    const shouldContinue = await new Promise((resolve) => 
+    {
       showUnsavedChangesModal(currentPostName, postId, resolve);
     });
 
     // 如果用户选择取消，则阻止路由跳转
-    if (!shouldContinue) {
+    if (!shouldContinue) 
+    {
       return false;
     }
   }
 });
 
-const postInfo = ref({})
+const postInfo = ref({});
 
-const loadPostContent = async (postId) => {
+const loadPostContent = async (postId) => 
+{
   // 获取文章名称用于加载提示
   let postName = '文章';
 
   // 开始加载，设置loading为true
   loading.value = true;
 
-  try {
-    saveLock = true
-    const { data } = await api.get(`/post/last`, { id: postId });
+  try 
+  {
+    saveLock = true;
+    const { data } = await api.get('/post/last', { id: postId });
     textContent.value = data.content || '';
     originalContent.value = data.content || ''; // 保存原始内容
     lastAutoSavedContent.value = data.content || ''; // 更新上次自动保存的内容
@@ -421,10 +481,14 @@ const loadPostContent = async (postId) => {
     postInfo.value = data;
     lastAutoSavedTime.value = Date.now(); // 更新上次自动保存的时间
     diff = 0;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载文章内容失败:', error);
     Message.error(`加载${postName}失败`);
-  } finally {
+  }
+  finally 
+  {
     // 加载完成，设置loading为false
     loading.value = false;
   }

@@ -2,14 +2,17 @@ import { marked } from 'marked';
 const containerExtension = {
   name: 'container',
   level: 'block',
-  start(src) { 
+  start(src) 
+  { 
     const match = src.match(/^:::[a-z][a-z0-9-]*\s*.*/);
     return match ? match.index : -1;
   },
-  tokenizer(src) {
+  tokenizer(src) 
+  {
     const rule = /^:::([a-z][a-z0-9-]*)\s*(.*)?\n([\s\S]*?)\n:::/;
     const match = rule.exec(src);
-    if (match) {
+    if (match) 
+    {
       return {
         type: 'container',
         raw: match[0],
@@ -20,7 +23,8 @@ const containerExtension = {
       };
     }
   },
-  renderer(token) {
+  renderer(token) 
+  {
     // 定义容器类型映射
     const containerTypes = {
       info: { class: 'cainsgl-container-info', title: '信息' },
@@ -37,7 +41,7 @@ const containerExtension = {
     const innerContent = marked(token.content.trim());
     if(innerContent)
     {
-       return `
+      return `
       <div class="cainsgl-custom-container ${containerInfo.class}">
         <div class="cainsgl-container-title">
           <span>${displayTitle}</span>
@@ -47,7 +51,8 @@ const containerExtension = {
         </div>
       </div>
     `;
-    }else
+    }
+    else
     {
       return  `
       <div class="cainsgl-custom-container ${containerInfo.class}">

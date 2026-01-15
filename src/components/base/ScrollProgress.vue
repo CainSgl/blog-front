@@ -38,7 +38,8 @@ const emit = defineEmits(['scrollToTop']);
 
 const isHovering = ref(false);
 
-const handleScrollToTop = () => {
+const handleScrollToTop = () => 
+{
   emit('scrollToTop', props.currentScrollPercent);
 };
 </script>

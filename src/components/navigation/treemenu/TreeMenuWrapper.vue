@@ -61,7 +61,8 @@ const props = defineProps({
 });
 
 // 判断是否显示骨架屏
-const showSkeleton = computed(() => {
+const showSkeleton = computed(() => 
+{
   return !props.kbId || parseInt(props.kbId) < 1;
 });
 
@@ -70,7 +71,8 @@ const wrapperRef = ref(null);
 
 
 // 组件挂载后计算高度
-onMounted(async () => {
+onMounted(async () => 
+{
   await nextTick();
 });
 </script>

@@ -61,15 +61,20 @@ const hasMore = ref(false);
 const lastId = ref('0');
 
 // 获取列表数据
-const fetchList = async (id, lastIdValue = '0') => {
+const fetchList = async (id, lastIdValue = '0') => 
+{
   // 根据是否是加载更多来设置不同的loading状态
-  if (lastIdValue === '0') {
+  if (lastIdValue === '0') 
+  {
     loading.value = true;
-  } else {
+  }
+  else 
+  {
     loadingMore.value = true;
   }
   
-  try {
+  try 
+  {
     // 根据类型选择不同的API端点
     const endpoint = props.type === 'followers' ? '/follow/er/list' : '/follow/ee/list';
     const { data } = await api.post(endpoint, { 
@@ -79,43 +84,58 @@ const fetchList = async (id, lastIdValue = '0') => {
     
     const newItems = data || [];
     // 如果是首次加载，直接替换；否则追加
-    if (lastIdValue === '0') {
+    if (lastIdValue === '0') 
+    {
       items.value = newItems;
-    } else {
+    }
+    else 
+    {
       items.value = [...items.value, ...newItems];
     }
     
     // 如果返回的数据少于每页大小（20），说明没有更多数据
-    if (newItems.length < 20) {
+    if (newItems.length < 20) 
+    {
       hasMore.value = false;
-    } else {
+    }
+    else 
+    {
       hasMore.value = true;
     }
     
     // 更新lastId为最后一条记录的id
-    if (newItems.length > 0) {
+    if (newItems.length > 0) 
+    {
       lastId.value = newItems[newItems.length - 1].id;
     }
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error(`获取${props.type === 'followers' ? '粉丝' : '关注'}列表失败:`, err);
-    if (lastIdValue === '0') {
+    if (lastIdValue === '0') 
+    {
       items.value = [];
     }
-  } finally {
+  }
+  finally 
+  {
     loading.value = false;
     loadingMore.value = false;
   }
 };
 
 // 加载更多
-const loadMore = () => {
+const loadMore = () => 
+{
   if (!hasMore.value || loadingMore.value) return;
   fetchList(route.params.id, lastId.value);
 };
 
 // 初始化
-onMounted(() => {
-  if (route.params.id) {
+onMounted(() => 
+{
+  if (route.params.id) 
+  {
     fetchList(route.params.id);
   }
 });

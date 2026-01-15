@@ -23,57 +23,63 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/api/index.js'
-import CImg from '../../base/cImg.vue'
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import api from '@/api/index.js';
+import CImg from '../../base/cImg.vue';
 
-const router = useRouter()
+const router = useRouter();
 
 const props = defineProps({
-    bannerData: {
-        type: Array,
-        default: () => []
-    },
-    autoPlay: {
-        type: [Object, Boolean],
-        default: () => ({
-            interval: 3000,
-            hoverToPause: true
-        })
-    }
-})
+  bannerData: {
+    type: Array,
+    default: () => []
+  },
+  autoPlay: {
+    type: [Object, Boolean],
+    default: () => ({
+      interval: 3000,
+      hoverToPause: true
+    })
+  }
+});
 
 // 当前显示的 banner 索引
-const currentIndex = ref(0)
+const currentIndex = ref(0);
 
 // 使用传入的 bannerData，如果没有则使用默认数据
-const bannerList = ref([])
+const bannerList = ref([]);
 
 // 获取当前显示的 banner 数据
-const currentBanner = computed(() => {
-    const list = bannerList.value;
-    return list[currentIndex.value] || list[0] || { title: '', description: '' };
-})
+const currentBanner = computed(() => 
+{
+  const list = bannerList.value;
+  return list[currentIndex.value] || list[0] || { title: '', description: '' };
+});
 
 // 处理 banner 点击事件
-const handleBannerClick = (item) => {
-    if (!item.url) return;
+const handleBannerClick = (item) => 
+{
+  if (!item.url) return;
     
-    // 如果 url 以 http 开头，直接跳转到外部链接
-    if (item.url.startsWith('http')) {
-        window.open(item.url, '_blank');
-    } else {
-        // 否则在内部路由跳转
-        router.push(item.url);
-    }
-}
+  // 如果 url 以 http 开头，直接跳转到外部链接
+  if (item.url.startsWith('http')) 
+  {
+    window.open(item.url, '_blank');
+  }
+  else 
+  {
+    // 否则在内部路由跳转
+    router.push(item.url);
+  }
+};
 
-onMounted(async () => {
-    const {data} = await api.get('/system/carousel')
-    bannerList.value = data || []
+onMounted(async () => 
+{
+  const {data} = await api.get('/system/carousel');
+  bannerList.value = data || [];
 
-})
+});
 </script>
 
 

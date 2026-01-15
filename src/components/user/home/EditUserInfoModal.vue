@@ -76,7 +76,8 @@ const form = reactive({
 const originalData = reactive({});
 
 // 检测是否有变更
-const hasChanges = computed(() => {
+const hasChanges = computed(() => 
+{
   return Object.keys(form).some(key => form[key] !== originalData[key]);
 });
 
@@ -93,7 +94,8 @@ const rules = {
 };
 
 // 重置表单数据
-const resetForm = async () => {
+const resetForm = async () => 
+{
   // 等待 DOM 更新后设置表单值
   await nextTick();
 
@@ -117,31 +119,39 @@ const resetForm = async () => {
 watch(() => props.userInfo, resetForm, { deep: true, immediate: true });
 
 // 监听模态框显示状态，重置表单
-watch(() => props.modelValue, (visible) => {
-  if (visible) {
+watch(() => props.modelValue, (visible) => 
+{
+  if (visible) 
+  {
     resetForm();
   }
 });
 
 // 取消编辑
-const handleCancel = () => {
+const handleCancel = () => 
+{
   modalVisible.value = false;
 };
 
 // 提交表单
-const handleSubmit = async () => {
+const handleSubmit = async () => 
+{
   Message.loading({ id: 'saveUserInfo', content: '保存中...' });
-  try {
+  try 
+  {
     await formRef.value.validate();
     submitting.value = true;
     // 准备更新数据，只包含有变化的字段
     const updateData = {};
-    Object.keys(form).forEach(key => {
-      if (form[key] !== originalData[key]) {
+    Object.keys(form).forEach(key => 
+    {
+      if (form[key] !== originalData[key]) 
+      {
         updateData[key] = form[key];
       }
     });
-    if (Object.keys(updateData).length === 0) {
+    if (Object.keys(updateData).length === 0) 
+    {
       Message.warning({ id: 'saveUserInfo', content: '没有检测到任何更改' });
       return;
     }
@@ -150,15 +160,22 @@ const handleSubmit = async () => {
     Message.success({ id: 'saveUserInfo', content: '用户信息更新成功' });
 
     emit('saved');
-  } catch (error) {
+  }
+  catch (error) 
+  {
     modalVisible.value = true;
     console.error('更新用户信息失败:', error);
-    if (error?.message) {
+    if (error?.message) 
+    {
       Message.error({ id: 'saveUserInfo', content: error.message });
-    } else {
+    }
+    else 
+    {
       Message.error({ id: 'saveUserInfo', content: '更新用户信息失败，请稍后重试' });
     }
-  } finally {
+  }
+  finally 
+  {
     submitting.value = false;
   }
 };

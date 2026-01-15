@@ -25,29 +25,37 @@ const loading = ref(false);
 const emit = defineEmits(['followChanged']);
 
 // 获取关注状态
-const fetchFollowStatus = async () => {
+const fetchFollowStatus = async () => 
+{
   if (!props.userId) return;
 
   loading.value = true;
-  try {
+  try 
+  {
     // 使用缓存获取关注状态
     const response = await followCache.getFollowStatus(props.userId);
     isFollowing.value = response;
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('获取关注状态失败:', err);
     isFollowing.value = false;
-  } finally {
+  }
+  finally 
+  {
     loading.value = false;
   }
 };
 
 // 切换关注状态
-const toggleFollow = async () => {
+const toggleFollow = async () => 
+{
   if (!props.userId) return;
   loading.value = true;
   // 检查是否正在关注自己
   const currentUserInfo = await userStore.getUserInfo();
-  if (currentUserInfo && currentUserInfo.id === props.userId) {
+  if (currentUserInfo && currentUserInfo.id === props.userId) 
+  {
     Modal.warning({
       title: '提示',
       content: '你无法取消关注，因为关注自己是一件很重要的事情！',
@@ -57,35 +65,48 @@ const toggleFollow = async () => {
     return;
   }
 
-  try {
-    if (isFollowing.value) {
+  try 
+  {
+    if (isFollowing.value) 
+    {
       // 取消关注
-       await followCache.unfollow(props.userId);
+      await followCache.unfollow(props.userId);
      
       isFollowing.value = false;
       emit('followChanged', isFollowing.value);
-    } else {
+    }
+    else 
+    {
       // 关注
-       await followCache.follow(props.userId);
+      await followCache.follow(props.userId);
       isFollowing.value = true;
       emit('followChanged', isFollowing.value);
     }
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('操作失败:', err);
-  } finally {
+  }
+  finally 
+  {
     loading.value = false;
   }
 };
 
-onMounted(() => {
+onMounted(() => 
+{
   fetchFollowStatus();
 });
 
 // 监听 userId 变化，当 userId 改变时重新获取关注状态
-watch(() => props.userId, (newUserId) => {
-  if (newUserId) {
+watch(() => props.userId, (newUserId) => 
+{
+  if (newUserId) 
+  {
     fetchFollowStatus();
-  } else {
+  }
+  else 
+  {
     // 当 userId 为 null 或空时，重置状态
     isFollowing.value = false;
   }

@@ -106,68 +106,86 @@ const renaming = ref(false); // 添加重命名状态
 const newName = ref('');
 const renameInputRef = ref(); // 添加重命名输入框引用
 const shareVisible = ref(false);
-const masterUser = ref(null)
-const shareLink = computed(() => {
-  if (kbInfo.value && kbInfo.value.id) {
+const masterUser = ref(null);
+const shareLink = computed(() => 
+{
+  if (kbInfo.value && kbInfo.value.id) 
+  {
     return `${window.location.origin}/kb?kb=${kbInfo.value.id}`;
   }
   return '';
 });
 // 从store中获取kbInfo
-const kbInfo = computed(() => {
-  checkEditPermission(kbStore.kbInfo)
-  console.log(kbStore.kbInfo.userId)
+const kbInfo = computed(() => 
+{
+  checkEditPermission(kbStore.kbInfo);
+  console.log(kbStore.kbInfo.userId);
   return kbStore.kbInfo;
 });
 
 // 监听kbInfo变化，当kbInfo更新时获取用户信息
-watch(() => kbInfo.value.userId, async (newUserId) => {
-  if (newUserId) {
+watch(() => kbInfo.value.userId, async (newUserId) => 
+{
+  if (newUserId) 
+  {
     masterUser.value = await userStore.getUserInfo(newUserId);
   }
 }, { immediate: true });
-async function checkEditPermission(info) {
+async function checkEditPermission(info) 
+{
   const userInfo = await userStore.getUserInfo();
-  if (userInfo.id == info.userId) {
+  if (userInfo.id == info.userId) 
+  {
     edit.value = true;
   }
 }
 
 const edit = ref(false);
 // 获取知识库首页内容
-const loadKbIndexContent = async () => {
+const loadKbIndexContent = async () => 
+{
   const kbParam = route.query.kb;
-  if (kbParam) {
+  if (kbParam) 
+  {
     const kbIdreq = kbParam;
     loading.value = true;
-    try {
-      const { data } = await api.get('/kb/index', { id: kbIdreq })
+    try 
+    {
+      const { data } = await api.get('/kb/index', { id: kbIdreq });
       content.value = data.index || '';
-    } catch (error) {
+    }
+    catch (error) 
+    {
       content.value = '加载内容失败，请稍后重试。';
-    } finally {
+    }
+    finally 
+    {
       loading.value = false;
     }
   }
 };
 
 // 检查编辑权限
-onMounted(async () => {
+onMounted(async () => 
+{
   //loadKbIndexContent()
-  userStore.getUserInfo()
+  userStore.getUserInfo();
   //获取用户信息
 });
 
 // 监听路由参数变化
-watch(() => route.query, async (newQuery) => {
+watch(() => route.query, async (newQuery) => 
+{
   // 处理用户信息加载
   const returnUrl = newQuery.returnUrl;
-  if (returnUrl && newQuery.userId) {
+  if (returnUrl && newQuery.userId) 
+  {
     masterUser.value = await userStore.getUserInfo(newQuery.userId);
   }
   
   // 处理知识库内容加载
-  if (newQuery.kb) {
+  if (newQuery.kb) 
+  {
     loadKbIndexContent();
   }
 }, { immediate: true });
@@ -175,44 +193,56 @@ watch(() => route.query, async (newQuery) => {
 
 
 // 复制分享链接
-const copyLink = async () => {
-  if (!shareLink.value) {
+const copyLink = async () => 
+{
+  if (!shareLink.value) 
+  {
     Message.warning('复制的链接不能为空！');
     return;
   }
-  try {
+  try 
+  {
     await navigator.clipboard.writeText(shareLink.value);
     Message.success('链接复制成功！');
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('链接复制失败：', err);
     Message.error('链接复制失败，请手动复制！');
   }
 };
 // 开始重命名
-const startRename = () => {
+const startRename = () => 
+{
   renaming.value = true;
   newName.value = kbInfo.value.name || '';
   // 等待DOM更新后聚焦输入框
-  nextTick(() => {
-    if (renameInputRef.value) {
+  nextTick(() => 
+  {
+    if (renameInputRef.value) 
+    {
       renameInputRef.value.focus();
     }
   });
 };
 
 // 确认重命名
-const confirmRename = async () => {
-  if (!newName.value.trim()) {
+const confirmRename = async () => 
+{
+  if (!newName.value.trim()) 
+  {
     Message.warning('知识库名称不能为空');
     return;
   }
   newName.value = newName.value.trim();
-  if (newName.value === kbInfo.value.name) {
+  if (newName.value === kbInfo.value.name) 
+  {
     // 名称未改变，取消编辑状态
     renaming.value = false;
     return;
   }
-  try {
+  try 
+  {
     Message.loading({
       id: 'rename',
       content: '正在重命名...',
@@ -223,52 +253,59 @@ const confirmRename = async () => {
       id: kbInfo.value.id,
       name: newName.value
     });
-    kbInfo.value.name = newName.value
+    kbInfo.value.name = newName.value;
     Message.success({
       id: 'rename',
       content: '重命名成功',
     });
 
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('重命名失败:', error);
     Message.error({
       id: 'rename',
       content: '重命名失败，请稍后重试',
     });
-  } finally {
-    renaming.value = false
+  }
+  finally 
+  {
+    renaming.value = false;
   }
 };
 
 // 处理更多操作
-const handleMoreAction = (value) => {
+const handleMoreAction = (value) => 
+{
   const action = value.action;
-  switch (action) {
-    case 'rename':
-      startRename();
-      break;
-    case 'editIndex':
-      // 跳转到编辑首页页面
-      router.push({
-        name: 'KBIndexEdit',
-        query: { kb: kbInfo.value.id }
-      });
-      break;
-    case 'settings':
-      // 跳转到知识库设置页面
-      router.push({
-        name: 'KBIndexEdit',
-        query: { kb: kbInfo.value.id }
-      });
-      break;
-    default:
-      console.warn('未知的操作:', action);
+  switch (action) 
+  {
+  case 'rename':
+    startRename();
+    break;
+  case 'editIndex':
+    // 跳转到编辑首页页面
+    router.push({
+      name: 'KBIndexEdit',
+      query: { kb: kbInfo.value.id }
+    });
+    break;
+  case 'settings':
+    // 跳转到知识库设置页面
+    router.push({
+      name: 'KBIndexEdit',
+      query: { kb: kbInfo.value.id }
+    });
+    break;
+  default:
+    console.warn('未知的操作:', action);
   }
 };
 
 
 // 处理关注状态变化
-const handleFollowChanged = (isFollowing) => {
+const handleFollowChanged = (isFollowing) => 
+{
   // 可以在这里添加关注状态变化后的逻辑
   // 例如刷新页面或更新UI状态
   console.log('关注状态变化:', isFollowing);
@@ -276,7 +313,8 @@ const handleFollowChanged = (isFollowing) => {
 
   // 检查是否有returnUrl参数，如果有则重定向
   const returnUrl = route.query.returnUrl;
-  if (returnUrl) {
+  if (returnUrl) 
+  {
     // 解码URL并重定向
     window.location.href = decodeURIComponent(returnUrl);
   }

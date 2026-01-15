@@ -101,7 +101,8 @@ const visible = computed({
 const canvasActualWidth = ref(0);
 const canvesWidth=ref(500);
 // 计算模态框宽度
-const modalWidth = computed(() => {
+const modalWidth = computed(() => 
+{
   // 左侧画布区域宽度加上一些边距（预留空间给控件）
   const canvasWidth = canvesWidth.value+ 100; // 默认值500
   // 右侧预览区域宽度，考虑aspectRatio
@@ -130,7 +131,8 @@ const isResizing = ref(false);
 const resizeDirection = ref('');
 
 // 预览尺寸，根据aspectRatio调整
-const previewSize = computed(() => {
+const previewSize = computed(() => 
+{
   const baseWidth = 150; // 基础宽度
   // 始终根据当前裁剪区域的实际比例计算预览尺寸
   const currentAspectRatio = cropArea.value.width > 0 ? cropArea.value.height / cropArea.value.width : 1;
@@ -141,7 +143,8 @@ const previewSize = computed(() => {
 });
 
 // 裁剪区域样式
-const cropAreaStyle = computed(() => {
+const cropAreaStyle = computed(() => 
+{
   return {
     left: `${cropArea.value.x}px`,
     top: `${cropArea.value.y}px`,
@@ -152,28 +155,37 @@ const cropAreaStyle = computed(() => {
 });
 
 // 设置图片
-const setImage = (img) => {
+const setImage = (img) => 
+{
   console.log(img);
   originalImage.value = img;
   image.value = new Image();
   image.value.src = img.src;
   // 使用 props 中的原始文件名，如果未提供则尝试从图片源中提取
-  if (props.originalFileName) {
+  if (props.originalFileName) 
+  {
     fileName.value = props.originalFileName;
-  } else {
+  }
+  else 
+  {
     // 从图片的src中提取文件名
     const src = img.src;
-    if (src) {
+    if (src) 
+    {
       const pathParts = src.split('/');
       const fileNameWithExtension = pathParts[pathParts.length - 1];
       const fileNameWithoutExtension = fileNameWithExtension;
       fileName.value = fileNameWithoutExtension || 'cropped_image';
-    } else {
+    }
+    else 
+    {
       fileName.value = 'cropped_image';
     }
   }
-  image.value.onload = () => {
-    nextTick(() => {
+  image.value.onload = () => 
+  {
+    nextTick(() => 
+    {
       initCanvas();
       drawImage();
       updatePreview();
@@ -182,7 +194,8 @@ const setImage = (img) => {
 };
 
 // 初始化canvas
-const initCanvas = () => {
+const initCanvas = () => 
+{
   if (!image.value || !canvasRef.value) return;
   
   const canvas = canvasRef.value;
@@ -194,21 +207,26 @@ const initCanvas = () => {
   const imageRatio = image.value.width / image.value.height;
   
   let canvasWidth, canvasHeight;
-  if (imageRatio > 1) {
+  if (imageRatio > 1) 
+  {
     // 图片更宽，以宽度为准
     canvasWidth = Math.min(maxWidth, image.value.width);
     canvasHeight = canvasWidth / imageRatio;
     // 检查高度是否超出
-    if (canvasHeight > maxHeight) {
+    if (canvasHeight > maxHeight) 
+    {
       canvasHeight = maxHeight;
       canvasWidth = canvasHeight * imageRatio;
     }
-  } else {
+  }
+  else 
+  {
     // 图片更高或正方形，以高度为准
     canvasHeight = Math.min(maxHeight, image.value.height);
     canvasWidth = canvasHeight * imageRatio;
     // 检查宽度是否超出
-    if (canvasWidth > maxWidth) {
+    if (canvasWidth > maxWidth) 
+    {
       canvasWidth = maxWidth;
       canvasHeight = canvasWidth / imageRatio;
     }
@@ -219,17 +237,21 @@ const initCanvas = () => {
   canvas.height = canvasHeight;
   canvesWidth.value = canvasWidth;
   let defaultWidth, defaultHeight;
-  if (props.auto) {
+  if (props.auto) 
+  {
     // 在auto模式下，裁剪框初始大小与canvas一致，代表可以选择整个图片
     defaultWidth = canvasWidth;
     defaultHeight = canvasHeight;
-  } else {
+  }
+  else 
+  {
     // 非auto模式下，优先将选择区域高度设置成跟canvas一样，再通过aspectRatio计算宽度
     defaultHeight = canvasHeight;
     defaultWidth = defaultHeight * props.aspectRatio;
     
     // 如果计算出的宽度超出了canvas宽度，则将宽度设置成canvas宽度，再计算高度
-    if (defaultWidth > canvasWidth) {
+    if (defaultWidth > canvasWidth) 
+    {
       defaultWidth = canvasWidth;
       defaultHeight = defaultWidth / props.aspectRatio;
     }
@@ -239,11 +261,15 @@ const initCanvas = () => {
     defaultHeight = Math.min(defaultHeight, canvasHeight);
     
     // 如果计算出的尺寸仍然不合理（如过小），则使用默认尺寸作为最终兜底方案
-    if (defaultWidth < 20 || defaultHeight < 20) {
+    if (defaultWidth < 20 || defaultHeight < 20) 
+    {
       defaultWidth = Math.min(200, canvasWidth * 0.5, canvasHeight * 0.5);
-      if (props.aspectRatio > 0) {
+      if (props.aspectRatio > 0) 
+      {
         defaultHeight = defaultWidth / props.aspectRatio;
-      } else {
+      }
+      else 
+      {
         defaultHeight = defaultWidth;
       }
     }
@@ -258,7 +284,8 @@ const initCanvas = () => {
 };
 
 // 绘制图片到canvas
-const drawImage = () => {
+const drawImage = () => 
+{
   if (!image.value || !canvasRef.value) return;
   
   const canvas = canvasRef.value;
@@ -278,7 +305,8 @@ const drawImage = () => {
 };
 
 // 更新裁剪区域预览
-const updateCropPreview = () => {
+const updateCropPreview = () => 
+{
   if (!originalImage.value || !cropPreviewCanvasRef.value) return;
   
   const cropPreviewCanvas = cropPreviewCanvasRef.value;
@@ -301,7 +329,8 @@ const updateCropPreview = () => {
   cropPreviewCtx.clearRect(0, 0, cropPreviewCanvas.width, cropPreviewCanvas.height);
   
   // 绘制裁剪区域内容
-  if (originalImage.value.complete) {
+  if (originalImage.value.complete) 
+  {
     cropPreviewCtx.drawImage(
       originalImage.value,
       cropX, cropY, cropWidth, cropHeight,
@@ -311,7 +340,8 @@ const updateCropPreview = () => {
 };
 
 // 绘制半透明遮罩
-const drawMask = () => {
+const drawMask = () => 
+{
   if (!canvasRef.value) return;
   
   const canvas = canvasRef.value;
@@ -348,7 +378,8 @@ const drawMask = () => {
 };
 
 // 更新预览
-const updatePreview = () => {
+const updatePreview = () => 
+{
   if (!image.value || !previewCanvasRef.value) return;
   
   const previewCanvas = previewCanvasRef.value;
@@ -371,7 +402,8 @@ const updatePreview = () => {
   previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
   
   // 绘制裁剪区域
-  if (originalImage.value.complete) {
+  if (originalImage.value.complete) 
+  {
     previewCtx.drawImage(
       originalImage.value,
       cropX, cropY, cropWidth, cropHeight,
@@ -381,7 +413,8 @@ const updatePreview = () => {
 };
 
 // 开始拖拽裁剪区域
-const startCrop = (e) => {
+const startCrop = (e) => 
+{
   if (isResizing.value) return;
   
   const rect = canvasRef.value.getBoundingClientRect();
@@ -394,7 +427,8 @@ const startCrop = (e) => {
     x <= cropArea.value.x + cropArea.value.width &&
     y >= cropArea.value.y &&
     y <= cropArea.value.y + cropArea.value.height
-  ) {
+  ) 
+  {
     isDragging.value = true;
     cropStart.value = { x: x - cropArea.value.x, y: y - cropArea.value.y };
     
@@ -406,7 +440,8 @@ const startCrop = (e) => {
 };
 
 // 拖拽裁剪区域
-const dragCrop = (e) => {
+const dragCrop = (e) => 
+{
   if (!isDragging.value) return;
   
   e.preventDefault();
@@ -414,10 +449,13 @@ const dragCrop = (e) => {
   const rect = canvasRef.value.getBoundingClientRect();
   let x, y;
   
-  if (e.type === 'touchmove') {
+  if (e.type === 'touchmove') 
+  {
     x = e.touches[0].clientX - rect.left;
     y = e.touches[0].clientY - rect.top;
-  } else {
+  }
+  else 
+  {
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
   }
@@ -437,7 +475,8 @@ const dragCrop = (e) => {
 };
 
 // 结束拖拽
-const endCrop = () => {
+const endCrop = () => 
+{
   isDragging.value = false;
   document.removeEventListener('mousemove', dragCrop);
   document.removeEventListener('mouseup', endCrop);
@@ -446,7 +485,8 @@ const endCrop = () => {
 };
 
 // 开始调整裁剪区域大小
-const startResize = (direction) => {
+const startResize = (direction) => 
+{
   isResizing.value = true;
   resizeDirection.value = direction;
   
@@ -457,7 +497,8 @@ const startResize = (direction) => {
 };
 
 // 调整裁剪区域大小
-const resizeCrop = (e) => {
+const resizeCrop = (e) => 
+{
   if (!isResizing.value) return;
   
   e.preventDefault();
@@ -465,10 +506,13 @@ const resizeCrop = (e) => {
   const rect = canvasRef.value.getBoundingClientRect();
   let x, y;
   
-  if (e.type === 'touchmove') {
+  if (e.type === 'touchmove') 
+  {
     x = e.touches[0].clientX - rect.left;
     y = e.touches[0].clientY - rect.top;
-  } else {
+  }
+  else 
+  {
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
   }
@@ -476,129 +520,153 @@ const resizeCrop = (e) => {
   const deltaX = x - cropArea.value.x;
   const deltaY = y - cropArea.value.y;
   
-  switch (resizeDirection.value) {
-    case 'right':
-      cropArea.value.width = Math.min(
-        canvasRef.value.width - cropArea.value.x,
-        Math.max(20, deltaX)
-      );
-      if (!props.auto && props.aspectRatio > 0) {
-        cropArea.value.height = cropArea.value.width / props.aspectRatio;
-      }
-      break;
-    case 'bottom':
+  switch (resizeDirection.value) 
+  {
+  case 'right':
+    cropArea.value.width = Math.min(
+      canvasRef.value.width - cropArea.value.x,
+      Math.max(20, deltaX)
+    );
+    if (!props.auto && props.aspectRatio > 0) 
+    {
+      cropArea.value.height = cropArea.value.width / props.aspectRatio;
+    }
+    break;
+  case 'bottom':
+    cropArea.value.height = Math.min(
+      canvasRef.value.height - cropArea.value.y,
+      Math.max(20, deltaY)
+    );
+    if (!props.auto && props.aspectRatio > 0) 
+    {
+      cropArea.value.width = cropArea.value.height * props.aspectRatio;
+    }
+    break;
+  case 'bottom-right':
+    cropArea.value.width = Math.min(
+      canvasRef.value.width - cropArea.value.x,
+      Math.max(20, deltaX)
+    );
+    if (!props.auto && props.aspectRatio > 0) 
+    {
+      cropArea.value.height = cropArea.value.width / props.aspectRatio;
+    }
+    else 
+    {
       cropArea.value.height = Math.min(
         canvasRef.value.height - cropArea.value.y,
         Math.max(20, deltaY)
       );
-      if (!props.auto && props.aspectRatio > 0) {
+    }
+    break;
+  case 'left':
+    const newWidthLeft = cropArea.value.x + cropArea.value.width - x;
+    if (newWidthLeft >= 20 && x >= 0) 
+    {
+      cropArea.value.width = newWidthLeft;
+      cropArea.value.x = x;
+      if (!props.auto && props.aspectRatio > 0) 
+      {
+        cropArea.value.height = cropArea.value.width / props.aspectRatio;
+      }
+    }
+    break;
+  case 'top':
+    const newHeightTop = cropArea.value.y + cropArea.value.height - y;
+    if (newHeightTop >= 20 && y >= 0) 
+    {
+      cropArea.value.height = newHeightTop;
+      cropArea.value.y = y;
+      if (!props.auto && props.aspectRatio > 0) 
+      {
         cropArea.value.width = cropArea.value.height * props.aspectRatio;
       }
-      break;
-    case 'bottom-right':
+    }
+    break;
+  case 'top-left':
+    const newWidthTopLeft = cropArea.value.x + cropArea.value.width - x;
+    const newHeightTopLeft = cropArea.value.y + cropArea.value.height - y;
+    if (newWidthTopLeft >= 20 && newHeightTopLeft >= 20 && x >= 0 && y >= 0) 
+    {
+      cropArea.value.width = newWidthTopLeft;
+      cropArea.value.height = newHeightTopLeft;
+      cropArea.value.x = x;
+      cropArea.value.y = y;
+      if (!props.auto && props.aspectRatio > 0) 
+      {
+        cropArea.value.height = cropArea.value.width / props.aspectRatio;
+        cropArea.value.x = cropArea.value.x + cropArea.value.width - (cropArea.value.height * props.aspectRatio);
+      }
+    }
+    break;
+  case 'top-right':
+    const newHeightTopRight = cropArea.value.y + cropArea.value.height - y;
+    const newWidthTopRight = deltaX;
+    if (newHeightTopRight >= 20 && newWidthTopRight >= 20 && y >= 0) 
+    {
+      cropArea.value.height = newHeightTopRight;
+      cropArea.value.y = y;
       cropArea.value.width = Math.min(
         canvasRef.value.width - cropArea.value.x,
-        Math.max(20, deltaX)
+        Math.max(20, newWidthTopRight)
       );
-      if (!props.auto && props.aspectRatio > 0) {
+      if (!props.auto && props.aspectRatio > 0) 
+      {
         cropArea.value.height = cropArea.value.width / props.aspectRatio;
-      } else {
-        cropArea.value.height = Math.min(
-          canvasRef.value.height - cropArea.value.y,
-          Math.max(20, deltaY)
-        );
+        cropArea.value.y = cropArea.value.y + cropArea.value.height - (cropArea.value.width / props.aspectRatio);
       }
-      break;
-    case 'left':
-      const newWidthLeft = cropArea.value.x + cropArea.value.width - x;
-      if (newWidthLeft >= 20 && x >= 0) {
-        cropArea.value.width = newWidthLeft;
-        cropArea.value.x = x;
-        if (!props.auto && props.aspectRatio > 0) {
-          cropArea.value.height = cropArea.value.width / props.aspectRatio;
-        }
+    }
+    break;
+  case 'bottom-left':
+    const newWidthBottomLeft = cropArea.value.x + cropArea.value.width - x;
+    const newHeightBottomLeft = deltaY;
+    if (newWidthBottomLeft >= 20 && newHeightBottomLeft >= 20 && x >= 0) 
+    {
+      cropArea.value.width = newWidthBottomLeft;
+      cropArea.value.x = x;
+      cropArea.value.height = Math.min(
+        canvasRef.value.height - cropArea.value.y,
+        Math.max(20, newHeightBottomLeft)
+      );
+      if (!props.auto && props.aspectRatio > 0) 
+      {
+        cropArea.value.height = cropArea.value.width / props.aspectRatio;
+        cropArea.value.x = cropArea.value.x + cropArea.value.width - (cropArea.value.height * props.aspectRatio);
       }
-      break;
-    case 'top':
-      const newHeightTop = cropArea.value.y + cropArea.value.height - y;
-      if (newHeightTop >= 20 && y >= 0) {
-        cropArea.value.height = newHeightTop;
-        cropArea.value.y = y;
-        if (!props.auto && props.aspectRatio > 0) {
-          cropArea.value.width = cropArea.value.height * props.aspectRatio;
-        }
-      }
-      break;
-    case 'top-left':
-      const newWidthTopLeft = cropArea.value.x + cropArea.value.width - x;
-      const newHeightTopLeft = cropArea.value.y + cropArea.value.height - y;
-      if (newWidthTopLeft >= 20 && newHeightTopLeft >= 20 && x >= 0 && y >= 0) {
-        cropArea.value.width = newWidthTopLeft;
-        cropArea.value.height = newHeightTopLeft;
-        cropArea.value.x = x;
-        cropArea.value.y = y;
-        if (!props.auto && props.aspectRatio > 0) {
-          cropArea.value.height = cropArea.value.width / props.aspectRatio;
-          cropArea.value.x = cropArea.value.x + cropArea.value.width - (cropArea.value.height * props.aspectRatio);
-        }
-      }
-      break;
-    case 'top-right':
-      const newHeightTopRight = cropArea.value.y + cropArea.value.height - y;
-      const newWidthTopRight = deltaX;
-      if (newHeightTopRight >= 20 && newWidthTopRight >= 20 && y >= 0) {
-        cropArea.value.height = newHeightTopRight;
-        cropArea.value.y = y;
-        cropArea.value.width = Math.min(
-          canvasRef.value.width - cropArea.value.x,
-          Math.max(20, newWidthTopRight)
-        );
-        if (!props.auto && props.aspectRatio > 0) {
-          cropArea.value.height = cropArea.value.width / props.aspectRatio;
-          cropArea.value.y = cropArea.value.y + cropArea.value.height - (cropArea.value.width / props.aspectRatio);
-        }
-      }
-      break;
-    case 'bottom-left':
-      const newWidthBottomLeft = cropArea.value.x + cropArea.value.width - x;
-      const newHeightBottomLeft = deltaY;
-      if (newWidthBottomLeft >= 20 && newHeightBottomLeft >= 20 && x >= 0) {
-        cropArea.value.width = newWidthBottomLeft;
-        cropArea.value.x = x;
-        cropArea.value.height = Math.min(
-          canvasRef.value.height - cropArea.value.y,
-          Math.max(20, newHeightBottomLeft)
-        );
-        if (!props.auto && props.aspectRatio > 0) {
-          cropArea.value.height = cropArea.value.width / props.aspectRatio;
-          cropArea.value.x = cropArea.value.x + cropArea.value.width - (cropArea.value.height * props.aspectRatio);
-        }
-      }
-      break;
+    }
+    break;
   }
   
   // 限制裁剪区域不能超出canvas边界
-  if (cropArea.value.x < 0) {
+  if (cropArea.value.x < 0) 
+  {
     cropArea.value.x = 0;
-    if (!props.auto && props.aspectRatio > 0) {
+    if (!props.auto && props.aspectRatio > 0) 
+    {
       cropArea.value.width = cropArea.value.height * props.aspectRatio;
     }
   }
-  if (cropArea.value.y < 0) {
+  if (cropArea.value.y < 0) 
+  {
     cropArea.value.y = 0;
-    if (!props.auto && props.aspectRatio > 0) {
+    if (!props.auto && props.aspectRatio > 0) 
+    {
       cropArea.value.height = cropArea.value.width / props.aspectRatio;
     }
   }
-  if (cropArea.value.x + cropArea.value.width > canvasRef.value.width) {
+  if (cropArea.value.x + cropArea.value.width > canvasRef.value.width) 
+  {
     cropArea.value.width = canvasRef.value.width - cropArea.value.x;
-    if (!props.auto && props.aspectRatio > 0) {
+    if (!props.auto && props.aspectRatio > 0) 
+    {
       cropArea.value.height = cropArea.value.width / props.aspectRatio;
     }
   }
-  if (cropArea.value.y + cropArea.value.height > canvasRef.value.height) {
+  if (cropArea.value.y + cropArea.value.height > canvasRef.value.height) 
+  {
     cropArea.value.height = canvasRef.value.height - cropArea.value.y;
-    if (!props.auto && props.aspectRatio > 0) {
+    if (!props.auto && props.aspectRatio > 0) 
+    {
       cropArea.value.width = cropArea.value.height * props.aspectRatio;
     }
   }
@@ -608,7 +676,8 @@ const resizeCrop = (e) => {
 };
 
 // 结束调整大小
-const endResize = () => {
+const endResize = () => 
+{
   isResizing.value = false;
   document.removeEventListener('mousemove', resizeCrop);
   document.removeEventListener('mouseup', endResize);
@@ -619,13 +688,16 @@ const endResize = () => {
 
 
 // 确认裁剪
-const confirmCrop = async () => {
-  if (!image.value) {
+const confirmCrop = async () => 
+{
+  if (!image.value) 
+  {
     Message.error('没有图片可裁剪');
     return;
   }
   
-  try {
+  try 
+  {
     // 创建临时canvas用于导出裁剪后的图片
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
@@ -651,32 +723,41 @@ const confirmCrop = async () => {
     );
     
     // 导出为Blob
-    tempCanvas.toBlob((blob) => {
-      if (blob) {
+    tempCanvas.toBlob((blob) => 
+    {
+      if (blob) 
+      {
         // 转换为File对象，使用用户输入的文件名
         const finalFileName = fileName.value || 'cropped_image';
         const file = new File([blob], `${finalFileName}_${Date.now()}.png`, { type: 'image/png' });
         emit('confirm', file);
         visible.value = false;
-      } else {
+      }
+      else 
+      {
         Message.error('裁剪失败');
       }
     }, 'image/png');
-  } catch (error) {
+  }
+  catch (error) 
+  {
     Message.error('裁剪过程中出现错误');
     console.error('裁剪错误:', error);
   }
 };
 
 // 取消裁剪
-const handleCancel = () => {
+const handleCancel = () => 
+{
   visible.value = false;
   emit('update:modelValue', false);
 };
 
 // 监听图片变化
-watch(() => props.modelValue, async (newVal) => {
-  if (newVal && originalImage.value) {
+watch(() => props.modelValue, async (newVal) => 
+{
+  if (newVal && originalImage.value) 
+  {
     await nextTick();
     drawImage();
     updatePreview();
@@ -684,19 +765,27 @@ watch(() => props.modelValue, async (newVal) => {
 });
 
 // 初始化时设置默认裁剪区域大小
-const initCropArea = () => {
-  if (canvasRef.value) {
+const initCropArea = () => 
+{
+  if (canvasRef.value) 
+  {
     let defaultWidth, defaultHeight;
-    if (props.auto) {
+    if (props.auto) 
+    {
       // 在auto模式下，裁剪框初始大小与canvas一致，代表可以选择整个图片
       defaultWidth = canvasRef.value.width;
       defaultHeight = canvasRef.value.height;
-    } else {
+    }
+    else 
+    {
       // 非auto模式下，使用固定尺寸并根据aspectRatio计算
       defaultWidth = Math.min(200, canvasRef.value.width * 0.5, canvasRef.value.height * 0.5);
-      if (props.aspectRatio > 0) {
+      if (props.aspectRatio > 0) 
+      {
         defaultHeight = defaultWidth / props.aspectRatio;
-      } else {
+      }
+      else 
+      {
         defaultHeight = defaultWidth;
       }
     }
@@ -710,20 +799,24 @@ const initCropArea = () => {
 };
 
 // 监听窗口大小变化，以便重新计算模态框宽度
-const handleResize = () => {
+const handleResize = () => 
+{
   // 重新计算canvasActualWidth，如果canvas存在的话
-  if (canvasRef.value && canvasRef.value.width) {
+  if (canvasRef.value && canvasRef.value.width) 
+  {
     canvasActualWidth.value = canvasRef.value.width;
   }
 };
 
 // 组件挂载后添加事件监听器
-onMounted(() => {
+onMounted(() => 
+{
   window.addEventListener('resize', handleResize);
 });
 
 // 组件卸载前移除事件监听器
-onUnmounted(() => {
+onUnmounted(() => 
+{
   window.removeEventListener('resize', handleResize);
 });
 

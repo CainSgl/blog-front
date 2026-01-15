@@ -25,7 +25,7 @@
 <script setup>
 import { defineProps, computed, ref, onMounted, onUnmounted } from 'vue';
 import { useCommentStore } from '@/components/comment/commentStore.js';
-import { IconMessage } from '@arco-design/web-vue/es/icon'
+import { IconMessage } from '@arco-design/web-vue/es/icon';
 import { Modal } from '@arco-design/web-vue';
 import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/store/user.js';
@@ -49,54 +49,65 @@ const commentModalVisible = ref(false);
 const commentContent = ref('');
 
 // 计算评论数量
-const commentCount = computed(() => {
+const commentCount = computed(() => 
+{
   return commentStore.getCommentCountById(props.commentId);
 });
 
 // 处理评论点击事件
-const handleCommentClick = () => {
- commentStore.toggleCommentDrawer(props.commentId);
+const handleCommentClick = () => 
+{
+  commentStore.toggleCommentDrawer(props.commentId);
 };
-const handleCommentParClick = () => {
+const handleCommentParClick = () => 
+{
   commentModalVisible.value = true;
 };
 // 提交评论
-const submitComment = async () => {
-  if (!commentContent.value.trim()) {
+const submitComment = async () => 
+{
+  if (!commentContent.value.trim()) 
+  {
     Message.warning('请输入评论内容');
     return;
   }
-  if (!props.commentId) {
+  if (!props.commentId) 
+  {
     Message.error('发生了未知的错误，请尝试刷新页面！');
     return;
   }
   commentModalVisible.value=false;
-  await api.post('/paragraph/comment', { postId: commentStore.postId, version: commentStore.version, dataId: props.commentId, content: commentContent.value })
+  await api.post('/paragraph/comment', { postId: commentStore.postId, version: commentStore.version, dataId: props.commentId, content: commentContent.value });
   // 成功发布评论后，更新评论计数
   commentStore.incrementCommentCount(props.commentId);
   Message.success('成功发布评论');
 };
 
 // 检查文本是否被选中
-const checkSelection = () => {
+const checkSelection = () => 
+{
   const selection = window.getSelection();
-  if (!selection.toString().trim()) {
+  if (!selection.toString().trim()) 
+  {
     showCommentButton.value = false;
     return;
   }
 
-  try {
+  try 
+  {
     // 检查选中的文本是否在当前段落内
     const selectedRange = selection.getRangeAt(0);
     const parentElement = selectedRange.commonAncestorContainer;
 
     // 查找最近的祖先元素
     let currentElement = parentElement.nodeType === Node.ELEMENT_NODE ? parentElement : parentElement.parentElement;
-    while (currentElement && currentElement !== paragraphRef.value) {
+    while (currentElement && currentElement !== paragraphRef.value) 
+    {
       currentElement = currentElement.parentElement;
     }
 
-    if (currentElement === paragraphRef.value) {
+    if (currentElement === paragraphRef.value) 
+    {
       // 获取选中区域的位置
       const rect = selectedRange.getBoundingClientRect();
       const paragraphRect = paragraphRef.value.getBoundingClientRect();
@@ -108,10 +119,14 @@ const checkSelection = () => {
       };
 
       showCommentButton.value = true;
-    } else {
+    }
+    else 
+    {
       showCommentButton.value = false;
     }
-  } catch (error) {
+  }
+  catch (error) 
+  {
     // 如果获取选择区域失败，隐藏按钮
     showCommentButton.value = false;
   }
@@ -120,26 +135,32 @@ const checkSelection = () => {
 
 
 // 监听鼠标释放事件
-const handleMouseUp = () => {
-  setTimeout(() => { // 使用setTimeout确保在选择完成后获取到选中内容
+const handleMouseUp = () => 
+{
+  setTimeout(() => 
+  { // 使用setTimeout确保在选择完成后获取到选中内容
     checkSelection();
   }, 1);
 };
 
 // 监听点击其他地方的事件
-const handleClickOutside = (event) => {
+const handleClickOutside = (event) => 
+{
   if (paragraphRef.value && !paragraphRef.value.contains(event.target) &&
-    !event.target.classList.contains('comment-button')) {
+    !event.target.classList.contains('comment-button')) 
+  {
     showCommentButton.value = false;
   }
 };
 
-onMounted(() => {
+onMounted(() => 
+{
   document.addEventListener('mouseup', handleMouseUp);
   document.addEventListener('click', handleClickOutside);
 });
 
-onUnmounted(() => {
+onUnmounted(() => 
+{
   document.removeEventListener('mouseup', handleMouseUp);
   document.removeEventListener('click', handleClickOutside);
 });

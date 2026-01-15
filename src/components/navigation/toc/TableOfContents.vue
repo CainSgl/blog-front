@@ -70,37 +70,49 @@ const tocStore = useTocStore();
 const { currentTocItem } = storeToRefs(tocStore);
 
 // 计算默认展开的节点（只展开第一级）
-const computeDefaultExpandedKeys = () => {
+const computeDefaultExpandedKeys = () => 
+{
   const keys = [];
 
-  const collectLevelKeys = (nodes, maxLevel, currentLevel = 1) => {
-    for (const node of nodes) {
-      if (currentLevel <= maxLevel) {
+  const collectLevelKeys = (nodes, maxLevel, currentLevel = 1) => 
+  {
+    for (const node of nodes) 
+    {
+      if (currentLevel <= maxLevel) 
+      {
         keys.push(node.key);
-        if (node.children && node.children.length > 0 && currentLevel < maxLevel) {
+        if (node.children && node.children.length > 0 && currentLevel < maxLevel) 
+        {
           collectLevelKeys(node.children, maxLevel, currentLevel + 1);
         }
       }
     }
   };
 
-  if (treeData.value && treeData.value.length > 0) {
+  if (treeData.value && treeData.value.length > 0) 
+  {
     collectLevelKeys(treeData.value, 1); // 只展开到第一级
     defaultExpandedKeys.value = keys;
     // 将默认展开的节点也视为用户展开的节点
     userExpandedKeys.value = new Set(keys);
-  } else {
+  }
+  else 
+  {
     defaultExpandedKeys.value = [];
     userExpandedKeys.value.clear();
   }
 };
 
 // 展开所有节点
-const expandAllNodes = (nodes) => {
+const expandAllNodes = (nodes) => 
+{
   const keys = new Set();
-  const collectKeys = (nodeList) => {
-    for (const node of nodeList) {
-      if (node.children && node.children.length > 0) {
+  const collectKeys = (nodeList) => 
+  {
+    for (const node of nodeList) 
+    {
+      if (node.children && node.children.length > 0) 
+      {
         keys.add(node.key);
         collectKeys(node.children);
       }
@@ -112,12 +124,16 @@ const expandAllNodes = (nodes) => {
 
 
 // 切换展开/收起全部
-const toggleExpandAll = () => {
-  if (isAllExpanded.value) {
+const toggleExpandAll = () => 
+{
+  if (isAllExpanded.value) 
+  {
     // 收起全部，只保留默认展开的节点
     expandedKeys.value = [...defaultExpandedKeys.value];
     isAllExpanded.value = false;
-  } else {
+  }
+  else 
+  {
     // 展开全部
     const allExpandedKeys = expandAllNodes(treeData.value);
     expandedKeys.value = [...new Set([...allExpandedKeys, ...Array.from(userExpandedKeys.value)])];
@@ -128,22 +144,28 @@ const toggleExpandAll = () => {
 };
 
 // 切换显示/隐藏
-const toggleVisibility = () => {
+const toggleVisibility = () => 
+{
   isVisible.value = !isVisible.value;
   // 通知父组件显示/隐藏状态已改变
   emit('visibilityChange', isVisible.value);
 };
 
 // 查找节点路径的辅助函数
-const findNodePath = (nodes, targetKey, path = []) => {
-  for (const node of nodes) {
+const findNodePath = (nodes, targetKey, path = []) => 
+{
+  for (const node of nodes) 
+  {
     const currentPath = [...path, node.key];
-    if (node.key === targetKey) {
+    if (node.key === targetKey) 
+    {
       return currentPath;
     }
-    if (node.children && node.children.length > 0) {
+    if (node.children && node.children.length > 0) 
+    {
       const result = findNodePath(node.children, targetKey, currentPath);
-      if (result) {
+      if (result) 
+      {
         return result;
       }
     }
@@ -153,30 +175,38 @@ const findNodePath = (nodes, targetKey, path = []) => {
 
 
 // 监听Pinia状态变化的函数
-const handleTocItemChange = () => {
+const handleTocItemChange = () => 
+{
   const hash = currentTocItem.value;
-  if (hash) {
+  if (hash) 
+  {
     // 更新选中的节点
     selectedKeys.value = [hash];
 
     // 查找节点路径并展开
     const path = findNodePath(treeData.value, hash);
-    if (path) {
+    if (path) 
+    {
       // 包含路径上的所有节点（包括目标节点）
       const pathKeys = [...path];
       // 合并默认展开的节点、路径节点和用户手动展开的节点
       expandedKeys.value = [...new Set([...defaultExpandedKeys.value, ...pathKeys, ...Array.from(userExpandedKeys.value)])];
       isAllExpanded.value = false; // 如果是展开到特定节点，那么不是全部展开状态
-    } else {
+    }
+    else 
+    {
       // 如果找不到节点，合并默认展开的节点和用户手动展开的节点
       expandedKeys.value = [...new Set([...defaultExpandedKeys.value, ...Array.from(userExpandedKeys.value)])];
     }
 
     // 在DOM更新后滚动到选中的节点
-    nextTick(() => {
+    nextTick(() => 
+    {
       scrollToSelectedItem(hash);
     });
-  } else {
+  }
+  else 
+  {
     selectedKeys.value = [];
     expandedKeys.value = [...new Set([...defaultExpandedKeys.value, ...Array.from(userExpandedKeys.value)])];
   }
@@ -185,18 +215,25 @@ const handleTocItemChange = () => {
 // 监听content变化，重新解析markdown生成目录树
 watch(
   () => props.content,
-  (newContent) => {
-    if (newContent) {
-      try {
+  (newContent) => 
+  {
+    if (newContent) 
+    {
+      try 
+      {
         treeData.value = parseMarkdownToTree(newContent);
         computeDefaultExpandedKeys(); // 更新默认展开的节点
 
-      } catch (error) {
+      }
+      catch (error) 
+      {
         console.error('解析markdown目录失败:', error);
         treeData.value = [];
         defaultExpandedKeys.value = [];
       }
-    } else {
+    }
+    else 
+    {
       treeData.value = [];
       defaultExpandedKeys.value = [];
     }
@@ -210,14 +247,16 @@ watch(
 // 监听Pinia状态变化
 watch(
   () => currentTocItem.value,
-  () => {
+  () => 
+  {
     handleTocItemChange();
   },
   { immediate: true }
 );
 
 // 组件挂载时添加Pinia状态监听器
-onMounted(() => {
+onMounted(() => 
+{
   // 初始化toc store
   tocStore.initializeFromUrl();
   // 初始化时也检查一次状态
@@ -227,21 +266,26 @@ onMounted(() => {
 
 
 // 处理节点展开/收起事件
-const handleExpand = (keys) => {
+const handleExpand = (keys) => 
+{
   // 计算用户新增展开的节点（在 keys 中但不在 expandedKeys 中的节点）
   const currentKeysSet = new Set(expandedKeys.value);
   const newKeysSet = new Set(keys);
 
   // 添加新展开的节点到用户展开集合
-  keys.forEach(key => {
-    if (!currentKeysSet.has(key)) {
+  keys.forEach(key => 
+  {
+    if (!currentKeysSet.has(key)) 
+    {
       userExpandedKeys.value.add(key);
     }
   });
 
   // 从用户展开集合中移除被收起的节点
-  expandedKeys.value.forEach(key => {
-    if (!newKeysSet.has(key)) {
+  expandedKeys.value.forEach(key => 
+  {
+    if (!newKeysSet.has(key)) 
+    {
       userExpandedKeys.value.delete(key);
     }
   });
@@ -250,9 +294,12 @@ const handleExpand = (keys) => {
 
   // 检查是否全部展开
   const allKeys = new Set();
-  const collectAllKeys = (nodes) => {
-    for (const node of nodes) {
-      if (node.children && node.children.length > 0) {
+  const collectAllKeys = (nodes) => 
+  {
+    for (const node of nodes) 
+    {
+      if (node.children && node.children.length > 0) 
+      {
         allKeys.add(node.key);
         collectAllKeys(node.children);
       }
@@ -264,24 +311,30 @@ const handleExpand = (keys) => {
 };
 
 // 滚动到选中的节点
-const scrollToSelectedItem = (key) => {
+const scrollToSelectedItem = (key) => 
+{
   // 使用nextTick确保DOM完全更新后查找元素
-  nextTick(() => {
+  nextTick(() => 
+  {
     // 尝试多种选择器来定位Arco Design Tree节点
     let selectedElement = document.querySelector(`.arco-tree-node[data-key="${key}"]`);
 
     // 如果上面的选择器没找到，尝试另一种可能的选择器
-    if (!selectedElement) {
+    if (!selectedElement) 
+    {
       selectedElement = document.querySelector(`[data-key="${key}"] .arco-tree-node-title`);
     }
 
-    if (!selectedElement) {
+    if (!selectedElement) 
+    {
       selectedElement = document.querySelector(`[data-key="${key}"]`);
     }
 
-    if (selectedElement) {
+    if (selectedElement) 
+    {
       const container = containerRef.value;
-      if (container) {
+      if (container) 
+      {
         // 计算元素相对于容器的滚动位置
         const elementTop = selectedElement.offsetTop;
         const elementHeight = selectedElement.offsetHeight;
@@ -295,7 +348,8 @@ const scrollToSelectedItem = (key) => {
         const isBelowViewport = elementPositionTop + elementHeight > containerHeight;
 
         // 只有在元素在视窗下方时才滚动
-        if (isBelowViewport) {
+        if (isBelowViewport) 
+        {
           // 滚动到元素位置，确保元素在视窗中间偏上（约15%的位置）
           let scrollPosition = elementTop - (containerHeight * 0.15) - (elementHeight / 2);
 
@@ -313,7 +367,8 @@ const scrollToSelectedItem = (key) => {
 };
 
 // 处理节点点击事件
-const handleNodeClick = (node) => {
+const handleNodeClick = (node) => 
+{
   const id = node[0];
   // 将被点击的节点添加到用户展开的节点集合中
   userExpandedKeys.value.add(id);

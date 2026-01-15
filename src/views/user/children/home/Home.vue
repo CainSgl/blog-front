@@ -101,67 +101,90 @@ const showEditModal = ref(false);
 
 // 获取用户ID
 const userId = computed(() => route.params.id);
-const currentUserInfo = ref({ id: -1 })
+const currentUserInfo = ref({ id: -1 });
 
 // 计算当前是否在粉丝页面
-const isOnFollowersPage = computed(() => {
+const isOnFollowersPage = computed(() => 
+{
   return route.path === `/space/${userId.value}/followers`;
 });
 
 // 计算当前是否在关注页面
-const isOnFollowingPage = computed(() => {
+const isOnFollowingPage = computed(() => 
+{
   return route.path === `/space/${userId.value}/following`;
 });
 
 // 获取用户信息
-const fetchUserInfo = async (id) => {
-  try {
+const fetchUserInfo = async (id) => 
+{
+  try 
+  {
     const response = await api.get('/user', { id: id });
     userInfo.value = response.data;
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('获取用户信息失败:', err);
   }
 };
 
-function tryChangeInfo() {
-  if (currentUserInfo.value.id != userId.value) {
+function tryChangeInfo() 
+{
+  if (currentUserInfo.value.id != userId.value) 
+  {
     return;
   }
   showEditModal.value = true;
 }
 
 // 用户信息保存后的回调
-const onUserInfoSaved = async () => {
+const onUserInfoSaved = async () => 
+{
   userInfo.value = await userStore.getUserInfo();
 };
 // 处理关注状态变化
-const handleFollowChange = async (shouldFollow) => {
+const handleFollowChange = async (shouldFollow) => 
+{
   if (!userId.value) return;
 
-  try {
-    if (shouldFollow) {
+  try 
+  {
+    if (shouldFollow) 
+    {
       // 关注 - 更新用户信息中的粉丝数
-      if (userInfo.value) {
+      if (userInfo.value) 
+      {
         userInfo.value.followerCount = (userInfo.value.followerCount || 0) + 1;
       }
-    } else {
+    }
+    else 
+    {
       // 取消关注 - 更新用户信息中的粉丝数
-      if (userInfo.value) {
+      if (userInfo.value) 
+      {
         userInfo.value.followerCount = Math.max(0, (userInfo.value.followerCount || 0) - 1);
       }
     }
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('操作失败:', err);
   }
 };
 // 跳转到粉丝页面
-const goToFollowerPage = () => {
-  if (userId.value) {
+const goToFollowerPage = () => 
+{
+  if (userId.value) 
+  {
     // 检查当前是否已经在粉丝页面
-    if (route.path === `/space/${userId.value}/followers`) {
+    if (route.path === `/space/${userId.value}/followers`) 
+    {
       // 如果已经在粉丝页面，则返回到用户主页
       router.push(`/space/${userId.value}`);
-    } else {
+    }
+    else 
+    {
       // 如果不在粉丝页面，则跳转到粉丝页面
       router.push(`/space/${userId.value}/followers`);
     }
@@ -169,22 +192,29 @@ const goToFollowerPage = () => {
 };
 
 // 跳转到关注页面
-const goToFollowingPage = () => {
-  if (userId.value) {
+const goToFollowingPage = () => 
+{
+  if (userId.value) 
+  {
     // 检查当前是否已经在关注页面
-    if (route.path === `/space/${userId.value}/following`) {
+    if (route.path === `/space/${userId.value}/following`) 
+    {
       // 如果已经在关注页面，则返回到用户主页
       router.push(`/space/${userId.value}`);
-    } else {
+    }
+    else 
+    {
       // 如果不在关注页面，则跳转到关注页面
       router.push(`/space/${userId.value}/following`);
     }
   }
 };
 
-onMounted(async () => {
-  if (userId.value) {
-      const [currentUserInfoData, userInfoData] = await Promise.all([
+onMounted(async () => 
+{
+  if (userId.value) 
+  {
+    const [currentUserInfoData, userInfoData] = await Promise.all([
       userStore.getUserInfo(),
       fetchUserInfo(userId.value)
     ]);

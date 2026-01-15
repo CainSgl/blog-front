@@ -55,8 +55,10 @@ const props = defineProps({
 const router = useRouter();
 
 // 跳转到用户空间页面
-const goToUserSpace = () => {
-  if (props.follower) {
+const goToUserSpace = () => 
+{
+  if (props.follower) 
+  {
     const routeData = router.resolve({ name: 'User', params: { id: props.follower.id } });
     window.open(routeData.href, '_blank');
   }

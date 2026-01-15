@@ -62,19 +62,22 @@ const containerWidth = ref(0);
 const containerHeight = ref(0);
 
 // 简化的计算：直接计算可用空间能放多少个卡片
-const loadingContainerWNumber = computed(() => {
+const loadingContainerWNumber = computed(() => 
+{
   if (containerWidth.value <= 0) return 1;
   const cardsPerRow = Math.floor(containerWidth.value / (props.cardWidth + props.cardGap));
   return Math.max(1, cardsPerRow);
 });
 
-const loadingContainerHNumber = computed(() => {
+const loadingContainerHNumber = computed(() => 
+{
   if (containerHeight.value <= 0) return 1;
   const rows = Math.floor(containerHeight.value / (props.cardHeight + props.cardGap));
   return Math.max(1, rows);
 });
 
-const pageSize = computed(() => {
+const pageSize = computed(() => 
+{
   const widthCount = loadingContainerWNumber.value;
   const heightCount = loadingContainerHNumber.value;
   const calculatedSize = Math.floor(widthCount * heightCount);
@@ -87,26 +90,33 @@ let resizeObserver = null;
 let resizeTimeout = null;
 let containerElement = null; // 缓存 DOM 元素
 
-const updateContainerSize = () => {
+const updateContainerSize = () => 
+{
   // 清除之前的定时器
-  if (resizeTimeout) {
+  if (resizeTimeout) 
+  {
     clearTimeout(resizeTimeout);
   }
 
   // 使用 setTimeout 防抖，延迟执行
-  resizeTimeout = setTimeout(() => {
+  resizeTimeout = setTimeout(() => 
+  {
     // 只在最后一次调用后执行
-    if (containerElement || (containerElement = document.querySelector('.content-area'))) {
-      if (containerElement) {
+    if (containerElement || (containerElement = document.querySelector('.content-area'))) 
+    {
+      if (containerElement) 
+      {
         // 确保响应式数据正确更新
         const newWidth = containerElement.clientWidth;
         const newHeight = window.innerHeight - props.heightOffset;
 
         // 只有真正变化时才更新，避免不必要的重新渲染
-        if (newWidth !== containerWidth.value) {
+        if (newWidth !== containerWidth.value) 
+        {
           containerWidth.value = newWidth;
         }
-        if (newHeight !== containerHeight.value) {
+        if (newHeight !== containerHeight.value) 
+        {
           containerHeight.value = newHeight;
         }
       }
@@ -117,22 +127,27 @@ const updateContainerSize = () => {
 // 监听pageSize变化，通知父组件
 const emit = defineEmits(['pageSizeChange']);
 
-watch(pageSize, (newSize, oldSize) => {
-  if (newSize !== oldSize && oldSize > 0) {
+watch(pageSize, (newSize, oldSize) => 
+{
+  if (newSize !== oldSize && oldSize > 0) 
+  {
     emit('pageSizeChange', newSize);
   }
 });
 
 // 组件挂载时加载数据
-onMounted(() => {
+onMounted(() => 
+{
   updateContainerSize();
   
   // 初始化ResizeObserver监听尺寸变化
-  resizeObserver = new ResizeObserver(() => {
+  resizeObserver = new ResizeObserver(() => 
+  {
     updateContainerSize();
   });
   const contentArea = document.querySelector('.content-area');
-  if (contentArea) {
+  if (contentArea) 
+  {
     resizeObserver.observe(contentArea);
   }
   // 监听窗口大小变化
@@ -140,14 +155,17 @@ onMounted(() => {
 });
 
 // 组件卸载时清理监听
-onUnmounted(() => {
-  if (resizeObserver) {
+onUnmounted(() => 
+{
+  if (resizeObserver) 
+  {
     resizeObserver.disconnect();
   }
   window.removeEventListener('resize', updateContainerSize);
 
   // 清理定时器
-  if (resizeTimeout) {
+  if (resizeTimeout) 
+  {
     clearTimeout(resizeTimeout);
   }
 });

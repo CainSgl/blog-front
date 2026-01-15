@@ -1,11 +1,18 @@
 <template>
   <div ref="wrapperRef" class="markdown-preview-wrapper"
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
-    <MarkdownPreview v-show="!(isMobile&&shouldShowToc)" :showComment="showComment" ref="markdownPreviewRef" :content="content"  :useWindowScroll="useWindowScroll"
-      :class="['preview', { 'preview-full': !isTocVisible }]" @scroll="handleMdScroll" />
-    <div></div>
-    <div :class="['toc', { 'toc-visible': isTocVisible }]" :target="affixTarget ? affixTarget : null"
-      :style="tocHasData ? '' : 'width: 0;'">
+    <MarkdownPreview v-show="!(isMobile && shouldShowToc)" :showComment="showComment" ref="markdownPreviewRef"
+      :content="content" :useWindowScroll="useWindowScroll" :class="['preview', { 'preview-full': !isTocVisible }]"
+      @scroll="handleMdScroll">
+      <div :class="['scroll-progress-container', { 'scroll-progress-mobile': isMobile }]">
+        <ScrollProgress 
+          :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
+          @scroll-to-top="handleScrollToTop" />
+      </div>
+    </MarkdownPreview>
+
+    <div :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]"
+      :target="affixTarget ? affixTarget : null" :style="tocHasData ? '' : 'width: 0;'">
       <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect"
         :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" @hasData="handleHasData" />
     </div>
@@ -23,11 +30,7 @@
         </template>
       </a-button>
     </div>
-    <div class="scroll-progress-container">
-      <ScrollProgress :style="isMobile || !tocHasData ? tocPosition + ': 10px;' : ''"
-        :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
-        @scroll-to-top="handleScrollToTop" />
-    </div>
+
     <CommentDrawer v-if="showComment" />
   </div>
 
@@ -82,26 +85,31 @@ const showScrollProgress = ref(false);
 const tocHasData = ref(true);
 // 判断是否应该显示目录：在桌面端始终根据isTocVisible决定，
 // 在移动端仅在可见状态下显示，隐藏状态下不显示（包括控制按钮）
-const shouldShowToc = computed(() => {
+const shouldShowToc = computed(() => 
+{
   return props.showToc && (isMobile.value ? isTocVisible.value : true);
 });
 let closeScrollProgress;
 
 
 
-function handleHasData(hasData) {
+function handleHasData(hasData) 
+{
   console.log('hasData', hasData);
   tocHasData.value = hasData;
 }
 
 
-function handleMdScroll(e) {
+function handleMdScroll(e) 
+{
   showScrollProgress.value = true;
-  if (closeScrollProgress) {
+  if (closeScrollProgress) 
+  {
     clearTimeout(closeScrollProgress);
   }
   const target = e.target;
-  if (target) {
+  if (target) 
+  {
     const scrollTop = target.scrollTop;
     const scrollHeight = target.scrollHeight;
     const clientHeight = target.clientHeight;
@@ -120,21 +128,26 @@ function handleMdScroll(e) {
     // 向父组件发送滚动事件
     emit('scroll', e);
   }
-  closeScrollProgress = setTimeout(() => {
+  closeScrollProgress = setTimeout(() => 
+  {
     showScrollProgress.value = false;
   }, 600);
 }
 // 监听容器大小变化
-const updateMobileStatus = () => {
-  if (wrapperRef.value) {
+const updateMobileStatus = () => 
+{
+  if (wrapperRef.value) 
+  {
     const rect = wrapperRef.value.getBoundingClientRect();
     isMobile.value = rect.width < 768;
   }
 };
 
 // 计算目录的最大高度
-const calculateTocMaxHeight = () => {
-  if (wrapperRef.value) {
+const calculateTocMaxHeight = () => 
+{
+  if (wrapperRef.value) 
+  {
     const wrapperRect = wrapperRef.value.getBoundingClientRect();
     // 设置目录最大高度为容器在屏幕中的高度减去一些边距
     tocMaxHeight.value = `${wrapperRect.height - 20}px`;
@@ -142,60 +155,74 @@ const calculateTocMaxHeight = () => {
 };
 
 // 处理目录可见性变化
-const handleTocVisibilityChange = (isVisible) => {
+const handleTocVisibilityChange = (isVisible) => 
+{
   isTocVisible.value = isVisible;
 };
 
-const handleSelect = (item) => {
+const handleSelect = (item) => 
+{
 
 };
 
 // 移动端显示目录
-const showTocOnMobile = () => {
+const showTocOnMobile = () => 
+{
   isTocVisible.value = true;
 };
 
 // 滚动到顶部
-const handleScrollToTop = () => {
-  if (currentScrollPercent.value < 60) {
+const handleScrollToTop = () => 
+{
+  if (currentScrollPercent.value < 60) 
+  {
 
-    markdownPreviewRef.value.scrollToTopOrBottom(true)
-  } else {
+    markdownPreviewRef.value.scrollToTopOrBottom(true);
+  }
+  else 
+  {
     window.scrollTo({
       top: 0,
     });
-    markdownPreviewRef.value.scrollToTopOrBottom(false)
+    markdownPreviewRef.value.scrollToTopOrBottom(false);
   }
 };
 
 let resizeObserver = null;
 
 // 监听窗口大小变化，重新计算目录高度和移动端判断
-const handleResize = () => {
-  nextTick(() => {
+const handleResize = () => 
+{
+  nextTick(() => 
+  {
     calculateTocMaxHeight();
     updateMobileStatus();
   });
 };
 
 // 监听content变化，重新计算目录高度
-watch(() => props.content, () => {
-  nextTick(() => {
+watch(() => props.content, () => 
+{
+  nextTick(() => 
+  {
     calculateTocMaxHeight();
   });
 }, {
   immediate: false // 不需要立即执行，因为onMounted中已经计算过一次
 });
 
-onMounted(() => {
+onMounted(() => 
+{
   // 组件挂载后计算目录高度
-  nextTick(() => {
+  nextTick(() => 
+  {
     calculateTocMaxHeight();
     updateMobileStatus();
   });
 
   // 使用ResizeObserver监听容器大小变化
-  if (wrapperRef.value) {
+  if (wrapperRef.value) 
+  {
     resizeObserver = new ResizeObserver(updateMobileStatus);
     resizeObserver.observe(wrapperRef.value);
   }
@@ -204,10 +231,12 @@ onMounted(() => {
   window.addEventListener('resize', handleResize);
 });
 
-onUnmounted(() => {
+onUnmounted(() => 
+{
   // 组件卸载时移除事件监听
   window.removeEventListener('resize', handleResize);
-  if (resizeObserver) {
+  if (resizeObserver) 
+  {
     resizeObserver.disconnect();
   }
 });
@@ -252,27 +281,30 @@ onUnmounted(() => {
     }
   }
 
-  // 移动端适配：当屏幕宽度小于768px时，目录宽度为100vw
-  @media (max-width: 767px) {
-    .toc {
-      &.toc-visible {
-        width: 100vw;
-      }
+  // 当目录隐藏时，预览区域占据剩余空间（减去目录按钮的宽度）
+  &.toc-hidden {
+    flex: 1 !important; // 预览区域占据除目录按钮外的所有剩余空间
+  }
 
-      &:not(.toc-visible) {
-        flex: 0 0 0px !important; // 保留约100px的空间给控制按钮
-        min-width: 0px !important;
-        max-width: 0px !important;
-        overflow: hidden;
-      }
-    }
+  // 移动端样式
+  .toc.toc-mobile {
+    transition: none; // 移动端禁用过渡动画
 
-    .toc .toc-visible {
+    &.toc-visible {
+      width: 100vw;
       display: block !important;
       width: calc(100vw - 30px) !important;
       flex: 0 0 calc(100vw - 30px) !important;
     }
+
+    &:not(.toc-visible) {
+      flex: 0 0 0px !important;
+      min-width: 0px !important;
+      max-width: 0px !important;
+      overflow: hidden;
+    }
   }
+
 
 
 
@@ -282,17 +314,14 @@ onUnmounted(() => {
     transition: all 0.3s ease;
   }
 
-  // 当目录隐藏时，预览区域占据剩余空间（减去目录按钮的宽度）
-  &.toc-hidden .preview-full {
-    flex: 1 !important; // 预览区域占据除目录按钮外的所有剩余空间
-  }
+
 
   .toc-toggle-container {
     position: absolute;
     bottom: 20px;
     right: 20px;
     z-index: 1000; // 确保按钮在最上层
-  } 
+  }
 
   .scroll-progress-container {
     position: absolute;
@@ -303,10 +332,12 @@ onUnmounted(() => {
 
   &.toc-left .scroll-progress-container {
     right: calc(clamp(200px, 15vw, 200px) + 20px);
+    transform: translateX(50%);
   }
 
   &.toc-right .scroll-progress-container {
     left: calc(clamp(200px, 15vw, 200px) + 20px);
+    transform: translateX(-50%);
   }
 
   &.toc-left.toc-hidden .scroll-progress-container {
@@ -315,6 +346,20 @@ onUnmounted(() => {
 
   &.toc-right.toc-hidden .scroll-progress-container {
     left: 120px;
+  }
+
+
+
+  .scroll-progress-mobile {
+
+    // 移动端滚动进度条样式
+    &[style*="left:"] {
+      left: 10px !important;
+    }
+
+    &[style*="right:"] {
+      right: 10px !important;
+    }
   }
 }
 </style>

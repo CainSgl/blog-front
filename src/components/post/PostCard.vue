@@ -103,10 +103,10 @@
 </template>
 
 <script setup>
-import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon'
-import { computed, ref, watchEffect, defineEmits } from 'vue'
-import CImg from '../base/cImg.vue'
-import { formatDate } from '@/utils/DateFormatter.js'
+import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon';
+import { computed, ref, watchEffect, defineEmits } from 'vue';
+import CImg from '../base/cImg.vue';
+import { formatDate } from '@/utils/DateFormatter.js';
 const emit = defineEmits(['clickCard']);
 const props = defineProps({
   post: {
@@ -126,53 +126,59 @@ const props = defineProps({
     default: false
   },
   onlyFans:{
-     type: Boolean,
+    type: Boolean,
     default: false
   }
-})
+});
 
 // 定义使用全局样式变量 primary-4 的颜色
-const primary4Color = '#ff6699' // 对应 @primary-4: #ff6699; 在 global.less 中
+const primary4Color = '#ff6699'; // 对应 @primary-4: #ff6699; 在 global.less 中
 
-const imageHeight = ref(0)
-const imageStyle = ref({})
+const imageHeight = ref(0);
+const imageStyle = ref({});
 const summary = ref(1);
-const summaryHight = ref(0)
-const showSummary = ref(true)
+const summaryHight = ref(0);
+const showSummary = ref(true);
 // 使用 watchEffect 来处理副作用并计算图片样式
-watchEffect(() => {
+watchEffect(() => 
+{
   // 如果没有图片，返回空样式
-  if (!props.post.img) {
-    summary.value = calculateSummary()
+  if (!props.post.img) 
+  {
+    summary.value = calculateSummary();
     imageStyle.value = {};
     return;
   }
   //如果是水平模式
-  if (props.width <= 400) {
+  if (props.width <= 400) 
+  {
     //width应该是填满的
     const width = props.width - 40;
     //虽然由宽度决定，但是高度仍然不要超过1/2
-    imageHeight.value = Math.min(width / 1.5, props.height / 2)
-    summary.value = calculateSummary()
+    imageHeight.value = Math.min(width / 1.5, props.height / 2);
+    summary.value = calculateSummary();
     imageStyle.value = {
       height: `${imageHeight.value}px`,
       // width: `${width}px`
     };
-  } else {
+  }
+  else 
+  {
     //图片由高度决定
-    const height = props.height - 40
+    const height = props.height - 40;
     //虽然有高度决定，但是width仍然限制一下，最好不要超过卡片的1/2
-    imageHeight.value = height
-    summary.value = calculateSummary()
+    imageHeight.value = height;
+    summary.value = calculateSummary();
     imageStyle.value = {
       height: `${height - 20}px`,
       width: `${Math.min(props.width / 2, height * 1.5)}px`
     };
   }
-})
+});
 
 
-function calculateSummary() {
+function calculateSummary() 
+{
   // 计算可用高度用于摘要显示 (总高度 - 标题高度 - 页脚高度等)
   const lineHeight = 20; // 每行高度
   const titleHeight = 36; // 标题区域高度
@@ -180,23 +186,30 @@ function calculateSummary() {
   let availableHeight = props.height - titleHeight - footerHeight;
 
   // 如果有图片且宽度，说明这个时候是垂直模式，需要减去图片高度
-  if (props.post.img && props.width <= 400) {
+  if (props.post.img && props.width <= 400) 
+  {
     availableHeight -= imageHeight.value;
   }
-  if (props.post.tags && props.post.tags.length > 0) {
+  if (props.post.tags && props.post.tags.length > 0) 
+  {
     availableHeight -= 50;
-  } else {
+  }
+  else 
+  {
     availableHeight -= 10;
   }
-  summaryHight.value = availableHeight
+  summaryHight.value = availableHeight;
   const lines = Math.floor(availableHeight / lineHeight);
-  if (lines <= 0) {
+  if (lines <= 0) 
+  {
     //不显示了  
-    showSummary.value = false
+    showSummary.value = false;
     return 1;
-  } else {
+  }
+  else 
+  {
     //显示lines行
-    showSummary.value = true
+    showSummary.value = true;
   }
   return lines;
 
@@ -207,47 +220,57 @@ function calculateSummary() {
 
 
 // 计算属性：判断是否已点赞
-const isLiked = computed(() => {
+const isLiked = computed(() => 
+{
   return props.post.operate && props.post.operate.includes('点赞');
-})
+});
 
 // 计算属性：判断是否已讨厌
-const isDisliked = computed(() => {
+const isDisliked = computed(() => 
+{
   return props.post.operate && props.post.operate.includes('讨厌');
-})
+});
 
 // 处理点赞/讨厌点击事件
-const handleLikeClick = (event) => {
-  console.log('Like clicked for post:', props.post.id)
+const handleLikeClick = (event) => 
+{
+  console.log('Like clicked for post:', props.post.id);
   event.stopPropagation(); // 阻止事件冒泡，避免触发卡片点击
   // 这里可以添加点赞/取消点赞的逻辑
-}
+};
 
 // 获取标签显示名称（去掉分数部分）
-const getTagDisplayName = (tag) => {
-  if (typeof tag === 'string' && tag.includes(':')) {
+const getTagDisplayName = (tag) => 
+{
+  if (typeof tag === 'string' && tag.includes(':')) 
+  {
     return tag.split(':')[0];
   }
   return tag;
-}
+};
 
 // 获取标签分数（如果存在）
-const getTagScore = (tag) => {
-  if (typeof tag === 'string' && tag.includes(':')) {
+const getTagScore = (tag) => 
+{
+  if (typeof tag === 'string' && tag.includes(':')) 
+  {
     const parts = tag.split(':');
-    if (parts.length > 1) {
+    if (parts.length > 1) 
+    {
       return `作者认为该标签相关度为: ${parts[1]}`;
     }
   }
   return null; // 如果没有分数部分，则不显示tooltip
-}
+};
 
 // 处理卡片点击事件
-const handleCardClick = () => {
-  if (props.post.id) {
-    emit('clickCard', props.post)
+const handleCardClick = () => 
+{
+  if (props.post.id) 
+  {
+    emit('clickCard', props.post);
   }
-}
+};
 </script>
 
 <style scoped lang="less">

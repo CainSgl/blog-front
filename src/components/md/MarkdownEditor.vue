@@ -249,26 +249,31 @@ const text = shallowRef(props.modelValue);
 
 
 // 监听 modelValue 的变化
-watch(() => props.modelValue, (newVal) => {
+watch(() => props.modelValue, (newVal) => 
+{
   text.value = newVal;
 });
 
 // 监听内部文本变化并触发更新事件
-watch(text, (newVal) => {
+watch(text, (newVal) => 
+{
   emit('update:modelValue', newVal);
 });
 
 // 处理模型值更新
-const handleModelUpdate = (value) => {
+const handleModelUpdate = (value) => 
+{
   text.value = value;
 };
 
 // 计算字数和行数
-const wordCount = computed(() => {
+const wordCount = computed(() => 
+{
   return text.value.length;
 });
 
-const lineCount = computed(() => {
+const lineCount = computed(() => 
+{
   return text.value.split('\n').length;
 });
 
@@ -295,60 +300,79 @@ const originalFileName = ref('');
 // 编辑器模式
 const editorMode = ref('both'); // 'edit', 'preview', 'both'
 
-const goBack = () => {
+const goBack = () => 
+{
   emit('go-back');
 };
 
-const togglePreview = () => {
+const togglePreview = () => 
+{
   showPreview.value = !showPreview.value;
 
   // 更新编辑器模式
-  if (!showPreview.value) {
+  if (!showPreview.value) 
+  {
     editorMode.value = 'edit';
-  } else {
+  }
+  else 
+  {
     editorMode.value = 'both';
   }
 };
 
-const toggleToc = () => {
+const toggleToc = () => 
+{
   showToc.value = !showToc.value;
 
   // 调用编辑器的 toggleToc 方法来控制目录显示/隐藏
-  if (editorRef.value && editorRef.value.toggleToc) {
+  if (editorRef.value && editorRef.value.toggleToc) 
+  {
     editorRef.value.toggleToc(showToc.value);
   }
 
 };
 
-const toggleSyncScroll = () => {
+const toggleSyncScroll = () => 
+{
   syncScroll.value = !syncScroll.value;
-  if (editorRef.value && editorRef.value.toggleSyncScroll) {
+  if (editorRef.value && editorRef.value.toggleSyncScroll) 
+  {
     editorRef.value.toggleSyncScroll(syncScroll.value);
   }
 };
 
-const toggleFullscreen = () => {
+const toggleFullscreen = () => 
+{
   isFullscreen.value = !isFullscreen.value;
-  if (editorRef.value && editorRef.value.toggleFullScreen) {
+  if (editorRef.value && editorRef.value.toggleFullScreen) 
+  {
     editorRef.value.toggleFullScreen(isFullscreen.value);
   }
 };
 
 // Undo功能
-const undo = () => {
-  if (editorRef.value && editorRef.value.undo) {
+const undo = () => 
+{
+  if (editorRef.value && editorRef.value.undo) 
+  {
     editorRef.value.undo();
-  } else {
+  }
+  else 
+  {
     // 如果编辑器没有提供undo方法，则使用浏览器的execCommand
-   // document.execCommand('undo', false, null);
+    // document.execCommand('undo', false, null);
   }
 };
 
 // Redo功能
-const redo = () => {
-  if (editorRef.value && editorRef.value.redo) {
+const redo = () => 
+{
+  if (editorRef.value && editorRef.value.redo) 
+  {
     editorRef.value.redo();
-  } else {
+  }
+  else 
+  {
     // 如果编辑器没有提供redo方法，则使用浏览器的execCommand
   //  document.execCommand('redo', false, null);
   }
@@ -360,8 +384,10 @@ const redo = () => {
 let insertImageCallback = null;
 
 // 处理裁剪后的图片
-const handleCroppedImage = async (croppedFile) => {
-  try {
+const handleCroppedImage = async (croppedFile) => 
+{
+  try 
+  {
     Message.loading({
       id: 'upload-cropped-image:' + croppedFile.name,
       content: croppedFile.name + '图片上传中...',
@@ -380,7 +406,8 @@ const handleCroppedImage = async (croppedFile) => {
     });
     
     // 使用保存的回调函数插入图片
-    if (insertImageCallback) {
+    if (insertImageCallback) 
+    {
       insertImageCallback({
         url:  data.shortUrl,
         desc: croppedFile.name,
@@ -399,7 +426,9 @@ const handleCroppedImage = async (croppedFile) => {
     cropperModalVisible.value = false;
     currentImageFile.value = null;
     insertImageCallback = null; // 重置回调函数
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('裁剪后图片上传失败:', error);
     Message.error({
       id: 'upload-cropped-image:' + croppedFile.name,
@@ -411,14 +440,16 @@ const handleCroppedImage = async (croppedFile) => {
 };
 
 // 修改handleUploadImage函数以保存insertImage回调
-const handleUploadImage = async (event, insertImage, files) => {
+const handleUploadImage = async (event, insertImage, files) => 
+{
   const file = files[0];
   
   // 保存insertImage回调函数
   insertImageCallback = insertImage;
   
   // 检查是否为图片
-  if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith('image/')) 
+  {
     Message.error('请选择图片文件');
     return;
   }
@@ -428,7 +459,8 @@ const handleUploadImage = async (event, insertImage, files) => {
   img.src = URL.createObjectURL(file);
   // 设置原始文件名
   originalFileName.value = file.name;
-  img.onload = async () => {
+  img.onload = async () => 
+  {
     // 将原始文件保存到currentImageFile，用于裁剪
     currentImageFile.value = file;
 
@@ -437,13 +469,16 @@ const handleUploadImage = async (event, insertImage, files) => {
 
     // 等待模态框打开后设置图片
     await nextTick();
-    setTimeout(() => {
-      if (imageCropperRef.value) {
+    setTimeout(() => 
+    {
+      if (imageCropperRef.value) 
+      {
         imageCropperRef.value.setImage(img);
       }
     }, 100);
   };
-  img.onerror = () => {
+  img.onerror = () => 
+  {
     console.error('图片加载失败');
     Message.error('图片加载失败');
   };
@@ -453,7 +488,8 @@ const handleUploadImage = async (event, insertImage, files) => {
 let savedSelection = null;
 
 // 保存当前选区
-const saveSelection = () => {
+const saveSelection = () => 
+{
   const editor = editorRef.value;
   if (!editor) return;
 
@@ -468,7 +504,8 @@ const saveSelection = () => {
 };
 
 // 获取编辑器文本区域元素
-const getTextAreaElement = () => {
+const getTextAreaElement = () => 
+{
   const editor = editorRef.value;
   if (!editor) return null;
 
@@ -476,7 +513,8 @@ const getTextAreaElement = () => {
 };
 
 // 处理表情选择
-const handleEmojiSelect = (emoji) => {
+const handleEmojiSelect = (emoji) => 
+{
   const textarea = getTextAreaElement();
   if (!textarea) return;
 
@@ -488,21 +526,26 @@ const handleEmojiSelect = (emoji) => {
   text.value = newText;
 
   // 设置光标位置到表情后面
-  setTimeout(() => {
+  setTimeout(() => 
+  {
     textarea.setSelectionRange(start + emoji.i.length, start + emoji.i.length);
     textarea.focus();
   }, 0);
 };
 
 // 处理动态组件占位符（图片和代码块）
-const processDynamicComponents = async () => {
+const processDynamicComponents = async () => 
+{
   await nextTick();
   // 等待编辑器内容更新
-  setTimeout(() => {
+  setTimeout(() => 
+  {
     // 处理图片占位符
     const imagePlaceholders = document.querySelectorAll('.arco-image-placeholder');
-    imagePlaceholders.forEach(placeholder => {
-      if (placeholder && !placeholder.hasAttribute('data-processed')) {
+    imagePlaceholders.forEach(placeholder => 
+    {
+      if (placeholder && !placeholder.hasAttribute('data-processed')) 
+      {
         placeholder.setAttribute('data-processed', 'true');
         const src = placeholder.getAttribute('data-src');
         const alt = placeholder.getAttribute('data-alt');
@@ -528,16 +571,19 @@ const processDynamicComponents = async () => {
 };
 
 // 监听文本变化并处理动态组件
-watch(text, () => {
+watch(text, () => 
+{
   processDynamicComponents();
 }, { deep: true });
 
-onMounted(() => {
+onMounted(() => 
+{
   processDynamicComponents();
 });
 
 // 获取选中文本信息
-const getSelectedTextInfo = () => {
+const getSelectedTextInfo = () => 
+{
   const textarea = getTextAreaElement();
   if (!textarea) return null;
 
@@ -554,7 +600,8 @@ const getSelectedTextInfo = () => {
 };
 
 // 获取当前行文本
-const getCurrentLineText = () => {
+const getCurrentLineText = () => 
+{
   const textarea = getTextAreaElement();
   if (!textarea) return null;
 
@@ -563,12 +610,14 @@ const getCurrentLineText = () => {
 
   // 找到当前行的开始和结束位置
   let lineStart = start;
-  while (lineStart > 0 && textContent[lineStart - 1] !== '\n') {
+  while (lineStart > 0 && textContent[lineStart - 1] !== '\n') 
+  {
     lineStart--;
   }
 
   let lineEnd = start;
-  while (lineEnd < textContent.length && textContent[lineEnd] !== '\n') {
+  while (lineEnd < textContent.length && textContent[lineEnd] !== '\n') 
+  {
     lineEnd++;
   }
 
@@ -584,11 +633,13 @@ const getCurrentLineText = () => {
 };
 
 // 更新文本内容并设置光标位置
-const updateTextAndSetCursor = (newText, cursorPosition, cursorEndPosition = null) => {
+const updateTextAndSetCursor = (newText, cursorPosition, cursorEndPosition = null) => 
+{
   text.value = newText;
 
   // 重新设置光标位置
-  setTimeout(() => {
+  setTimeout(() => 
+  {
     const textarea = getTextAreaElement();
     if (!textarea) return;
 
@@ -604,34 +655,43 @@ const updateTextAndSetCursor = (newText, cursorPosition, cursorEndPosition = nul
 };
 
 // 加粗文本处理函数
-const formatBold = () => {
+const formatBold = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
-  console.log(selectedText)
+  console.log(selectedText);
   // 检查是否已经加粗（只在选中文本时检查）
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     // 检查选中文本是否已经被加粗标记包围
-    if (selectedText.startsWith('**') && selectedText.endsWith('**') && selectedText.length > 4) {
+    if (selectedText.startsWith('**') && selectedText.endsWith('**') && selectedText.length > 4) 
+    {
       // 取消加粗：去掉前后 **
       const unformattedText = selectedText.substring(2, selectedText.length - 2);
       const newText = text.value.substring(0, start) + unformattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start);
-    } else {
+    }
+    else 
+    {
       // 加粗：包裹 **
       const formattedText = `**${selectedText}**`;
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start + 2);
     }
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，检查当前行是否已经是粗体
     const lineInfo = getCurrentLineText();
-    if (lineInfo) {
+    if (lineInfo) 
+    {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
 
       // 检查当前行是否已经被加粗标记包围
-      if (lineText.startsWith('**') && lineText.endsWith('**') && lineText.length > 4) {
+      if (lineText.startsWith('**') && lineText.endsWith('**') && lineText.length > 4) 
+      {
         // 取消整行加粗：去掉前后 **
         const unformattedText = lineText.substring(2, lineText.length - 2);
         const beforeText = text.value.substring(0, lineStart);
@@ -640,7 +700,9 @@ const formatBold = () => {
         // 保持光标在原来的位置（相对位置不变）
         const newCursorPosition = lineStart + cursorPositionInLine - 2;
         updateTextAndSetCursor(newText, Math.max(lineStart, newCursorPosition));
-      } else {
+      }
+      else 
+      {
         // 整行加粗：包裹 **
         const formattedText = `**${lineText}**`;
         const beforeText = text.value.substring(0, lineStart);
@@ -650,43 +712,54 @@ const formatBold = () => {
         const newCursorPosition = lineStart + 2 + cursorPositionInLine;
         updateTextAndSetCursor(newText, newCursorPosition);
       }
-    } else {
+    }
+    else 
+    {
       // 如果无法获取行信息，则在光标位置插入加粗标记
-      const newText = text.value.substring(0, start) + `****` + text.value.substring(end);
+      const newText = text.value.substring(0, start) + '****' + text.value.substring(end);
       updateTextAndSetCursor(newText, start + 2);
     }
   }
 };
 
 // 斜体文本处理函数
-const formatItalic = () => {
+const formatItalic = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 检查是否已经斜体（只在选中文本时检查）
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     // 检查选中文本是否已经被斜体标记包围
-    if (selectedText.startsWith('*') && selectedText.endsWith('*') && selectedText.length > 2) {
+    if (selectedText.startsWith('*') && selectedText.endsWith('*') && selectedText.length > 2) 
+    {
       // 取消斜体：去掉前后 *
       const unformattedText = selectedText.substring(1, selectedText.length - 1);
       const newText = text.value.substring(0, start) + unformattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start);
-    } else {
+    }
+    else 
+    {
       // 斜体：包裹 *
       const formattedText = `*${selectedText}*`;
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start + 1);
     }
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，检查当前行是否已经是斜体
     const lineInfo = getCurrentLineText();
-    if (lineInfo) {
+    if (lineInfo) 
+    {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
 
       // 检查当前行是否已经被斜体标记包围
-      if (lineText.startsWith('*') && lineText.endsWith('*') && lineText.length > 2) {
+      if (lineText.startsWith('*') && lineText.endsWith('*') && lineText.length > 2) 
+      {
         // 取消整行斜体：去掉前后 *
         const unformattedText = lineText.substring(1, lineText.length - 1);
         const beforeText = text.value.substring(0, lineStart);
@@ -695,7 +768,9 @@ const formatItalic = () => {
         // 保持光标在原来的位置（相对位置不变）
         const newCursorPosition = lineStart + cursorPositionInLine - 1;
         updateTextAndSetCursor(newText, Math.max(lineStart, newCursorPosition));
-      } else {
+      }
+      else 
+      {
         // 整行斜体：包裹 *
         const formattedText = `*${lineText}*`;
         const beforeText = text.value.substring(0, lineStart);
@@ -705,43 +780,54 @@ const formatItalic = () => {
         const newCursorPosition = lineStart + 1 + cursorPositionInLine;
         updateTextAndSetCursor(newText, newCursorPosition);
       }
-    } else {
+    }
+    else 
+    {
       // 如果无法获取行信息，则在光标位置插入斜体标记
-      const newText = text.value.substring(0, start) + `**` + text.value.substring(end);
+      const newText = text.value.substring(0, start) + '**' + text.value.substring(end);
       updateTextAndSetCursor(newText, start + 1);
     }
   }
 };
 
 // 删除线文本处理函数
-const formatStrikethrough = () => {
+const formatStrikethrough = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 检查是否已经删除线（只在选中文本时检查）
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     // 检查选中文本是否已经被删除线标记包围
-    if (selectedText.startsWith('~~') && selectedText.endsWith('~~') && selectedText.length > 4) {
+    if (selectedText.startsWith('~~') && selectedText.endsWith('~~') && selectedText.length > 4) 
+    {
       // 取消删除线：去掉前后 ~~
       const unformattedText = selectedText.substring(2, selectedText.length - 2);
       const newText = text.value.substring(0, start) + unformattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start);
-    } else {
+    }
+    else 
+    {
       // 删除线：包裹 ~~
       const formattedText = `~~${selectedText}~~`;
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start + 2);
     }
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，检查当前行是否已经是删除线
     const lineInfo = getCurrentLineText();
-    if (lineInfo) {
+    if (lineInfo) 
+    {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
 
       // 检查当前行是否已经被删除线标记包围
-      if (lineText.startsWith('~~') && lineText.endsWith('~~') && lineText.length > 4) {
+      if (lineText.startsWith('~~') && lineText.endsWith('~~') && lineText.length > 4) 
+      {
         // 取消整行删除线：去掉前后 ~~
         const unformattedText = lineText.substring(2, lineText.length - 2);
         const beforeText = text.value.substring(0, lineStart);
@@ -750,7 +836,9 @@ const formatStrikethrough = () => {
         // 保持光标在原来的位置（相对位置不变）
         const newCursorPosition = lineStart + cursorPositionInLine - 2;
         updateTextAndSetCursor(newText, Math.max(lineStart, newCursorPosition));
-      } else {
+      }
+      else 
+      {
         // 整行删除线：包裹 ~~
         const formattedText = `~~${lineText}~~`;
         const beforeText = text.value.substring(0, lineStart);
@@ -760,48 +848,59 @@ const formatStrikethrough = () => {
         const newCursorPosition = lineStart + 2 + cursorPositionInLine;
         updateTextAndSetCursor(newText, newCursorPosition);
       }
-    } else {
+    }
+    else 
+    {
       // 如果无法获取行信息，则在光标位置插入删除线标记
-      const newText = text.value.substring(0, start) + `~~~~` + text.value.substring(end);
+      const newText = text.value.substring(0, start) + '~~~~' + text.value.substring(end);
       updateTextAndSetCursor(newText, start + 2);
     }
   }
 };
 
 // 下划线文本处理函数
-const formatUnderline = () => {
+const formatUnderline = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 检查是否已经下划线（只在选中文本时检查）
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     // 检查选中文本是否已经被下划线标签包围
     const underlineTagStart = '<u>';
     const underlineTagEnd = '</u>';
 
-    if (selectedText.startsWith(underlineTagStart) && selectedText.endsWith(underlineTagEnd) && selectedText.length > 7) {
+    if (selectedText.startsWith(underlineTagStart) && selectedText.endsWith(underlineTagEnd) && selectedText.length > 7) 
+    {
       // 取消下划线：去掉前后标签
       const unformattedText = selectedText.substring(underlineTagStart.length, selectedText.length - underlineTagEnd.length);
       const newText = text.value.substring(0, start) + unformattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start);
-    } else {
+    }
+    else 
+    {
       // 下划线：包裹标签
       const formattedText = `<u>${selectedText}</u>`;
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start + underlineTagStart.length);
     }
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，检查当前行是否已经是下划线
     const lineInfo = getCurrentLineText();
-    if (lineInfo) {
+    if (lineInfo) 
+    {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
       const underlineTagStart = '<u>';
       const underlineTagEnd = '</u>';
 
       // 检查当前行是否已经被下划线标签包围
-      if (lineText.startsWith(underlineTagStart) && lineText.endsWith(underlineTagEnd) && lineText.length > 7) {
+      if (lineText.startsWith(underlineTagStart) && lineText.endsWith(underlineTagEnd) && lineText.length > 7) 
+      {
         // 取消整行下划线：去掉前后标签
         const unformattedText = lineText.substring(underlineTagStart.length, lineText.length - underlineTagEnd.length);
         const beforeText = text.value.substring(0, lineStart);
@@ -810,7 +909,9 @@ const formatUnderline = () => {
         // 保持光标在原来的位置（相对位置不变）
         const newCursorPosition = lineStart + cursorPositionInLine - underlineTagStart.length;
         updateTextAndSetCursor(newText, Math.max(lineStart, newCursorPosition));
-      } else {
+      }
+      else 
+      {
         // 整行下划线：包裹标签
         const formattedText = `<u>${lineText}</u>`;
         const beforeText = text.value.substring(0, lineStart);
@@ -820,9 +921,11 @@ const formatUnderline = () => {
         const newCursorPosition = lineStart + underlineTagStart.length + cursorPositionInLine;
         updateTextAndSetCursor(newText, newCursorPosition);
       }
-    } else {
+    }
+    else 
+    {
       // 如果无法获取行信息，则在光标位置插入下划线标签
-      const newText = text.value.substring(0, start) + `<u></u>` + text.value.substring(end);
+      const newText = text.value.substring(0, start) + '<u></u>' + text.value.substring(end);
       updateTextAndSetCursor(newText, start + 3);
     }
   }
@@ -831,84 +934,101 @@ const formatUnderline = () => {
 
 
 // 无序列表处理函数
-const formatUnorderedList = () => {
+const formatUnorderedList = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 如果有选中文本，对每一行添加前缀
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     const formattedText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
     const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
     updateTextAndSetCursor(newText, start);
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，在当前位置插入两个新行和列表项
-    const newText = text.value.substring(0, start) + `\n\n- ` + text.value.substring(end);
+    const newText = text.value.substring(0, start) + '\n\n- ' + text.value.substring(end);
     updateTextAndSetCursor(newText, start + 4); // 光标定位在 "- " 后面
   }
 };
 
 // 有序列表处理函数
-const formatOrderedList = () => {
+const formatOrderedList = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 如果有选中文本，对每一行添加前缀
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     const lines = selectedText.split('\n');
     const formattedText = lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
     const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
     updateTextAndSetCursor(newText, start);
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，在当前位置插入两个新行和列表项
-    const newText = text.value.substring(0, start) + `\n\n1. ` + text.value.substring(end);
+    const newText = text.value.substring(0, start) + '\n\n1. ' + text.value.substring(end);
     updateTextAndSetCursor(newText, start + 5); // 光标定位在 "1. " 后面
   }
 };
 
 // 任务列表处理函数
-const formatTaskList = () => {
+const formatTaskList = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 如果有选中文本，对每一行添加前缀
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     const formattedText = selectedText.split('\n').map(line => `- [ ] ${line}`).join('\n');
     const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
     updateTextAndSetCursor(newText, start);
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，在当前位置插入两个新行和列表项
-    const newText = text.value.substring(0, start) + `\n\n- [ ] ` + text.value.substring(end);
+    const newText = text.value.substring(0, start) + '\n\n- [ ] ' + text.value.substring(end);
     updateTextAndSetCursor(newText, start + 8); // 光标定位在 "- [ ] " 后面
   }
 };
 
 // 引用处理函数
-const formatQuote = () => {
+const formatQuote = () => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 如果有选中文本，对每一行添加引用符号
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     const formattedText = selectedText.split('\n').map(line => `> ${line}`).join('\n');
     const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
     updateTextAndSetCursor(newText, start);
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，在当前位置插入引用符号
-    const newText = text.value.substring(0, start) + `\n\n> ` + text.value.substring(end);
+    const newText = text.value.substring(0, start) + '\n\n> ' + text.value.substring(end);
     updateTextAndSetCursor(newText, start + 4); // 光标定位在 "> " 后面
   }
 };
 
 // 标题格式化函数
-const formatTitle = (level) => {
+const formatTitle = (level) => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
@@ -918,7 +1038,8 @@ const formatTitle = (level) => {
   const titleSymbol = '#'.repeat(level);
 
   // 如果有选中文本
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     // 获取选中文本的第一行作为标题内容
     const firstLine = selectedText.split('\n')[0];
     // 移除已有的标题符号
@@ -928,31 +1049,40 @@ const formatTitle = (level) => {
     const formattedText = `${titleSymbol} ${cleanText}`;
     const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
     updateTextAndSetCursor(newText, start + titleSymbol.length + 1);
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，检查当前行是否已经是标题
     const lineInfo = getCurrentLineText();
-    if (lineInfo) {
+    if (lineInfo) 
+    {
       const { lineText, lineStart, lineEnd } = lineInfo;
 
       // 检查当前行是否已经是标题
       const titleMatch = lineText.match(/^(#+)\s*(.*)$/);
 
-      if (titleMatch) {
+      if (titleMatch) 
+      {
         const currentLevel = titleMatch[1].length;
         const titleContent = titleMatch[2];
 
         // 如果当前级别与目标级别相同，则取消标题格式（恢复为普通文本）
-        if (currentLevel === level) {
+        if (currentLevel === level) 
+        {
           const newText = text.value.substring(0, lineStart) + titleContent + text.value.substring(lineEnd);
           updateTextAndSetCursor(newText, lineStart);
-        } else {
+        }
+        else 
+        {
           // 否则更新标题级别
           const newTitleSymbol = '#'.repeat(level);
           const formattedText = `${newTitleSymbol} ${titleContent}`;
           const newText = text.value.substring(0, lineStart) + formattedText + text.value.substring(lineEnd);
           updateTextAndSetCursor(newText, lineStart + newTitleSymbol.length + 1);
         }
-      } else {
+      }
+      else 
+      {
         // 当前行不是标题，将其转换为指定级别的标题
         const formattedText = `${titleSymbol} ${lineText}`;
         const beforeText = text.value.substring(0, lineStart);
@@ -960,7 +1090,9 @@ const formatTitle = (level) => {
         const newText = beforeText + formattedText + afterText;
         updateTextAndSetCursor(newText, lineStart + titleSymbol.length + 1);
       }
-    } else {
+    }
+    else 
+    {
       // 如果无法获取行信息，则在光标位置插入标题标记
       const newText = text.value.substring(0, start) + `${titleSymbol} ` + text.value.substring(end);
       updateTextAndSetCursor(newText, start + titleSymbol.length + 1);
@@ -972,7 +1104,8 @@ const formatTitle = (level) => {
 
 
 // 字体颜色变化处理函数
-const handleFontColorChange = (color) => {
+const handleFontColorChange = (color) => 
+{
   // 更新字体颜色值
   fontColor.value = color;
   // 应用字体颜色到选中文本
@@ -980,7 +1113,8 @@ const handleFontColorChange = (color) => {
 };
 
 // 背景颜色变化处理函数
-const handleBackgroundColorChange = (color) => {
+const handleBackgroundColorChange = (color) => 
+{
   // 更新背景颜色值
   backgroundColor.value = color;
   // 应用背景颜色到选中文本
@@ -988,7 +1122,8 @@ const handleBackgroundColorChange = (color) => {
 };
 
 // 辅助函数：解析span标签中的样式
-const parseSpanStyle = (spanText) => {
+const parseSpanStyle = (spanText) => 
+{
   const styleRegex = /<span style="([^"]*)">([^]*)<\/span>/;
   const match = spanText.match(styleRegex);
 
@@ -999,9 +1134,11 @@ const parseSpanStyle = (spanText) => {
 
   // 解析样式字符串
   const styles = {};
-  styleString.split(';').forEach(style => {
+  styleString.split(';').forEach(style => 
+  {
     const [key, value] = style.split(':').map(s => s.trim());
-    if (key && value) {
+    if (key && value) 
+    {
       styles[key] = value;
     }
   });
@@ -1014,7 +1151,8 @@ const parseSpanStyle = (spanText) => {
 };
 
 // 辅助函数：构建span标签
-const buildSpanTag = (styles, content) => {
+const buildSpanTag = (styles, content) => 
+{
   const styleString = Object.entries(styles)
     .map(([key, value]) => `${key}: ${value}`)
     .join('; ');
@@ -1022,73 +1160,92 @@ const buildSpanTag = (styles, content) => {
 };
 
 // 带自定义颜色的字体颜色处理函数
-const formatColorWithCustomColor = (customColor) => {
+const formatColorWithCustomColor = (customColor) => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 检查是否已经设置了字体颜色（只在选中文本时检查）
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     // 检查选中文本是否已经被span标签包围
     const spanInfo = parseSpanStyle(selectedText);
 
-    if (spanInfo) {
+    if (spanInfo) 
+    {
       // 如果已经有span标签，检查是否已经有相同的字体颜色
-      if (spanInfo.styles['color'] === customColor) {
+      if (spanInfo.styles['color'] === customColor) 
+      {
         // 如果颜色相同，则移除字体颜色样式
         delete spanInfo.styles['color'];
 
         // 如果没有其他样式了，就移除整个span标签
         let newText;
-        if (Object.keys(spanInfo.styles).length === 0) {
+        if (Object.keys(spanInfo.styles).length === 0) 
+        {
           newText = text.value.substring(0, start) + spanInfo.content + text.value.substring(end);
           // 光标位置应该是开始位置加上内容长度（因为标签被移除了）
           updateTextAndSetCursor(newText, start + spanInfo.content.length);
-        } else {
+        }
+        else 
+        {
           // 否则只更新样式
           const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
           newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
           // 更新span标签后，光标位置应该是开始位置加上新标签内容的长度
           updateTextAndSetCursor(newText, start + updatedSpan.length);
         }
-      } else {
+      }
+      else 
+      {
         // 如果颜色不同，则更新字体颜色样式
         spanInfo.styles['color'] = customColor;
         const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
         const newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
         updateTextAndSetCursor(newText, start + updatedSpan.length);
       }
-    } else {
+    }
+    else 
+    {
       // 没有span标签，直接添加新的
       const styles = { 'color': customColor };
       const formattedText = buildSpanTag(styles, selectedText);
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start + formattedText.length);
     }
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，检查当前行是否已经设置了字体颜色
     const lineInfo = getCurrentLineText();
-    if (lineInfo) {
+    if (lineInfo) 
+    {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
       const spanInfo = parseSpanStyle(lineText);
 
-      if (spanInfo) {
+      if (spanInfo) 
+      {
         // 如果已经有span标签，检查是否已经有相同的字体颜色
-        if (spanInfo.styles['color'] === customColor) {
+        if (spanInfo.styles['color'] === customColor) 
+        {
           // 如果颜色相同，则移除字体颜色样式
           delete spanInfo.styles['color'];
 
           // 如果没有其他样式了，就移除整个span标签
           let newText;
-          if (Object.keys(spanInfo.styles).length === 0) {
+          if (Object.keys(spanInfo.styles).length === 0) 
+          {
             const beforeText = text.value.substring(0, lineStart);
             const afterText = text.value.substring(lineEnd);
             newText = beforeText + spanInfo.content + afterText;
             // 光标位置需要根据相对位置和标签移除后的长度进行调整
             const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
             updateTextAndSetCursor(newText, newCursorPosition);
-          } else {
+          }
+          else 
+          {
             // 否则只更新样式
             const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
             const beforeText = text.value.substring(0, lineStart);
@@ -1098,7 +1255,9 @@ const formatColorWithCustomColor = (customColor) => {
             const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
             updateTextAndSetCursor(newText, newCursorPosition);
           }
-        } else {
+        }
+        else 
+        {
           // 如果颜色不同，则更新字体颜色样式
           spanInfo.styles['color'] = customColor;
           const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
@@ -1109,7 +1268,9 @@ const formatColorWithCustomColor = (customColor) => {
           const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
           updateTextAndSetCursor(newText, newCursorPosition);
         }
-      } else {
+      }
+      else 
+      {
         // 没有span标签，为整行添加新的
         const styles = { 'color': customColor };
         const formattedText = buildSpanTag(styles, lineText);
@@ -1119,7 +1280,9 @@ const formatColorWithCustomColor = (customColor) => {
         const newCursorPosition = Math.min(lineStart + formattedText.length, newText.length);
         updateTextAndSetCursor(newText, newCursorPosition);
       }
-    } else {
+    }
+    else 
+    {
       // 如果无法获取行信息，则在光标位置插入颜色标签
       const styles = { 'color': customColor };
       const formattedText = buildSpanTag(styles, '');
@@ -1130,73 +1293,92 @@ const formatColorWithCustomColor = (customColor) => {
 };
 
 // 带自定义颜色的背景颜色处理函数
-const formatBackgroundWithCustomColor = (customColor) => {
+const formatBackgroundWithCustomColor = (customColor) => 
+{
   const textInfo = getSelectedTextInfo();
   if (!textInfo) return;
 
   const { textarea, start, end, selectedText } = textInfo;
 
   // 检查是否已经设置了背景颜色（只在选中文本时检查）
-  if (selectedText.length > 0) {
+  if (selectedText.length > 0) 
+  {
     // 检查选中文本是否已经被span标签包围
     const spanInfo = parseSpanStyle(selectedText);
 
-    if (spanInfo) {
+    if (spanInfo) 
+    {
       // 如果已经有span标签，检查是否已经有相同的背景颜色
-      if (spanInfo.styles['background-color'] === customColor) {
+      if (spanInfo.styles['background-color'] === customColor) 
+      {
         // 如果颜色相同，则移除背景颜色样式
         delete spanInfo.styles['background-color'];
 
         // 如果没有其他样式了，就移除整个span标签
         let newText;
-        if (Object.keys(spanInfo.styles).length === 0) {
+        if (Object.keys(spanInfo.styles).length === 0) 
+        {
           newText = text.value.substring(0, start) + spanInfo.content + text.value.substring(end);
           // 光标位置应该是开始位置加上内容长度（因为标签被移除了）
           updateTextAndSetCursor(newText, start + spanInfo.content.length);
-        } else {
+        }
+        else 
+        {
           // 否则只更新样式
           const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
           newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
           // 更新span标签后，光标位置应该是开始位置加上新标签内容的长度
           updateTextAndSetCursor(newText, start + updatedSpan.length);
         }
-      } else {
+      }
+      else 
+      {
         // 如果颜色不同，则更新背景颜色样式
         spanInfo.styles['background-color'] = customColor;
         const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
         const newText = text.value.substring(0, start) + updatedSpan + text.value.substring(end);
         updateTextAndSetCursor(newText, start + updatedSpan.length);
       }
-    } else {
+    }
+    else 
+    {
       // 没有span标签，直接添加新的
       const styles = { 'background-color': customColor };
       const formattedText = buildSpanTag(styles, selectedText);
       const newText = text.value.substring(0, start) + formattedText + text.value.substring(end);
       updateTextAndSetCursor(newText, start + formattedText.length);
     }
-  } else {
+  }
+  else 
+  {
     // 如果没有选中文本，检查当前行是否已经设置了背景颜色
     const lineInfo = getCurrentLineText();
-    if (lineInfo) {
+    if (lineInfo) 
+    {
       const { lineText, lineStart, lineEnd, cursorPositionInLine } = lineInfo;
       const spanInfo = parseSpanStyle(lineText);
 
-      if (spanInfo) {
+      if (spanInfo) 
+      {
         // 如果已经有span标签，检查是否已经有相同的背景颜色
-        if (spanInfo.styles['background-color'] === customColor) {
+        if (spanInfo.styles['background-color'] === customColor) 
+        {
           // 如果颜色相同，则移除背景颜色样式
           delete spanInfo.styles['background-color'];
 
           // 如果没有其他样式了，就移除整个span标签
           let newText;
-          if (Object.keys(spanInfo.styles).length === 0) {
+          if (Object.keys(spanInfo.styles).length === 0) 
+          {
             const beforeText = text.value.substring(0, lineStart);
             const afterText = text.value.substring(lineEnd);
             newText = beforeText + spanInfo.content + afterText;
             // 光标位置需要根据相对位置和标签移除后的长度进行调整
             const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
             updateTextAndSetCursor(newText, newCursorPosition);
-          } else {
+          }
+          else 
+          {
             // 否则只更新样式
             const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
             const beforeText = text.value.substring(0, lineStart);
@@ -1206,7 +1388,9 @@ const formatBackgroundWithCustomColor = (customColor) => {
             const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
             updateTextAndSetCursor(newText, newCursorPosition);
           }
-        } else {
+        }
+        else 
+        {
           // 如果颜色不同，则更新背景颜色样式
           spanInfo.styles['background-color'] = customColor;
           const updatedSpan = buildSpanTag(spanInfo.styles, spanInfo.content);
@@ -1217,7 +1401,9 @@ const formatBackgroundWithCustomColor = (customColor) => {
           const newCursorPosition = Math.min(lineStart + cursorPositionInLine, newText.length);
           updateTextAndSetCursor(newText, newCursorPosition);
         }
-      } else {
+      }
+      else 
+      {
         // 没有span标签，为整行添加新的
         const styles = { 'background-color': customColor };
         const formattedText = buildSpanTag(styles, lineText);
@@ -1227,7 +1413,9 @@ const formatBackgroundWithCustomColor = (customColor) => {
         const newCursorPosition = Math.min(lineStart + formattedText.length, newText.length);
         updateTextAndSetCursor(newText, newCursorPosition);
       }
-    } else {
+    }
+    else 
+    {
       // 如果无法获取行信息，则在光标位置插入背景颜色标签
       const styles = { 'background-color': customColor };
       const formattedText = buildSpanTag(styles, '');
@@ -1238,52 +1426,55 @@ const formatBackgroundWithCustomColor = (customColor) => {
 };
 
 // 文本格式化函数
-const formatText = (type, extraParam) => {
+const formatText = (type, extraParam) => 
+{
   // 阻止按钮获取焦点，保持文本选中状态
   event.preventDefault();
 
   // 根据类型调用对应的处理函数
-  switch (type) {
-    case 'bold':
-      formatBold();
-      break;
-    case 'italic':
-      formatItalic();
-      break;
-    case 'strikethrough':
-      formatStrikethrough();
-      break;
-    case 'underline':
-      formatUnderline();
-      break;
-    case 'color':
-      formatColorWithCustomColor(fontColor.value);
-      break;
-    case 'background':
-      formatBackgroundWithCustomColor(backgroundColor.value);
-      break;
-    case 'unordered-list':
-      formatUnorderedList();
-      break;
-    case 'ordered-list':
-      formatOrderedList();
-      break;
-    case 'task-list':
-      formatTaskList();
-      break;
-    case 'quote':
-      formatQuote();
-      break;
-    case 'title':
-      formatTitle(extraParam); // extraParam 是标题级别 (1-4)
-      break;
-    default:
-      console.warn(`未知的格式化类型: ${type}`);
+  switch (type) 
+  {
+  case 'bold':
+    formatBold();
+    break;
+  case 'italic':
+    formatItalic();
+    break;
+  case 'strikethrough':
+    formatStrikethrough();
+    break;
+  case 'underline':
+    formatUnderline();
+    break;
+  case 'color':
+    formatColorWithCustomColor(fontColor.value);
+    break;
+  case 'background':
+    formatBackgroundWithCustomColor(backgroundColor.value);
+    break;
+  case 'unordered-list':
+    formatUnorderedList();
+    break;
+  case 'ordered-list':
+    formatOrderedList();
+    break;
+  case 'task-list':
+    formatTaskList();
+    break;
+  case 'quote':
+    formatQuote();
+    break;
+  case 'title':
+    formatTitle(extraParam); // extraParam 是标题级别 (1-4)
+    break;
+  default:
+    console.warn(`未知的格式化类型: ${type}`);
   }
 };
 
 // 插入链接
-const insertLink = () => {
+const insertLink = () => 
+{
   event.preventDefault();
 
   const editor = editorRef.value;
@@ -1304,23 +1495,28 @@ const insertLink = () => {
   text.value = newText;
 
   // 设置光标位置到url处
-  setTimeout(() => {
+  setTimeout(() => 
+  {
     textarea.setSelectionRange(start + formattedText.length - 4, start + formattedText.length - 1);
     textarea.focus();
   }, 0);
 };
 
 // 插入图片（调用已有的上传图片功能）
-const insertImage = () => {
+const insertImage = () => 
+{
   // 触发文件选择对话框
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
-  fileInput.onchange = (e) => {
+  fileInput.onchange = (e) => 
+  {
     const files = e.target.files;
-    if (files && files.length > 0) {
+    if (files && files.length > 0) 
+    {
       // 使用已有的上传图片功能
-      handleUploadImage(null, (image) => {
+      handleUploadImage(null, (image) => 
+      {
         const editor = editorRef.value;
         if (!editor) return;
 
@@ -1336,7 +1532,8 @@ const insertImage = () => {
         text.value = newText;
 
         // 设置光标位置到图片后面
-        setTimeout(() => {
+        setTimeout(() => 
+        {
           textarea.setSelectionRange(start + imageMarkdown.length, start + imageMarkdown.length);
           textarea.focus();
         }, 0);
@@ -1348,8 +1545,9 @@ const insertImage = () => {
 
 
 
-onMounted(async () => {
-})
+onMounted(async () => 
+{
+});
 
 </script>
 

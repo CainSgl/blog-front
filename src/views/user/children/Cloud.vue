@@ -146,17 +146,21 @@ import { API_BASE_URL } from '@/config';
 // 图片预览相关状态
 const previewVisible = ref(false);
 const previewCurrent = ref(0);
-const previewImageList = computed(() => {
+const previewImageList = computed(() => 
+{
   // 只获取图片类型的文件，并处理其 URL
   return files.value
     .filter(file => isImageFile(file.name))
-    .map(file => {
+    .map(file => 
+    {
       // 处理图片 URL，类似 cImg 组件中的逻辑
-      if (!file.shortUrl) {
+      if (!file.shortUrl) 
+      {
         return '';
       }
       // 如果已经是完整的 URL，则直接返回
-      if (file.shortUrl.startsWith('http')) {
+      if (file.shortUrl.startsWith('http')) 
+      {
         return file.shortUrl;
       }
       // 否则拼接 API_BASE_URL
@@ -166,12 +170,14 @@ const previewImageList = computed(() => {
 
 
 // 计算存储使用百分比
-const usedPercent = computed(() => {
+const usedPercent = computed(() => 
+{
   if (!usedStorageBytes.value || !totalStorageBytes.value) return 0;
   return usedStorageBytes.value / totalStorageBytes.value;
 });
 
-const availableStorage = computed(() => {
+const availableStorage = computed(() => 
+{
   if (!usedStorageBytes.value || !totalStorageBytes.value) return '0 GB';
   const availableBytes = totalStorageBytes.value - usedStorageBytes.value;
   return formatBytes(Math.max(0, availableBytes)); // 确保不会显示负数
@@ -180,45 +186,58 @@ const availableStorage = computed(() => {
 
 
 // 获取用户信息
-const fetchUserInfo = async (id) => {
-  try {
+const fetchUserInfo = async (id) => 
+{
+  try 
+  {
     const response = await api.get('/user', { id: id });
     userInfo.value = response.data;
     // 更新存储使用情况
-    if (response.data.usedMemory !== undefined) {
+    if (response.data.usedMemory !== undefined) 
+    {
       // 直接存储字节数
       usedStorageBytes.value = response.data.usedMemory;
     }
-  } catch (err) {
+  }
+  catch (err) 
+  {
     console.error('获取用户信息失败:', err);
     throw err; // 重新抛出错误，以便上层处理
   }
 };
 
 // 获取文件列表
-const fetchFileList = async () => {
-  try {
+const fetchFileList = async () => 
+{
+  try 
+  {
     const params = {
       id: userId.value,
       lastId: lastId.value,
     };
     const { data } = await api.post('/file/list', params);
-    const newFiles = data
-    if (newFiles.length > 0) {
+    const newFiles = data;
+    if (newFiles.length > 0) 
+    {
       lastId.value = newFiles[newFiles.length - 1].shortUrl;
       hasMore.value = newFiles.length === 30;
-    } else {
+    }
+    else 
+    {
       hasMore.value = false;
     }
     files.value = [...files.value, ...newFiles];
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('获取文件列表失败:', error);
     throw error; // 重新抛出错误，以便上层处理
   }
 };
 
 // 将字节数转换为可读格式
-const formatBytes = (bytes, decimals = 2) => {
+const formatBytes = (bytes, decimals = 2) => 
+{
   if (bytes === 0) return '0 Bytes';
 
   const k = 1024;
@@ -231,26 +250,33 @@ const formatBytes = (bytes, decimals = 2) => {
 };
 const router = useRouter();
 // 组件挂载时加载数据
-onMounted(async () => {
-  if (userId.value) {
-    Message.loading({ id: "cloudLoading", content: "加载数据中" });
-    try {
+onMounted(async () => 
+{
+  if (userId.value) 
+  {
+    Message.loading({ id: 'cloudLoading', content: '加载数据中' });
+    try 
+    {
       // 先获取用户信息以获得存储使用情况
       await fetchUserInfo(userId.value);
       // 然后获取文件列表
       await fetchFileList();
-      Message.success({ id: "cloudLoading", content: "加载成功" });
-    } catch (error) {
+      Message.success({ id: 'cloudLoading', content: '加载成功' });
+    }
+    catch (error) 
+    {
       Message.error('数据加载失败: ' + error.message);
     }
   }
 }
 );
 
-const handleBack = () => {
+const handleBack = () => 
+{
   router.push(`/space/${userId.value}`);
 };
-const handleViewModeChange = (value) => {
+const handleViewModeChange = (value) => 
+{
 
   //切换自己的选中状态
 };
@@ -293,11 +319,15 @@ const columns = [
 const selectedRowKeys = ref([]);
 
 // 根据选中的行 keys 自动计算行选择配置
-const rowSelection = computed(() => {
-  if (selectedRowKeys.value.length === 0) {
+const rowSelection = computed(() => 
+{
+  if (selectedRowKeys.value.length === 0) 
+  {
     // 如果没有选中任何行，则返回 null（不显示选择框）
     return null;
-  } else {
+  }
+  else 
+  {
     // 返回选择配置
     return {
       type: 'checkbox',
@@ -308,82 +338,101 @@ const rowSelection = computed(() => {
 });
 
 // 处理表格选择事件
-const handleTableSelect = (selectedRowKeys2) => {
+const handleTableSelect = (selectedRowKeys2) => 
+{
   // 更新选中的行
   selectedRowKeys.value = selectedRowKeys2;
 };
 
 // 处理全选事件
-const handleSelectAll = (checked) => {
-  if (checked) {
+const handleSelectAll = (checked) => 
+{
+  if (checked) 
+  {
     // 全选，将所有文件的 key 添加到 selectedRowKeys
     selectedRowKeys.value = files.value.map(file => file.shortUrl);
-  } else {
+  }
+  else 
+  {
     // 取消全选
     selectedRowKeys.value = [];
   }
 };
 
 // 处理选择变化事件
-const handleSelectionChange = (newSelectedRowKeys) => {
+const handleSelectionChange = (newSelectedRowKeys) => 
+{
   selectedRowKeys.value = newSelectedRowKeys;
 };
 
 // 处理行点击事件
-const handleRowClick = (record) => {
+const handleRowClick = (record) => 
+{
   const isSelected = selectedRowKeys.value.includes(record.shortUrl);
-  if (isSelected) {
+  if (isSelected) 
+  {
     // 当前行已选中，取消选中
     selectedRowKeys.value = selectedRowKeys.value.filter(key => key !== record.shortUrl);
-  } else {
+  }
+  else 
+  {
     // 当前行未选中，添加到选中列表
     selectedRowKeys.value = [...selectedRowKeys.value, record.shortUrl];
   }
 };
 
 // 处理预览事件
-const handlePreview = (record) => {
+const handlePreview = (record) => 
+{
   console.log('预览文件:', record);
-  if (isImageFile(record.name)) {
+  if (isImageFile(record.name)) 
+  {
     // 如果是图片文件，找到该图片在图片列表中的索引
     const imageIndex = files.value
       .filter(file => isImageFile(file.name))
       .findIndex(file => file.shortUrl === record.shortUrl);
 
-    if (imageIndex !== -1) {
+    if (imageIndex !== -1) 
+    {
       // 设置当前预览的图片索引
       previewCurrent.value = imageIndex;
       // 打开预览弹窗
       previewVisible.value = true;
     }
-  } else {
+  }
+  else 
+  {
     Message.info('暂不支持该类型文件的预览');
   }
 };
 
 // 处理下载事件
-const handleDownload = async (record) => {
+const handleDownload = async (record) => 
+{
   console.log('下载文件:', record);
-  record.download = true
-  try {
+  record.download = true;
+  try 
+  {
     // 从用户store获取token
     const userStore = useUserStore();
     const token = userStore.getToken();
-    if (!token) {
+    if (!token) 
+    {
       // 未登录时提示用户并打开登录窗口
       Modal.warning({
         title: '未登录',
         content: '您需要先登录才能下载文件',
         okText: '去登录',
         cancelText: '取消',
-        onOk: () => {
+        onOk: () => 
+        {
           showLoginModal();
         }
       });
       return;
     }
 
-    Message.loading({ id: "downloadLoading", content: "获取临时url中" });
+    Message.loading({ id: 'downloadLoading', content: '获取临时url中' });
 
     // 使用fetch API进行下载，这样可以携带认证头
     const response = await fetch(`${API_BASE_URL}/file/download?f=${encodeURIComponent(record.shortUrl)}`, {
@@ -393,7 +442,8 @@ const handleDownload = async (record) => {
       },
     });
 
-    if (!response.ok) {
+    if (!response.ok) 
+    {
       throw new Error(`下载失败: ${response.status} ${response.statusText}`);
     }
 
@@ -413,42 +463,52 @@ const handleDownload = async (record) => {
     // 清理
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('下载失败:', error);
-    Message.error({ id: "downloadLoading", content: record.name + "，下载失败，因为" + error.message });
-  } finally {
+    Message.error({ id: 'downloadLoading', content: record.name + '，下载失败，因为' + error.message });
+  }
+  finally 
+  {
     record.download = false;
   }
 };
 
 // 处理分享事件
-const handleShare = (record) => {
+const handleShare = (record) => 
+{
   console.log('分享文件:', record);
 };
 
 // 处理重命名事件
-const handleRename = (record) => {
+const handleRename = (record) => 
+{
   console.log('重命名文件:', record);
 };
 
 // 处理删除事件
-const handleDelete = (record) => {
+const handleDelete = (record) => 
+{
   console.log('删除文件:', record);
   Modal.warning({
     title: '确认删除',
     content: `确定要删除文件 "${record.name}" 吗？`,
     okText: '确定',
     cancelText: '取消',
-    onOk: async () => {
-      try {
+    onOk: async () => 
+    {
+      try 
+      {
         const userStore = useUserStore();
         const token = userStore.getToken();
-        if (!token) {
+        if (!token) 
+        {
           showLoginModal();
           return;
         }
 
-        Message.loading({ id: "deleteLoading", content: "删除中..." });
+        Message.loading({ id: 'deleteLoading', content: '删除中...' });
         // 调用删除API
         await api.post('/file/delete', {
           fileIds: [record.shortUrl] // 单个文件删除
@@ -458,22 +518,26 @@ const handleDelete = (record) => {
           }
         });
 
-        Message.success({ id: "deleteLoading", content: "删除成功" });
+        Message.success({ id: 'deleteLoading', content: '删除成功' });
         // 从本地列表中移除已删除的文件
         files.value = files.value.filter(file => file.shortUrl !== record.shortUrl);
         // 重置选择状态
         selectedRowKeys.value = [];
-      } catch (error) {
+      }
+      catch (error) 
+      {
         console.error('删除失败:', error);
-        Message.error({ id: "deleteLoading", content: "删除失败: " + error.message });
+        Message.error({ id: 'deleteLoading', content: '删除失败: ' + error.message });
       }
     }
   });
 };
 
 // 处理批量删除事件
-const handleBatchDelete = () => {
-  if (selectedRowKeys.value.length === 0) {
+const handleBatchDelete = () => 
+{
+  if (selectedRowKeys.value.length === 0) 
+  {
     Message.info('请先选择要删除的文件');
     return;
   }
@@ -483,52 +547,61 @@ const handleBatchDelete = () => {
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 个文件吗？`,
     okText: '确定',
     cancelText: '取消',
-    onOk: async () => {
-      try {
+    onOk: async () => 
+    {
+      try 
+      {
         const userStore = useUserStore();
         const token = userStore.getToken();
-        if (!token) {
+        if (!token) 
+        {
           showLoginModal();
           return;
         }
 
-        Message.loading({ id: "batchDeleteLoading", content: "批量删除中...",duration:30000 });
+        Message.loading({ id: 'batchDeleteLoading', content: '批量删除中...',duration:30000 });
         // 调用批量删除API
         const { data } = await api.get('/file/batchFree', {
           f: selectedRowKeys.value // 传递选中的文件ID数组
         });
-        Message.success({ id: "batchDeleteLoading", content: "批量删除成功" });
+        Message.success({ id: 'batchDeleteLoading', content: '批量删除成功' });
         // 从本地列表中移除已删除的文件
         files.value = files.value.filter(file => !selectedRowKeys.value.includes(file.shortUrl));
         // 重置选择状态
         selectedRowKeys.value = [];
-      } catch (error) {
+      }
+      catch (error) 
+      {
         console.error('批量删除失败:', error);
-        Message.error({ id: "batchDeleteLoading", content: "批量删除失败: " + error.message,duration:800 });
+        Message.error({ id: 'batchDeleteLoading', content: '批量删除失败: ' + error.message,duration:800 });
       }
     }
   });
 };
 
 // 判断文件类型
-const isImageFile = (fileName) => {
+const isImageFile = (fileName) => 
+{
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
   const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
   return imageExtensions.includes(ext);
 };
 
-const isPdfFile = (fileName) => {
+const isPdfFile = (fileName) => 
+{
   return fileName.toLowerCase().endsWith('.pdf');
 };
 
-const isTextFile = (fileName) => {
+const isTextFile = (fileName) => 
+{
   const textExtensions = ['.txt', '.md', '.json', '.xml', '.html', '.css', '.js', '.ts', '.vue'];
   const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
   return textExtensions.includes(ext);
 };
 
 // 格式化文件大小
-const formatFileSize = (bytes) => {
+const formatFileSize = (bytes) => 
+{
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -537,12 +610,14 @@ const formatFileSize = (bytes) => {
 };
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = (dateString) => 
+{
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN');
 };
 
-const handleFileClick = (file) => {
+const handleFileClick = (file) => 
+{
   console.log('点击文件卡片:', file);
 };
 

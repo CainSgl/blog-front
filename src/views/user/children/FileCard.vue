@@ -40,23 +40,27 @@ const props = defineProps({
 const emit = defineEmits(['file-click']);
 
 // 判断文件类型
-const isImageFile = (fileName) => {
+const isImageFile = (fileName) => 
+{
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
   const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
   return imageExtensions.includes(ext);
 };
 
-const isPdfFile = (fileName) => {
+const isPdfFile = (fileName) => 
+{
   return fileName.toLowerCase().endsWith('.pdf');
 };
 
-const isTextFile = (fileName) => {
+const isTextFile = (fileName) => 
+{
   const textExtensions = ['.txt', '.md', '.json', '.xml', '.html', '.css', '.js', '.ts', '.vue'];
   const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
   return textExtensions.includes(ext);
 };
 
-const formatFileSize = (bytes) => {
+const formatFileSize = (bytes) => 
+{
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -64,7 +68,8 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-const handleFileClick = () => {
+const handleFileClick = () => 
+{
   emit('file-click', props.file);
 };
 </script>

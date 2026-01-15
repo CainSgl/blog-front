@@ -116,7 +116,8 @@ const kbInfo = toRef(kbStore, 'kbInfo');
 // 使用计算属性来管理标题和封面URL
 const title = computed({
   get: () => kbInfo.value.title || kbInfo.value.name || '',
-  set: (value) => {
+  set: (value) => 
+  {
     kbInfo.value.title = value;
   }
 });
@@ -135,33 +136,43 @@ const formData = ref(null); // 用于存储裁剪后的图片文件，如果为n
 const kbId = route.query.kb;
 
 // 获取当前首页内容
-const loadCurrentContent = async () => {
-  if (!kbId) {
+const loadCurrentContent = async () => 
+{
+  if (!kbId) 
+  {
     Message.error('缺少知识库ID');
     return;
   }
   loading.value = true;
-  try {
+  try 
+  {
     const { data } = await api.get('/kb/index', { id: kbId });
     content.value = data.index || '';
     originalContent.value = data.index || ''; // 保存原始内容用于比较
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('加载首页内容失败:', error);
     Message.error('加载首页内容失败');
-  } finally {
+  }
+  finally 
+  {
     loading.value = false;
   }
 };
 
 // 保存首页内容
-const saveContent = async () => {
-  if (!kbId) {
+const saveContent = async () => 
+{
+  if (!kbId) 
+  {
     Message.error('缺少知识库ID');
     return;
   }
 
   saving.value = true;
-  try {
+  try 
+  {
 
 
     // 构建请求数据
@@ -171,15 +182,17 @@ const saveContent = async () => {
       status: kbStore.kbInfo.status
     };
     // 如果有新的图片需要上传
-    if (formData.value !== null) {
+    if (formData.value !== null) 
+    {
       Message.loading({
         id: 'upload-cover',
         content: '正在上传封面...',
         duration: 15000
       });
 
-      if (orginCoverUrl) {
-        api.get('/file/free', { f: orginCoverUrl })
+      if (orginCoverUrl) 
+      {
+        api.get('/file/free', { f: orginCoverUrl });
       }
       // 上传图片
       const { data } = await api.post('/file/upload', formData.value, {
@@ -198,7 +211,8 @@ const saveContent = async () => {
       requestData.coverUrl = coverUrl;
     }
     // 检查内容是否发生变化，如果变化了才添加content字段
-    if (content.value !== originalContent.value) {
+    if (content.value !== originalContent.value) 
+    {
       requestData.content = content.value;
     }
     Message.loading({
@@ -217,24 +231,31 @@ const saveContent = async () => {
       name: 'KBIndex',
       query: { kb: kbId }
     });
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('保存首页内容失败:', error);
     Message.error({
       id: 'save-index',
       content: '保存失败，请稍后重试',
     });
-  } finally {
+  }
+  finally 
+  {
     saving.value = false;
   }
 };
 
-const goBack = () => {
+const goBack = () => 
+{
   router.go(-1);
 };
 let orginCoverUrl;
 // 处理裁剪后的图片
-const handleCroppedImage = async (croppedFile) => {
-  try {
+const handleCroppedImage = async (croppedFile) => 
+{
+  try 
+  {
     // 创建FormData对象 
     const newFormData = new FormData();
     newFormData.append('file', croppedFile);
@@ -258,7 +279,9 @@ const handleCroppedImage = async (croppedFile) => {
 
     cropperModalVisible.value = false;
     currentImageFile.value = null;
-  } catch (error) {
+  }
+  catch (error) 
+  {
     console.error('处理裁剪图片失败:', error);
     Message.error({
       id: 'upload-cropped-image:' + croppedFile.name,
@@ -270,12 +293,14 @@ const handleCroppedImage = async (croppedFile) => {
 };
 
 // Arco Design Upload组件的自定义上传方法
-const customRequest = async (options) => {
+const customRequest = async (options) => 
+{
   const { fileItem, onError, onSuccess } = options;
   const file = fileItem.file;
 
   // 检查是否为图片
-  if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith('image/')) 
+  {
     console.error('请选择图片文件');
     Message.error('请选择图片文件');
     onError();
@@ -285,7 +310,8 @@ const customRequest = async (options) => {
   // 创建图片对象用于裁剪组件
   const img = new Image();
   img.src = URL.createObjectURL(file);
-  img.onload = async () => {
+  img.onload = async () => 
+  {
     // 将原始文件保存到currentImageFile，用于裁剪
     currentImageFile.value = file;
 
@@ -294,15 +320,18 @@ const customRequest = async (options) => {
 
     // 等待模态框打开后设置图片
     await nextTick();
-    setTimeout(() => {
-      if (imageCropperRef.value) {
+    setTimeout(() => 
+    {
+      if (imageCropperRef.value) 
+      {
         imageCropperRef.value.setImage(img);
       }
     }, 100);
 
     onSuccess();
   };
-  img.onerror = () => {
+  img.onerror = () => 
+  {
     console.error('图片加载失败');
     Message.error('图片加载失败');
     onError();
@@ -312,7 +341,8 @@ const customRequest = async (options) => {
 
 
 // 初始化加载内容
-onMounted(() => {
+onMounted(() => 
+{
   loadCurrentContent();
 });
 </script>

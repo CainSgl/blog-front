@@ -187,40 +187,40 @@ import { useKbStore } from '../kb/kbStore.js';
 import MarkdownPreview from '../../components/md/MarkdownPreview.vue';
 import ImageCropperModal from '../../components/base/ImageCropperModal.vue';
 import {
-    IconArrowLeft,
-    IconSend,
-    IconPlus
+  IconArrowLeft,
+  IconSend,
+  IconPlus
 } from '@arco-design/web-vue/lib/icon';
-import PostCard from '@/components/post/PostCard.vue'
+import PostCard from '@/components/post/PostCard.vue';
 import api from '@/api/index.js';
 const router = useRouter();
 const kbStore = useKbStore();
 
 // 注册组件
 const components = {
-    ImageCropperModal,
-    MarkdownPreview,
-    PostCard,
-    Split
-}
+  ImageCropperModal,
+  MarkdownPreview,
+  PostCard,
+  Split
+};
 
 // 表单数据
 const articleForm = ref({
-    title: '',
-    summary: '',
-    content: '',
-    status: '已发布', // 默认为已发布（公开）
-    top: false,
-    recommend: false,
-    viewCount: 0,
-    likeCount: 0,
-    commentCount: 0,
-    tags: [],
-    userId: '',
-    createdAt: '',
-    updatedAt: '',
-    kbId: '',
-    newContent: ''
+  title: '',
+  summary: '',
+  content: '',
+  status: '已发布', // 默认为已发布（公开）
+  top: false,
+  recommend: false,
+  viewCount: 0,
+  likeCount: 0,
+  commentCount: 0,
+  tags: [],
+  userId: '',
+  createdAt: '',
+  updatedAt: '',
+  kbId: '',
+  newContent: ''
 });
 
 // 发布状态
@@ -257,261 +257,314 @@ const postCardContainerRef = ref(null);
 
 
 // 计算属性
-const wordCount = computed(() => {
-    // 现在直接从 articleForm 中获取内容
-    return articleForm.value.content ? articleForm.value.content.length : 0;
+const wordCount = computed(() => 
+{
+  // 现在直接从 articleForm 中获取内容
+  return articleForm.value.content ? articleForm.value.content.length : 0;
 });
 
 // 节流函数实现
-const throttle = (func, delay) => {
-    let timeoutId;
-    let lastExecTime = 0;
-    return function (...args) {
-        const currentTime = Date.now();
+const throttle = (func, delay) => 
+{
+  let timeoutId;
+  let lastExecTime = 0;
+  return function (...args) 
+  {
+    const currentTime = Date.now();
 
-        if (currentTime - lastExecTime > delay) {
-            func.apply(this, args);
-            lastExecTime = currentTime;
-        } else {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                func.apply(this, args);
-                lastExecTime = Date.now();
-            }, delay - (currentTime - lastExecTime));
-        }
-    };
+    if (currentTime - lastExecTime > delay) 
+    {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    }
+    else 
+    {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => 
+      {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
 };
 
 // 标签选择变化处理
-const onTagChange = (value) => {
-    if (value && value.length > 8) {
-        Message.warning('选择的标签过多！最多只能选择8个标签');
-        // 限制标签数量为8个
-        articleForm.value.tags = value.slice(0, 8);
-    }
+const onTagChange = (value) => 
+{
+  if (value && value.length > 8) 
+  {
+    Message.warning('选择的标签过多！最多只能选择8个标签');
+    // 限制标签数量为8个
+    articleForm.value.tags = value.slice(0, 8);
+  }
 };
 
-const onSplitBase = () => {
-    nextTick(() => {
-        if (postCardContainerRef.value) {
-            dynamicWidth.value = postCardContainerRef.value.offsetWidth - 20;
-            dynamicHeight.value = postCardContainerRef.value.offsetHeight - 50;
-        }
-    });
+const onSplitBase = () => 
+{
+  nextTick(() => 
+  {
+    if (postCardContainerRef.value) 
+    {
+      dynamicWidth.value = postCardContainerRef.value.offsetWidth - 20;
+      dynamicHeight.value = postCardContainerRef.value.offsetHeight - 50;
+    }
+  });
 };
 
 const onSplit = throttle(onSplitBase, 30);
 
-const goBack = () => {
-    router.go(-1);
+const goBack = () => 
+{
+  router.go(-1);
 };
 
-const autoGenerateTags = async () => {
-    generatingTags.value = true;
-    try {
-        // 检查当前标签数量是否已达到上限
-        if (articleForm.value.tags && articleForm.value.tags.length >= 8) {
-            Message.warning('标签数量已达上限！最多只能选择8个标签');
-            return;
-        }
-
-        const { data } = await api.post('/ai/tag/generate', { content: articleForm.value.newContent }, { timeout: 60000 })
-        console.log(data)
-        const generatedTags = data.map(item => item.tag + ":" + item.core);
-        // 将生成的标签添加到现有标签中，去重
-        const currentTags = articleForm.value.tags || [];
-        const newTags = [...new Set([...currentTags, ...generatedTags])];
-        // 限制标签数量为8个
-        articleForm.value.tags = newTags.slice(0, 8);
-        Message.success(`已自动生成 ${Math.min(generatedTags.length, 8 - currentTags.length)} 个标签`);
-    } catch (error) {
-        console.error('自动生成标签失败:', error);
-        Message.error('自动生成标签失败，请重试');
-    } finally {
-        generatingTags.value = false;
+const autoGenerateTags = async () => 
+{
+  generatingTags.value = true;
+  try 
+  {
+    // 检查当前标签数量是否已达到上限
+    if (articleForm.value.tags && articleForm.value.tags.length >= 8) 
+    {
+      Message.warning('标签数量已达上限！最多只能选择8个标签');
+      return;
     }
+
+    const { data } = await api.post('/ai/tag/generate', { content: articleForm.value.newContent }, { timeout: 60000 });
+    console.log(data);
+    const generatedTags = data.map(item => item.tag + ':' + item.core);
+    // 将生成的标签添加到现有标签中，去重
+    const currentTags = articleForm.value.tags || [];
+    const newTags = [...new Set([...currentTags, ...generatedTags])];
+    // 限制标签数量为8个
+    articleForm.value.tags = newTags.slice(0, 8);
+    Message.success(`已自动生成 ${Math.min(generatedTags.length, 8 - currentTags.length)} 个标签`);
+  }
+  catch (error) 
+  {
+    console.error('自动生成标签失败:', error);
+    Message.error('自动生成标签失败，请重试');
+  }
+  finally 
+  {
+    generatingTags.value = false;
+  }
 };
 
-const autoGenerateSummary = async () => {
-    generatingSummary.value = true;
-    try {
-        const { data } = await api.post('/ai/summary/generate', { content: articleForm.value.newContent }, { timeout: 60000 });
-        // 限制AI生成的摘要长度不超过300字
-        const limitedData = data.length > 300 ? data.substring(0, 300) : data;
-        // 保存AI生成的摘要
-        aiGeneratedSummary.value = limitedData;
+const autoGenerateSummary = async () => 
+{
+  generatingSummary.value = true;
+  try 
+  {
+    const { data } = await api.post('/ai/summary/generate', { content: articleForm.value.newContent }, { timeout: 60000 });
+    // 限制AI生成的摘要长度不超过300字
+    const limitedData = data.length > 300 ? data.substring(0, 300) : data;
+    // 保存AI生成的摘要
+    aiGeneratedSummary.value = limitedData;
 
-        // 如果已有摘要，显示确认模态框让用户选择
-        if (articleForm.value.summary && articleForm.value.summary.trim() !== '') {
-            summaryModalVisible.value = true;
-        } else {
-            // 如果没有现有摘要，直接使用AI生成的摘要
-            articleForm.value.summary = limitedData;
-            Message.success('已自动生成摘要');
-        }
-    } catch (error) {
-        console.error('自动生成摘要失败:', error);
-        Message.error('自动生成摘要失败，请重试');
-    } finally {
-        generatingSummary.value = false;
+    // 如果已有摘要，显示确认模态框让用户选择
+    if (articleForm.value.summary && articleForm.value.summary.trim() !== '') 
+    {
+      summaryModalVisible.value = true;
     }
+    else 
+    {
+      // 如果没有现有摘要，直接使用AI生成的摘要
+      articleForm.value.summary = limitedData;
+      Message.success('已自动生成摘要');
+    }
+  }
+  catch (error) 
+  {
+    console.error('自动生成摘要失败:', error);
+    Message.error('自动生成摘要失败，请重试');
+  }
+  finally 
+  {
+    generatingSummary.value = false;
+  }
 };
 
-const publishArticle = async () => {
-    // 设置发布状态为true，显示加载动画
-    publishing.value = true;
-    try {
-        // 调用api
-        // 先保存文章信息
-        const res = await api.put('/post', {
-            id: articleForm.value.id,
-            title: articleForm.value.title,
-            summary: articleForm.value.summary,
-            status: articleForm.value.status,
-            isTop: articleForm.value.top,
-            tags: articleForm.value.tags,
-            img: articleForm.value.img,
-        });
-        // 然后发布文章
-        await api.post('/post/publish', { id: articleForm.value.id });
-        // 发布成功提示
-        Message.success('文章发布成功！');
-        // 跳转到文章列表页
-        router.push({ name: 'Post', params: { id: articleForm.value.id } })
-    } catch (error) {
-        console.error('发布文章失败:', error);
-        // 发布失败提示
-        Message.error('文章发布失败，请重试');
-    } finally {
-        // 无论成功还是失败，都要结束加载状态
-        publishing.value = false;
-    }
+const publishArticle = async () => 
+{
+  // 设置发布状态为true，显示加载动画
+  publishing.value = true;
+  try 
+  {
+    // 调用api
+    // 先保存文章信息
+    const res = await api.put('/post', {
+      id: articleForm.value.id,
+      title: articleForm.value.title,
+      summary: articleForm.value.summary,
+      status: articleForm.value.status,
+      isTop: articleForm.value.top,
+      tags: articleForm.value.tags,
+      img: articleForm.value.img,
+    });
+    // 然后发布文章
+    await api.post('/post/publish', { id: articleForm.value.id });
+    // 发布成功提示
+    Message.success('文章发布成功！');
+    // 跳转到文章列表页
+    router.push({ name: 'Post', params: { id: articleForm.value.id } });
+  }
+  catch (error) 
+  {
+    console.error('发布文章失败:', error);
+    // 发布失败提示
+    Message.error('文章发布失败，请重试');
+  }
+  finally 
+  {
+    // 无论成功还是失败，都要结束加载状态
+    publishing.value = false;
+  }
 };
 
 // 确认使用AI生成的摘要
-const confirmSummary = () => {
-    // 确保摘要长度不超过300字
-    const limitedSummary = aiGeneratedSummary.value.length > 300
-        ? aiGeneratedSummary.value.substring(0, 300)
-        : aiGeneratedSummary.value;
-    articleForm.value.summary = limitedSummary;
-    summaryModalVisible.value = false;
-    Message.success('已更新摘要');
+const confirmSummary = () => 
+{
+  // 确保摘要长度不超过300字
+  const limitedSummary = aiGeneratedSummary.value.length > 300
+    ? aiGeneratedSummary.value.substring(0, 300)
+    : aiGeneratedSummary.value;
+  articleForm.value.summary = limitedSummary;
+  summaryModalVisible.value = false;
+  Message.success('已更新摘要');
 };
 
 // 取消使用AI生成的摘要
-const cancelSummary = () => {
-    summaryModalVisible.value = false;
+const cancelSummary = () => 
+{
+  summaryModalVisible.value = false;
 };
 
 
 
 // 处理裁剪后的图片
-const handleCroppedImage = async (croppedFile) => {
-    try {
-        Message.loading({
-            id: 'upload-cropped-image:' + croppedFile.name,
-            content: croppedFile.name + '上传中...',
-            duration: 15000,
-        });
+const handleCroppedImage = async (croppedFile) => 
+{
+  try 
+  {
+    Message.loading({
+      id: 'upload-cropped-image:' + croppedFile.name,
+      content: croppedFile.name + '上传中...',
+      duration: 15000,
+    });
 
-        // 创建FormData对象 
-        const formData = new FormData();
-        formData.append('file', croppedFile);
+    // 创建FormData对象 
+    const formData = new FormData();
+    formData.append('file', croppedFile);
 
-        // 使用api上传文件 
-        const { data } = await api.post('/file/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        articleForm.value.img = data.shortUrl;
+    // 使用api上传文件 
+    const { data } = await api.post('/file/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    articleForm.value.img = data.shortUrl;
 
-        // 显示成功信息
-        Message.success({
-            id: 'upload-cropped-image:' + croppedFile.name,
-            content: '图片上传成功',
-            duration: 3000,
-        });
+    // 显示成功信息
+    Message.success({
+      id: 'upload-cropped-image:' + croppedFile.name,
+      content: '图片上传成功',
+      duration: 3000,
+    });
 
-        // 可以将上传的图片URL添加到文章内容中
-        const imageUrl = data.shortUrl;
-        console.log('裁剪后图片上传成功，URL:', imageUrl);
+    // 可以将上传的图片URL添加到文章内容中
+    const imageUrl = data.shortUrl;
+    console.log('裁剪后图片上传成功，URL:', imageUrl);
 
-        cropperModalVisible.value = false;
-        currentImageFile.value = null;
+    cropperModalVisible.value = false;
+    currentImageFile.value = null;
 
-        return imageUrl;
-    } catch (error) {
-        console.error('裁剪后图片上传失败:', error);
-        Message.error({
-            id: 'upload-cropped-image:' + croppedFile.name,
-            content: '图片上传失败，请稍后重试',
-            duration: 3000,
-        });
-        throw error;
-    }
+    return imageUrl;
+  }
+  catch (error) 
+  {
+    console.error('裁剪后图片上传失败:', error);
+    Message.error({
+      id: 'upload-cropped-image:' + croppedFile.name,
+      content: '图片上传失败，请稍后重试',
+      duration: 3000,
+    });
+    throw error;
+  }
 };
 
 // Arco Design Upload组件的自定义上传方法
-const customRequest = async (options) => {
-    const { fileItem, onError, onSuccess, onProgress } = options;
-    const file = fileItem.file;
+const customRequest = async (options) => 
+{
+  const { fileItem, onError, onSuccess, onProgress } = options;
+  const file = fileItem.file;
 
-    // 检查是否为图片
-    if (!file.type.startsWith('image/')) {
-        console.error('请选择图片文件');
-        onError();
-        return;
-    }
+  // 检查是否为图片
+  if (!file.type.startsWith('image/')) 
+  {
+    console.error('请选择图片文件');
+    onError();
+    return;
+  }
 
-    // 创建图片对象用于裁剪组件
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    // 设置原始文件名
-    originalFileName.value = file.name;
-    img.onload = async () => {
-        // 将原始文件保存到currentImageFile，用于裁剪
-        currentImageFile.value = file;
+  // 创建图片对象用于裁剪组件
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  // 设置原始文件名
+  originalFileName.value = file.name;
+  img.onload = async () => 
+  {
+    // 将原始文件保存到currentImageFile，用于裁剪
+    currentImageFile.value = file;
 
-        // 显示裁剪模态框
-        cropperModalVisible.value = true;
+    // 显示裁剪模态框
+    cropperModalVisible.value = true;
 
-        // 等待模态框打开后设置图片
-        await nextTick();
-        setTimeout(() => {
-            if (imageCropperRef.value) {
-                imageCropperRef.value.setImage(img);
-            }
-        }, 100);
+    // 等待模态框打开后设置图片
+    await nextTick();
+    setTimeout(() => 
+    {
+      if (imageCropperRef.value) 
+      {
+        imageCropperRef.value.setImage(img);
+      }
+    }, 100);
 
-        onSuccess();
-    };
-    img.onerror = () => {
-        console.error('图片加载失败');
-        onError();
-    };
+    onSuccess();
+  };
+  img.onerror = () => 
+  {
+    console.error('图片加载失败');
+    onError();
+  };
 };
 
 // 组件挂载时初始化数据
-onMounted(() => {
-    try {
-        const commitData = kbStore.getCommitData?.() || {};
-        if (!commitData.id || !commitData.newContent) {
-            Message.warning('未找到文章内容，请返回编辑页面');
-            return;
-        }
-        // 如果 commitData 中没有状态，则设置默认状态为"已发布"
-        if (!commitData.status) {
-            commitData.status = '已发布';
-        }
-        articleForm.value = commitData;
-    } catch (error) {
-        console.error('Error initializing article form:', error);
-        Message.error('初始化失败');
-        router.go(-1);
+onMounted(() => 
+{
+  try 
+  {
+    const commitData = kbStore.getCommitData?.() || {};
+    if (!commitData.id || !commitData.newContent) 
+    {
+      Message.warning('未找到文章内容，请返回编辑页面');
+      return;
     }
-    onSplit();
+    // 如果 commitData 中没有状态，则设置默认状态为"已发布"
+    if (!commitData.status) 
+    {
+      commitData.status = '已发布';
+    }
+    articleForm.value = commitData;
+  }
+  catch (error) 
+  {
+    console.error('Error initializing article form:', error);
+    Message.error('初始化失败');
+    router.go(-1);
+  }
+  onSplit();
 });
 </script>
 

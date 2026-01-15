@@ -1,11 +1,9 @@
 <template>
   <div class="post-history" v-if="postId && historyList && historyList.length > 0">
-    <a-collapse :default-active-key="['1', 2]" style="width: 250px;">
+    <a-collapse :default-active-key="['1', 2]" class="history-collapse">
       <a-collapse-item header=" 历史版本" key="1">
-        <div style="min-width: 200px;">
-        
-            <span class="history-limit-hint">至多显示9条记录</span>
-          
+        <div style="max-width: 250px;width: 14dvw;">
+          <span class="history-limit-hint">至多显示9条记录</span>
           <a-timeline>
             <a-timeline-item v-for="(item, index) in historyList" :key="item.id"
               :label="formatDate(item.createdAt, '更改')">
@@ -23,9 +21,9 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, watch } from 'vue'
-import { formatDate } from '@/utils/DateFormatter.js'
-import api from '@/api/index.js'
+import { defineProps, defineEmits, ref, onMounted, watch } from 'vue';
+import { formatDate } from '@/utils/DateFormatter.js';
+import api from '@/api/index.js';
 
 const props = defineProps({
   postId: {
@@ -36,67 +34,86 @@ const props = defineProps({
     type: Object,
     default: {}
   }
-})
+});
 const showVersionId = ref(0);
-const emit = defineEmits(['historyItemClick'])
+const emit = defineEmits(['historyItemClick']);
 
-const historyList = ref([])
+const historyList = ref([]);
 
 
-const fetchHistoryData = async () => {
-  console.log(props.postId)
-  if (!props.postId) {
+const fetchHistoryData = async () => 
+{
+  console.log(props.postId);
+  if (!props.postId) 
+  {
     return;
   }
-  const { data } = await api.post('/post/history', { id: props.postId })
+  const { data } = await api.post('/post/history', { id: props.postId });
   data.unshift({
     id: 0,
     createdAt: props.post.publishedAt,
     version: props.post.version,
     publishVersion: true
-  })
-  historyList.value = data
+  });
+  historyList.value = data;
 
-}
+};
 
 // 监听 postId 变化，重新获取数据
-watch(() => props.postId, (newPostId) => {
-  if (newPostId) {
-    fetchHistoryData()
-  } else {
-    historyList.value = []
+watch(() => props.postId, (newPostId) => 
+{
+  if (newPostId) 
+  {
+    fetchHistoryData();
   }
-}, { immediate: true })
+  else 
+  {
+    historyList.value = [];
+  }
+}, { immediate: true });
 
 // 处理历史记录点击事件
-const handleHistoryItemClick = (item) => {
-  if (item.publishVersion) {
+const handleHistoryItemClick = (item) => 
+{
+  if (item.publishVersion) 
+  {
     switchOriginVersion();
     return;
   }
-  if (showVersionId.value === item.id) {
+  if (showVersionId.value === item.id) 
+  {
     //切换到原来的版本
     switchOriginVersion();
     return;
   }
   //下面这个是切换到原来的version
   switchOtherVersion(item);
-}
-function switchOriginVersion() {
+};
+function switchOriginVersion() 
+{
   showVersionId.value = 0;
-  emit('historyItemClick', { publishVersion: true })
+  emit('historyItemClick', { publishVersion: true });
 }
-function switchOtherVersion(item) {
-  showVersionId.value = item.id
-  emit('historyItemClick', item)
+function switchOtherVersion(item) 
+{
+  showVersionId.value = item.id;
+  emit('historyItemClick', item);
 }
 
 </script>
 
 <style scoped lang="less">
-.post-history {
-  padding: 16px;
+.history-collapse {
 
+  @media screen and (min-width: 1250px) {
+    width: 250px;
+  }
+
+}
+
+.post-history {
+  margin-right:10px;
+   margin-left: 10px;
   .history-limit-hint {
     font-size: 12px;
     color: #6e7781;
