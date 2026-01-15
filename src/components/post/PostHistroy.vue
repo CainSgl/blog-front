@@ -6,9 +6,9 @@
           <span class="history-limit-hint">至多显示9条记录</span>
           <a-timeline>
             <a-timeline-item v-for="(item, index) in historyList" :key="item.id"
-              :label="formatDate(item.createdAt, '更改')">
+                             :label="formatDate(item.createdAt, '更改')">
               <div class="history-item" @click="handleHistoryItemClick(item)"
-                :class="item.id === showVersionId ? 'select-history-item' : ''">
+                   :class="item.id === showVersionId ? 'select-history-item' : ''">
                 <div class="version-info" v-if="!item.publishVersion"> 版本：v{{ item.version }}</div>
                 <div class="version-info" v-else> 发布版本</div>
               </div>
@@ -41,10 +41,10 @@ const emit = defineEmits(['historyItemClick']);
 const historyList = ref([]);
 
 
-const fetchHistoryData = async () => 
+const fetchHistoryData = async () =>
 {
   console.log(props.postId);
-  if (!props.postId) 
+  if (!props.postId)
   {
     return;
   }
@@ -60,27 +60,27 @@ const fetchHistoryData = async () =>
 };
 
 // 监听 postId 变化，重新获取数据
-watch(() => props.postId, (newPostId) => 
+watch(() => props.postId, (newPostId) =>
 {
-  if (newPostId) 
+  if (newPostId)
   {
     fetchHistoryData();
   }
-  else 
+  else
   {
     historyList.value = [];
   }
 }, { immediate: true });
 
 // 处理历史记录点击事件
-const handleHistoryItemClick = (item) => 
+const handleHistoryItemClick = (item) =>
 {
-  if (item.publishVersion) 
+  if (item.publishVersion)
   {
     switchOriginVersion();
     return;
   }
-  if (showVersionId.value === item.id) 
+  if (showVersionId.value === item.id)
   {
     //切换到原来的版本
     switchOriginVersion();
@@ -89,12 +89,12 @@ const handleHistoryItemClick = (item) =>
   //下面这个是切换到原来的version
   switchOtherVersion(item);
 };
-function switchOriginVersion() 
+function switchOriginVersion()
 {
   showVersionId.value = 0;
   emit('historyItemClick', { publishVersion: true });
 }
-function switchOtherVersion(item) 
+function switchOtherVersion(item)
 {
   showVersionId.value = item.id;
   emit('historyItemClick', item);
@@ -113,7 +113,7 @@ function switchOtherVersion(item)
 
 .post-history {
   margin-right:10px;
-   margin-left: 10px;
+  margin-left: 10px;
   .history-limit-hint {
     font-size: 12px;
     color: #6e7781;
@@ -122,6 +122,7 @@ function switchOtherVersion(item)
   }
 
   .history-item {
+    max-width: 100px;
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;

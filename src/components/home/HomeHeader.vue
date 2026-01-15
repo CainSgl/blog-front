@@ -8,7 +8,7 @@
         <div v-for="drop in raindrops" :key="drop.id" class="raindrop" :style="getRainDropStyle(drop)"></div>
       </div>
     </div>
-    
+
     <!-- 导航栏和其他内容元素正常排列 -->
     <div class="content-wrapper">
       <TypewriterWelcome />
@@ -24,10 +24,10 @@ import TypewriterWelcome from '@/components/typewriter/TypewriterWelcome.vue';
 const raindrops = ref([]);
 
 // 初始化雨滴数据
-onMounted(() => 
+onMounted(() =>
 {
   // 创建多个雨滴元素
-  for (let i = 0; i < 50; i++) 
+  for (let i = 0; i < 50; i++)
   {
     raindrops.value.push({
       id: i,
@@ -41,7 +41,7 @@ onMounted(() =>
 });
 
 // 计算雨滴样式
-const getRainDropStyle = (drop) => 
+const getRainDropStyle = (drop) =>
 {
   return {
     left: `${drop.x}%`,
@@ -87,6 +87,7 @@ const getRainDropStyle = (drop) =>
 .background-img {
   position: absolute;
   left: 0;
+  width: 100%;
   height: 25vh;
   max-height: 350px;
   min-height: 185px;

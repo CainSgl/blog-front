@@ -1,29 +1,24 @@
 <template>
-    <div class="banner-carousel">
-        <a-carousel :auto-play="autoPlay" show-arrow="hover" indicator-type="slider" class="carousel-wrapper"
-            transition-timing-function="cubic-bezier(0.34, 0.69, 0.1, 1)" v-model:current="currentIndex">
-            <a-carousel-item v-for="(item, index) in bannerList" :key="index" class="carousel-item" style="width: 100%;height: 100%;">
-                <div class="banner-item" @click="handleBannerClick(item)" >
-                    <cImg   :src="item.coverUrl" :preview-visible="false" style="width: 100%;height: 100%;" />
-                </div>
-            </a-carousel-item>
-        </a-carousel>
-        <!-- 动态背景遮罩层 -->
-        <div class="dynamic-overlay">
-            <div class="banner-content">
-                <transition name="fade" mode="out-in">
-                    <div :key="currentIndex" class="banner-text">
-                        <h3 class="banner-title">{{ currentBanner.title }}</h3>
-                        <p class="banner-description">{{ currentBanner.description }}</p>
-                    </div>
-                </transition>
+  <div class="banner-carousel">
+    <a-carousel :auto-play="autoPlay" show-arrow="hover" indicator-type="slider" class="carousel-wrapper"
+                transition-timing-function="cubic-bezier(0.34, 0.69, 0.1, 1)" v-model:current="currentIndex">
+      <a-carousel-item v-for="(item, index) in bannerList" :key="index" class="carousel-item">
+        <div class="banner-item" @click="handleBannerClick(item)">
+          <cImg :src="item.coverUrl" :preview-visible="false" class="banner-image" />
+          <div class="banner-overlay">
+            <div :key="currentIndex" class="banner-info" :style="{ background: item.color }">
+              <h3 class="banner-title">{{ item.title }}</h3>
+              <p class="banner-description">{{ item.description }}</p>
             </div>
+          </div>
         </div>
-    </div>
+      </a-carousel-item>
+    </a-carousel>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/api/index.js';
 import CImg from '../../base/cImg.vue';
@@ -44,41 +39,26 @@ const props = defineProps({
   }
 });
 
-// 当前显示的 banner 索引
 const currentIndex = ref(0);
-
-// 使用传入的 bannerData，如果没有则使用默认数据
 const bannerList = ref([]);
 
-// 获取当前显示的 banner 数据
-const currentBanner = computed(() => 
-{
-  const list = bannerList.value;
-  return list[currentIndex.value] || list[0] || { title: '', description: '' };
-});
-
 // 处理 banner 点击事件
-const handleBannerClick = (item) => 
-{
+const handleBannerClick = (item) => {
   if (!item.url) return;
-    
+
   // 如果 url 以 http 开头，直接跳转到外部链接
-  if (item.url.startsWith('http')) 
-  {
+  if (item.url.startsWith('http')) {
     window.open(item.url, '_blank');
   }
-  else 
-  {
+  else {
     // 否则在内部路由跳转
     router.push(item.url);
   }
 };
 
-onMounted(async () => 
-{
-  const {data} = await api.get('/system/carousel');
+onMounted(async () => {
+  const { data } = await api.get('/system/carousel');
   bannerList.value = data || [];
-
 });
 </script>
 
@@ -86,125 +66,128 @@ onMounted(async () =>
 
 <style scoped lang="less">
 .banner-carousel {
-    width: 100%;
-    position: relative;
-    &:before {
-        content: '';
-        display: block;
-        padding-top:33.33333333333333%;
-    }
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  &:before {
+    content: '';
+    display: block;
+    padding-top: 33.33%;
+  }
 }
 
 .carousel-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.carousel-item {
+  width: 100%;
+  height: 100%;
 }
 
 .banner-item {
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    &:hover {
-        opacity: 0.95;
-    }
-}
-
-// 固定背景遮罩层
-.fixed-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-
-    :deep(.arco-carousel-indicator-slider) {
-        --color: v-bind('currentBanner.color || "black"');
-        background: linear-gradient(to top,
-                color-mix(in srgb, var(--color) 60%, transparent) 0%,
-                color-mix(in srgb, var(--color) 30%, transparent) 50%,
-                color-mix(in srgb, var(--color) 0%, transparent) 100%);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  &:hover {
+    .banner-image {
+      transform: scale(1.05);
     }
 
-    padding: 30px;
-    color: white;
-    z-index: 10; // 确保文字在图片上方
+  }
 }
 
-// 动态背景遮罩层
-.dynamic-overlay {
-    user-select: none;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top,
-            color-mix(in srgb, v-bind('currentBanner.color || "black"') 30%, transparent) 0%,
-            color-mix(in srgb, v-bind('currentBanner.color || "black"') 15%, transparent) 50%,
-            color-mix(in srgb, v-bind('currentBanner.color || "black"') 0%, transparent) 100%);
-    padding: 30px;
-    color: white;
-    z-index: 10;
-    pointer-events: none;
+.banner-image {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.34, 0.69, 0.1, 1);
+}
+
+.banner-overlay {
+  position: absolute;
+  bottom: 20px;
+
+  left: 30px;
+  right: 30px;
+  pointer-events: none;
+}
+
+.banner-info {
+  border-radius: 12px;
+  padding: 20px 24px;
+  pointer-events: auto;
 }
 
 .banner-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
 }
 
 .banner-description {
-    font-size: 16px;
-    margin: 0;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.5;
 }
 
-// 淡入淡出过渡动画
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
-}
 
-.fade-enter-from, .fade-leave-to {
-    opacity: 0;
-}
-
-.banner-text {
-    width: 100%;
-    pointer-events: auto;
-}
-
-// 响应式设计 - 平板设备
+// 响应式设计 - 平板
 @media (max-width: 768px) {
-    .banner-title {
-        font-size: 20px;
-    }
-    
-    .banner-description {
-        font-size: 14px;
-    }
-    
-    .dynamic-overlay {
-        padding: 20px;
-    }
+  .banner-overlay {
+    left: 20px;
+    right: 20px;
+  }
+
+  .banner-info {
+    padding: 16px 20px;
+  }
+
+  .banner-title {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .banner-description {
+    font-size: 14px;
+  }
 }
 
-// 响应式设计 - 手机设备
+// 响应式设计 - 手机
 @media (max-width: 480px) {
-    .banner-title {
-        font-size: 18px;
-    }
-    
-    .banner-description {
-        font-size: 13px;
-    }
-    
-    .dynamic-overlay {
-        padding: 15px;
-    }
+  .carousel-wrapper {
+    border-radius: 8px;
+  }
+
+  .banner-overlay {
+    left: 15px;
+    right: 15px;
+  }
+
+  .banner-info {
+    padding: 14px 18px;
+    border-radius: 10px;
+  }
+
+  .banner-title {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .banner-description {
+    font-size: 13px;
+    line-height: 1.4;
+  }
 }
 </style>
