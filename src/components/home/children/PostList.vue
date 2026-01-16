@@ -17,7 +17,6 @@
         <a-link v-else :href="`/p/${item.id}`" class="post-grid-item" :hoverable="false" target="_blank">
           <PostCardWrapper
               :post="item"
-              @click-card="handlePostClick"
               :height="'100%'"
               :onlyFans="true"
           />
@@ -130,14 +129,7 @@ const loadPosts = async () =>
   }
 };
 
-// 处理文章卡片点击
-const handlePostClick = (post) =>
-{
-  if (post && post.id)
-  {
-    router.push(`/post/${post.id}`);
-  }
-};
+
 
 // 滚动加载
 const handleScroll = () =>

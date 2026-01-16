@@ -90,8 +90,8 @@
             </template>
             <template #actions="{ record }">
               <a-space>
-                <a-button size="small" @click="handlePreview(record)">预览</a-button>
-                <a-button size="small" @click="handleDownload(record)" :loading="record.download">下载</a-button>
+                <a-button size="small" @click.stop="handlePreview(record)">预览</a-button>
+                <a-button size="small" @click.stop="handleDownload(record)" :loading="record.download">下载</a-button>
               </a-space>
             </template>
           </a-table>

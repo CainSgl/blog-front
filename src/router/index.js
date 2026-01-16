@@ -22,6 +22,16 @@ const routes = [
     component: () => import('@/views/post/post.vue'),
   },
   {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/views/search/Search.vue'),
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('@/views/about/About.vue'),
+  },
+  {
     path: '/space',
     name: 'SpaceRedirect',
     beforeEnter: async (to, from, next) => 

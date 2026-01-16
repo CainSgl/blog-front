@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <Header :transparentBackground="true" :textColor="'white'" :showBorder="false" :hoverable="false" />
+
 
     <HomeHeader />
 
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import Header from '@/components/layout/Header.vue';
 import HomeHeader from '../components/home/HomeHeader.vue';
 import BannerCarousel from '@/components/home/children/BannerCarousel.vue';
@@ -47,16 +47,148 @@ import PostList from '@/components/home/children/PostList.vue';
 import LeftNavigation from '@/components/navigation/LeftNavigation.vue';
 
 const isMobile = ref(true);
+let isScrolling = false;
+let lastScrollTop = 0;
+let scrollEndTimer = null;
+let scrollDirection = 'down'; // 记录用户的滚动意图
+let userIntentTimer = null; // 用户意图观察定时器
+let lastScrollDirection = 'down'; // 上一次的滚动方向
+const homeHeaderHeight = ref(0);
 
 // 页面加载时获取数据
 onMounted(() => {
   updateScreenSize();
   window.addEventListener('resize', updateScreenSize);
+
+  // 获取 HomeHeader 的高度
+  homeHeaderHeight.value = window.innerHeight;
+
+  // 添加滚动监听
+  window.addEventListener('scroll', handleScroll, { passive: false });
+  window.addEventListener('wheel', handleWheel, { passive: false });
+  window.addEventListener('touchstart', handleTouchStart, { passive: false });
+  window.addEventListener('touchmove', handleTouchMove, { passive: false });
 });
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('wheel', handleWheel);
+  window.removeEventListener('touchstart', handleTouchStart);
+  window.removeEventListener('touchmove', handleTouchMove);
+  window.removeEventListener('resize', updateScreenSize);
+  if (scrollEndTimer) clearTimeout(scrollEndTimer);
+  if (userIntentTimer) clearTimeout(userIntentTimer);
+});
+
+const handleTouchStart = () => {
+  // 触摸开始时清除所有定时器
+  if (scrollEndTimer) clearTimeout(scrollEndTimer);
+  if (userIntentTimer) clearTimeout(userIntentTimer);
+};
+
+const handleTouchMove = (e) => {
+  const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+  // 只在 HomeHeader 区域内阻止默认行为
+  if (currentScrollTop < homeHeaderHeight.value && currentScrollTop > 0) {
+    e.preventDefault();
+  }
+};
+
+const handleWheel = (e) => {
+  const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+  // 记录滚动方向
+  scrollDirection = e.deltaY > 0 ? 'down' : 'up';
+
+  // 只在 HomeHeader 区域内处理
+  if (currentScrollTop < homeHeaderHeight.value && currentScrollTop > 0) {
+    e.preventDefault();
+
+    if (!isScrolling) {
+      isScrolling = true;
+
+      if (e.deltaY > 0) {
+        // 向下滚动
+        window.scrollTo({
+          top: homeHeaderHeight.value,
+          behavior: 'smooth'
+        });
+      } else {
+        // 向上滚动
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      setTimeout(() => {
+        isScrolling = false;
+      }, 600);
+    }
+  }
+};
+
+const handleScroll = () => {
+  const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+  // 记录当前滚动方向
+  if (currentScrollTop > lastScrollTop) {
+    scrollDirection = 'down';
+  } else if (currentScrollTop < lastScrollTop) {
+    scrollDirection = 'up';
+  }
+
+  // 检测滚动方向是否改变
+  const directionChanged = scrollDirection !== lastScrollDirection;
+
+  // 在 HomeHeader 区域内处理
+  if (currentScrollTop < homeHeaderHeight.value) {
+    // 如果在顶部区域（小于30%的header高度）且往下滑，立即滑到内容区域
+    if (currentScrollTop < homeHeaderHeight.value * 0.3 && scrollDirection === 'down' && !isScrolling) {
+      isScrolling = true;
+      window.scrollTo({
+        top: homeHeaderHeight.value,
+        behavior: 'smooth'
+      });
+      setTimeout(() => {
+        isScrolling = false;
+      }, 600);
+    }
+    // 如果在中间区域且方向改变，立即响应用户意图
+    else if (currentScrollTop > 10 && currentScrollTop < homeHeaderHeight.value - 10 && directionChanged && !isScrolling) {
+      isScrolling = true;
+
+      if (scrollDirection === 'up') {
+        // 用户改为往上滑，立即滑到顶部
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      } else {
+        // 用户改为往下滑，立即滑到内容区域
+        window.scrollTo({
+          top: homeHeaderHeight.value,
+          behavior: 'smooth'
+        });
+      }
+
+      setTimeout(() => {
+        isScrolling = false;
+      }, 600);
+    }
+  }
+
+  lastScrollDirection = scrollDirection;
+  lastScrollTop = currentScrollTop;
+};
+
+
 
 const updateScreenSize = () => {
   // 当屏幕宽度大于1024px时，isMobile为false
   isMobile.value = window.innerWidth <= 1024;
+  homeHeaderHeight.value = window.innerHeight;
 };
 </script>
 
@@ -66,8 +198,17 @@ const updateScreenSize = () => {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
-
+:deep(::root)
+{
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
 .container {
   display: flex;
   justify-content: center;
@@ -180,9 +321,11 @@ const updateScreenSize = () => {
     padding: 8px;
     gap: 12px;
   }
+
   .left-sidebar {
     display: none; // 小屏幕隐藏左侧目录
   }
+
   .banner-section {
     height: 200px;
   }

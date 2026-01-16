@@ -279,7 +279,7 @@ const handlePageSizeChange = (newPageSize) =>
   .pagination-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 24px;
+    margin-top: 48px;
   }
 
   .content-area {
