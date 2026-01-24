@@ -5,7 +5,7 @@
     <a-spin :loading="loading" tip="正在加载置顶文章..." style="display: block;">
         <div ref="containerRef" class="posts-container">
             <template v-if="topPosts.length > 0">
-                <PostCard :height="cardHeight" v-for="post in topPosts" :key="post.id" :post="post" />
+                <PostCard  :height="cardHeight" v-for="post in topPosts" :key="post.id" :post="post" />
                 <div style="text-align: center;">
                     <a-button v-if="topPosts.length < 10" type="primary" style="margin-top: 16px;"
                         @click="showTopPostSelector">置顶更多文章</a-button>

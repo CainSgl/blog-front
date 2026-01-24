@@ -1,7 +1,9 @@
 <template>
-  <div class="post-card" :style="{ height: `${props.height}px`, width: `${props.width}px` }" :alt="post.summary?post.summary:post.title">
+  <div class="post-card" :style="{ height: `${props.height}px`, width: `${props.width}px` }"
+    :alt="post.summary ? post.summary : post.title">
 
-    <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick" v-if="post.id">
+    <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick"
+      v-if="post.id">
       <!-- 图片和内容容器，用于响应式布局 -->
       <div class="post-content-wrapper"
         :class="{ 'horizontal-layout': props.width > 400, 'vertical-layout': props.width <= 400, 'no-image': !post.img }">
@@ -18,12 +20,14 @@
                 <!-- 置顶标识 -->
                 <span v-if="post.top" class="top-tag">置顶</span>
                 <!-- 标题 -->
-                <span class="post-title">{{ post.title }}</span>
+                 
+                <span class="post-title" v-if="inHtlm" v-html="post.title" ></span>
+                <span class="post-title" v-else >{{ post.title }}</span>
               </div>
               <!-- 状态 -->
               <div v-if="showStatus">
                 <a-tag v-if="post.status === '仅粉丝'" :color="primary4Color">{{ post.status }}</a-tag>
-                <a-tag v-else-if="post.status === '已发布'&&!onlyFans" color="green">{{ post.status }}</a-tag>
+                <a-tag v-else-if="post.status === '已发布' && !onlyFans" color="green">{{ post.status }}</a-tag>
                 <a-tag v-else-if="!onlyFans" color="gray">{{ post.status }}</a-tag>
               </div>
             </div>
@@ -39,7 +43,9 @@
                 摘要里什么都没有
               </div>
             </div>
-            <div class="post-summary" :style="{ WebkitLineClamp: summary }">
+            <div class="post-summary" :style="{ WebkitLineClamp: summary }"  v-if="inHtlm" v-html="post.summary">
+            </div>
+             <div class="post-summary" :style="{ WebkitLineClamp: summary }"  v-else="inHtlm">
               {{ post.summary }}
             </div>
 
@@ -60,7 +66,7 @@
                 </template>
               </a-space>
             </div>
-            <div class="post-stats-footer-wrapper">
+            <div class="post-stats-footer-wrapper" v-if="showBottom">
               <!-- 统计数据和时间信息容器 -->
               <div class="post-stats-footer-container">
                 <!-- 统计数据 -->
@@ -75,15 +81,15 @@
                       <icon-thumb-up size="large" v-else />
                       {{ post.likeCount }}
                     </span>
-                    <span class="stat-item" v-if="post.commentCount!==undefined">
+                    <span class="stat-item" v-if="post.commentCount !== undefined">
                       <icon-message /> {{ post.commentCount }}
                     </span>
                   </a-space>
                 </div>
 
                 <!-- 时间信息 -->
-                <div class="post-footer" v-if="props.width>240">
-                  <span class="post-date">{{ formatDate(post.updatedAt,'更新') }}</span>
+                <div class="post-footer" v-if="props.width > 240">
+                  <span class="post-date">{{ formatDate(post.updatedAt, '更新') }}</span>
                 </div>
               </div>
             </div>
@@ -94,9 +100,9 @@
         </div>
       </div>
     </a-card>
-    <div  class="post-card-loading" v-else>
+    <div class="post-card-loading" v-else>
       <a-skeleton :animation="true">
-        <a-skeleton-shape :style="{ height: `${props.height}px`, width: `${props.width}px` }"/>
+        <a-skeleton-shape :style="{ height: `${props.height}px`, width: `${props.width}px` }" />
       </a-skeleton>
     </div>
   </div>
@@ -125,13 +131,20 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  onlyFans:{
+  onlyFans: {
     type: Boolean,
     default: false
+  },
+  showBottom: {
+    type: Boolean,
+    default: true,
+  },
+  inHtlm:{
+    type:Boolean,
+    default:false,
   }
 });
 
-// 定义使用全局样式变量 primary-4 的颜色
 const primary4Color = '#ff6699'; // 对应 @primary-4: #ff6699; 在 global.less 中
 
 const imageHeight = ref(0);
@@ -140,45 +153,44 @@ const summary = ref(1);
 const summaryHight = ref(0);
 const showSummary = ref(true);
 // 使用 watchEffect 来处理副作用并计算图片样式
-watchEffect(() => 
-{
+watchEffect(() => {
   // 如果没有图片，返回空样式
-  if (!props.post.img) 
-  {
+  if (!props.post.img) {
     summary.value = calculateSummary();
     imageStyle.value = {};
     return;
   }
   //如果是水平模式
-  if (props.width <= 400) 
-  {
+  if (props.width <= 400) {
     //width应该是填满的
     const width = props.width - 40;
     //虽然由宽度决定，但是高度仍然不要超过1/2
     imageHeight.value = Math.min(width / 1.5, props.height / 2);
     summary.value = calculateSummary();
+ 
     imageStyle.value = {
       height: `${imageHeight.value}px`,
       // width: `${width}px`
     };
   }
-  else 
-  {
+  else {
     //图片由高度决定
-    const height = props.height - 40;
+    let height = props.height - 50;
     //虽然有高度决定，但是width仍然限制一下，最好不要超过卡片的1/2
     imageHeight.value = height;
     summary.value = calculateSummary();
+    if (!props.showBottom) {
+      height += 20;
+    }
     imageStyle.value = {
-      height: `${height - 20}px`,
+      height: `${height}px`,
       width: `${Math.min(props.width / 2, height * 1.5)}px`
     };
   }
 });
 
 
-function calculateSummary() 
-{
+function calculateSummary() {
   // 计算可用高度用于摘要显示 (总高度 - 标题高度 - 页脚高度等)
   const lineHeight = 20; // 每行高度
   const titleHeight = 36; // 标题区域高度
@@ -186,28 +198,27 @@ function calculateSummary()
   let availableHeight = props.height - titleHeight - footerHeight;
 
   // 如果有图片且宽度，说明这个时候是垂直模式，需要减去图片高度
-  if (props.post.img && props.width <= 400) 
-  {
+  if (props.post.img && props.width <= 400) {
     availableHeight -= imageHeight.value;
   }
-  if (props.post.tags && props.post.tags.length > 0) 
-  {
+  if (props.post.tags && props.post.tags.length > 0) {
     availableHeight -= 50;
   }
-  else 
-  {
+  else {
     availableHeight -= 10;
   }
+  if (!props.showBottom) {
+    availableHeight += 10;
+  }
+
   summaryHight.value = availableHeight;
   const lines = Math.floor(availableHeight / lineHeight);
-  if (lines <= 0) 
-  {
+  if (lines <= 0) {
     //不显示了  
     showSummary.value = false;
     return 1;
   }
-  else 
-  {
+  else {
     //显示lines行
     showSummary.value = true;
   }
@@ -220,43 +231,35 @@ function calculateSummary()
 
 
 // 计算属性：判断是否已点赞
-const isLiked = computed(() => 
-{
+const isLiked = computed(() => {
   return props.post.operate && props.post.operate.includes('点赞');
 });
 
 // 计算属性：判断是否已讨厌
-const isDisliked = computed(() => 
-{
+const isDisliked = computed(() => {
   return props.post.operate && props.post.operate.includes('讨厌');
 });
 
 // 处理点赞/讨厌点击事件
-const handleLikeClick = (event) => 
-{
+const handleLikeClick = (event) => {
   console.log('Like clicked for post:', props.post.id);
   event.stopPropagation(); // 阻止事件冒泡，避免触发卡片点击
   // 这里可以添加点赞/取消点赞的逻辑
 };
 
 // 获取标签显示名称（去掉分数部分）
-const getTagDisplayName = (tag) => 
-{
-  if (typeof tag === 'string' && tag.includes(':')) 
-  {
+const getTagDisplayName = (tag) => {
+  if (typeof tag === 'string' && tag.includes(':')) {
     return tag.split(':')[0];
   }
   return tag;
 };
 
 // 获取标签分数（如果存在）
-const getTagScore = (tag) => 
-{
-  if (typeof tag === 'string' && tag.includes(':')) 
-  {
+const getTagScore = (tag) => {
+  if (typeof tag === 'string' && tag.includes(':')) {
     const parts = tag.split(':');
-    if (parts.length > 1) 
-    {
+    if (parts.length > 1) {
       return `作者认为该标签相关度为: ${parts[1]}`;
     }
   }
@@ -264,10 +267,8 @@ const getTagScore = (tag) =>
 };
 
 // 处理卡片点击事件
-const handleCardClick = () => 
-{
-  if (props.post.id) 
-  {
+const handleCardClick = () => {
+  if (props.post.id) {
     emit('clickCard', props.post);
   }
 };
@@ -297,7 +298,8 @@ const handleCardClick = () =>
       }
     }
   }
-   .post-card-loading {
+
+  .post-card-loading {
     border-radius: 8px;
     border: 1px solid #e5e8ef;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
@@ -305,6 +307,7 @@ const handleCardClick = () =>
     overflow: hidden;
     height: 100%;
   }
+
   .post-content-wrapper {
     display: flex;
     flex-direction: column;
@@ -471,6 +474,16 @@ const handleCardClick = () =>
     left: 0;
     right: 0;
     padding: 0 20px; // 与卡片内边距一致
+  }
+
+  // 重写 em 标签样式，用于高亮搜索关键词
+  :deep(em) {
+    color: @primary-4;
+    font-style: normal;
+    font-weight: 600;
+    background-color: fade(@primary-4, 10%);
+    padding: 2px 4px;
+    border-radius: 2px;
   }
 }
 </style>

@@ -10,7 +10,7 @@
         <a-layout-content>
           <div class="content-wrapper">
             <div class="header-container"></div>
-            <router-view />
+            <router-view style="max-height: calc(100dvh - 120px);" />
           </div>
         </a-layout-content>
       </a-layout>

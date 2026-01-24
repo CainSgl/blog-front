@@ -264,6 +264,8 @@ const handlePageSizeChange = (newPageSize) =>
 
 <style lang="less" scoped>
 .user-knowledge {
+  max-width: 1400px;
+  overflow: hidden;
   margin: 0 auto;
   padding: 0 20px;
 

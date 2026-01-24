@@ -138,9 +138,9 @@ const handleSubmitComment = async (content) =>
     });
     const currentUserInfo = await userStore.getUserInfo();
     commentList.value.unshift({
-      id:data,
+      id:data.id,
       userId:currentUserInfo.id,
-      content:content,
+      content:data.content,
       replyCount:0,
       likeCount:0,
       createdAt:new Date()

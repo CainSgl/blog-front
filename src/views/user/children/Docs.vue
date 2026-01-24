@@ -260,10 +260,10 @@ const handlePageSizeChange = (newPageSize) =>
 
 <style lang="less" scoped>
 .user-docs {
-
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
-
+  overflow: hidden;
   .posts-list {
     display: flex;
     flex-wrap: wrap;

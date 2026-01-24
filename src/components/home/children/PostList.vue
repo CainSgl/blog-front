@@ -36,15 +36,11 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import api from '@/api/index.js';
-
-const router = useRouter();
 const posts = ref([]);
 const loading = ref(false);
 const hasMore = ref(true);
-const gridRef = ref(null);
 const loadingItems = ref([]);
 
 // 游标分页参数

@@ -1,5 +1,19 @@
 @import "@arco-design/web-vue/dist/arco.less";
 
+// 全局防止水平溢出
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 // 1. 主色系列（primary）- 官方默认
 @primary-1: #eff5fc; //浅色/白底悬浮
 @primary-2: #999999; //文字禁用
@@ -126,6 +140,7 @@
   scrollbar-width: thin;
   scrollbar-color: fade(@color-text-4, 30%) transparent;
 }
+
 @size-5: 20px; //20px
 @size-N: (4 * N) px; //变量对应的值为 (4 * N)px 大小
 @size-50: 200px; //200px
@@ -164,6 +179,6 @@
   text-shadow: none;
   display: inline-flex;
   align-items: center;
-font-family: SimHei, 'Microsoft JhengHei', Arial, Helvetica, sans-serif;
+  font-family: SimHei, 'Microsoft JhengHei', Arial, Helvetica, sans-serif;
 
 }

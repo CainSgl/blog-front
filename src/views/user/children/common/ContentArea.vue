@@ -2,7 +2,7 @@
   <div class="content-area" style="margin-top: 20px;">
     <a-card :bordered="false">
       <a-spin :loading="loading" :tip="loadingTip">
-        <div class="list-container" :style="{ width: containerWidth + 'px' }">
+        <div class="list-container">
           <div class="list">
             <slot :pageSize="pageSize" :containerWidth="containerWidth" :containerHeight="containerHeight"></slot>
           </div>
@@ -175,6 +175,12 @@ onUnmounted(() =>
 .content-area {
   min-height: 450px;
   height: calc(100vh - 300px);
+
+  .list-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
 
   .list {
     display: flex;

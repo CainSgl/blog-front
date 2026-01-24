@@ -111,6 +111,11 @@ const routes = [
         name: 'UserCloud',
         component: () => import('@/views/user/children/Cloud.vue'),
       },
+       {
+        path: 'favorites',
+        name: 'UserFavorite',
+        component: () => import('@/views/user/children/Favorite.vue'),
+      },
     ],
   },
   {

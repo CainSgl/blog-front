@@ -28,7 +28,7 @@
         </div>
 
         <div class="search-section" v-if="showSearch">
-          <a-input-search :placeholder="'搜索文章...'" size="large" class="search-input" />
+          <SearchBox :alwaysShowFilter="false" :mini="true" />
         </div>
 
 
@@ -38,7 +38,7 @@
               <Avatar :size="40" :src="userInfo?.avatarUrl" class="avatar-trigger"
                 @click="openInNewTab(`/space/${userInfo?.id}`)" />
               <template #content>
-                <div class="user-info-popover" v-if="userInfo.id != '-1'">
+                <div class="user-info-popover" v-if="userInfo?.id != '-1'">
                   <div class="user-header">
                     <Avatar :size="60" class="user-avatar" :src="userInfo?.avatarUrl" />
                     <div class="user-basic-info">
@@ -126,10 +126,10 @@
             </a-popover>
           </div>
           <!-- 登录后显示的功能入口 -->
-          <div class="user-actions" v-if="userInfo.id != '-1'">
+          <div class="user-actions" v-if="userInfo?.id != '-1'">
             <div class="action-item" @click="openInNewTab('/messages')">
               <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
-                <a-badge :count="0" dot-style="width: 8px; height: 8px;">
+                <a-badge :count="0" :dot-style="{width: '8px', height: '8px'}">
                   <icon-notification :size="20" />
                 </a-badge>
               </a-tooltip>
@@ -178,6 +178,7 @@
 import { useUserStore } from '@/store/user.js';
 import { storeToRefs } from 'pinia';
 import Avatar from '@/components/user/base/Avatar.vue';
+import SearchBox from '@/components/base/SearchBox.vue';
 import { onMounted, ref, onUnmounted } from 'vue';
 import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory, IconGithub } from '@arco-design/web-vue/es/icon';
 import { useRouter, useRoute } from 'vue-router';
@@ -287,6 +288,9 @@ onMounted(async () => {
   top: 0;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
   border-bottom: 1px solid @color-border-1;
 
   &.transparent-background {
@@ -316,6 +320,8 @@ onMounted(async () => {
   padding: 0 20px;
   height: @header-height;
   transition: all 0.3s ease;
+  max-width: 100%;
+  box-sizing: border-box;
 
   &.with-padding {
     max-width: 1400px;
@@ -325,7 +331,7 @@ onMounted(async () => {
 
   .search-section {
     flex: 1 1 auto;
-    max-width: 400px;
+  
     margin: 0 20px;
 
     .search-input {

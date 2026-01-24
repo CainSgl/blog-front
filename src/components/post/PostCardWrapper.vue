@@ -10,6 +10,8 @@
         :width="computedWidth"
         :show-status="showStatus"
         :onlyFans="onlyFans"
+        :showBottom="showBottom"
+        :inHtlm="inHtlm"
         @clickCard="handleClickCard"
     />
   </div>
@@ -47,6 +49,14 @@ const props = defineProps({
   onlyFans: {
     type: Boolean,
     default: false
+  },
+  showBottom:{
+    type:Boolean,
+    default:true,
+  },
+  inHtlm:{
+    type:Boolean,
+    default:false,
   }
 });
 

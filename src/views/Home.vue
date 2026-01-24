@@ -7,7 +7,7 @@
     <div class="container">
       <!-- 左侧目录区域 -->
       <div class="left-sidebar">
-        <LeftNavigation />
+       
       </div>
 
       <!-- 中间区域：主内容 + 公告 -->
@@ -217,6 +217,8 @@ const updateScreenSize = () => {
   padding: 20px;
   box-sizing: border-box;
   margin: 0 auto;
+  max-width: 100%;
+  width: 100%;
 }
 
 // 左侧目录区域
@@ -254,6 +256,8 @@ const updateScreenSize = () => {
   gap: 20px;
   max-width: 1600px;
   margin: 0 auto;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 // 中间主内容区域
@@ -261,6 +265,8 @@ const updateScreenSize = () => {
   flex: 1;
   max-width: 1280px;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 // 右侧公告栏

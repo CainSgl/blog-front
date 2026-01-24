@@ -211,7 +211,7 @@ function buildReplyPost(content)
   req.content = content;
   return req;
 }
-async function buildReplyMessage(id, content) 
+async function buildReplyMessage({id, content}) 
 {
   const current = await userStore.getUserInfo();
 
@@ -281,7 +281,7 @@ const handleSubmitReply = async (content) =>
   {
     const { data } = await api.post('/comment/reply', buildReplyPost(content));
     Message.success('成功回复评论');
-    replies.value.unshift(await buildReplyMessage(data, content));
+    replies.value.unshift(await buildReplyMessage(data));
     // 隐藏输入框
     showReplyInput.value = false;
     // 更新回复计数

@@ -3,25 +3,32 @@
     <div class="search-wrapper">
       <!-- 主搜索框 -->
       <div class="search-box" :class="{ 'focused': isFocused }">
-        <!-- 搜索模式选择器 -->
-        <div class="search-mode-dropdown" @click="toggleModeDropdown">
-          <span class="mode-text">{{ getModeLabel(searchMode) }}</span>
-          <icon-down class="dropdown-icon" :class="{ 'open': showModeDropdown }" />
-          
-          <!-- 下拉菜单 -->
-          <div v-if="showModeDropdown" class="mode-dropdown-menu">
-            <div 
-              v-for="mode in searchModes" 
-              :key="mode.value"
-              class="mode-option"
-              :class="{ 'active': searchMode === mode.value }"
-              @click.stop="selectMode(mode.value)"
-            >
-              <span class="mode-label">{{ mode.label }}</span>
-              <span v-if="mode.desc" class="mode-desc">{{ mode.desc }}</span>
-            </div>
+        <a-trigger
+          trigger="click"
+          position="bl"
+          :popup-offset="8"
+          :unmount-on-close="false"
+        >
+          <div class="search-mode-dropdown" :class="{ 'mini': mini }">
+            <span class="mode-text">{{ getModeLabel(searchMode) }}</span>
+            <icon-down class="dropdown-icon" />
           </div>
-        </div>
+          
+          <template #content>
+            <div class="mode-dropdown-menu">
+              <div 
+                v-for="mode in searchModes" 
+                :key="mode.value"
+                class="mode-option"
+                :class="{ 'active': searchMode === mode.value }"
+                @click="selectMode(mode.value)"
+              >
+                <span class="mode-label">{{ mode.label }}</span>
+                <span v-if="mode.desc" class="mode-desc">{{ mode.desc }}</span>
+              </div>
+            </div>
+          </template>
+        </a-trigger>
 
         <!-- 分隔线 -->
         <div class="divider"></div>
@@ -71,6 +78,7 @@
           v-for="filter in filters" 
           :key="filter.value"
           class="filter-tag"
+          :class="{ 'child-tag': filter.isChild }"
           :type="filter.checked ? 'primary' : 'outline'"
           shape="round"
           @click="toggleFilter(filter)"
@@ -87,16 +95,31 @@ import { ref, computed } from 'vue';
 import { IconSearch, IconClose, IconDown } from '@arco-design/web-vue/es/icon';
 import { useAuthStore } from '@/store/auth';
 import { Message } from '@arco-design/web-vue';
+import { useRouter } from 'vue-router';
+
+// Props
+const props = defineProps({
+  alwaysShowFilter: {
+    type: Boolean,
+    default: true
+  },
+  mini: {
+    type: Boolean,
+    default: false
+  }
+});
 
 // 组件内部状态
 const searchMode = ref('term');
 const searchQuery = ref('');
 const isFocused = ref(false);
-const showModeDropdown = ref(false);
 
 // 获取认证状态
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.checkLogin());
+
+// 路由
+const router = useRouter();
 
 // 搜索模式配置
 const searchModes = [
@@ -107,13 +130,15 @@ const searchModes = [
 
 // 过滤器配置
 const filters = ref([
+  { value: 'title', label: '标题', checked: true, isParent: true },
+  { value: 'content', label: '内容', checked: true, isChild: true, parent: 'title' },
+  { value: 'tag', label: '标签', checked: true, isChild: true, parent: 'title' },
   { value: 'user', label: '用户', checked: true },
-  { value: 'post', label: '文章', checked: true },
   { value: 'kb', label: '知识库', checked: true }
 ]);
 
-// 判断是否显示过滤器（只在词项搜索时显示）
-const showFilters = computed(() => searchMode.value === 'term');
+// 判断是否显示过滤器（只在词项搜索时显示，且 alwaysShowFilter 为 true）
+const showFilters = computed(() => props.alwaysShowFilter && searchMode.value === 'term');
 
 // 判断输入框是否禁用（精准搜索且未登录时禁用）
 const isInputDisabled = computed(() => searchMode.value === 'precise' && !isLoggedIn.value);
@@ -131,29 +156,21 @@ const getModeLabel = (value) => {
   return searchModes.find(m => m.value === value)?.label || '词项搜索';
 };
 
-// 切换模式下拉菜单
-const toggleModeDropdown = () => {
-  showModeDropdown.value = !showModeDropdown.value;
-};
-
 // 选择搜索模式
 const selectMode = (value) => {
   // 如果选择精准搜索但未登录，提示登录
   if (value === 'precise' && !isLoggedIn.value) {
     Message.warning('精准搜索需要登录，请先登录');
-    showModeDropdown.value = false;
     return;
   }
   
   searchMode.value = value;
-  showModeDropdown.value = false;
 };
 
 // 处理失焦
 const handleBlur = () => {
   setTimeout(() => {
     isFocused.value = false;
-    showModeDropdown.value = false;
   }, 200);
 };
 
@@ -164,7 +181,45 @@ const clearSearch = () => {
 
 // 切换过滤器
 const toggleFilter = (filter) => {
-  filter.checked = !filter.checked;
+  const newChecked = !filter.checked;
+  
+  // 如果是子标签（内容或标签）
+  if (filter.isChild) {
+    // 选中子标签时，自动选中父标签
+    if (newChecked) {
+      const parentFilter = filters.value.find(f => f.value === filter.parent);
+      if (parentFilter && !parentFilter.checked) {
+        parentFilter.checked = true;
+        Message.info(`无法单独选中"${filter.label}"，已为你自动勾选"${parentFilter.label}"`);
+      }
+    }
+    filter.checked = newChecked;
+  }
+  // 如果是父标签（标题）
+  else if (filter.isParent) {
+    filter.checked = newChecked;
+    // 取消父标签时，自动取消所有子标签
+    if (!newChecked) {
+      filters.value.forEach(f => {
+        if (f.isChild && f.parent === filter.value) {
+          f.checked = false;
+        }
+      });
+    }
+  }
+  // 普通标签（用户、知识库）
+  else {
+    filter.checked = newChecked;
+  }
+  
+  // 检查至少选中一个主标签（标题、用户、知识库）
+  const mainFilters = filters.value.filter(f => !f.isChild);
+  const hasChecked = mainFilters.some(f => f.checked);
+  
+  if (!hasChecked) {
+    filter.checked = true;
+    Message.warning('至少需要选择一个搜索范围（标题、用户或知识库）');
+  }
 };
 
 // 搜索处理函数
@@ -181,28 +236,33 @@ const handleSearch = () => {
     ? filters.value.filter(f => f.checked).map(f => f.value)
     : [];
 
-  console.log('搜索:', {
-    mode: searchMode.value,
-    query: searchQuery.value,
-    filters: activeFilters
+  // 跳转到搜索页面
+  router.push({
+    path: '/search',
+    query: {
+      mode: searchMode.value,
+      query: searchQuery.value,
+      filters: activeFilters.join(',')
+    }
   });
-
-  // TODO: 在这里实现搜索逻辑
 };
 </script>
 
 <style scoped lang="less">
 .search-container {
   width: 100%;
+  max-width: 100%;
   display: flex;
   justify-content: center;
   padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .search-wrapper {
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* 主搜索框 */
@@ -211,6 +271,7 @@ const handleSearch = () => {
   display: flex;
   align-items: center;
   width: 100%;
+  min-width: 0; /* 允许 flex 子元素收缩 */
   height: 48px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -231,9 +292,22 @@ const handleSearch = () => {
   }
 }
 
+/* Mini 模式下的搜索框样式 */
+.search-container:has(.search-mode-dropdown.mini) .search-box {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  &.focused {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    border-color: transparent;
+  }
+}
+
 /* 搜索模式下拉选择器 */
 .search-mode-dropdown {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -244,6 +318,7 @@ const handleSearch = () => {
   user-select: none;
   transition: all 0.2s ease;
   background: rgba(0, 0, 0, 0.03);
+  flex-shrink: 0; /* 防止被压缩 */
 
   &:hover {
     background: rgba(0, 0, 0, 0.06);
@@ -260,36 +335,30 @@ const handleSearch = () => {
     color: #5f6368;
     font-size: 12px;
     transition: transform 0.2s ease;
+  }
 
-    &.open {
-      transform: rotate(180deg);
+  /* Mini 模式样式 */
+  &.mini {
+    padding: 6px 10px;
+    gap: 4px;
+
+    .mode-text {
+      font-size: 12px;
+    }
+
+    .dropdown-icon {
+      font-size: 10px;
     }
   }
 }
 
 /* 下拉菜单 */
 .mode-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
   min-width: 200px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   padding: 8px;
-  z-index: 1000;
-  animation: slideDown 0.2s ease;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .mode-option {
@@ -332,6 +401,7 @@ const handleSearch = () => {
   height: 28px;
   background: rgba(0, 0, 0, 0.1);
   margin: 0 8px;
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 /* 搜索图标 */
@@ -345,6 +415,7 @@ const handleSearch = () => {
 /* 输入框 */
 .search-input {
   flex: 1;
+  min-width: 0; /* 允许输入框收缩 */
   height: 100%;
   border: none;
   outline: none;
@@ -384,10 +455,19 @@ const handleSearch = () => {
 
 /* 搜索按钮 - 使用 Arco Button */
 .search-btn {
-  flex-shrink: 0;
+  flex-shrink: 0; /* 防止被压缩 */
   height: 40px;
+  min-width: 60px; /* 确保最小宽度 */
   border-radius: 20px;
   font-weight: 500;
+}
+
+/* Mini 模式下的搜索按钮 */
+.search-container:has(.search-mode-dropdown.mini) .search-btn {
+  height: 32px;
+  min-width: 50px;
+  border-radius: 16px;
+  font-size: 13px;
 }
 
 /* 搜索过滤选项 - 使用 Arco Button */
@@ -417,6 +497,27 @@ const handleSearch = () => {
   &:deep(.arco-btn-primary) {
     box-shadow: 0 2px 8px rgba(var(--primary-6), 0.3);
   }
+  
+  /* 子标签样式 - 稍微淡一点 */
+  &.child-tag {
+    &:deep(.arco-btn-outline) {
+      background: rgba(255, 255, 255, 0.7);
+      border-color: rgba(0, 0, 0, 0.08);
+      color: #8a8f99;
+      font-size: 13px;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.85);
+        border-color: rgba(0, 0, 0, 0.15);
+        color: #5f6368;
+      }
+    }
+    
+    &:deep(.arco-btn-primary) {
+      opacity: 0.85;
+      box-shadow: 0 2px 6px rgba(var(--primary-6), 0.2);
+    }
+  }
 }
 
 /* 响应式设计 */
@@ -432,19 +533,25 @@ const handleSearch = () => {
   }
 
   .search-mode-dropdown {
-    padding: 6px 10px;
+    padding: 6px 8px;
 
     .mode-text {
       font-size: 13px;
     }
   }
 
+  .divider {
+    margin: 0 6px;
+  }
+
   .search-input {
     font-size: 15px;
+    padding: 0 8px;
   }
 
   .search-btn {
     height: 36px;
+    min-width: 56px;
     
     :deep(.arco-btn) {
       height: 36px;
@@ -460,22 +567,44 @@ const handleSearch = () => {
 
   .search-box {
     height: 42px;
+    padding: 0 6px 0 4px;
   }
 
   .search-mode-dropdown {
+    padding: 6px 8px;
+    margin-left: 2px;
+
     .mode-text {
       font-size: 12px;
     }
   }
 
+  .divider {
+    margin: 0 4px;
+  }
+
+  .search-icon {
+    margin-left: 4px;
+    font-size: 16px;
+  }
+
   .search-input {
     font-size: 14px;
-    padding: 0 8px;
+    padding: 0 6px;
+  }
+
+  .clear-btn {
+    margin-right: 2px;
   }
 
   .search-btn {
+    height: 34px;
+    min-width: 50px;
+    
     :deep(.arco-btn) {
+      height: 34px;
       font-size: 12px;
+      padding: 0 12px;
     }
   }
 }
