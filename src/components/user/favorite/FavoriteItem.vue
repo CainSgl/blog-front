@@ -1,5 +1,5 @@
 <template>
-    <div class="favorite-item" @mouseenter="isHovered = true" @mouseleave="isHovered = false">
+    <div class="favorite-item" @mouseenter="isHovered = true" @mouseleave="isHovered = false" @click="handleItemClick">
         <icon-folder class="item-icon" v-if="localItem.publish" style="height: 24px;" />
         <svg v-else width="24" height="24" viewBox="0 0 32 32" fill="none">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -64,7 +64,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['deleted', 'updated']);
+const emit = defineEmits(['deleted', 'updated', 'click']);
 
 const isHovered = ref(false);
 const editModalVisible = ref(false);
@@ -76,6 +76,10 @@ const editForm = reactive({
 
 // 本地数据，用于实时更新显示
 const localItem = ref({ ...props.item });
+
+const handleItemClick = () => {
+    emit('click', localItem.value);
+};
 
 const showEditModal = () => {
     editForm.name = localItem.value.name || '';

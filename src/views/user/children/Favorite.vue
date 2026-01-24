@@ -16,7 +16,7 @@
                             <transition name="slide">
                                 <div v-show="expandedGroups[group.key]" class="group-items">
                                     <div v-for="item in groupData[group.type]" :key="item.id">
-                                        <FavoriteItem :item="item" @deleted="handleDeleteFavorite" :edit="isCurrentUser"/>
+                                        <FavoriteItem :item="item" @deleted="handleDeleteFavorite" :edit="isCurrentUser" @click="handleFavoriteClick"/>
                                     </div>
                                     <div v-if="isCurrentUser">
                                         <FavoriteItemCreate @create="handleCreateFavorite(group.type)" />
@@ -31,32 +31,32 @@
         </div>
 
         <!-- 创建收藏夹对话框 -->
-        <a-modal v-model:visible="createModalVisible" :title="`创建${currentType}收藏夹`" @ok="handleConfirmCreate" @cancel="handleCancelCreate">
-            <a-form :model="createForm" layout="vertical">
-                <a-form-item label="收藏夹名称" required>
-                    <a-input v-model="createForm.name" placeholder="请输入收藏夹名称" allow-clear />
-                </a-form-item>
-                <a-form-item label="收藏夹描述">
-                    <a-textarea v-model="createForm.description" placeholder="请输入收藏夹描述（可选）" allow-clear :auto-size="{ minRows: 3, maxRows: 5 }" />
-                </a-form-item>
-                <a-form-item label="公开设置">
-                    <a-switch v-model="createForm.publish" checked-text="公开" unchecked-text="私密" />
-                </a-form-item>
-            </a-form>
-        </a-modal>
+        <CreateFavoriteModal 
+            v-model="createModalVisible" 
+            :type="currentType"
+            @success="handleCreateSuccess"
+        />
+
+        <!-- 收藏夹详情弹窗 -->
+        <FavoriteDetailModal 
+            v-model="detailModalVisible" 
+            :favoriteData="selectedFavorite"
+        />
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { IconFile, IconBook, IconMessage, IconDown } from '@arco-design/web-vue/es/icon';
+import { IconFile, IconBook, IconDown } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import { useUserStore } from '@/store/user.js';
 import UserPageHeader from './common/UserPageHeader.vue';
 import FavoriteItem from '@/components/user/favorite/FavoriteItem.vue';
 import FavoriteItemCreate from '@/components/user/favorite/FavoriteItemCreate.vue';
+import FavoriteDetailModal from '@/components/user/favorite/FavoriteDetailModal.vue';
+import CreateFavoriteModal from '@/components/user/favorite/CreateFavoriteModal.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -67,16 +67,14 @@ const userId = ref(route.params.id);
 // 收藏夹分组配置
 const favoriteGroups = [
     { key: 'article', type: '文章', icon: 'IconFile', title: '文章' },
-    { key: 'kb', type: '知识库', icon: 'IconBook', title: '知识库' },
-    { key: 'comment', type: '评论', icon: 'IconMessage', title: '评论' }
+    { key: 'kb', type: '知识库', icon: 'IconBook', title: '知识库' }
 ];
 
 // 获取图标组件
 const getIconComponent = (iconName) => {
     const iconMap = {
         IconFile,
-        IconBook,
-        IconMessage
+        IconBook
     };
     return iconMap[iconName];
 };
@@ -88,18 +86,16 @@ const loading = ref(true);
 // 展开状态
 const expandedGroups = ref({
     article: true,
-    kb: true,
-    comment: true
+    kb: true
 });
 
 // 创建收藏夹对话框
 const createModalVisible = ref(false);
-const createForm = ref({
-    name: '',
-    description: '',
-    publish: false
-});
 const currentType = ref('');
+
+// 收藏夹详情弹窗
+const detailModalVisible = ref(false);
+const selectedFavorite = ref(null);
 
 const toggleGroup = (groupKey) => {
     expandedGroups.value[groupKey] = !expandedGroups.value[groupKey];
@@ -120,57 +116,15 @@ const loadFavorites = async () => {
 
 const handleCreateFavorite = (type) => {
     currentType.value = type;
-    createForm.value = {
-        name: '',
-        description: '',
-        publish: false
-    };
     createModalVisible.value = true;
 };
 
-const handleConfirmCreate = async () => {
-    const name = createForm.value.name.trim();
-    
-    if (!name) {
-        Message.warning('请输入收藏夹名称');
-        return;
+const handleCreateSuccess = (data) => {
+    if (groupData.value[currentType.value]) {
+        groupData.value[currentType.value].push(data);
+    } else {
+        groupData.value[currentType.value] = [data];
     }
-
-    const loadingId = 'create-favorite';
-    Message.loading({ id: loadingId, content: '创建中...' });
-
-    try {
-        const { data } = await api.post('/user/group', {
-            type: currentType.value,
-            name: name,
-            description: createForm.value.description.trim(),
-            publish: createForm.value.publish
-        });
-        
-        if (groupData.value[currentType.value]) {
-            groupData.value[currentType.value].push(data);
-        } else {
-            groupData.value[currentType.value] = [data];
-        }
-        
-        // 先关闭弹窗
-        createModalVisible.value = false;
-        
-        // 再显示成功消息
-        Message.success({ id: loadingId, content: '创建成功' });
-    } catch (error) {
-        console.error('创建收藏夹失败:', error);
-        Message.error({ id: loadingId, content: '创建失败，请稍后重试' });
-    }
-};
-
-const handleCancelCreate = () => {
-    createModalVisible.value = false;
-    createForm.value = {
-        name: '',
-        description: '',
-        publish: false
-    };
 };
 
 const handleDeleteFavorite = (id) => {
@@ -187,6 +141,11 @@ const handleDeleteFavorite = (id) => {
 
 const handleBack = () => {
     router.push(`/space/${userId.value}`);
+};
+
+const handleFavoriteClick = (favorite) => {
+    selectedFavorite.value = favorite;
+    detailModalVisible.value = true;
 };
 const currentUserInfo = ref({ id: -1 });
 

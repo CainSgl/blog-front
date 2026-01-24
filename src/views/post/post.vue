@@ -1,5 +1,18 @@
 <template>
   <div style="display: flex;">
+    <!-- 左侧固定交互组件 -->
+    <PostActions 
+      v-if="post"
+      :postId="post.id"
+      :likeCount="post.likeCount"
+      :commentCount="post?.commentCount"
+      :isLiked="isLiked"
+      :isFavorited="isFavorited"
+      @comment="scrollToComments"
+      @favorite="handleFavoriteSuccess"
+      @report="handleReport"
+    />
+    
     <div>
       <div style="display: flex;">
         <div class="post-sidebar" v-if="showMoreInfo">
@@ -55,7 +68,7 @@
         </div>
       </div>
       <div :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
-        <a-divider dashed />
+        <a-divider dashed ref="commentDividerRef" />
         <CommentList :version="version" :postId="post?.id" :postCount="post?.commentCount" />
       </div>
     </div>
@@ -71,7 +84,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeMount } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { IconEye, IconFullscreen, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
@@ -84,6 +97,7 @@ import PostRecommend from '@/components/post/PostRecommend.vue';
 import { useCommentStore } from '@/components/comment/commentStore.js';
 import CodeLoader from '@/components/base/CodeLoader.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
+import PostActions from '@/components/post/PostActions.vue';
 const userStore = useUserStore();
 const commentStore = useCommentStore();
 
@@ -99,6 +113,8 @@ const lastScrollTop = ref(0);
 const placeholderHeight = ref(0);
 const codeLoader = ref(0);
 const version = ref();
+const isFavorited = ref(false);
+const isLiked = ref(false);
 let originContent;
 let orginCommentCountData;
 let summaryCache;
@@ -134,6 +150,18 @@ const loadPostContent = async (postId) =>
       };
     });
     post.value = data;
+    
+    // 从 operate 字段中获取点赞和收藏状态
+    if (data.operate) {
+      // 兼容两种数据格式：字符串数组或对象数组
+      isLiked.value = data.operate.some(op => 
+        typeof op === 'string' ? op === '点赞' : op.type === '点赞'
+      );
+      isFavorited.value = data.operate.some(op => 
+        typeof op === 'string' ? op === '收藏' : op.type === '收藏'
+      );
+    } 
+    console.log('operate数据:', data.operate, '点赞状态:', isLiked.value, '收藏状态:', isFavorited.value)
     post.value.content = getSummrayElment(data.summary) + '\n' + data.content;
     originContent = post.value.content;
 
@@ -212,6 +240,7 @@ const throttle = (func, delay) =>
   };
 };
 const containerRef = ref(null);
+const commentDividerRef = ref(null);
 const notBestReading = ref(false);
 let firstDivider;
 const getBestReadingTop = () => 
@@ -275,6 +304,33 @@ const handleContentScroll = throttle((event) =>
   }
   lastScrollTop.value = scrollTop;
 }, 50);
+
+// 滚动到评论区
+const scrollToComments = () => 
+{
+  if (commentDividerRef.value) 
+  {
+    const element = commentDividerRef.value.$el || commentDividerRef.value;
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+
+
+
+
+
+// 收藏成功处理
+const handleFavoriteSuccess = (b) => 
+{
+  isFavorited.value = b;
+  Message.success(isFavorited.value ? '收藏成功' : '取消收藏成功');
+};
+
+// 举报处理（后续实现）
+const handleReport = () => 
+{
+  Message.info('举报功能待实现');
+};
 
 // 组件挂载时的逻辑
 onMounted(() => 

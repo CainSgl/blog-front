@@ -51,7 +51,7 @@ defineExpose({
   {
     nextTick(() => 
     {
-      if (!autoFocus.value) 
+      if (!props.autoFocus.value) 
       {
         console.error('该组件autoFocus为false，禁止聚焦');
         return;
@@ -113,7 +113,7 @@ onMounted(async () =>
 {
   const info = await userStore.getUserInfo();
   currentUserInfo.value = info;
-  if (autoFocus.value) 
+  if (props.autoFocus.value) 
   {
     commentInputRef.value.focus();
     return;

@@ -326,40 +326,10 @@ onUnmounted(() =>
   .scroll-progress-container {
     position: absolute;
     bottom: 10px;
-    width: clamp(100px, 10vw, 140px);
-    transition: right 0.3s ease, left 0.3s ease;
-  }
-
-  &.toc-left .scroll-progress-container {
-    right: calc(clamp(200px, 15vw, 200px) + 20px);
-    transform: translateX(50%);
-  }
-
-  &.toc-right .scroll-progress-container {
-    left: calc(clamp(200px, 15vw, 200px) + 20px);
+    left: 50%;
     transform: translateX(-50%);
-  }
-
-  &.toc-left.toc-hidden .scroll-progress-container {
-    right: 120px;
-  }
-
-  &.toc-right.toc-hidden .scroll-progress-container {
-    left: 120px;
-  }
-
-
-
-  .scroll-progress-mobile {
-
-    // 移动端滚动进度条样式
-    &[style*="left:"] {
-      left: 10px !important;
-    }
-
-    &[style*="right:"] {
-      right: 10px !important;
-    }
+    width: clamp(100px, 10vw, 140px);
+    transition: all 0.3s ease;
   }
 }
 </style>
