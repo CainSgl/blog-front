@@ -50,9 +50,9 @@
 
           <span class="node-name" v-show="!node.showInput">{{ node.name || '未命名' }}</span>
           <div v-show="node.showInput">
-            <Input :value="nodeName" class="rename-input" @input="(e) => handleRenameInput(e, node)"
+            <Input :value="nodeName" class="rename-input" @input="handleRenameInput"
               @blur="() => handleRenameBlur(node)" @keyup.enter="() => handleRenameConfirm(node)"
-              @keyup.esc="() => handleRenameCancel(node)" @mousedown.stop @click.stop autofocus />
+              @keyup.esc="handleRenameCancel" @mousedown.stop @click.stop autofocus />
           </div>
           <!-- 右侧操作图标-->
           <div class="node-actions"
@@ -187,32 +187,43 @@ const loadingTip = computed(() =>
 });
 // 创建操作锁，防止并发操作
 const operationLock = ref(false);
+const pendingOperations = [];
 
-// 锁定操作函数
+// 优化的锁定操作函数 - 使用队列而非轮询
 async function withLock(operation) 
 {
-  // 如果已经有操作在进行中，直接返回
-  while (true) 
+  return new Promise((resolve, reject) => 
   {
+    const execute = async () => 
+    {
+      operationLock.value = true;
+      try 
+      {
+        await operation();
+        resolve();
+      }
+      catch (error) 
+      {
+        reject(error);
+      }
+      finally 
+      {
+        operationLock.value = false;
+        // 执行下一个待处理的操作
+        const next = pendingOperations.shift();
+        if (next) next();
+      }
+    };
+
     if (!operationLock.value) 
     {
-      break;
+      execute();
     }
-  }
-
-  // 获取锁
-  operationLock.value = true;
-
-  try 
-  {
-    // 执行操作
-    await operation();
-  }
-  finally 
-  {
-    // 释放锁
-    operationLock.value = false;
-  }
+    else 
+    {
+      pendingOperations.push(execute);
+    }
+  });
 }
 
 let lastRenameNode = null;
@@ -221,57 +232,54 @@ const nodeName = ref('');
 function handleRenameConfirm(node) 
 {
   node.showInput = false;
-  node.showInput = false;
   lastRenameNode = null;
 }
 
 // 处理重命名失焦
-function handleRenameBlur(node) 
+async function handleRenameBlur(node) 
 {
-  if (nodeName.value != node.name) 
+  if (nodeName.value !== node.name) 
   {
-    console.log('需要保存数据');
-    //去调用api
     loading.value += 1;
-    let parentId = node.parentId;
-    if (!parentId) 
+    try 
     {
-      parentId = null;
-    }
-    api.put('/dir', {
-      id: node.id,
-      kbId: props.kbId,
-      name: nodeName.value,
-      parentId: parentId,
-    }).then((res) => 
-    {
-      loading.value -= 1;
+      await api.put('/dir', {
+        id: node.id,
+        kbId: props.kbId,
+        name: nodeName.value,
+        parentId: node.parentId || null,
+      });
       node.name = nodeName.value;
-    }).catch((error) => 
+    }
+    catch (error) 
     {
       console.error('重命名目录失败:', error);
+      Message.error('重命名失败');
+    }
+    finally 
+    {
       loading.value -= 1;
-      node.name = nodeName.value;
-    });
+    }
   }
   node.showInput = false;
   lastRenameNode = null;
-
-
 }
 
 // 处理重命名输入框变化
-function handleRenameInput(e, node) 
+function handleRenameInput(e) 
 {
   nodeName.value = e;
-  return;
 }
-function handleRenameCancel(e) 
+
+// 处理重命名取消
+function handleRenameCancel() 
 {
-  console.log('取消重命名');
-  lastRenameNode.showInput = false;
-  nodeName.value = lastRenameNode.name;
-  lastRenameNode = null;
+  if (lastRenameNode) 
+  {
+    lastRenameNode.showInput = false;
+    nodeName.value = lastRenameNode.name;
+    lastRenameNode = null;
+  }
 }
 
 
@@ -279,33 +287,29 @@ function handleRenameCancel(e)
 const actionHandlers = {
   'newPost': async (node) => 
   {
-
     loading.value += 1;
-    //创建并跳转
     try 
     {
-      let parentId = null;
-      let docName = '未命名文档';
-      if (node) 
-      {
-        parentId = node.id;
-        docName = node.name + '下的文档';
-      }
+      const parentId = node?.id || null;
+      const docName = node ? `${node.name}下的文档` : '未命名文档';
+      
       const { data } = await api.post('/post', {
         title: docName,
         kbId: props.kbId,
-        parentId: node?.id,
+        parentId,
       });
+      
       const newNode = {
         id: data.dirId,
         name: docName,
-        parentId: parentId,
+        parentId,
         postId: data.post.id,
         depth: node ? node.depth + 1 : 0,
         children: []
       };
+      
       addChildNode(node, newNode);
-      //跳转到编辑页面并携带postId参数
+      
       router.push({
         name: 'KBEdit',
         query: { p: data.post.id, kb: props.kbId }
@@ -314,48 +318,46 @@ const actionHandlers = {
     catch (error) 
     {
       console.error('创建文档失败:', error);
+      Message.error('创建文档失败');
     }
     finally 
     {
       loading.value -= 1;
     }
-
   },
   'newDir': async (node) => 
   {
     loading.value += 1;
     try 
     {
-      let parentId = null;
-      let dirName = '根目录';
-      if (node) 
-      {
-        parentId = node.id;
-        dirName = (node.depth + 1) + '级目录';
-      }
+      const parentId = node?.id || null;
+      const dirName = node ? `${node.depth + 1}级目录` : '根目录';
+      
       const { data } = await api.post('/dir', {
         name: dirName,
         kbId: props.kbId,
-        parentId: parentId,
+        parentId,
       });
+      
       const newNode = {
         id: data,
         name: dirName,
-        parentId: parentId,
+        parentId,
         depth: node ? node.depth + 1 : 0,
         children: []
       };
+      
       addChildNode(node, newNode);
     }
     catch (error) 
     {
-      console.error('创建文档失败:', error);
+      console.error('创建目录失败:', error);
+      Message.error('创建目录失败');
     }
     finally 
     {
       loading.value -= 1;
     }
-
   },
   'import': (node) => 
   {
@@ -369,12 +371,10 @@ const actionHandlers = {
     }
     lastRenameNode = node;
     nodeName.value = node.name;
-    console.log(node.name);
     node.showInput = true;
   },
   'view-doc': (node) => 
   {
-    console.log('查看文档:', node);
     if (node.postId) 
     {
       router.push({
@@ -385,7 +385,6 @@ const actionHandlers = {
   },
   'edit-doc': (node) => 
   {
-    console.log('编辑文档:', node);
     if (node.postId) 
     {
       router.push({
@@ -396,11 +395,16 @@ const actionHandlers = {
   },
   'copy-link': (node) => 
   {
-    // 实现复制链接逻辑
-    console.log('复制链接:', node);
     if (node.postId) 
     {
-      const link = 'a';
+      const link = `${window.location.origin}/kb?p=${node.postId}&kb=${props.kbId}`;
+      navigator.clipboard.writeText(link).then(() => 
+      {
+        Message.success('链接已复制到剪贴板');
+      }).catch(() => 
+      {
+        Message.error('复制失败');
+      });
     }
   },
   'pin-top': async (node) => 
@@ -430,15 +434,9 @@ const actionHandlers = {
   },
   'open-new-tab': (node) => 
   {
-    // 实现新标签页打开逻辑
-    console.log('新标签页打开:', node);
     if (node.postId) 
     {
-      let pageName = router.currentRoute.value.name;
-      if (pageName === 'KBIndex') 
-      {
-        pageName = 'KBView';
-      }
+      const pageName = router.currentRoute.value.name === 'KBIndex' ? 'KBView' : router.currentRoute.value.name;
       const routeData = router.resolve({
         name: pageName,
         query: { p: node.postId, kb: props.kbId }
@@ -448,34 +446,28 @@ const actionHandlers = {
   },
   'delete': async (node) => 
   {
-    //删除dir就行
     loading.value += 1;
     try 
     {
       const { data } = await api.delete('/dir', {
-        'kbId': props.kbId,
-        'dirId': node.id
+        kbId: props.kbId,
+        dirId: node.id
       });
+      
       if (data > 0) 
       {
-        if (node.postId) 
-        {
-          Message.success(node.name + '将移入游离文档列表，若需要完全删除，请在个人空间操作。');
-        }
-        else 
-        {
-          Message.warning(node.name + '目录下的' + data + '个文章已自动移入游离文档列表，可在个人空间查看。');
-        }
-
+        const message = node.postId 
+          ? `${node.name}将移入游离文档列表，若需要完全删除，请在个人空间操作。`
+          : `${node.name}目录下的${data}个文章已自动移入游离文档列表，可在个人空间查看。`;
+        Message[node.postId ? 'success' : 'warning'](message);
       }
-
-      console.log('本次目录删除影响了', data, '个文章，需要用户注意');
-      // 移除对应的dir节点
+      
       removeNode(node);
     }
     catch (error) 
     {
       console.error('删除目录失败:', error);
+      Message.error('删除失败');
     }
     finally 
     {
@@ -491,34 +483,28 @@ function addChildNode(parentNode, childNode)
   {
     if (!parentNode) 
     {
-      //明显根节点
       flatNodes.value.push(childNode);
       return;
     }
 
-
-
     if (getNodeExpandedState(parentNode)) 
     {
-      //找到当前节点在扁平化数组中的位置
+      // 找到插入位置：父节点的最后一个子节点之后
       const currentIndex = flatNodes.value.findIndex(item => item.id === parentNode.id);
-      //找到该节点的所有子节点，插入到最后一个子节点后面
       let insertIndex = currentIndex + 1;
-      //遍历找到最后一个子节点的位置
+      
       while (insertIndex < flatNodes.value.length && flatNodes.value[insertIndex].depth > parentNode.depth) 
       {
         insertIndex++;
       }
-      //在正确位置插入新节点
+      
       flatNodes.value.splice(insertIndex, 0, childNode);
     }
     else 
     {
-      //添加在children里
       parentNode.children.push(childNode);
     }
   });
-
 }
 
 // 移除节点
@@ -526,11 +512,11 @@ function removeNode(node)
 {
   withLock(() => 
   {
-    // 找到当前节点在扁平化数组中的位置
     if (getNodeExpandedState(node)) 
     {
       toggleNode(node, true);
     }
+    
     const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
     if (currentIndex !== -1) 
     {
@@ -541,18 +527,17 @@ function removeNode(node)
 
 function slectHandler(key, node) 
 {
-  //隐藏菜单
   menuState.openNodeId = null;
   menuState.openMenuType = null;
 
-  // 使用映射对象直接调用对应的函数
-  if (actionHandlers[key]) 
+  const handler = actionHandlers[key];
+  if (handler) 
   {
-    actionHandlers[key](node);
+    handler(node);
   }
   else 
   {
-    console.log('未知操作:', key);
+    console.warn('未知操作:', key);
   }
 }
 
@@ -647,38 +632,22 @@ function flattenTree(nodes, depth = 0)
   return result;
 }
 
-// 递归过滤节点 - 新版本：返回包含所有匹配节点及其父节点的树结构
+// 递归过滤节点 - 返回包含所有匹配节点及其父节点的树结构
 function filterNodes(nodes, keyword) 
 {
   if (!keyword || !nodes?.length) return [];
 
   const lowerKeyword = keyword.toLowerCase();
 
-  // 深度克隆节点树，避免修改原数据
-  function cloneNode(node) 
-  {
-    return {
-      ...node,
-      children: node.children ? node.children.map(child => cloneNode(child)) : []
-    };
-  }
-
   // 检查节点及其子节点是否包含匹配项
   function hasMatchingDescendant(node) 
   {
-    // 检查当前节点是否匹配
-    if (node.name && node.name.toLowerCase().includes(lowerKeyword)) 
+    if (node.name?.toLowerCase().includes(lowerKeyword)) 
     {
       return true;
     }
-
-    // 递归检查子节点
-    if (node.children && node.children.length > 0) 
-    {
-      return node.children.some(child => hasMatchingDescendant(child));
-    }
-
-    return false;
+    
+    return node.children?.some(child => hasMatchingDescendant(child)) || false;
   }
 
   // 过滤节点树，保留匹配节点及其所有父节点
@@ -688,17 +657,12 @@ function filterNodes(nodes, keyword)
 
     for (const node of nodes) 
     {
-      // 深度克隆当前节点
-      const clonedNode = cloneNode(node);
-
-      // 如果当前节点匹配或者有匹配的后代节点，则保留该节点
       if (hasMatchingDescendant(node)) 
       {
-        // 如果有子节点，递归过滤子节点
-        if (clonedNode.children && clonedNode.children.length > 0) 
-        {
-          clonedNode.children = filterTree(clonedNode.children);
-        }
+        const clonedNode = {
+          ...node,
+          children: node.children ? filterTree(node.children) : []
+        };
         result.push(clonedNode);
       }
     }
@@ -708,7 +672,8 @@ function filterNodes(nodes, keyword)
 
   return filterTree(nodes);
 }
-let cachedTreeData;
+let cachedTreeData = null;
+
 // 处理搜索
 function handleSearch(value) 
 {
@@ -716,29 +681,26 @@ function handleSearch(value)
   {
     if (!value) 
     {
-      // 如果搜索文本为空，恢复原始数据
-      flatNodes.value = cachedTreeData;
-      console.log('恢复数据');
-      cachedTreeData = null;
+      if (cachedTreeData) 
+      {
+        flatNodes.value = cachedTreeData;
+        cachedTreeData = null;
+      }
     }
     else 
     {
-      if (cachedTreeData == null) 
+      if (!cachedTreeData) 
       {
         cachedTreeData = flatNodes.value;
       }
-      // 过滤节点
+      
       const filteredData = filterNodes(props.treeData, value);
-      // 将过滤后的树结构扁平化
       flatNodes.value = flattenTree(filteredData);
-      // 清空所有节点的children数组以适配现有逻辑
-      for (let i = 0; i < flatNodes.value.length; i++) 
-      {
-        flatNodes.value[i].children = [];
-      }
+      
+      // 清空children数组以适配现有逻辑
+      flatNodes.value.forEach(node => node.children = []);
     }
   });
-
 }
 
 // 监听原始数据变化，重新扁平化
@@ -747,18 +709,16 @@ watch(
   (newData) => 
   {
     flatNodes.value = flattenTree(newData);
-    for (let i = 0; i < flatNodes.value.length; i++) 
+    flatNodes.value.forEach(node => node.children = []);
+    
+    // 默认收起深度为1的节点
+    flatNodes.value.forEach(node => 
     {
-      flatNodes.value[i].children = [];
-    }
-    //让深度为2的收起自己的子目录
-    for (let i = 0; i < flatNodes.value.length; i++) 
-    {
-      if (flatNodes.value[i].depth == 1) 
+      if (node.depth === 1) 
       {
-        toggleNode(flatNodes.value[i], true);
+        toggleNode(node, true);
       }
-    }
+    });
   },
   { immediate: true, deep: true }
 );
@@ -768,24 +728,18 @@ watch(
 // 获取节点展开状态
 function getNodeExpandedState(node) 
 {
-  if (node.children && node.children.length > 0) 
+  if (node.children?.length > 0) 
   {
     return false;
   }
-  // 查找当前节点在扁平化数组中的索引
+  
   const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
-  // 检查下一个元素是否存在且是否为当前节点的子节点
   if (currentIndex >= 0 && currentIndex < flatNodes.value.length - 1) 
   {
-
     const nextNode = flatNodes.value[currentIndex + 1];
-    // 如果下一个节点的parentId等于当前节点的id，说明是展开状态
-    if (nextNode.parentId === node.id) 
-    {
-      //说明展开了，并且就在自己的后面
-      return true;
-    }
+    return nextNode.parentId === node.id;
   }
+  
   return false;
 }
 
@@ -794,86 +748,21 @@ function toggleNode(node, onLock = false)
 {
   const toggle = () => 
   {
-    if (node.showInput) 
-    {
-      return;
-    }
+    if (node.showInput) return;
 
     const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
-
-    // 获取当前节点的展开状态
     const isExpanded = getNodeExpandedState(node);
 
-    function toExpand(index) 
-    {
-      if (flatNodes.value.length <= index) 
-      {
-        return;
-      }
-
-      const me = flatNodes.value[index];
-      // 将子节点逐个插入到当前节点之后
-      if (me.children && me.children.length > 0) 
-      {
-        const childrenWithDepth = me.children.map(child => ({
-          ...child,
-          depth: me.depth + 1
-        }));
-        // 在当前节点后插入子节点
-        flatNodes.value.splice(index + 1, 0, ...childrenWithDepth);
-        me.children = [];
-      }
-    }
-
-    function toCollapse(index) 
-    {
-
-      if (index + 1 >= flatNodes.value.length) 
-      {
-        return;
-      }
-      const me = flatNodes.value[index];
-      if (me.children && me.children.length > 0) 
-      {
-        return;
-      }
-      //如果下一个节点的深度刚好是自己的深度+1，说明下一个节点是直接子节点
-      while (true) 
-      {
-        const next = flatNodes.value[index + 1];
-        if (!next) 
-        {
-          return;
-        }
-        if (next.depth === me.depth + 1) 
-        {
-          toCollapse(index + 1);
-          //移除他，并加入到自己的子节点里去
-          me.children.push(next);
-          flatNodes.value.splice(index + 1, 1);
-        }
-        else 
-        {
-          break;
-        }
-      }
-    }
-
-
-    // 切换节点展开状态
     if (!isExpanded) 
     {
-      // 展开节点
-      toExpand(currentIndex);
+      expandNode(currentIndex);
     }
     else 
     {
-      // 收起节点
-      toCollapse(currentIndex);
+      collapseNode(currentIndex);
     }
-
-
   };
+
   if (onLock) 
   {
     toggle();
@@ -881,6 +770,47 @@ function toggleNode(node, onLock = false)
   else 
   {
     withLock(toggle);
+  }
+}
+
+// 展开节点
+function expandNode(index) 
+{
+  if (index >= flatNodes.value.length) return;
+
+  const node = flatNodes.value[index];
+  if (node.children?.length > 0) 
+  {
+    const childrenWithDepth = node.children.map(child => ({
+      ...child,
+      depth: node.depth + 1
+    }));
+    flatNodes.value.splice(index + 1, 0, ...childrenWithDepth);
+    node.children = [];
+  }
+}
+
+// 收起节点
+function collapseNode(index) 
+{
+  if (index + 1 >= flatNodes.value.length) return;
+
+  const node = flatNodes.value[index];
+  if (node.children?.length > 0) return;
+
+  while (index + 1 < flatNodes.value.length) 
+  {
+    const nextNode = flatNodes.value[index + 1];
+    if (nextNode.depth === node.depth + 1) 
+    {
+      collapseNode(index + 1);
+      node.children.push(nextNode);
+      flatNodes.value.splice(index + 1, 1);
+    }
+    else 
+    {
+      break;
+    }
   }
 }
 
@@ -916,7 +846,7 @@ const DRAG_THRESHOLD = 10; // 最小拖拽距离
 // 鼠标按下事件 - 设置拖拽准备状态
 function handleMouseDown(event, node, index) 
 {
-  // 如果点击的是展开图标，不触发拖拽，只处理展开/收起
+  // 点击展开图标，只处理展开/收起
   if (event.target.closest('.expand-icon')) 
   {
     event.preventDefault();
@@ -924,18 +854,16 @@ function handleMouseDown(event, node, index)
     return;
   }
 
-  // 如果 edit 为 false 或者正在重命名节点，不允许拖拽功能
+  // 如果不允许编辑或正在重命名，处理点击事件
   if (!props.edit || lastRenameNode) 
   {
     event.preventDefault();
-    // 如果节点存在 postId，调用父组件的 clickPost 方法
     if (node.postId && !lastRenameNode) 
     {
       emit('clickPost', node);
     }
     else 
     {
-      // 否则执行点击逻辑 - 切换展开/收起状态
       toggleNode(node);
     }
     return;
@@ -943,22 +871,16 @@ function handleMouseDown(event, node, index)
 
   event.preventDefault();
 
-  // 获取容器边界
+  // 获取容器边界和鼠标偏移
   const container = event.currentTarget.closest('.tree-menu');
   dragState.containerRect = container.getBoundingClientRect();
-
-  // 计算鼠标相对于节点的偏移
+  
   const nodeRect = event.currentTarget.getBoundingClientRect();
   dragState.mouseOffset.x = event.clientX - nodeRect.left;
   dragState.mouseOffset.y = event.clientY - nodeRect.top;
+  dragState.startPosition = { x: event.clientX, y: event.clientY };
 
-  // 记录初始位置
-  dragState.startPosition = {
-    x: event.clientX,
-    y: event.clientY
-  };
-
-  // 设置拖拽准备状态，但不立即开始拖拽
+  // 设置拖拽准备状态
   dragState.isDragging = false;
   dragState.sourceNode = { ...node };
   dragState.sourceIndex = index;
@@ -975,39 +897,28 @@ function createDraggingShadow(node, event)
 // 开始拖拽
 function startDragging(event) 
 {
-  // 如果 edit 为 false 或者正在重命名节点，不允许开始拖拽
-  if (!props.edit || lastRenameNode) 
-  {
-    return;
-  }
+  if (!props.edit || lastRenameNode) return;
 
   dragState.isDragging = true;
   dragState.hasMoved = true;
 
-  // 清除点击定时器
   if (dragState.clickTimeout) 
   {
     clearTimeout(dragState.clickTimeout);
     dragState.clickTimeout = null;
   }
 
-  // 收起子目录（如果展开的话）
+  // 收起子目录
   if (dragState.sourceNode && getNodeExpandedState(dragState.sourceNode)) 
   {
     toggleNode(dragState.sourceNode);
   }
 
-  // 临时移除tree-menu-container样式
+  // 临时移除过渡效果
   const container = document.querySelector('.tree-menu-container');
-  if (container) 
-  {
-    container.classList.add('no-transition');
-  }
+  container?.classList.add('no-transition');
 
-  // 创建拖拽阴影元素
   createDraggingShadow(dragState.sourceNode, event);
-
-  // 更新阴影位置
   updateShadowPosition(event);
 }
 
@@ -1025,19 +936,14 @@ function handleMouseMove(event)
 {
   event.preventDefault();
  
-  // 如果 edit 为 false 或者正在重命名节点，不允许拖拽
-  if (!props.edit || lastRenameNode) 
-  {
-    return;
-  }
+  if (!props.edit || lastRenameNode) return;
 
-  // 如果还未开始拖拽，检查是否需要启动拖拽
+  // 检查是否需要启动拖拽
   if (!dragState.isDragging && dragState.sourceNode) 
   {
     const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
     const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
 
-    // 如果移动距离超过阈值，开始拖拽
     if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) 
     {
       startDragging(event);
@@ -1045,13 +951,10 @@ function handleMouseMove(event)
     }
   }
 
-  // 如果已经在拖拽状态，处理拖拽逻辑
+  // 处理拖拽逻辑
   if (dragState.isDragging) 
   {
-    // 更新阴影位置
     updateShadowPosition(event);
-
-    // 计算目标位置
     calculateDropPosition(event);
   }
 }
@@ -1066,25 +969,20 @@ function calculateDropPosition(event)
   let targetIndex = -1;
   let dropType = 'none';
 
-  // 遍历所有节点，找到鼠标悬停的节点
   for (let i = 0; i < nodes.length; i++) 
   {
     const nodeElement = nodes[i];
     const rect = nodeElement.getBoundingClientRect();
 
-    // 检查鼠标是否在当前节点范围内
     if (mouseY >= rect.top && mouseY <= rect.bottom &&
-      mouseX >= rect.left && mouseX <= rect.right) 
+        mouseX >= rect.left && mouseX <= rect.right) 
     {
-
-      // 排除源节点
       if (i === dragState.sourceIndex) continue;
 
       targetIndex = i;
-
-      // 计算精确的放置类型
       const relativeY = mouseY - rect.top;
       const nodeHeight = rect.height;
+      const targetNode = flatNodes.value[i];
 
       if (relativeY < nodeHeight * 0.25) 
       {
@@ -1096,24 +994,13 @@ function calculateDropPosition(event)
       }
       else 
       {
-        // 如果目标节点存在postId，不允许作为子节点
-        const targetNode = flatNodes.value[i];
-
-        if (targetNode.postId) 
-        {
-          dropType = 'after';
-        }
-        else 
-        {
-          dropType = 'child';
-        }
+        dropType = targetNode.postId ? 'after' : 'child';
       }
 
       break;
     }
   }
 
-  // 更新拖拽状态
   if (targetIndex !== dragState.targetIndex || dropType !== dragState.dropType) 
   {
     dragState.targetIndex = targetIndex;
@@ -1126,36 +1013,11 @@ function handleMouseUp(event)
 {
   event.preventDefault();
 
-  // 如果 edit 为 false，直接处理点击事件
-  if (!props.edit) 
-  {
-    if (dragState.sourceNode) 
-    {
-      const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
-      const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
+  const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
+  const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
+  const isClick = deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD;
 
-      // 如果移动距离很小，认为是点击
-      if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) 
-      {
-        // 如果节点存在 postId，调用父组件的 clickPost 方法
-        if (dragState.sourceNode.postId) 
-        {
-          emit('clickPost', dragState.sourceNode);
-        }
-        else 
-        {
-          // 否则执行点击逻辑 - 切换展开/收起状态
-          toggleNode(dragState.sourceNode);
-        }
-      }
-    }
-
-    // 清理拖拽状态
-    cleanupDrag();
-    return;
-  }
-
-  // 如果已经开始了拖拽，执行放置操作
+  // 处理拖拽
   if (dragState.isDragging) 
   {
     performDrop();
@@ -1163,60 +1025,43 @@ function handleMouseUp(event)
     return;
   }
 
-  // 如果没有开始拖拽，可能是点击事件
-  if (dragState.sourceNode) 
+  // 处理点击
+  if (dragState.sourceNode && isClick) 
   {
-    const deltaX = Math.abs(event.clientX - dragState.startPosition.x);
-    const deltaY = Math.abs(event.clientY - dragState.startPosition.y);
-
-    // 如果移动距离很小，认为是点击
-    if (deltaX <= DRAG_THRESHOLD && deltaY <= DRAG_THRESHOLD) 
+    if (dragState.clickTimeout) 
     {
-      // 清除点击定时器（如果有的话）
-      if (dragState.clickTimeout) 
-      {
-        clearTimeout(dragState.clickTimeout);
-        dragState.clickTimeout = null;
-      }
+      clearTimeout(dragState.clickTimeout);
+      dragState.clickTimeout = null;
+    }
 
-      // 如果节点存在postId，调用父组件的clickPost方法
-      if (dragState.sourceNode.postId) 
-      {
-        emit('clickPost', dragState.sourceNode);
-      }
-      else 
-      {
-        // 否则执行点击逻辑 - 切换展开/收起状态
-        toggleNode(dragState.sourceNode);
-      }
+    if (dragState.sourceNode.postId) 
+    {
+      emit('clickPost', dragState.sourceNode);
+    }
+    else 
+    {
+      toggleNode(dragState.sourceNode);
     }
   }
 
-  // 清理拖拽状态
   cleanupDrag();
 }
 
 // 鼠标离开容器事件
-function handleMouseLeave(event) 
+function handleMouseLeave() 
 {
-  if (!dragState.isDragging) return;
-
-  // 如果鼠标离开容器，尝试目前是不放置
-  if (dragState.targetIndex !== -1) 
+  if (dragState.isDragging) 
   {
-    // performDrop();
+    cleanupDrag();
   }
-
-  cleanupDrag();
 }
 
 // 执行放置操作
 function performDrop() 
 {
-
   withLock(() => 
   {
-    if (dragState.targetIndex === -1 || dragState.dropType === 'none') 
+    if (dragState.targetIndex === -1 || dragState.dropType === 'none' || dragState.sourceIndex === dragState.targetIndex) 
     {
       return;
     }
@@ -1225,129 +1070,134 @@ function performDrop()
     const targetIndex = dragState.targetIndex;
     const dropType = dragState.dropType;
 
-    // 防止无效放置
-    if (sourceIndex === targetIndex) return;
-
-    // 调整索引（因为移除了源节点，目标索引可能会变化）
+    // 调整目标索引
     let adjustedTargetIndex = targetIndex;
     if (sourceIndex < targetIndex) 
     {
       adjustedTargetIndex--;
     }
-    // 获取源节点
+
+    // 获取源节点并从原位置移除
     const sourceNode = flatNodes.value[sourceIndex];
-    // 从原位置移除
     flatNodes.value.splice(sourceIndex, 1);
+
     const adjustedTarget = flatNodes.value[adjustedTargetIndex];
     const lastNode = flatNodes.value[adjustedTargetIndex - 1];
-    // 根据放置类型插入到新位置
-    switch (dropType) 
-    {
-    case 'before':
-      if (adjustedTarget.depth != sourceNode.depth) 
-      {
-        console.log('before切换了层级 adjustedTarget,sourceNode,lastNode', adjustedTarget, sourceNode, lastNode);
-        if (lastNode) 
-        {
-          //查看lastNode的深度，如果是一样的，说明是resort，如果不一样，说明是move
-          if (lastNode.depth == adjustedTarget.depth) 
-          {
-            moveOrResourt(sourceNode.id, lastNode.id, adjustedTarget.parentId);
-          }
-          else 
-          {
-            moveOrResourt(sourceNode.id, null, adjustedTarget.parentId);
-          }
 
-        }
-        else 
-        {
-          //说明完全是最高的一级
-          moveOrResourt(sourceNode.id, null, null);
-        }
-      }
-      else 
-      {
-        if (!lastNode) 
-        {
-          //说明切换到了最高一级别
-          moveOrResourt(sourceNode.id, null, null);
-
-        }
-        else if (lastNode.depth == adjustedTarget.depth) 
-        {
-          moveOrResourt(sourceNode.id, lastNode.id, -1);
-        }
-        else 
-        {
-          moveOrResourt(sourceNode.id, null, -1);
-        }
-        console.log('before切换了层级 adjustedTarget,sourceNode,lastNode', adjustedTarget, sourceNode, lastNode);
-      }
-      flatNodes.value.splice(adjustedTargetIndex, 0, {
-        ...sourceNode,
-        depth: adjustedTarget.depth,
-        parentId: adjustedTarget.parentId
-      });
-      break;
-
-    case 'after':
-      if (adjustedTarget.depth != sourceNode.depth) 
-      {
-        moveOrResourt(sourceNode.id, adjustedTarget.id, adjustedTarget.parentId);
-        console.log('after切换了层级', adjustedTarget, sourceNode);
-      }
-      else 
-      {
-        moveOrResourt(sourceNode.id, adjustedTarget.id, -1);
-        console.log('after未切换层级', adjustedTarget, sourceNode);
-      }
-      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
-        ...sourceNode,
-        depth: adjustedTarget.depth,
-        parentId: adjustedTarget.parentId
-      });
-      break;
-
-    case 'child':
-      if (adjustedTarget.depth != sourceNode.depth - 1) 
-      {
-        moveOrResourt(sourceNode.id, null, adjustedTarget.id);
-        console.log('child切换了层级', adjustedTarget, sourceNode);
-      }
-      else 
-      {
-        moveOrResourt(sourceNode.id, null, -1);
-        console.log('child未切换层级', adjustedTarget, sourceNode);
-      }
-      flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
-        ...sourceNode,
-        depth: adjustedTarget.depth + 1,
-        parentId: adjustedTarget.id
-      });
-      break;
-    }
+    // 根据放置类型处理
+    handleDropType(dropType, sourceNode, adjustedTarget, lastNode, adjustedTargetIndex);
   });
-
 }
-function moveOrResourt(id, lastId, parentId) 
+
+// 处理不同的放置类型
+function handleDropType(dropType, sourceNode, adjustedTarget, lastNode, adjustedTargetIndex) 
 {
-  if (parentId == -1) 
+  switch (dropType) 
   {
-    console.log('调用resort即可,id,lastId', id, lastId);
-    resourtDir(id, lastId);
-    //加入队列等待
+  case 'before':
+    handleBeforeDrop(sourceNode, adjustedTarget, lastNode, adjustedTargetIndex);
+    break;
+  case 'after':
+    handleAfterDrop(sourceNode, adjustedTarget, adjustedTargetIndex);
+    break;
+  case 'child':
+    handleChildDrop(sourceNode, adjustedTarget, adjustedTargetIndex);
+    break;
+  }
+}
+
+// 处理 before 放置
+function handleBeforeDrop(sourceNode, adjustedTarget, lastNode, adjustedTargetIndex) 
+{
+  const depthChanged = adjustedTarget.depth !== sourceNode.depth;
+  
+  if (depthChanged) 
+  {
+    if (lastNode?.depth === adjustedTarget.depth) 
+    {
+      moveOrResourt(sourceNode.id, lastNode.id, adjustedTarget.parentId);
+    }
+    else 
+    {
+      moveOrResourt(sourceNode.id, null, adjustedTarget.parentId || null);
+    }
   }
   else 
   {
-    console.log('调用move即可,id,lastId,parentId', id, lastId, parentId);
-    //加入队列请求
+    if (!lastNode || lastNode.depth !== adjustedTarget.depth) 
+    {
+      moveOrResourt(sourceNode.id, null, adjustedTarget.parentId || null);
+    }
+    else 
+    {
+      moveOrResourt(sourceNode.id, lastNode.id, -1);
+    }
+  }
+  
+  flatNodes.value.splice(adjustedTargetIndex, 0, {
+    ...sourceNode,
+    depth: adjustedTarget.depth,
+    parentId: adjustedTarget.parentId
+  });
+}
+
+// 处理 after 放置
+function handleAfterDrop(sourceNode, adjustedTarget, adjustedTargetIndex) 
+{
+  const depthChanged = adjustedTarget.depth !== sourceNode.depth;
+  
+  if (depthChanged) 
+  {
+    moveOrResourt(sourceNode.id, adjustedTarget.id, adjustedTarget.parentId);
+  }
+  else 
+  {
+    moveOrResourt(sourceNode.id, adjustedTarget.id, -1);
+  }
+  
+  flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+    ...sourceNode,
+    depth: adjustedTarget.depth,
+    parentId: adjustedTarget.parentId
+  });
+}
+
+// 处理 child 放置
+function handleChildDrop(sourceNode, adjustedTarget, adjustedTargetIndex) 
+{
+  const depthChanged = adjustedTarget.depth !== sourceNode.depth - 1;
+  
+  if (depthChanged) 
+  {
+    moveOrResourt(sourceNode.id, null, adjustedTarget.id);
+  }
+  else 
+  {
+    moveOrResourt(sourceNode.id, null, -1);
+  }
+  
+  flatNodes.value.splice(adjustedTargetIndex + 1, 0, {
+    ...sourceNode,
+    depth: adjustedTarget.depth + 1,
+    parentId: adjustedTarget.id
+  });
+}
+// 移动或排序目录
+function moveOrResourt(id, lastId, parentId) 
+{
+  if (parentId === -1) 
+  {
+    resourtDir(id, lastId);
+  }
+  else 
+  {
     moveDir(id, lastId, parentId);
   }
 }
 
 const willMoveDirs = [];
 let moveDirItem = null;
+
 function resourtDir(id, lastId) 
 {
   willMoveDirs.push({
@@ -1358,6 +1208,7 @@ function resourtDir(id, lastId)
   });
   startMoveDirs();
 }
+
 function moveDir(id, lastId, parentId) 
 {
   willMoveDirs.push({
@@ -1372,13 +1223,10 @@ function moveDir(id, lastId, parentId)
 
 function startMoveDirs() 
 {
-  if (moveDirItem) 
-  {
-    return;
-  }
+  if (moveDirItem) return;
+  
   moveDirItem = setInterval(async () => 
   {
-    //去不断的调用api并等待
     const item = willMoveDirs.shift();
     if (item) 
     {
@@ -1389,7 +1237,8 @@ function startMoveDirs()
       }
       catch (error) 
       {
-        console.log('移动目录失败', error);
+        console.error('移动目录失败:', error);
+        Message.error('移动目录失败');
       }
       finally 
       {
@@ -1401,7 +1250,7 @@ function startMoveDirs()
       clearInterval(moveDirItem);
       moveDirItem = null;
     }
-  });
+  }, 100);
 }
 
 
@@ -1410,24 +1259,26 @@ function startMoveDirs()
 // 清理拖拽状态
 function cleanupDrag() 
 {
-  dragState.isDragging = false;
-  dragState.sourceNode = null;
-  dragState.sourceIndex = -1;
-  dragState.targetIndex = -1;
-  dragState.dropType = 'none';
-  dragState.draggingElement = null;
-  dragState.shadowPosition = { x: 0, y: 0 };
-  dragState.shadowWidth = 0;
-  dragState.mouseOffset = { x: 0, y: 0 };
-  dragState.containerRect = null;
-  dragState.startPosition = { x: 0, y: 0 };
-  dragState.hasMoved = false;
+  Object.assign(dragState, {
+    isDragging: false,
+    sourceNode: null,
+    sourceIndex: -1,
+    targetIndex: -1,
+    dropType: 'none',
+    draggingElement: null,
+    shadowPosition: { x: 0, y: 0 },
+    shadowWidth: 0,
+    mouseOffset: { x: 0, y: 0 },
+    containerRect: null,
+    startPosition: { x: 0, y: 0 },
+    hasMoved: false
+  });
+  
   if (dragState.clickTimeout) 
   {
     clearTimeout(dragState.clickTimeout);
     dragState.clickTimeout = null;
   }
-
 }
 
 </script>
@@ -1767,13 +1618,15 @@ function cleanupDrag()
 
 /* 加载状态样式 */
 .loading-container {
-  left: 25%;
   z-index: 1001;
   position: absolute;
   bottom: 20px;
   display: flex;
+  left: 0;
+  right: 0;
+  margin: auto;
   justify-content: center;
   align-items: center;
   margin-top: 20px;
 }
-</style>1
+</style>

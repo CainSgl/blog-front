@@ -18,7 +18,7 @@ export const useKbStore = defineStore('kb', () =>
     postId: '',
     content: ''
   });
-
+  const hasStar=ref(false);
   // 用于共享获取 kbInfo 的 Promise
   let kbInfoPromise = null;
 
@@ -97,6 +97,7 @@ export const useKbStore = defineStore('kb', () =>
           kbInfo.value = response.data.first;
           setTreeData(response.data.second);
           setKbId(response.data.first.id);
+          hasStar.value=response.data.third;
         }
         return response.data.first;
       });
@@ -123,6 +124,7 @@ export const useKbStore = defineStore('kb', () =>
     kbId,
     kbInfo,
     postInfo,
+    hasStar,
     setTreeData,
     setKbInfo,
     setKbId,

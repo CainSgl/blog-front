@@ -19,8 +19,8 @@
                 <!-- 底部信息栏 -->
                 <div class="kb-footer">
                     <div class="kb-stats">
-                        <icon-heart :style="{ marginRight: '4px' }" /> {{ kbInfo.likeCount }}
-                        <icon-book :style="{ marginLeft: '12px', marginRight: '4px' }" /> {{ kbInfo.postCount }}
+                        <!-- <icon-heart :style="{ marginRight: '16px' }"  /> {{ kbInfo.likeCount }} -->
+                        <icon-book :style="{  marginRight: '4px' }" /> {{ kbInfo.postCount }}
                     </div>
                     <div class="kb-date">{{ formatDate(kbInfo.createdAt) }}</div>
                 </div>

@@ -14,28 +14,35 @@ const generateId = (text) =>
     .replace(/^-+|-+$/g, ''); // 去除开头和结尾的连字符
 };
 
-// 去除 Markdown 语法，获取纯文本的辅助函数
+// 去除 Markdown 语法和 HTML 标签，获取纯文本的辅助函数
 const stripMarkdownSyntax = (text) => 
 {
   try 
   {
-    // 使用 marked 将 Markdown 转换为 HTML，然后移除 HTML 标签获取纯文本
+    // 使用 marked 将 Markdown 转换为 HTML
     const html = marked.parseInline(text);
+    // 创建临时 DOM 元素来提取纯文本
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
+    // 提取纯文本内容
+    let cleanText = tmp.textContent || tmp.innerText || '';
+    // 再次确保移除任何残留的 HTML 标签
+    cleanText = cleanText.replace(/<[^>]*>/g, '');
+    return cleanText.trim();
   }
   catch (e) 
   {
     console.warn('解析 Markdown 语法时出错:', e);
-    // 如果解析失败，使用正则表达式简单移除常见 Markdown 语法
+    // 如果解析失败，使用正则表达式移除 Markdown 语法和 HTML 标签
     return text
+      .replace(/<[^>]*>/g, '')          // 移除 HTML 标签
       .replace(/\*\*(.*?)\*\*/g, '$1')  // 粗体 **text**
       .replace(/\*(.*?)\*/g, '$1')      // 斜体 *text*
       .replace(/__(.*?)__/g, '$1')      // 粗体 __text__
       .replace(/_(.*?)_/g, '$1')        // 斜体 _text_
       .replace(/~~(.*?)~~/g, '$1')      // 删除线 ~~text~~
-      .replace(/`(.*?)`/g, '$1');       // 代码块 `code`
+      .replace(/`(.*?)`/g, '$1')        // 代码块 `code`
+      .trim();
   }
 };
 

@@ -5,6 +5,10 @@
         <div class="tree-menu">
           <div class="kb-header">
             <h3>{{ kbInfo.name }}</h3>
+            <div class="favorite-button" @click="handleFavorite">
+              <IconStarFill v-if="kbStore.hasStar" class="star-icon active" />
+              <IconStar v-else class="star-icon" />
+            </div>
           </div>
           <div class="home-node" @click="goToHome">
             <div class="node-content">
@@ -31,19 +35,24 @@
       <router-view />
     </div>
 
+    <!-- 收藏弹窗 -->
+    <AddToFavoriteModal v-model="showFavoriteModal" :targetId="kbId" :isIn="kbStore.hasStar" type="知识库"
+      @success="handleFavoriteSuccess" />
   </div>
 </template>
 
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue';
 import TreeMenu from '@/components/navigation/treemenu/TreeMenuWrapper.vue';
+import AddToFavoriteModal from '@/components/user/favorite/AddToFavoriteModal.vue';
 
-import { IconHome, IconDoubleLeft, IconDoubleRight } from '@arco-design/web-vue/es/icon';
+import { IconHome, IconDoubleLeft, IconDoubleRight, IconStar, IconStarFill } from '@arco-design/web-vue/es/icon';
 import { useRoute, useRouter } from 'vue-router';
 import { useKbStore } from './kbStore.js';
 import { useUserStore } from '@/store/user';
 import { messageManager } from '@/api/request.js';
-import { Message } from '@arco-design/web-vue';
+import { Message, Modal } from '@arco-design/web-vue';
+import api from '@/api/index';
 const hasError = ref(false);
 
 const route = useRoute();
@@ -57,6 +66,9 @@ const kbInfo = ref({
 const edit = ref(false);
 const kbStore = useKbStore();
 
+// 收藏相关状态
+const showFavoriteModal = ref(false);
+
 // collapse-button 精细控制相关状态
 const showCollapseButton = ref(window.innerWidth >= 800);  // 默认根据屏幕宽度决定是否显示
 const hideTimer = ref(null);
@@ -66,10 +78,51 @@ function checkScreenSize()
 {
   return window.innerWidth >= 800;
 }
-function handleLike() 
-{
 
-}
+// 收藏功能
+const handleFavorite = async () => 
+{
+  if (!kbStore.hasStar) 
+  {
+    showFavoriteModal.value = true;
+  }
+  else 
+  {
+    // 显示确认弹窗
+    Modal.confirm({
+      title: '取消收藏',
+      content: '确定要取消收藏这个知识库吗？',
+      okText: '确定',
+      cancelText: '取消',
+      onBeforeOk: async (done) => 
+      {
+        try 
+        {
+          const id = 'unStar' + kbId.value;
+          await Promise.all([
+            api.get('/post/op/star', { id: kbId.value, type:"收藏知识库",add: false }),
+            api.delete('/user/collect', { id: kbId.value, type: '知识库' })
+          ]);
+          Message.success({ id: id, content: '已取消收藏' });
+          kbStore.hasStar = false;
+          done(true);
+        }
+        catch (error) 
+        {
+          console.error('取消收藏失败:', error);
+          Message.error('取消收藏失败，请重试');
+          done(false);
+        }
+      }
+    });
+  }
+};
+
+// 收藏成功回调
+const handleFavoriteSuccess = () => 
+{
+  kbStore.hasStar = true;
+};
 onMounted(async () => 
 {
   const kbParam = route.query.kb;
@@ -298,6 +351,51 @@ onUnmounted(() =>
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+.kb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  h3 {
+    flex: 1;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .favorite-button {
+    flex-shrink: 0;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    .star-icon {
+      font-size: 20px;
+      color: var(--color-text-3);
+      transition: color 0.2s ease;
+
+      &.active {
+        color: rgb(var(--warning-6));
+      }
+
+      &:hover {
+        color: rgb(var(--warning-6));
+      }
+    }
+  }
 }
 
 

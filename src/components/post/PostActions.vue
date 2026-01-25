@@ -7,8 +7,9 @@
         <div v-show="isExpanded" class="post-actions-panel">
             <div class="action-item" @click="handleLike">
                 <a-tooltip content="点赞" position="right">
-                    <div class="action-button" :class="{ active: isLiked }">
-                        <icon-heart :style="{ fontSize: '24px' }" />
+                    <div class="action-button" :class="{ 'liked': isLiked }">
+                        <icon-heart-fill v-if="isLiked" :style="{ fontSize: '24px' }" />
+                        <icon-heart v-else :style="{ fontSize: '24px' }" />
                         <span class="action-count" v-if="likeCount > 0">{{ formatCount(likeCount) }}</span>
                     </div>
                 </a-tooltip>
@@ -16,8 +17,9 @@
 
             <div class="action-item" @click="handleFavorite">
                 <a-tooltip content="收藏" position="right">
-                    <div class="action-button" :class="{ active: isFavorited }">
-                        <icon-star :style="{ fontSize: '24px' }" />
+                    <div class="action-button" :class="{ 'favorited': isFavorited }">
+                        <icon-star-fill v-if="isFavorited" :style="{ fontSize: '24px' }" />
+                        <icon-star v-else :style="{ fontSize: '24px' }" />
                           <span class="action-count" v-if="starCount > 0">{{ formatCount(starCount) }}</span>
                     </div>
                 </a-tooltip>
@@ -58,7 +60,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Modal, Message } from '@arco-design/web-vue';
-import { IconHeart, IconStar, IconMessage, IconExclamationCircle, IconDoubleRight, IconDoubleLeft } from '@arco-design/web-vue/es/icon';
+import { IconHeart, IconHeartFill, IconStar, IconStarFill, IconMessage, IconExclamationCircle, IconDoubleRight, IconDoubleLeft } from '@arco-design/web-vue/es/icon';
 import AddToFavoriteModal from '@/components/user/favorite/AddToFavoriteModal.vue';
 import api from '@/api/index'
 const props = defineProps({
@@ -144,7 +146,7 @@ const handleFavorite = async () => {
                 try {
                     const id = 'unStar' + props.postId;
                     await Promise.all([
-                        api.get('/post/op/star', { id: props.postId, add: false }),
+                        api.get('/post/op/star', { id: props.postId,type:"收藏文章", add: false }),
                         api.delete('/user/collect', { id: props.postId, type: '文章' })
                     ]);
                     Message.success({ id: id, content: '已取消收藏' });
@@ -243,8 +245,12 @@ const handleReport = () => {
         color: rgb(var(--primary-6));
     }
 
-    &.active {
-        color: rgb(var(--primary-6));
+    &.liked {
+        color: rgb(var(--primary-4));
+    }
+
+    &.favorited {
+        color: rgb(var(--warning-6));
     }
 
     &.collapse-button {

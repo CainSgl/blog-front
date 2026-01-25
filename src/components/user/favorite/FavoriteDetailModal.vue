@@ -4,16 +4,16 @@
         <div class="favorite-detail-modal">
             <a-spin :loading="loading" tip="加载中..." style="display:block">
                 <div class="modal-content">
-                    <a-grid :cols="{ xs: 1, sm: 1, md: 2, lg: 2, xl: 3 }" :colGap="16" :rowGap="16">
-                        <a-grid-item v-for="item in contentItems" :key="item.collect.id">
-                            <a-link v-if="item.type == '文章'" :href="`/p/${item.target.id}`" :hoverable="false">
+                    <div class="content-grid" :class="{ 'kb-grid': hasKbItems, 'post-grid': !hasKbItems }">
+                        <div v-for="item in contentItems" :key="item.collect.id" class="grid-item">
+                            <a-link v-if="item.type == '文章'" :href="`/p/${item.target.id}`" target="_ablank" :hoverable="false" class="post-link">
                                 <PostCardWrapper :post="item.target" :height="'300px'" />
                             </a-link>
-                            <a-link v-if="item.type == '知识库'" :href="`/p/${item.target.id}`" :hoverable="false">
-                                <KbCard :show-status="true" :onlyFans="true" />
-                            </a-link>
-                        </a-grid-item>
-                    </a-grid>
+                            <div v-if="item.type == '知识库'"  :hoverable="false" class="kb-link">
+                                <KbCard :kbInfo="item.target" :show-status="true" :onlyFans="true" />
+                            </div>
+                        </div>
+                    </div>
 
                     <a-empty v-if="!loading && contentItems.length === 0" description="暂无收藏内容" />
 
@@ -49,6 +49,11 @@ const emit = defineEmits(['update:modelValue']);
 const visible = computed({
     get: () => props.modelValue,
     set: (val) => emit('update:modelValue', val)
+});
+
+// 检查是否有知识库项目
+const hasKbItems = computed(() => {
+    return contentItems.value.some(item => item.type === '知识库');
 });
 
 const loading = ref(false);
@@ -137,6 +142,35 @@ const handleClose = () => {
         max-height: calc(85vh - 120px);
         overflow-y: auto;
 
+        .content-grid {
+            display: grid;
+            gap: 16px;
+            width: 100%;
+
+            &.post-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+
+            &.kb-grid {
+                grid-template-columns: repeat(auto-fill, 180px);
+                justify-content: start;
+            }
+
+            .grid-item {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+
+                .post-link {
+                    width: 100%;
+                }
+
+                .kb-link {
+                    width: 180px;
+                }
+            }
+        }
+
         .pagination-wrapper {
             margin-top: 24px;
             display: flex;
@@ -154,6 +188,17 @@ const handleClose = () => {
         .modal-content {
             min-height: 500px;
             max-height: calc(80vh - 100px);
+
+            .content-grid {
+                &.post-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                &.kb-grid {
+                    grid-template-columns: repeat(auto-fill, 180px);
+                    justify-content: center;
+                }
+            }
         }
     }
 }

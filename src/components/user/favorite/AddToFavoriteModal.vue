@@ -81,7 +81,7 @@ const handleToggleCollect = async (item) => {
         Message.loading({ id: id, content: '加载中...' });
         visible.value = false;
         await Promise.all([
-            api.get('/post/op/star', { id: props.targetId }),
+            api.get('/post/op/star', { id: props.targetId,type:'收藏'+props.type }),
             api.post('/user/collect', { groupId: item.id, targetId: props.targetId })
         ]);
         Message.success({ id: id, content: '已添加到收藏夹' });
