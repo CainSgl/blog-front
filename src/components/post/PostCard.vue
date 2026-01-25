@@ -75,7 +75,7 @@
                     <span class="stat-item" v-if="post.viewCount">
                       <icon-eye size="large" /> {{ post.viewCount }}
                     </span>
-                    <span class="stat-item" @click="handleLikeClick" v-if="!onlyFans">
+                    <span class="stat-item"  v-if="!onlyFans&& post.likeCount">
                       <icon-heart-fill size="large" v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
                       <icon-thumb-down-fill size="large" v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
                       <icon-thumb-up size="large" v-else />
@@ -102,7 +102,7 @@
     </a-card>
     <div class="post-card-loading" v-else>
       <a-skeleton :animation="true">
-        <a-skeleton-shape :style="{ height: `${props.height}px`, width: `${props.width}px` }" />
+        <a-skeleton-shape :style="{ height: `${props.height}px`, width: `${props.width}px` }" size="large" />
       </a-skeleton>
     </div>
   </div>
@@ -240,12 +240,7 @@ const isDisliked = computed(() => {
   return props.post.operate && props.post.operate.includes('讨厌');
 });
 
-// 处理点赞/讨厌点击事件
-const handleLikeClick = (event) => {
-  console.log('Like clicked for post:', props.post.id);
-  event.stopPropagation(); // 阻止事件冒泡，避免触发卡片点击
-  // 这里可以添加点赞/取消点赞的逻辑
-};
+
 
 // 获取标签显示名称（去掉分数部分）
 const getTagDisplayName = (tag) => {

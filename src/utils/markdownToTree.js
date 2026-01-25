@@ -6,7 +6,7 @@ const generateId = (text) =>
   // 移除 HTML 标签（如果有的话）
   const cleanText = text.replace(/<[^>]*>/g, '');
   // 移除特殊字符，转换为小写，用连字符连接
-  return cleanText
+  return 'cainsgl-titile-' + cleanText
     .toLowerCase()
     .trim()
     .replace(/[^\w\u4e00-\u9fa5\s-]/g, '') // 保留字母、数字、中文、空格和连字符
@@ -30,7 +30,6 @@ const stripMarkdownSyntax = (text) =>
     console.warn('解析 Markdown 语法时出错:', e);
     // 如果解析失败，使用正则表达式简单移除常见 Markdown 语法
     return text
-    
       .replace(/\*\*(.*?)\*\*/g, '$1')  // 粗体 **text**
       .replace(/\*(.*?)\*/g, '$1')      // 斜体 *text*
       .replace(/__(.*?)__/g, '$1')      // 粗体 __text__
@@ -47,43 +46,48 @@ const stripMarkdownSyntax = (text) =>
  */
 export function parseMarkdownToTree(markdown) 
 {
-  // 按行分割 Markdown 文本
-  const lines = markdown.split('\n');
+  if (!markdown) return [];
+  
+  // 使用 marked 的 lexer 来解析 Markdown，这样可以正确处理标题中的 Markdown 语法
+  const tokens = marked.lexer(markdown);
   
   // 存储树节点的栈结构
   const stack = [];
   
   // 最终返回的树结构
   const tree = [];
-  // 正则表达式匹配标题行，包括可能的锚点
-  // 匹配格式如: # 标题 或 # 标题{#anchor-id}
-  const headingRegex = /^(#{1,6})\s+(.+?)(?:\{#[^}]*\})?$/;
   
-  lines.forEach(line => 
+  // 用于跟踪已使用的 ID，确保唯一性
+  const usedIds = new Map(); // key: baseId, value: count
+  
+  // 遍历所有 tokens，只处理标题类型
+  tokens.forEach(token => 
   {
-    const match = line.match(headingRegex);
-    
-    if (match) 
+    if (token.type === 'heading') 
     {
-      const level = match[1].length;  // 标题级别 (# 的数量)
-      // 提取标题文本，去除可能的锚点部分
-      let title = match[2].trim();
+      const level = token.depth;  // 标题级别 (1-6)
+      const rawText = token.text;  // 原始文本（可能包含 Markdown 语法）
       
-      // 如果标题文本以 { 开头（意味着整个标题名被误认为包含锚点），进一步清理
-      if (title.includes('{#') && title.includes('}')) 
+      // 使用 stripMarkdownSyntax 去除 Markdown 语法，获取纯文本
+      const cleanTitle = stripMarkdownSyntax(rawText);
+      const baseId = generateId(cleanTitle);
+      
+      // 确保 ID 唯一性
+      let uniqueId = baseId;
+      if (usedIds.has(baseId)) 
       {
-        // 只保留 { 之前的部分
-        const anchorIndex = title.indexOf('{#');
-        title = title.substring(0, anchorIndex).trim();
+        const count = usedIds.get(baseId);
+        usedIds.set(baseId, count + 1);
+        uniqueId = `${baseId}-${count}`;
       }
-      
-      // 创建节点对象
-      const cleanTitle = stripMarkdownSyntax(title);
-      let id = generateId(cleanTitle);
+      else 
+      {
+        usedIds.set(baseId, 1);
+      }
       
       const node = {
         title: cleanTitle,
-        key: id,
+        key: uniqueId,
         level: level
       };
       

@@ -241,12 +241,29 @@ const generateId = (text) =>
     .replace(/^-+|-+$/g, ''); // 去除开头和结尾的连字符
 };
 
+// 用于跟踪已使用的标题 ID，确保唯一性
+const usedHeadingIds = new Map(); // key: baseId, value: count
+
 // 自定义标题渲染器 - 为标题添加 ID
 renderer.heading = function (token) 
 {
   const text = token.text || '';
   const level = token.depth || 1;
-  const id = generateId(text);
+  const baseId = generateId(text);
+  
+  // 确保 ID 唯一性
+  let id = baseId;
+  if (usedHeadingIds.has(baseId)) 
+  {
+    const count = usedHeadingIds.get(baseId);
+    usedHeadingIds.set(baseId, count + 1);
+    id = `${baseId}-${count}`;
+  }
+  else 
+  {
+    usedHeadingIds.set(baseId, 1);
+  }
+  
   return `<h${level} id="${id}">${text}</h${level}>`;
 };
 
@@ -295,8 +312,9 @@ marked.setOptions({
 const renderedMarkdown = computed(() => 
 {
   if (!props.content) return '';
-  // 每次渲染前重置段落ID计数器
+  // 每次渲染前重置段落ID计数器和标题ID计数器
   paragraphIdCounter = 0;
+  usedHeadingIds.clear();
 
   const rawHtml = marked(props.content);
   const clean = DOMPurify.sanitize(rawHtml, {
@@ -320,12 +338,12 @@ const processDynamicComponents = async () =>
       const title = placeholder.getAttribute('data-title');
       let width = placeholder.getAttribute('data-width');
 
-      // 创建一个容器来放置 Arco 图片组件
+      // Arco 图片组件
       const container = document.createElement('div');
       container.className = 'arco-image-container';
       placeholder.parentNode.replaceChild(container, placeholder);
 
-      // 创建一个简单的 Vue 应用来渲染 Arco 图片组件
+      // 渲染 Arco 图片组件
       const imageApp = createApp({
         render() 
         {
@@ -429,7 +447,8 @@ const scrollToTocElement = () =>
     const elementId = currentTocItem.value;
     if (elementId) 
     {
-      let targetId = 'cainsgl-titile-' + elementId;
+      // elementId 现在已经是完整的 ID（包含 cainsgl-titile- 前缀），不需要再添加
+      let targetId = elementId;
       // 解码URL编码的ID，处理中文字符
       targetId = decodeURIComponent(targetId);
       const element = document.getElementById(targetId);
@@ -522,13 +541,12 @@ const handleScroll = () =>
 
   if (currentHeading) 
   {
-    // 获取标题的ID
+    // 获取标题的ID（现在 ID 已经是完整的，包含 cainsgl-titile- 前缀）
     const headingId = currentHeading.id;
-    const targetId = headingId.replace('cainsgl-titile-', '');
     if (headingId) 
     {
-      // 更新toc store中的当前项
-      tocStore.setCurrentTocItem(targetId);
+      // 直接使用完整的 ID，不需要移除前缀
+      tocStore.setCurrentTocItem(headingId);
     }
   }
 };

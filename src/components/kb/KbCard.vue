@@ -22,7 +22,7 @@
                         <icon-heart :style="{ marginRight: '4px' }" /> {{ kbInfo.likeCount }}
                         <icon-book :style="{ marginLeft: '12px', marginRight: '4px' }" /> {{ kbInfo.postCount }}
                     </div>
-                    <div class="kb-date">{{ formatDate(kbInfo.createdAt,'创建') }}</div>
+                    <div class="kb-date">{{ formatDate(kbInfo.createdAt) }}</div>
                 </div>
             </div>
         

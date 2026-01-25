@@ -59,7 +59,6 @@ const emit = defineEmits(['visibilityChange', 'hasData']);
 // 响应式数据
 const treeData = ref([]);
 const selectedKeys = ref([]);
-const defaultExpandedKeys = ref([]);
 const expandedKeys = ref([]);
 const userExpandedKeys = ref(new Set()); // 记录用户手动展开的节点
 const isVisible = ref(true); // 控制目录显示/隐藏
@@ -68,40 +67,6 @@ const isAllExpanded = ref(false); // 控制是否全部展开
 // 使用Pinia store
 const tocStore = useTocStore();
 const { currentTocItem } = storeToRefs(tocStore);
-
-// 计算默认展开的节点（只展开第一级）
-const computeDefaultExpandedKeys = () => 
-{
-  const keys = [];
-
-  const collectLevelKeys = (nodes, maxLevel, currentLevel = 1) => 
-  {
-    for (const node of nodes) 
-    {
-      if (currentLevel <= maxLevel) 
-      {
-        keys.push(node.key);
-        if (node.children && node.children.length > 0 && currentLevel < maxLevel) 
-        {
-          collectLevelKeys(node.children, maxLevel, currentLevel + 1);
-        }
-      }
-    }
-  };
-
-  if (treeData.value && treeData.value.length > 0) 
-  {
-    collectLevelKeys(treeData.value, 1); // 只展开到第一级
-    defaultExpandedKeys.value = keys;
-    // 将默认展开的节点也视为用户展开的节点
-    userExpandedKeys.value = new Set(keys);
-  }
-  else 
-  {
-    defaultExpandedKeys.value = [];
-    userExpandedKeys.value.clear();
-  }
-};
 
 // 展开所有节点
 const expandAllNodes = (nodes) => 
@@ -128,15 +93,16 @@ const toggleExpandAll = () =>
 {
   if (isAllExpanded.value) 
   {
-    // 收起全部，只保留默认展开的节点
-    expandedKeys.value = [...defaultExpandedKeys.value];
+    // 收起全部
+    expandedKeys.value = [];
+    userExpandedKeys.value.clear();
     isAllExpanded.value = false;
   }
   else 
   {
     // 展开全部
     const allExpandedKeys = expandAllNodes(treeData.value);
-    expandedKeys.value = [...new Set([...allExpandedKeys, ...Array.from(userExpandedKeys.value)])];
+    expandedKeys.value = allExpandedKeys;
     // 将所有展开的节点都记录为用户展开的节点
     allExpandedKeys.forEach(key => userExpandedKeys.value.add(key));
     isAllExpanded.value = true;
@@ -189,14 +155,14 @@ const handleTocItemChange = () =>
     {
       // 包含路径上的所有节点（包括目标节点）
       const pathKeys = [...path];
-      // 合并默认展开的节点、路径节点和用户手动展开的节点
-      expandedKeys.value = [...new Set([...defaultExpandedKeys.value, ...pathKeys, ...Array.from(userExpandedKeys.value)])];
+      // 合并路径节点和用户手动展开的节点
+      expandedKeys.value = [...new Set([...pathKeys, ...Array.from(userExpandedKeys.value)])];
       isAllExpanded.value = false; // 如果是展开到特定节点，那么不是全部展开状态
     }
     else 
     {
-      // 如果找不到节点，合并默认展开的节点和用户手动展开的节点
-      expandedKeys.value = [...new Set([...defaultExpandedKeys.value, ...Array.from(userExpandedKeys.value)])];
+      // 如果找不到节点，只保留用户手动展开的节点
+      expandedKeys.value = [...Array.from(userExpandedKeys.value)];
     }
 
     // 在DOM更新后滚动到选中的节点
@@ -208,7 +174,7 @@ const handleTocItemChange = () =>
   else 
   {
     selectedKeys.value = [];
-    expandedKeys.value = [...new Set([...defaultExpandedKeys.value, ...Array.from(userExpandedKeys.value)])];
+    expandedKeys.value = [...Array.from(userExpandedKeys.value)];
   }
 };
 
@@ -222,20 +188,16 @@ watch(
       try 
       {
         treeData.value = parseMarkdownToTree(newContent);
-        computeDefaultExpandedKeys(); // 更新默认展开的节点
-
       }
       catch (error) 
       {
         console.error('解析markdown目录失败:', error);
         treeData.value = [];
-        defaultExpandedKeys.value = [];
       }
     }
     else 
     {
       treeData.value = [];
-      defaultExpandedKeys.value = [];
     }
 
     // 通知父组件 treeData 是否有数据

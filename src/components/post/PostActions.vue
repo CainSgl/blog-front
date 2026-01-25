@@ -18,6 +18,7 @@
                 <a-tooltip content="收藏" position="right">
                     <div class="action-button" :class="{ active: isFavorited }">
                         <icon-star :style="{ fontSize: '24px' }" />
+                          <span class="action-count" v-if="starCount > 0">{{ formatCount(starCount) }}</span>
                     </div>
                 </a-tooltip>
             </div>
@@ -56,9 +57,10 @@
 
 <script setup>
 import { ref } from 'vue';
+import { Modal, Message } from '@arco-design/web-vue';
 import { IconHeart, IconStar, IconMessage, IconExclamationCircle, IconDoubleRight, IconDoubleLeft } from '@arco-design/web-vue/es/icon';
 import AddToFavoriteModal from '@/components/user/favorite/AddToFavoriteModal.vue';
-
+import api from '@/api/index'
 const props = defineProps({
     postId: {
         type: [String, Number],
@@ -66,6 +68,10 @@ const props = defineProps({
     },
     likeCount: {
         type: Number,
+        default: 0
+    },
+    starCount:{
+         type: Number,
         default: 0
     },
     commentCount: {
@@ -104,20 +110,54 @@ const formatCount = (count) => {
 };
 
 // 点赞
-const handleLike = () => {
-    emit('like');
+const handleLike = async () => {
+    try {
+        const id = props.isLiked ? 'unlike' + props.postId : 'like' + props.postId;
+         Message.loading({ 
+            id: id, 
+            content: '加载中...' 
+        });
+        await api.get('/post/op/like', { id: props.postId, add: !props.isLiked });
+        Message.success({ 
+            id: id, 
+            content: props.isLiked ? '已取消点赞' : '点赞成功' 
+        });
+        emit('like', !props.isLiked);
+    } catch (error) {
+        console.error('点赞操作失败:', error);
+        Message.error('操作失败，请重试');
+    }
 };
 
 // 收藏
-const handleFavorite = () => {
+const handleFavorite = async () => {
     if (!props.isFavorited) {
         showFavoriteModal.value = true;
-    }else
-    {
-        //直接
-         emit('favorite',false);
+    } else {
+        // 显示确认弹窗
+        Modal.confirm({
+            title: '取消收藏',
+            content: '确定要取消收藏这篇文章吗？',
+            okText: '确定',
+            cancelText: '取消',
+            onBeforeOk: async (done) => {
+                try {
+                    const id = 'unStar' + props.postId;
+                    await Promise.all([
+                        api.get('/post/op/star', { id: props.postId, add: false }),
+                        api.delete('/user/collect', { id: props.postId, type: '文章' })
+                    ]);
+                    Message.success({ id: id, content: '已取消收藏' });
+                    emit('favorite', false);
+                    done(true);
+                } catch (error) {
+                    console.error('取消收藏失败:', error);
+                    Message.error('取消收藏失败，请重试');
+                    done(false);
+                }
+            }
+        });
     }
-
 };
 
 // 收藏成功回调

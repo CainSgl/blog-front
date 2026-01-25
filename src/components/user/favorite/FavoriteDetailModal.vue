@@ -1,21 +1,16 @@
 <template>
-    <a-modal 
-        v-model:visible="visible" 
-        :title="favoriteData?.name || '收藏夹详情'" 
-        width="auto"
-        :footer="false"
-        @cancel="handleClose"
-    >
+    <a-modal v-model:visible="visible" :title="favoriteData?.name || '收藏夹详情'" width="auto" :footer="false"
+        @cancel="handleClose">
         <div class="favorite-detail-modal">
             <a-spin :loading="loading" tip="加载中..." style="display:block">
                 <div class="modal-content">
                     <a-grid :cols="{ xs: 1, sm: 1, md: 2, lg: 2, xl: 3 }" :colGap="16" :rowGap="16">
-                        <a-grid-item v-for="item in contentItems.target" :key="item.collect.id">
-                            <a-link v-if="favoriteData.type=='文章'" :href="`/p/${item.id}`" :hoverable="false">
-                                <PostCardWrapper :post="item" :height="'200px'" />
+                        <a-grid-item v-for="item in contentItems" :key="item.collect.id">
+                            <a-link v-if="item.type == '文章'" :href="`/p/${item.target.id}`" :hoverable="false">
+                                <PostCardWrapper :post="item.target" :height="'300px'" />
                             </a-link>
-                             <a-link v-if="favoriteData.type=='知识库'" :href="`/p/${item.id}`" :hoverable="false">
-                                <KbCard   :show-status="true" :onlyFans="true" />
+                            <a-link v-if="item.type == '知识库'" :href="`/p/${item.target.id}`" :hoverable="false">
+                                <KbCard :show-status="true" :onlyFans="true" />
                             </a-link>
                         </a-grid-item>
                     </a-grid>
@@ -23,16 +18,9 @@
                     <a-empty v-if="!loading && contentItems.length === 0" description="暂无收藏内容" />
 
                     <div class="pagination-wrapper" v-if="total > 0">
-                        <a-pagination 
-                            v-model:current="current"
-                            v-model:page-size="pageSize"
-                            :total="total"
-                            :page-size-options="[10, 20, 30, 50]"
-                            show-total
-                            show-page-size
-                            @change="handlePageChange"
-                            @page-size-change="handlePageSizeChange"
-                        />
+                        <a-pagination v-model:current="current" v-model:page-size="pageSize" :total="total"
+                            :page-size-options="[10, 20, 30, 50]" show-total show-page-size @change="handlePageChange"
+                            @page-size-change="handlePageSizeChange" />
                     </div>
                 </div>
             </a-spin>
@@ -74,21 +62,21 @@ const hasMore = ref(false);
 // 加载收藏夹内容
 const loadContent = async () => {
     if (!props.favoriteData?.id) return;
-    
+
     loading.value = true;
     try {
-        const result = await api.post(`/user/collect/page`, {
+        const { data } = await api.post(`/user/collect/page`, {
             page: current.value,
             id: props.favoriteData.id,
             pageSize: pageSize.value
         });
-        
-        contentItems.value = result.records || [];
-        total.value = result.total || 0;
-        pages.value = result.pages || 0;
-        current.value = result.current || 1;
-        pageSize.value = result.size || 20;
-        hasMore.value = result.size >= pageSize.value;
+        console.log(data)
+        contentItems.value = data.records;
+        total.value = data.total;
+        pages.value = data.pages;
+        current.value = data.current;
+        pageSize.value = data.size;
+        hasMore.value = data.hasMore;
     } catch (error) {
         console.error('加载收藏夹内容失败:', error);
         contentItems.value = [];
@@ -110,11 +98,24 @@ const handlePageSizeChange = (size) => {
     current.value = 1;
     loadContent();
 };
+let opened;
+function init() {
+    contentItems.value = [];
+    total.value = 0;
+    pages.value = 0
+    current.value = 1;
+    pageSize.value = 20;
+    hasMore.value = false;
 
+}
 // 监听弹窗打开
 watch(() => props.modelValue, (newVal) => {
     if (newVal && props.favoriteData) {
-        current.value = 1;
+        if (opened == props.favoriteData.id) {
+            return;
+        }
+        opened = props.favoriteData.id;
+        init();
         loadContent();
     }
 });
@@ -135,7 +136,7 @@ const handleClose = () => {
         min-height: 600px;
         max-height: calc(85vh - 120px);
         overflow-y: auto;
-        
+
         .pagination-wrapper {
             margin-top: 24px;
             display: flex;

@@ -37,7 +37,20 @@ const kbInfo = computed(() => kbStore.kbInfo);
 const kbId = computed(() => route.query.kb);
 
 const postInfo = ref({});
-
+let summaryCache;
+function getSummrayElment(summary) 
+{
+  if (summaryCache) 
+  {
+    return summaryCache;
+  }
+  if (!summary) 
+  {
+    summary = '这个人没有设置任何摘要哦';
+  }
+  summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>`;
+  return summaryCache;
+}
 const loadPostContent = async (postId) => 
 {
   // 获取文章名称用于加载提示
@@ -47,7 +60,9 @@ const loadPostContent = async (postId) =>
   try 
   {
     const { data } = await api.get('/post', { id: postId, simple: true });
+    console.log(data);
     textContent.value = data.content || '';
+    data.content= getSummrayElment(data.summary) + '\n' + data.content
     postInfo.value = data;
   }
   catch (error) 

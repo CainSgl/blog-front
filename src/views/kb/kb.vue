@@ -15,8 +15,7 @@
             </div>
           </div>
           <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId" :height="treeMenuHeight"  />
-          <LikeButton :initial-like-count="kbInfo.likeCount" :kb-id="kbId" @like="handleLike" v-if="!noKb"
-            class="like-button-wrapper" />
+          
         </div>
       </div>
 
@@ -38,7 +37,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue';
 import TreeMenu from '@/components/navigation/treemenu/TreeMenuWrapper.vue';
-import LikeButton from '@/components/kb/LikeButton.vue';
+
 import { IconHome, IconDoubleLeft, IconDoubleRight } from '@arco-design/web-vue/es/icon';
 import { useRoute, useRouter } from 'vue-router';
 import { useKbStore } from './kbStore.js';
@@ -290,7 +289,7 @@ onUnmounted(() =>
 
 
 .sidebar.collapsed .tree-menu,
-.sidebar.collapsed .like-button-wrapper {
+.sidebar.collapsed {
   opacity: 0;
   pointer-events: none;
 }

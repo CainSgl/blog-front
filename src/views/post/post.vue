@@ -8,6 +8,8 @@
       :commentCount="post?.commentCount"
       :isLiked="isLiked"
       :isFavorited="isFavorited"
+      :starCount="post?.starCount"
+      @like="handleLike"
       @comment="scrollToComments"
       @favorite="handleFavoriteSuccess"
       @report="handleReport"
@@ -317,13 +319,22 @@ const scrollToComments = () =>
 
 
 
-
+const handleLike=(b)=>{
+  isLiked.value=b;
+  // 更新本地点赞数
+  if (post.value) {
+    post.value.likeCount = b ? post.value.likeCount + 1 : post.value.likeCount - 1;
+  }
+}
 
 // 收藏成功处理
 const handleFavoriteSuccess = (b) => 
 {
   isFavorited.value = b;
-  Message.success(isFavorited.value ? '收藏成功' : '取消收藏成功');
+  // 更新本地收藏数
+  if (post.value) {
+    post.value.starCount = b ? post.value.starCount + 1 : post.value.starCount - 1;
+  }
 };
 
 // 举报处理（后续实现）
