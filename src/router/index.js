@@ -116,6 +116,11 @@ const routes = [
         name: 'UserFavorite',
         component: () => import('@/views/user/children/Favorite.vue'),
       },
+      {
+        path: 'history',
+        name: 'UserHistory',
+        component: () => import('@/views/user/children/History.vue'),
+      },
     ],
   },
   {

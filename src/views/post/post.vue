@@ -160,7 +160,7 @@ const loadPostContent = async (postId) =>
         typeof op === 'string' ? op === '点赞' : op.type === '点赞'
       );
       isFavorited.value = data.operate.some(op => 
-        typeof op === 'string' ? op === '收藏' : op.type === '收藏'
+        typeof op === 'string' ? op === '收藏文章' : op.type === '收藏文章'
       );
     } 
     console.log('operate数据:', data.operate, '点赞状态:', isLiked.value, '收藏状态:', isFavorited.value)
