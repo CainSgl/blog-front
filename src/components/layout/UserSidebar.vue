@@ -13,6 +13,11 @@
         <icon-star :style="{ color: '#753403', backgroundColor: '#FFB683' }" />
         <span class="enlarged-text">收藏</span>
       </a-menu-item>
+       <a-menu-item v-if="isMe" key="UserHistory" class="enlarged-menu-item"
+        :style="selectedKeys[0] === 'UserHistory' ? { backgroundColor: menuBackgroundColors['UserHistory'], borderRadius: '26px' } : {}">
+        <icon-history :style="{ color: '#5D1F00', backgroundColor: '#FFC896' }" />
+        <span class="enlarged-text">历史记录</span>
+      </a-menu-item>
       <a-menu-item key="UserKnowledge" class="enlarged-menu-item"
         :style="selectedKeys[0] === 'UserKnowledge' ? { backgroundColor: menuBackgroundColors['UserKnowledge'], borderRadius: '26px' } : {}">
         <icon-book :style="{ color: '#0F5223', backgroundColor: '#6DD58C' }" />
@@ -28,6 +33,7 @@
         <icon-cloud :style="{ color: '#004A77', backgroundColor: '#7FCFFF' }" />
         <span class="enlarged-text">云存储</span>
       </a-menu-item>
+     
     </a-menu>
 
     <a-menu v-else :selected-keys="selectedKeys" :default-opened-keys="openedKeys"
@@ -38,11 +44,18 @@
           :style="selectedKeys[0] === 'UserHomeIndex' ? { color: '#0842A0', backgroundColor: '#A8C7FA' } : {}" />
         <span>主页</span>
       </a-menu-item>
+      
       <a-menu-item key="UserFavorite"
         :style="selectedKeys[0] === 'UserFavorite' ? { backgroundColor: menuBackgroundColors['UserFavorite'], borderRadius: '35px' } : {}">
         <icon-star :size="24"
           :style="selectedKeys[0] === 'UserFavorite' ? { color: '#753403', backgroundColor: '#FFB683' } : {}" />
         <span>收藏</span>
+      </a-menu-item>
+       <a-menu-item v-if="isMe" key="UserHistory"
+        :style="selectedKeys[0] === 'UserHistory' ? { backgroundColor: menuBackgroundColors['UserHistory'], borderRadius: '35px' } : {}">
+        <icon-history :size="24"
+          :style="selectedKeys[0] === 'UserHistory' ? { color: '#5D1F00', backgroundColor: '#FFC896' } : {}" />
+        <span>历史记录</span>
       </a-menu-item>
       <a-menu-item key="UserKnowledge"
         :style="selectedKeys[0] === 'UserKnowledge' ? { backgroundColor: menuBackgroundColors['UserKnowledge'], borderRadius: '35px' } : {}">
@@ -62,6 +75,7 @@
           :style="selectedKeys[0] === 'UserCloud' ? { color: '#004A77', backgroundColor: '#7FCFFF' } : {}" />
         <span>云存储</span>
       </a-menu-item>
+     
     </a-menu>
   </div>
 </template>
@@ -74,14 +88,16 @@ import {
   IconBook,
   IconFile,
   IconCloud,
-  IconStar
+  IconStar,
+  IconHistory
 } from '@arco-design/web-vue/es/icon';
 const menuBackgroundColors = {
   UserHomeIndex: '#A8C7FA',
   UserFavorite: '#FFB683',
   UserKnowledge: '#6DD58C',
   UserDocs: '#D9BAFD',
-  UserCloud: '#7FCFFF'
+  UserCloud: '#7FCFFF',
+  UserHistory: '#FFC896'
 };
 
 const route = useRoute();
@@ -90,6 +106,10 @@ const router = useRouter();
 // 从父组件接收是否收起的状态
 const props = defineProps({
   isCollapsed: {
+    type: Boolean,
+    default: false
+  },
+  isMe: {
     type: Boolean,
     default: false
   }

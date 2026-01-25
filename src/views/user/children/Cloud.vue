@@ -1,5 +1,6 @@
 <template>
-  <a-image-preview-group v-model:visible="previewVisible" v-model:current="previewCurrent" infinite
+  <div style="padding:24px">
+<a-image-preview-group v-model:visible="previewVisible" v-model:current="previewCurrent" infinite
     :srcList="previewImageList" />
   <div class="user-cloud">
     <!-- 图片预览弹窗 -->
@@ -107,6 +108,8 @@
       </a-card>
     </div>
   </div>
+  </div>
+  
 </template>
 
 <script setup>

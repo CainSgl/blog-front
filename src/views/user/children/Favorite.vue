@@ -1,5 +1,5 @@
 <template>
-    <div class="user-favorite">
+    <div class="user-favorite" style="padding:24px">
         <UserPageHeader :userId="userId" title="收藏夹" subtitle="收藏" @back="handleBack" :showSearch="false" api-url="''" />
 
         <div class="content-area">

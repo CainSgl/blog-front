@@ -10,7 +10,7 @@
                     <div class="action-button" :class="{ 'liked': isLiked }">
                         <icon-heart-fill v-if="isLiked" :style="{ fontSize: '24px' }" />
                         <icon-heart v-else :style="{ fontSize: '24px' }" />
-                        <span class="action-count" v-if="likeCount > 0">{{ formatCount(likeCount) }}</span>
+                        <span class="action-count">{{ formatCount(likeCount) }}</span>
                     </div>
                 </a-tooltip>
             </div>
@@ -20,7 +20,7 @@
                     <div class="action-button" :class="{ 'favorited': isFavorited }">
                         <icon-star-fill v-if="isFavorited" :style="{ fontSize: '24px' }" />
                         <icon-star v-else :style="{ fontSize: '24px' }" />
-                          <span class="action-count" v-if="starCount > 0">{{ formatCount(starCount) }}</span>
+                          <span class="action-count" >{{ formatCount(starCount) }}</span>
                     </div>
                 </a-tooltip>
             </div>
@@ -29,7 +29,7 @@
                 <a-tooltip content="评论" position="right">
                     <div class="action-button">
                         <icon-message :style="{ fontSize: '24px' }" />
-                        <span class="action-count" v-if="commentCount > 0">{{ formatCount(commentCount) }}</span>
+                        <span class="action-count" >{{ formatCount(commentCount) }}</span>
                     </div>
                 </a-tooltip>
             </div>

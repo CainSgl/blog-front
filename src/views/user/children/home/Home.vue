@@ -1,5 +1,5 @@
 <template>
-  <div class="user-home">
+  <div class="user-home" style="padding:24px">
     <a-card class="user-profile-card" :bordered="false">
       <div class="user-profile-header">
         <div class="user-avatar-section">

@@ -33,19 +33,19 @@
             </div>
           </div>
 
-          <div class="content" :style="{ height: `${summaryHight}px` }" v-if="showSummary">
+          <div class="content" :style="{ height: `${summaryConfig.height}px` }" v-if="summaryConfig.show">
             <!-- 摘要 -->
             <div v-if="!post.summary">
-              <div v-if="summaryHight > 100">
+              <div v-if="summaryConfig.height > 100">
                 <a-empty description="摘要里什么都没有" />
               </div>
-              <div v-else-if="summary > 0" class="post-summary">
+              <div v-else-if="summaryConfig.lines > 0" class="post-summary">
                 摘要里什么都没有
               </div>
             </div>
-            <div class="post-summary" :style="{ WebkitLineClamp: summary }"  v-if="inHtlm" v-html="post.summary">
+            <div class="post-summary" :style="{ WebkitLineClamp: summaryConfig.lines }" v-if="inHtlm" v-html="post.summary">
             </div>
-             <div class="post-summary" :style="{ WebkitLineClamp: summary }"  v-else="inHtlm">
+            <div class="post-summary" :style="{ WebkitLineClamp: summaryConfig.lines }" v-else>
               {{ post.summary }}
             </div>
 
@@ -72,10 +72,10 @@
                 <!-- 统计数据 -->
                 <div class="post-stats">
                   <a-space>
-                    <span class="stat-item" v-if="post.viewCount">
+                    <span class="stat-item" v-if="post.viewCount !== undefined">
                       <icon-eye size="large" /> {{ post.viewCount }}
                     </span>
-                    <span class="stat-item"  v-if="!onlyFans&& post.likeCount">
+                    <span class="stat-item"  v-if="!onlyFans && post.likeCount !== undefined">
                       <icon-heart-fill size="large" v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
                       <icon-thumb-down-fill size="large" v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
                       <icon-thumb-up size="large" v-else />
@@ -109,10 +109,11 @@
 </template>
 
 <script setup>
-import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill, IconStarFill } from '@arco-design/web-vue/es/icon';
-import { computed, ref, watchEffect, defineEmits } from 'vue';
+import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill } from '@arco-design/web-vue/es/icon';
+import { computed, defineEmits } from 'vue';
 import CImg from '../base/cImg.vue';
 import { formatDate } from '@/utils/DateFormatter.js';
+
 const emit = defineEmits(['clickCard']);
 const props = defineProps({
   post: {
@@ -137,110 +138,87 @@ const props = defineProps({
   },
   showBottom: {
     type: Boolean,
-    default: true,
+    default: true
   },
-  inHtlm:{
-    type:Boolean,
-    default:false,
+  inHtlm: {
+    type: Boolean,
+    default: false
   }
 });
 
-const primary4Color = '#ff6699'; // 对应 @primary-4: #ff6699; 在 global.less 中
+const primary4Color = '#ff6699';
 
-const imageHeight = ref(0);
-const imageStyle = ref({});
-const summary = ref(1);
-const summaryHight = ref(0);
-const showSummary = ref(true);
-// 使用 watchEffect 来处理副作用并计算图片样式
-watchEffect(() => {
-  // 如果没有图片，返回空样式
-  if (!props.post.img) {
-    summary.value = calculateSummary();
-    imageStyle.value = {};
-    return;
-  }
-  //如果是水平模式
-  if (props.width <= 400) {
-    //width应该是填满的
+// 布局模式：宽度小于等于 400 时为垂直布局
+const isVerticalLayout = computed(() => props.width <= 400);
+
+// 图片高度（用于垂直布局时计算摘要空间）
+const imageHeight = computed(() => {
+  if (!props.post.img) return 0;
+  
+  if (isVerticalLayout.value) {
     const width = props.width - 40;
-    //虽然由宽度决定，但是高度仍然不要超过1/2
-    imageHeight.value = Math.min(width / 1.5, props.height / 2);
-    summary.value = calculateSummary();
- 
-    imageStyle.value = {
-      height: `${imageHeight.value}px`,
-      // width: `${width}px`
-    };
+    return Math.min(width / 1.5, props.height / 2);
   }
-  else {
-    //图片由高度决定
+  
+  return 0;
+});
+
+// 图片样式
+const imageStyle = computed(() => {
+  if (!props.post.img) return {};
+  
+  if (isVerticalLayout.value) {
+    return {
+      height: `${imageHeight.value}px`
+    };
+  } else {
     let height = props.height - 50;
-    //虽然有高度决定，但是width仍然限制一下，最好不要超过卡片的1/2
-    imageHeight.value = height;
-    summary.value = calculateSummary();
     if (!props.showBottom) {
       height += 20;
     }
-    imageStyle.value = {
+    return {
       height: `${height}px`,
       width: `${Math.min(props.width / 2, height * 1.5)}px`
     };
   }
 });
 
-
-function calculateSummary() {
-  // 计算可用高度用于摘要显示 (总高度 - 标题高度 - 页脚高度等)
-  const lineHeight = 20; // 每行高度
-  const titleHeight = 36; // 标题区域高度
-  const footerHeight = 70; // 页脚区域高度
-  let availableHeight = props.height - titleHeight - footerHeight;
-
-  // 如果有图片且宽度，说明这个时候是垂直模式，需要减去图片高度
-  if (props.post.img && props.width <= 400) {
+// 摘要配置（高度、行数、是否显示）
+const summaryConfig = computed(() => {
+  const lineHeight = 20;
+  const titleHeight = 36;
+  const footerHeight = 70;
+  const tagsHeight = (props.post.tags?.length > 0) ? 50 : 10;
+  
+  let availableHeight = props.height - titleHeight - footerHeight - tagsHeight;
+  
+  // 垂直布局时需要减去图片高度
+  if (props.post.img && isVerticalLayout.value) {
     availableHeight -= imageHeight.value;
   }
-  if (props.post.tags && props.post.tags.length > 0) {
-    availableHeight -= 50;
-  }
-  else {
-    availableHeight -= 10;
-  }
+  
   if (!props.showBottom) {
     availableHeight += 10;
   }
-
-  summaryHight.value = availableHeight;
+  
   const lines = Math.floor(availableHeight / lineHeight);
-  if (lines <= 0) {
-    //不显示了  
-    showSummary.value = false;
-    return 1;
-  }
-  else {
-    //显示lines行
-    showSummary.value = true;
-  }
-  return lines;
+  
+  return {
+    height: availableHeight,
+    lines: Math.max(1, lines),
+    show: lines > 0
+  };
+});
 
-}
-
-
-
-
-
-// 计算属性：判断是否已点赞
+// 判断是否已点赞
 const isLiked = computed(() => {
-  return props.post.operate && props.post.operate.includes('点赞');
+  return props.post.operate?.includes('点赞');
 });
 
-// 计算属性：判断是否已讨厌
+// 判断是否已讨厌
 const isDisliked = computed(() => {
-  return props.post.operate && props.post.operate.includes('讨厌');
+  return props.post.operate?.includes('讨厌');
 });
-
-
 
 // 获取标签显示名称（去掉分数部分）
 const getTagDisplayName = (tag) => {
@@ -258,7 +236,7 @@ const getTagScore = (tag) => {
       return `作者认为该标签相关度为: ${parts[1]}`;
     }
   }
-  return null; // 如果没有分数部分，则不显示tooltip
+  return null;
 };
 
 // 处理卡片点击事件

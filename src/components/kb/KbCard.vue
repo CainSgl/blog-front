@@ -1,6 +1,6 @@
 <template>
-    <div class="kb-card">
-        <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }" @click="handleCardClick"
+    <a-link :hoverable="false" :href="kbInfo.id?`/kb?kb=${kbInfo.id}`:undefined" class="kb-card" target="_ablank">
+        <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }" 
             v-if="kbInfo.id">
             <!-- 封面图片 -->
             <div class="kb-cover">
@@ -39,7 +39,7 @@
                <a-skeleton-shape :style="{ height: `260px`, width: `180px` }"/>
             </a-skeleton>
         </div>
-    </div>
+    </a-link>
 </template>
 
 <script setup>
@@ -77,13 +77,6 @@ const props = defineProps({
 
 const primary4Color = '#ff6699'; 
 
-
-// 处理卡片点击事件
-const handleCardClick = () => 
-{
-  const routeData = router.resolve({ name: 'KB', query: { kb: props.kbInfo.id } });
-  window.open(routeData.href, '_blank');
-};
 
 
 </script>

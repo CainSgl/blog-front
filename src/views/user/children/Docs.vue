@@ -1,5 +1,6 @@
 <template>
-  <div class="user-docs">
+  <div style="padding:24px">
+    <div class="user-docs">
     <UserPageHeader :userId="userId" title="文章列表" subtitle="文章" searchPlaceholder="搜索文章..." :sortOptions="sortOptions"
       apiUrl="/post/list" @sort-change="handleSortChangeFromHeader" @search="handleSearchFromHeader"
       @back="handleBack" />
@@ -43,6 +44,8 @@
         @change="handlePageChange" />
     </div>
   </div>
+  </div>
+  
 </template>
 
 <script setup>
