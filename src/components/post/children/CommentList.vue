@@ -139,6 +139,7 @@ const handleSubmitComment = async (content) =>
 {
   try 
   {
+       Message.loading({id:msgid,content:'发布评论中...'});
     const { data } = await api.post('/post/comment', { 
       postId: props.postId, 
       version: props.version, 
@@ -153,7 +154,7 @@ const handleSubmitComment = async (content) =>
       likeCount:0,
       createdAt:new Date()
     });
-    Message.success('成功发布评论');
+       Message.success({id:msgid,content:'成功发布评论'});
   }
   catch (error) 
   {

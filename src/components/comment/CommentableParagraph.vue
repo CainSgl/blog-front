@@ -77,10 +77,12 @@ const submitComment = async () =>
     return;
   }
   commentModalVisible.value=false;
+  const id='paragraph'+commentStore.postId+":"+ props.commentId
+  Message.loading({id:id,content:'发送评论中...'});
   await api.post('/paragraph/comment', { postId: commentStore.postId, version: commentStore.version, dataId: props.commentId, content: commentContent.value });
   // 成功发布评论后，更新评论计数
   commentStore.incrementCommentCount(props.commentId);
-  Message.success('成功发布评论');
+  Message.success({id:id,content:'成功发布评论'});
 };
 
 // 检查文本是否被选中

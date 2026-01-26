@@ -28,7 +28,7 @@
           <CommentList :noCommentsText="'看来大家都没什么意见'" :commentCountText="'留下你宝贵的意见吧'" :version="version" :postId="announcement.id"
             :postCount="announcement.commentCount" />
         </div>
-
+      
         <a-empty v-if="!loading && !announcement" description="公告不存在" />
       </a-spin>
     </div>

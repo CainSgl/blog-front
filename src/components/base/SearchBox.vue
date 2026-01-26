@@ -294,17 +294,17 @@ const handleSearch = () => {
 
 /* Mini 模式下的搜索框样式 */
 .search-container:has(.search-mode-dropdown.mini) .search-box {
-  height: 36px;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  
+  border:1px solid rgba(0, 0, 0, 0.151);
+  box-shadow: none;
 
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   }
 
   &.focused {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-    border-color: transparent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    
   }
 }
 

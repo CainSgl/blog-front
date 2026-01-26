@@ -184,11 +184,13 @@ const handleAddComment = async () =>
   {
     const content = newCommentContent.value;
     newCommentContent.value = '';
+    const msgid='paragraph'+postId+":"+dataId
+    Message.loading({id:msgid,content:'发送评论中...'});
     const { data } = await api.post('/comment', { postId: commentStore.postId, version: commentStore.version, dataId: commentStore.paragrahphId, content });
     if (data != 'error') 
     {
       commentStore.incrementCommentCount(commentStore.paragrahphId);
-      Message.success('成功发布评论');
+       Message.success({id:msgid,content:'成功发布评论'});
       const currentUserInfo = await userStore.getUserInfo();
       const newComment = {
         userId: currentUserInfo.id,

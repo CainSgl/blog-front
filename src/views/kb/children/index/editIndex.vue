@@ -28,7 +28,7 @@
             <div class="preview-section">
               <h3>预览</h3>
               <div class="kb-card-preview">
-                <KbCard :kbInfo="kbInfo" />
+                <KbCard :kbInfo="kbInfo"  />
               </div>
             </div>
 
@@ -348,6 +348,9 @@ onMounted(() =>
 </script>
 
 <style scoped lang="less">
+.kb-card-preview{
+  width: 180px;
+}
 .kb-edit-index-container {
   height: 100vh;
   position: relative;
