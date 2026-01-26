@@ -39,12 +39,10 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
-import Header from '@/components/layout/Header.vue';
 import HomeHeader from '../components/home/HomeHeader.vue';
 import BannerCarousel from '@/components/home/children/BannerCarousel.vue';
 import AnnouncementBanner from '@/components/home/children/AnnouncementBanner.vue';
 import PostList from '@/components/home/children/PostList.vue';
-import LeftNavigation from '@/components/navigation/LeftNavigation.vue';
 
 const isMobile = ref(true);
 let isScrolling = false;
@@ -271,13 +269,13 @@ const updateScreenSize = () => {
 
 // 右侧公告栏
 .right-sidebar {
-  min-width: 100px;
-  width: 15vw;
-  max-width: 300px;
+  width: 280px;
   flex-shrink: 0;
   position: sticky;
   top: 80px;
   align-self: flex-start;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .top-section {
@@ -297,23 +295,23 @@ const updateScreenSize = () => {
   width: 100%;
 }
 
-@media (max-width: 1024px) {
+// 平板模式：只隐藏左侧目录
+@media (max-width: 1200px) {
   .container {
-    flex-direction: column;
     padding: 12px;
     gap: 16px;
   }
 
+  .left-sidebar {
+    display: none; // 平板模式隐藏左侧目录
+  }
+
   .center-wrapper {
-    flex-direction: column;
+    gap: 16px;
   }
 
   .right-sidebar {
-    display: none;
-  }
-
-  .main-content {
-    max-width: 100%;
+    width: 240px;
   }
 
   .banner-section {
@@ -321,15 +319,23 @@ const updateScreenSize = () => {
   }
 }
 
-// 响应式设计 - 手机
+// 手机模式：隐藏左侧目录和公告
 @media (max-width: 768px) {
   .container {
     padding: 8px;
     gap: 12px;
   }
 
-  .left-sidebar {
-    display: none; // 小屏幕隐藏左侧目录
+  .center-wrapper {
+    flex-direction: column;
+  }
+
+  .right-sidebar {
+    display: none; // 手机模式隐藏公告
+  }
+
+  .main-content {
+    max-width: 100%;
   }
 
   .banner-section {

@@ -4,21 +4,23 @@
       <a-typography-title :heading="5">公告</a-typography-title>
     </div>
     <div v-for="(item, index) in announcements" :key="item.id">
-      <div class="announcement-item" @click="goToAnnouncement(item)">
-        <div class="announcement-date">{{ formatDate(item.createdAt) }}</div>
-        <div class="announcement-content">
-          <cImg class="announcement-image" :src="item.img" v-if="item.img" />
-          <div class="announcement-text">
-            <div class="announcement-title-row">
-              <h3 class="announcement-title">{{ item.title }}</h3>
-              <div class="announcement-tags" v-if="item.tags && item.tags.length">
-                <a-tag v-for="tag in item.tags" :key="tag" size="small" color="arcoblue">{{ tag }}</a-tag>
+      <router-link :to="{ name: 'Announcement', params: { id: item.id } }" class="announcement-link" target="_blank">
+        <div class="announcement-item">
+          <div class="announcement-date">{{ formatDate(item.createdAt) }}</div>
+          <div class="announcement-content">
+            <cImg class="announcement-image" :src="item.img" v-if="item.img" />
+            <div class="announcement-text">
+              <div class="announcement-title-row">
+                <h3 class="announcement-title">{{ item.title }}</h3>
+                <div class="announcement-tags" v-if="item.tags && item.tags.length">
+                  <a-tag v-for="tag in item.tags" :key="tag" size="small" color="arcoblue">{{ tag }}</a-tag>
+                </div>
               </div>
+              <div class="announcement-summary">{{ item.summary }}</div>
             </div>
-            <div class="announcement-summary">{{ item.summary }}</div>
           </div>
         </div>
-      </div>
+      </router-link>
       <a-divider v-if="index < announcements.length - 1" />
     </div>
   </div>
@@ -70,11 +72,6 @@ const formatDate = (dateString) =>
     return `${Math.floor(diffSeconds / 86400)}天前`;
   }
 };
-
-const goToAnnouncement = (item) =>
-{
-  console.log(`跳转到公告详情页: ${item}`);
-};
 </script>
 
 <style lang="less" scoped>
@@ -119,9 +116,16 @@ const goToAnnouncement = (item) =>
   }
 }
 
+.announcement-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .announcement-item {
   padding: 16px 0;
   cursor: pointer;
+  transition: all 0.3s ease;
 
   &:hover {
     .announcement-title {

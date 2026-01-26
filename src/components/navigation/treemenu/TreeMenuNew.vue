@@ -41,23 +41,38 @@
     <TransitionGroup name="node-list" tag="div" style="height:100%;overflow: auto" class="menu-nodes-list" >
       <div v-for="(node, index) in flatNodes" :key="node.id" class="tree-node" :class="getNodeClasses(node, index)"
         :style="{ marginLeft: `${node.depth * 20}px` }" @mousedown="handleMouseDown($event, node, index)">
-        <div class="node-content" :class="{ renaming: node.showInput }">
+        <div class="node-content" :class="{ editing: node.isEditing }">
           <span class="expand-icon" :class="{ expanded: getNodeExpandedState(node) }">
             <IconDown v-if="getNodeExpandedState(node)" />
             <IconRight v-else-if="node.children && node.children.length > 0" />
             <IconFile v-else-if="node.postId" />
           </span>
 
-          <span class="node-name" v-show="!node.showInput">{{ node.name || '未命名' }}</span>
-          <div v-show="node.showInput">
-            <Input :value="nodeName" class="rename-input" @input="handleRenameInput"
-              @blur="() => handleRenameBlur(node)" @keyup.enter="() => handleRenameConfirm(node)"
-              @keyup.esc="handleRenameCancel" @mousedown.stop @click.stop autofocus />
-          </div>
+          <template v-if="!node.isEditing">
+            <span class="node-name">{{ node.name || '未命名' }}</span>
+            <!-- <IconEdit 
+              v-if="edit" 
+              class="edit-icon" 
+              @click.stop="startRename(node)"
+              @mousedown.stop
+            /> -->
+          </template>
+          <Input
+            v-else
+            v-model="node.editingName"
+            class="rename-input" 
+            @blur="() => finishRename(node)" 
+            @keyup.enter="() => finishRename(node)"
+            @keyup.esc="() => cancelRename(node)" 
+            @mousedown.stop 
+            @click.stop 
+            autofocus 
+          />
+
           <!-- 右侧操作图标-->
           <div class="node-actions"
             :class="{ 'show-actions': menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more') }"
-            v-show="!dragState.isDragging && (edit || (menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more'))) && !node.showInput">
+            v-show="!dragState.isDragging && !node.isEditing && (edit || (menuState.openNodeId === node.id && (menuState.openMenuType === 'add' || menuState.openMenuType === 'more')))">
 
             <Dropdown trigger="hover" placement="bottom"
               :popup-visible="menuState.openNodeId === node.id && menuState.openMenuType === 'add'"
@@ -226,59 +241,54 @@ async function withLock(operation)
   });
 }
 
-let lastRenameNode = null;
-const nodeName = ref('');
-// 处理重命名确认
-function handleRenameConfirm(node) 
+// 重命名相关
+function startRename(node) 
 {
-  node.showInput = false;
-  lastRenameNode = null;
+  node.isEditing = true;
+  node.editingName = node.name;
 }
 
-// 处理重命名失焦
-async function handleRenameBlur(node) 
+function cancelRename(node) 
 {
-  if (nodeName.value !== node.name) 
+  node.isEditing = false;
+  node.editingName = '';
+}
+
+async function finishRename(node) 
+{
+  const newName = node.editingName?.trim();
+  
+  if (!newName || newName === node.name) 
   {
-    loading.value += 1;
-    try 
-    {
-      await api.put('/dir', {
-        id: node.id,
-        kbId: props.kbId,
-        name: nodeName.value,
-        parentId: node.parentId || null,
-      });
-      node.name = nodeName.value;
-    }
-    catch (error) 
-    {
-      console.error('重命名目录失败:', error);
-      Message.error('重命名失败');
-    }
-    finally 
-    {
-      loading.value -= 1;
-    }
+    cancelRename(node);
+    return;
   }
-  node.showInput = false;
-  lastRenameNode = null;
-}
 
-// 处理重命名输入框变化
-function handleRenameInput(e) 
-{
-  nodeName.value = e;
-}
-
-// 处理重命名取消
-function handleRenameCancel() 
-{
-  if (lastRenameNode) 
+  loading.value += 1;
+  try 
   {
-    lastRenameNode.showInput = false;
-    nodeName.value = lastRenameNode.name;
-    lastRenameNode = null;
+    const id='rename'+node.id
+    Message.loading({id:id,content:'重命名'+node.name+'中'});
+    node.name = newName;
+    node.isEditing = false;
+    await api.put('/dir', {
+      id: node.id,
+      kbId: props.kbId,
+      name: newName,
+      parentId: node.parentId || null,
+    });
+    Message.success({id:id,content:'重命名成功'});
+  }
+  catch (error) 
+  {
+    console.error('重命名目录失败:', error);
+    Message.error('重命名失败');
+  }
+  finally 
+  {
+    loading.value -= 1;
+
+    node.editingName = '';
   }
 }
 
@@ -365,13 +375,7 @@ const actionHandlers = {
   },
   'rename': (node) => 
   {
-    if (lastRenameNode) 
-    {
-      lastRenameNode.showInput = false;
-    }
-    lastRenameNode = node;
-    nodeName.value = node.name;
-    node.showInput = true;
+    startRename(node);
   },
   'view-doc': (node) => 
   {
@@ -748,8 +752,6 @@ function toggleNode(node, onLock = false)
 {
   const toggle = () => 
   {
-    if (node.showInput) return;
-
     const currentIndex = flatNodes.value.findIndex(item => item.id === node.id);
     const isExpanded = getNodeExpandedState(node);
 
@@ -854,11 +856,23 @@ function handleMouseDown(event, node, index)
     return;
   }
 
-  // 如果不允许编辑或正在重命名，处理点击事件
-  if (!props.edit || lastRenameNode) 
+  // 点击编辑图标，不处理拖拽
+  if (event.target.closest('.edit-icon')) 
+  {
+    return;
+  }
+
+  // 如果正在编辑，不处理
+  if (node.isEditing) 
+  {
+    return;
+  }
+
+  // 如果不允许编辑，处理点击事件
+  if (!props.edit) 
   {
     event.preventDefault();
-    if (node.postId && !lastRenameNode) 
+    if (node.postId) 
     {
       emit('clickPost', node);
     }
@@ -897,7 +911,11 @@ function createDraggingShadow(node, event)
 // 开始拖拽
 function startDragging(event) 
 {
-  if (!props.edit || lastRenameNode) return;
+  if (!props.edit) return;
+
+  // 检查是否有节点正在编辑
+  const editingNode = flatNodes.value.find(n => n.isEditing);
+  if (editingNode) return;
 
   dragState.isDragging = true;
   dragState.hasMoved = true;
@@ -936,7 +954,11 @@ function handleMouseMove(event)
 {
   event.preventDefault();
  
-  if (!props.edit || lastRenameNode) return;
+  if (!props.edit) return;
+
+  // 如果有节点正在编辑，不处理拖拽
+  const editingNode = flatNodes.value.find(n => n.isEditing);
+  if (editingNode) return;
 
   // 检查是否需要启动拖拽
   if (!dragState.isDragging && dragState.sourceNode) 
@@ -1345,11 +1367,6 @@ function cleanupDrag()
     align-items: center;
     gap: 8px;
 
-    // 当显示重命名输入框时，调整对齐方式
-    &.renaming {
-      align-items: stretch;
-    }
-
     // 确保内容区域占满节点高度，有助于子元素垂直居中
     height: 100%;
     min-height: 24px;
@@ -1388,36 +1405,23 @@ function cleanupDrag()
       white-space: nowrap;
     }
 
-    // 重命名输入框样式
-    .arco-input-wrapper.rename-input {
-      flex: 1;
-      background: rgba(255, 255, 255, 0);
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin: -4px -8px;
-      /* 抵消父容器的padding影响 */
-      /* 确保输入框垂直居中对齐 */
-      align-self: center;
-      /* 确保输入框高度与节点内容一致 */
-      min-height: 24px;
-      display: flex;
-      align-items: center;
-      // 添加过渡效果使 appearance 更平滑
-      transition: all 0.2s ease;
+    .edit-icon {
+      width: 14px;
+      height: 14px;
+      color: #999;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        color: @primary-6;
+      }
     }
 
-    /* 重命名输入框内的input元素样式 */
-    .rename-input input {
-      /* 确保文字垂直居中 */
-      line-height: 1.5;
-      padding: 4px 12px;
-      // 移除默认的上下内边距，因为我们已经在 wrapper 上设置了
-      padding-top: 0;
-      padding-bottom: 0;
-      // 确保输入框占满容器高度
-      height: 100%;
-      // 文本居中
-      text-align: left;
+    .rename-input {
+      flex: 1;
+      margin: -4px 0;
     }
 
     // 右侧操作图标样式
@@ -1450,7 +1454,8 @@ function cleanupDrag()
     }
   }
 
-  // 悬停时显示右侧图标
+  // 悬停时显示编辑图标和右侧操作图标
+  .tree-node:hover .edit-icon,
   .tree-node:hover .node-actions,
   .tree-node .node-actions.show-actions {
     opacity: 1;

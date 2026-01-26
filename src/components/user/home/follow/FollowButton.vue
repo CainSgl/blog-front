@@ -58,7 +58,7 @@ const toggleFollow = async () =>
   {
     Modal.warning({
       title: '提示',
-      content: '你无法取消关注，因为关注自己是一件很重要的事情！',
+      content: '你时时刻刻都在关注自己哦',
       okText: '确定'
     });
     loading.value = false;

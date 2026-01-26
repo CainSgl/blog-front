@@ -50,6 +50,10 @@ const props = defineProps({
   noControle: {
     type: Boolean,
     default: false
+  },
+  tocDefaultShow:{
+    type:Boolean,
+    default:true
   }
 });
 
@@ -61,7 +65,7 @@ const treeData = ref([]);
 const selectedKeys = ref([]);
 const expandedKeys = ref([]);
 const userExpandedKeys = ref(new Set()); // 记录用户手动展开的节点
-const isVisible = ref(true); // 控制目录显示/隐藏
+const isVisible = ref(props.tocDefaultShow); // 控制目录显示/隐藏，根据 tocDefaultShow 初始化
 const isAllExpanded = ref(false); // 控制是否全部展开
 
 // 使用Pinia store
@@ -223,6 +227,8 @@ onMounted(() =>
   tocStore.initializeFromUrl();
   // 初始化时也检查一次状态
   handleTocItemChange();
+  // 通知父组件初始的可见性状态
+  emit('visibilityChange', isVisible.value);
 });
 
 

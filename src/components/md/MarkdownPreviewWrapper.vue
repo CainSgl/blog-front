@@ -13,7 +13,7 @@
 
     <div :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]"
       :target="affixTarget ? affixTarget : null" :style="tocHasData ? '' : 'width: 0;'">
-      <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect"
+      <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect" :tocDefaultShow="tocDefaultShow"
         :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" @hasData="handleHasData" />
     </div>
 
@@ -68,6 +68,10 @@ const props = defineProps({
   useWindowScroll: {
     type: Boolean,
     default: false
+  },
+  tocDefaultShow:{
+    type:Boolean,
+    default:true,
   }
 });
 

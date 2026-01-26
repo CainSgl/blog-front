@@ -294,6 +294,8 @@ const handleSearch = () => {
 
 /* Mini 模式下的搜索框样式 */
 .search-container:has(.search-mode-dropdown.mini) .search-box {
+  height: 36px;
+  border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 
   &:hover {
@@ -464,9 +466,9 @@ const handleSearch = () => {
 
 /* Mini 模式下的搜索按钮 */
 .search-container:has(.search-mode-dropdown.mini) .search-btn {
-  height: 32px;
+  height: 28px;
   min-width: 50px;
-  border-radius: 16px;
+  border-radius: 6px;
   font-size: 13px;
 }
 

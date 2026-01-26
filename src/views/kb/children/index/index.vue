@@ -72,7 +72,7 @@
         <FollowButton :userId="masterUser?.id" @followChanged="handleFollowChanged" />
       </div>
       <div v-if="content" class="content-container">
-        <MarkdownPreview :content="content" :height="height" />
+        <MarkdownPreview :showComment="false" :content="content" :height="height" />
       </div>
       <div v-else-if="!loading" class="empty-container">
         <a-empty description="该用户未设置首页内容" />

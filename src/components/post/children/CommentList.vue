@@ -1,7 +1,7 @@
 <template>
     <div class="comments-header">
         <h2>评论</h2>
-        <div class="comment-count"> 段评或许也有不一样的惊喜</div>
+        <div class="comment-count"> {{ commentCountText }}</div>
     </div>
     <div class="comment-list" v-if="postId">
         <div style="margin-top: 30px;">
@@ -10,7 +10,7 @@
       
 
         <div v-if="!loading && commentList.length === 0" class="no-comments">
-            暂无评论，快来抢沙发吧！
+            {{ noCommentsText }}
         </div>
         <div class="comments-container" ref="commentsContainerRef">
             <Comment v-for="comment in commentList" :key="comment.id" :comment-data="comment" />
@@ -42,6 +42,14 @@ const props = defineProps({
   version: {
     type: Number,
     default: 0
+  },
+  noCommentsText:{
+    type:String,
+    default:'暂无评论，快来抢沙发吧！'
+  },
+  commentCountText:{
+     type:String,
+    default:'也可以看看段评哦'
   }
 });
 const userStore = useUserStore();
