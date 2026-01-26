@@ -29,8 +29,8 @@
     </template>
 
     <template #content>
-      <div style="margin-top: 12px;font-size: 0.98rem;">
-        <span>{{ commentData.content }}</span>
+      <div class="comment-content">
+        {{ commentData.content }}
       </div>
     </template>
 
@@ -490,5 +490,15 @@ const emit = defineEmits(['reply']);
 .toggle-button-leave-to {
   opacity: 0;
   transform: translateY(-5px);
+}
+
+.comment-content {
+  margin-top: 12px;
+  font-size: 0.98rem;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 </style>

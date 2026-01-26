@@ -1,7 +1,7 @@
 <template>
     <div class="comment-input-wrapper">
         <Avatar :src="currentUserInfo.avatarUrl" :size="48" v-if="showSelf" />
-        <a-textarea v-model="content" :placeholder="placeholder" :maxlength="{ length: 255, errorOnly: true }"
+        <a-textarea v-model="content" :placeholder="placeholder" :max-length="255" 
             :auto-size="{ minRows: 2, maxRows: 4 }" @keydown.enter="handleEnterKey" show-word-limit allow-clear
             ref="commentInputRef" />
         <div>

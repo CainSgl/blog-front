@@ -137,6 +137,7 @@ const handleScroll = () =>
 // 处理提交评论
 const handleSubmitComment = async (content) => 
 {
+  const msgid='comment:'+content
   try 
   {
        Message.loading({id:msgid,content:'发布评论中...'});
