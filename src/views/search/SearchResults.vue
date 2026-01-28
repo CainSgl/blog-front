@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { IconSearch } from '@arco-design/web-vue/es/icon';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
@@ -165,6 +165,10 @@ const performSearch = async () => {
     } finally {
         loading.value = false;
         loadingMore.value = false;
+        
+        // 确保 DOM 更新后设置 observer
+        await nextTick();
+        setupObserver();
     }
 };
 
@@ -179,6 +183,11 @@ const loadMore = () => {
 
 // 设置 IntersectionObserver
 const setupObserver = () => {
+    // 清理旧的 observer
+    if (observer) {
+        observer.disconnect();
+    }
+
     if (!loadMoreTrigger.value) return;
 
     observer = new IntersectionObserver(
@@ -218,11 +227,6 @@ onMounted(() => {
         loading.value = true;
         performSearch();
     }
-
-    // 延迟设置 observer，确保 DOM 已渲染
-    setTimeout(() => {
-        setupObserver();
-    }, 100);
 });
 
 onUnmounted(() => {

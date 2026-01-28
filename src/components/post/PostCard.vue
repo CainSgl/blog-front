@@ -20,9 +20,9 @@
                 <!-- 置顶标识 -->
                 <span v-if="post.top" class="top-tag">置顶</span>
                 <!-- 标题 -->
-                 
-                <span class="post-title" v-if="inHtlm" v-html="post.title" ></span>
-                <span class="post-title" v-else >{{ post.title }}</span>
+
+                <span class="post-title" v-if="inHtlm" v-html="post.title"></span>
+                <span class="post-title" v-else>{{ post.title }}</span>
               </div>
               <!-- 状态 -->
               <div v-if="showStatus">
@@ -43,7 +43,8 @@
                 摘要里什么都没有
               </div>
             </div>
-            <div class="post-summary" :style="{ WebkitLineClamp: summaryConfig.lines }" v-if="inHtlm" v-html="post.summary">
+            <div class="post-summary" :style="{ WebkitLineClamp: summaryConfig.lines }" v-if="inHtlm"
+              v-html="post.summary">
             </div>
             <div class="post-summary" :style="{ WebkitLineClamp: summaryConfig.lines }" v-else>
               {{ post.summary }}
@@ -75,14 +76,11 @@
                     <span class="stat-item" v-if="post.viewCount !== undefined">
                       <icon-eye size="large" /> {{ post.viewCount }}
                     </span>
-                    <span class="stat-item"  v-if="!onlyFans && post.likeCount !== undefined">
-                      <icon-heart-fill size="large" v-if="!isDisliked && isLiked" :style="{ color: '#ff6699' }" />
-                      <icon-thumb-down-fill size="large" v-else-if="isDisliked" :style="{ color: '#ff6699' }" />
-                      <icon-thumb-up size="large" v-else />
-                      {{ post.likeCount }}
+                    <span class="stat-item" v-if="post.likeCount !== undefined">
+                      <icon-heart size="large" />{{ post.likeCount }}
                     </span>
                     <span class="stat-item" v-if="post.commentCount !== undefined">
-                      <icon-message /> {{ post.commentCount }}
+                      <icon-message size="large" /> {{ post.commentCount }}
                     </span>
                   </a-space>
                 </div>
@@ -109,7 +107,7 @@
 </template>
 
 <script setup>
-import { IconEye, IconThumbUp, IconMessage, IconThumbDownFill, IconHeartFill } from '@arco-design/web-vue/es/icon';
+import { IconEye, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
 import { computed, defineEmits } from 'vue';
 import CImg from '../base/cImg.vue';
 import { formatDate } from '@/utils/DateFormatter.js';
@@ -154,19 +152,19 @@ const isVerticalLayout = computed(() => props.width <= 400);
 // 图片高度（用于垂直布局时计算摘要空间）
 const imageHeight = computed(() => {
   if (!props.post.img) return 0;
-  
+
   if (isVerticalLayout.value) {
     const width = props.width - 40;
     return Math.min(width / 1.5, props.height / 2);
   }
-  
+
   return 0;
 });
 
 // 图片样式
 const imageStyle = computed(() => {
   if (!props.post.img) return {};
-  
+
   if (isVerticalLayout.value) {
     return {
       height: `${imageHeight.value}px`
@@ -189,20 +187,20 @@ const summaryConfig = computed(() => {
   const titleHeight = 36;
   const footerHeight = 70;
   const tagsHeight = (props.post.tags?.length > 0) ? 50 : 10;
-  
+
   let availableHeight = props.height - titleHeight - footerHeight - tagsHeight;
-  
+
   // 垂直布局时需要减去图片高度
   if (props.post.img && isVerticalLayout.value) {
     availableHeight -= imageHeight.value;
   }
-  
+
   if (!props.showBottom) {
     availableHeight += 10;
   }
-  
+
   const lines = Math.floor(availableHeight / lineHeight);
-  
+
   return {
     height: availableHeight,
     lines: Math.max(1, lines),

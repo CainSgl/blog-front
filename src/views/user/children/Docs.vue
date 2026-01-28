@@ -59,11 +59,13 @@ import { useUserStore } from '@/store/user.js';
 
 // 定义排序选项
 const sortOptions = [
+    { label: '最近更新', value: 'updated_at' },
   { label: '最新发布', value: 'published_at' },
   { label: '最多观看', value: 'view_count' },
   { label: '最多点赞', value: 'like_count' }
-];
 
+];
+const sortBy = ref('updated_at'); // 默认按最新发布排序
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
@@ -84,8 +86,7 @@ const fetchUserInfo = async (id) =>
 {
   try 
   {
-    const response = await api.get('/user', { id: id });
-    userInfo.value = response.data;
+    userInfo.value= await userStore.getUserInfo(id)
   }
   catch (err) 
   {
@@ -122,8 +123,6 @@ const getCreateTipText = computed(() =>
 });
 
 // 排序相关数据
-const sortBy = ref('published_at'); // 默认按最新发布排序
-// pageSize 现在由 ContentArea 组件管理，这里只需要保留一个响应式的引用
 const pageSize = ref(10); // 默认值
 
 // 卡片尺寸常量
@@ -200,14 +199,16 @@ const handleSortChangeFromHeader = (value) =>
 
 const handleSearchFromHeader = (value) => 
 {
+  console.log(value)
   currentPage.value = 1;
   total.value = -1;
+    searchValue.value = value;
   if (value && value.trim()) 
   {
     useSearch = true;
     loadPosts(currentPage.value);
   }
-  else 
+  else
   {
     if (useSearch) 
     {
@@ -216,7 +217,7 @@ const handleSearchFromHeader = (value) =>
       loadPosts(currentPage.value);
     }
   }
-  searchValue.value = value;
+
 };
 
 // 处理状态选择变化

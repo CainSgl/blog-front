@@ -52,7 +52,7 @@ const currentUserInfo = ref(null);
 // 容器引用
 const containerRef = ref(null);
 // 卡片高度
-const cardHeight = ref('250px');
+const cardHeight = ref('150px');
 // 置顶文章选择器引用
 const topPostSelectorRef = ref(null);
 // ResizeObserver实例
@@ -63,11 +63,11 @@ const updateCardHeight = (width) =>
 {
   if (width < 400) 
   {
-    cardHeight.value = '450px';
+    cardHeight.value = '300px';
   }
   else 
   {
-    cardHeight.value = '250px';
+    cardHeight.value = '150px';
   }
 };
 

@@ -9,16 +9,29 @@
       />
       <a-empty v-else-if="!loading" description="暂无内容" />
     </a-spin>
+
+    <!-- 向下滑动进度条 -->
+    <ScrollProgressTrigger 
+      ref="progressTriggerRef" 
+      :enabled="!loading && !!content" 
+      direction="down"  
+      progress-tip="向下滑动进入目录"
+      @progress-complete="handleProgressComplete" 
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import MarkdownPreview from '@/components/md/MarkdownPreview.vue';
+import ScrollProgressTrigger from '@/components/about/ScrollProgressTrigger.vue';
 import api from '@/api';
+
+const emit = defineEmits(['enter-directory']);
 
 const content = ref('');
 const loading = ref(false);
+const progressTriggerRef = ref(null);
 
 const fetchContent = async () => {
   loading.value = true;
@@ -32,6 +45,11 @@ const fetchContent = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+// 处理向下进度完成事件
+const handleProgressComplete = () => {
+  emit('enter-directory');
 };
 
 onMounted(() => {

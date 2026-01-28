@@ -13,12 +13,11 @@
         </a-button-group>
         <a-auto-complete v-model="searchValue" :data="displaySearchOptions" :placeholder="searchPlaceholder"
           :style="{ width: searchWidth }" :filter-option="false" @search="handleSearchWrapper"
-          @select="handleSearchSelect" @press-enter="handleSearchEnter" allow-clear>
+          @select="handleSearchSelect" @press-enter="handleSearchEnter" allow-clear :popup-visible="showDropdown">
           <template #prefix>
             <IconSearch />
           </template>
           <template #footer>
-
             <div v-if="isLoading" class="search-footer-loading">
               <div class="loading-container">
                 <a-spin :size="14" />
@@ -42,7 +41,7 @@ import { ref, computed } from 'vue';
 import { IconSearch } from '@arco-design/web-vue/es/icon';
 import { debounce } from 'lodash-es';
 import api from '@/api/index.js';
-
+import { useUserStore } from '@/store/user.js';
 // 接收 props
 const props = defineProps({
   userId: {
@@ -84,12 +83,12 @@ const emit = defineEmits(['sort-change', 'search', 'back']);
 
 // 用户信息
 const userInfo = ref(null);
+const userStore = useUserStore();
 
 // 获取用户信息
 const fetchUserInfo = async (id) => {
   try {
-    const response = await api.get('/user', { id: id });
-    userInfo.value = response.data;
+    userInfo.value= await userStore.getUserInfo(id)
   }
   catch (err) {
     console.error('获取用户信息失败:', err);
@@ -101,11 +100,17 @@ const searchValue = ref('');
 const searchOptions = ref([]);
 const isLoading = ref(false);
 const isEmptyResult = ref(false);
-const sortBy = ref(props.sortOptions[0]?.value || ''); // 默认选择第一个排序选项
+const sortBy = ref(props.sortOptions[0]?.value || 'error'); // 默认选择第一个排序选项
+
+// 控制下拉框显示
+const showDropdown = computed(() => {
+  // 当正在加载、有搜索结果、或显示空结果时，显示下拉框
+  return isLoading.value || searchOptions.value.length > 0 || isEmptyResult.value;
+});
 
 // 计算属性：只显示非特殊状态的搜索选项
 const displaySearchOptions = computed(() => {
-  return searchOptions.value.filter(option => option !== 'loading' && option !== 'empty');
+  return searchOptions.value;
 });
 
 // 初始化用户信息
@@ -113,11 +118,24 @@ fetchUserInfo(props.userId);
 
 // 搜索相关事件处理 - 使用防抖优化性能
 function handleSearchWrapper(value) {
-  isLoading.value = true;
-  isEmptyResult.value = false;
-  searchOptions.value = [''];
+  if (value == '\t搜索中...' || value == '\t没找到任何的结果') {
+    console.log("wrapper",value)
+    return;
+  }
+  if (value.trim()) {
+    isLoading.value = true;
+    isEmptyResult.value = false;
+    searchOptions.value = ['\t搜索中...'];
+  } else {
+    // 清空搜索时重置状态
+    isLoading.value = false;
+    isEmptyResult.value = false;
+    searchOptions.value = [];
+    return;
+  }
   handleSearch(value);
 }
+
 
 const handleSearch = debounce(async (value) => {
   console.log('搜索值:', value);
@@ -129,7 +147,8 @@ const handleSearch = debounce(async (value) => {
         simple: true,
         userId: props.userId,
         sortBy: sortBy.value, // 添加排序字段
-        keyword: value  // 添加搜索关键词
+        keyword: value, // 添加搜索关键词
+        onlyTitle: true,
       };
       const { data } = await api.post(props.apiUrl, params);
       if (data.records.length > 0) {
@@ -137,7 +156,7 @@ const handleSearch = debounce(async (value) => {
         isEmptyResult.value = false;
       }
       else {
-        searchOptions.value = [''];
+        searchOptions.value = ['\t没找到任何的结果'];
         isEmptyResult.value = true;
       }
 
@@ -153,21 +172,30 @@ const handleSearch = debounce(async (value) => {
     isEmptyResult.value = false;
   }
   isLoading.value = false;
-  if (!value) {
-    emit('search', value);
-  }
 
 }, 300);
 
 const handleSearchSelect = (value) => {
+  let valueCache=searchValue.value
+  if (value == '\t搜索中...' || value == '\t没找到任何的结果') {
+    setTimeout(()=>{  searchValue.value = valueCache;},0)
+    return;
+  }
   // 替换搜索框的文字为选中的标题
   searchValue.value = value;
-  emit('search', value);
+
+
+  if (value.trim()) {
+    emit('search', value);
+  }
+
 };
 
-const handleSearchEnter = () => {
-  console.log('搜索:', searchValue.value);
-  emit('search', searchValue.value);
+const handleSearchEnter = (value) => {
+  // 只在有搜索值时才触发搜索
+  if (searchValue.value.trim()) {
+    emit('search', searchValue.value);
+  }
 };
 
 // 处理排序变化

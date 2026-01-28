@@ -30,7 +30,7 @@ const originalContent = ref(''); // 存储原始内容用于比较
 const lastAutoSavedContent = ref(''); // 存储上次自动保存的内容
 const lastAutoSavedTime = ref(0); // 存储上次自动保存的时间戳
 let isAutoSave = false; // 自动保存的定时器（非响应式）
-let diff = 0; // 跟踪内容变化是否达到200字
+let localSaveCount = 0; // 本地保存计数器
 const editorHeight = ref('calc(100vh - 194px)');
 const loading = ref(false); // 控制文章加载时的旋转动画
 
@@ -110,7 +110,7 @@ const savePostContent = async (postId, content, isAuto = false) =>
   {
     Message.loading({
       id: 'saveInfo',
-      content: '正在保存中...',
+      content: isAuto ? '云保存中...' : '正在保存中...',
       duration: 15000
     });
     await api.put('/post', { id: postId, content, auto: isAuto });
@@ -157,7 +157,7 @@ const savePostContent = async (postId, content, isAuto = false) =>
     lastAutoSavedContent.value = textContent.value;
     // 同时更新原始内容，避免出现未保存提醒
     originalContent.value = textContent.value;
-    diff = 0;
+    localSaveCount = 0; // 重置计数器
     return true;
   }
   catch (error) 
@@ -287,15 +287,15 @@ watch(treeData, (newVal) =>
   }
 }, { deep: true });
 
-// 监听文本内容变化，当变化达到200字时设置标志为true
+// 监听文本内容变化，增加本地保存计数
 watch(textContent, (newVal, oldVal) => 
 {
   if (saveLock) 
   {
     return;
   }
-  diff++;
-  diff += Math.abs(newVal.length - oldVal.length);
+  // 每次内容变化，本地保存计数加1
+  localSaveCount++;
 });
 
 // 自动保存定时器引用
@@ -311,15 +311,14 @@ const autoSave = async () =>
 
   isAutoSave = true;
 
-  const currentTime = Date.now();
-  if ((currentTime - lastAutoSavedTime.value > 40000 && diff > 200) || (currentTime - lastAutoSavedTime.value > 10000 && diff > 1000)) 
+  // 当本地保存次数达到10次以上时，才调用API进行云保存
+  if (localSaveCount >= 10) 
   {
     const postId = route.query.p;
     if (postId) 
     {
       // 自动保存
       await savePostContent(postId, textContent.value, true);
-
     }
   }
 
@@ -472,15 +471,52 @@ const loadPostContent = async (postId) =>
   try 
   {
     saveLock = true;
+    
+    // 先检查localStorage中是否有缓存
+    let cachedContent = null;
+    for (let i = 0; ; i++) 
+    {
+      let cacheData = localStorage.getItem(`lastPostContentCache:${i}`);
+      if (!cacheData) break;
+      
+      try 
+      {
+        let parsed = JSON.parse(cacheData);
+        if (parsed.postId == postId) 
+        {
+          cachedContent = parsed;
+          break;
+        }
+      }
+      catch (e) 
+      {
+        console.error('解析缓存数据失败:', e);
+      }
+    }
+    
     const { data } = await api.get('/post/last', { id: postId });
-    textContent.value = data.content || '';
-    originalContent.value = data.content || ''; // 保存原始内容
-    lastAutoSavedContent.value = data.content || ''; // 更新上次自动保存的内容
+    
+    // 如果有缓存且缓存时间比服务器更新时间新，使用缓存内容
+    if (cachedContent && cachedContent.time > data.updatedAt) 
+    {
+      textContent.value = cachedContent.content || '';
+      Message.info({
+        content: '已加载本地缓存内容',
+        duration: 2000
+      });
+    }
+    else 
+    {
+      textContent.value = data.content || '';
+    }
+    
+    originalContent.value = data.content || ''; // 保存原始内容（服务器版本）
+    lastAutoSavedContent.value = textContent.value; // 更新上次自动保存的内容
     saveLock = false;
 
     postInfo.value = data;
     lastAutoSavedTime.value = Date.now(); // 更新上次自动保存的时间
-    diff = 0;
+    localSaveCount = 0; // 重置计数器
   }
   catch (error) 
   {

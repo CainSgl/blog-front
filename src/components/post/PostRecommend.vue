@@ -4,12 +4,12 @@
     <div class="recommend-list">
       <div v-for="(post, index) in recommendList">
         <a-link :href="`/p/${post.id}`" :hoverable="false">
-          <div style="height: 17vw;max-height: 400px; min-height: 200px;" v-if="index <= 6">
-            <PostCardWrapper :key="post.id" :post="post" :height="'100%'" />
+          <div style="width: 100%;;height: 17vw;max-height: 300px; min-height: 200px;" v-if="index <= 6">
+            <PostCardWrapper :key="post.id" :post="post" :height="'100%'"   :width="'100%'"/>
           </div>
           <a-affix  v-else>
-            <div style="height: 17vw;max-height: 500px; min-height: 200px;">
-              <PostCardWrapper :key="post.id" :post="post" :height="'100%'" />
+            <div style="width: 100%;height: 17vw;max-height: 300px; min-height: 200px;">
+              <PostCardWrapper :key="post.id" :post="post" :height="'100%'" :width="'100%'" />
             </div>
           </a-affix>
         </a-link>
@@ -73,6 +73,8 @@ watch(() => props.postId, (newPostId) =>
 <style scoped lang="less">
 .post-recommend {
   padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
 
   .recommend-title {
     font-size: 16px;
@@ -82,6 +84,7 @@ watch(() => props.postId, (newPostId) =>
   }
 
   .recommend-list {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;

@@ -184,7 +184,7 @@ const handleAddComment = async () =>
   {
     const content = newCommentContent.value;
     newCommentContent.value = '';
-    const msgid='paragraph'+postId+":"+dataId
+    const msgid='paragraph'+commentStore.postId+":"+ commentStore.paragrahphId
     Message.loading({id:msgid,content:'发送评论中...'});
     const { data } = await api.post('/comment', { postId: commentStore.postId, version: commentStore.version, dataId: commentStore.paragrahphId, content });
     if (data != 'error') 

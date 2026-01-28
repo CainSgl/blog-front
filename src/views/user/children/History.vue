@@ -42,8 +42,8 @@
                         <span class="browse-count">共查看 {{ item.count }} 次</span>
                         <span class="browse-time">{{ formatDate(item.browseTime) }}</span>
                     </div>
-                    <a-link :hoverable="false" @click.prevent="!isSelectMode && router.push(`/p/${item.postId}`)">
-                        <PostCardWrapper :post="item" :width="'100%'" :height="210" />
+                    <a-link :hoverable="false" :href="isSelectMode?'':`/p/${item.postId}`">
+                        <PostCardWrapper :showStatus="false" :post="item" :width="'100%'" :height="210" />
                     </a-link>
                 </div>
             </div>

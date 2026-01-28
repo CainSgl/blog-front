@@ -1,6 +1,10 @@
 <template>
   <a-layout-header>
-    <div class="header-container" :class="{ 'transparent-background': transparentBackground }">
+    <transition name="header-slide">
+      <div class="header-container" v-show="showHeader" :class="{ 
+        'transparent-background': transparentBackground,
+        'header-fixed': isHeaderFixed&&showHeader
+      }">
       <div class="header-content" :class="{ 'with-padding': padding }"
         :style="{ borderBottom: showBorder ? `1px solid ${borderColor}` : 'none' }">
         <div>
@@ -19,11 +23,6 @@
           <a-link :href="`/about`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/about') }"
             :hoverable="hoverable">
             <span :style="{ color: textColor }">关于</span>
-          </a-link>
-          <a-link href="https://github.com" target="_blank" class="nav-option github-link"
-            :hoverable="hoverable">
-            <icon-github :size="24" class="github-icon"/>
-            <span :style="{ color: textColor }">GitHub</span>
           </a-link>
         </div>
 
@@ -170,7 +169,7 @@
 
       </div>
     </div>
-
+    </transition>
   </a-layout-header>
 </template>
 
@@ -180,9 +179,39 @@ import { storeToRefs } from 'pinia';
 import Avatar from '@/components/user/base/Avatar.vue';
 import SearchBox from '@/components/base/SearchBox.vue';
 import { onMounted, ref, onUnmounted } from 'vue';
-import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory, IconGithub } from '@arco-design/web-vue/es/icon';
+import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory } from '@arco-design/web-vue/es/icon';
 import { useRouter, useRoute } from 'vue-router';
 import { getLoginService, showLoginModal } from '@/services/authService';
+
+// 滚动相关状态
+const showHeader = ref(true); // 控制 header 是否显示
+const isHeaderFixed = ref(false); // 控制是否使用 fixed 定位
+let lastScrollTop = 0;
+const scrollDelta = 5; // 滚动方向判断的最小差值，避免抖动
+
+// 将 scrollThreshold 转换为像素值
+const getScrollThresholdInPixels = () => {
+  const threshold = props.scrollThreshold;
+  
+  // 如果是数字，直接返回
+  if (typeof threshold === 'number') {
+    return threshold;
+  }
+  
+  // 如果是字符串
+  if (typeof threshold === 'string') {
+    // 处理 vh 单位
+    if (threshold.endsWith('vh')) {
+      const vhValue = parseFloat(threshold);
+      return (window.innerHeight * vhValue) / 100;
+    }
+    // 处理 px 单位或纯数字字符串
+    return parseFloat(threshold);
+  }
+  
+  // 默认值
+  return 400;
+};
 
 // 定义组件属性
 const props = defineProps({
@@ -213,6 +242,10 @@ const props = defineProps({
   padding: {
     type: Boolean,
     default: false
+  },
+  scrollThreshold: {
+    type: [String, Number],
+    default: '400px' // 支持 '400px', '50vh', 400 等格式
   }
 });
 
@@ -229,12 +262,42 @@ const handleResize = () => {
   isSmallScreen.value = window.innerWidth < 768;
 };
 
+// 处理滚动事件
+const handleScroll = () => {
+  const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const threshold = getScrollThresholdInPixels();
+  const scrollDiff = currentScrollTop - lastScrollTop;
+  
+  // 滚动位置低于阈值时，使用原来的定位，始终显示
+  if (currentScrollTop <= threshold) {
+    isHeaderFixed.value = false;
+    showHeader.value = true;
+  } else {
+    // 滚动位置超过阈值时，切换为 fixed 定位
+    isHeaderFixed.value = true;
+    
+    // 根据滚动方向控制显示/隐藏
+    if (scrollDiff > scrollDelta) {
+      // 向下滚动 - 隐藏 header
+      showHeader.value = false;
+    } else if (scrollDiff < -scrollDelta) {
+      // 向上滚动 - 显示 header
+      showHeader.value = true;
+    }
+    // 如果滚动差值在 [-scrollDelta, scrollDelta] 之间，保持当前状态不变
+  }
+  
+  lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
+};
+
 onMounted(() => {
   window.addEventListener('resize', handleResize);
+  window.addEventListener('scroll', handleScroll, { passive: true });
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
+  window.removeEventListener('scroll', handleScroll);
 });
 
 // 判断当前路由是否与给定路径匹配
@@ -274,7 +337,6 @@ onMounted(async () => {
 .header {
   width: 100%;
   height: @header-height;
-
 }
 
 @header-height: 64px;
@@ -292,6 +354,12 @@ onMounted(async () => {
   max-width: 100vw;
   box-sizing: border-box;
   border-bottom: 1px solid @color-border-1;
+  transition: transform 0.3s ease;
+
+  &.header-fixed {
+    position: fixed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 
   &.transparent-background {
     background-color: rgba(255, 255, 255, 0.9);
@@ -313,6 +381,22 @@ onMounted(async () => {
   }
 }
 
+// Header 滑动动画
+.header-slide-enter-active,
+.header-slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.header-slide-enter-from,
+.header-slide-leave-to {
+  transform: translateY(-110%);
+}
+
+.header-slide-enter-to,
+.header-slide-leave-from {
+  transform: translateY(0);
+}
+
 .header-content {
   display: flex;
   align-items: center;
@@ -331,8 +415,8 @@ onMounted(async () => {
 
   .search-section {
     flex: 1 1 auto;
-  
     margin: 0 20px;
+    min-width: 0;
 
     .search-input {
       width: 100%;
@@ -343,6 +427,7 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-shrink: 0;
   }
 
   .user-actions {
@@ -372,14 +457,26 @@ onMounted(async () => {
         white-space: nowrap;
       }
     }
-  }
 
-  @media (max-width: 768px) {
-    .user-actions {
+    // 在宽度小于900px时隐藏知识库和文档
+    @media (max-width: 899px) and (min-width: 769px) {
+      .action-item:nth-child(4),
+      .action-item:nth-child(5) {
+        display: none;
+      }
+    }
+
+    // 在宽度小于820px时隐藏收藏
+    @media (max-width: 819px) and (min-width: 769px) {
+      .action-item:nth-child(2) {
+        display: none;
+      }
+    }
+
+    // 在768px以下，显示所有操作项
+    @media (max-width: 768px) {
       .action-item {
-        .action-text {
-          display: none;
-        }
+        display: flex !important;
       }
     }
   }
@@ -389,6 +486,98 @@ onMounted(async () => {
 
     .avatar-trigger {
       cursor: pointer;
+    }
+  }
+
+  // 平板端 (768px - 1024px)
+  @media (max-width: 1024px) {
+    padding: 0 16px;
+
+    &.with-padding {
+      padding: 0 24px;
+    }
+
+    .search-section {
+      margin: 0 12px;
+    }
+
+    .right-section {
+      gap: 12px;
+    }
+
+    .user-actions {
+      gap: 8px;
+
+      .action-item {
+        padding: 6px;
+        
+        .action-text {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // 手机端 (小于 768px)
+  @media (max-width: 768px) {
+    padding: 0 12px;
+
+    &.with-padding {
+      padding: 0 16px;
+    }
+
+    // 完全隐藏搜索框
+    .search-section {
+      display: none;
+    }
+
+    .right-section {
+      gap: 8px;
+    }
+
+    .user-actions {
+      gap: 4px;
+
+      .action-item {
+        padding: 4px;
+        
+        .action-text {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // 小手机端 (小于 480px)
+  @media (max-width: 480px) {
+    padding: 0 8px;
+
+    &.with-padding {
+      padding: 0 12px;
+    }
+
+    .right-section {
+      gap: 4px;
+    }
+
+    .user-actions {
+      gap: 2px;
+
+      // 只显示部分重要功能
+      .action-item {
+        padding: 4px;
+
+        &:nth-child(n+3) {
+          display: none;
+        }
+      }
+    }
+
+    .avatar-section {
+      :deep(.avatar-trigger) {
+        width: 32px !important;
+        height: 32px !important;
+      }
     }
   }
 }
@@ -512,6 +701,47 @@ onMounted(async () => {
 
   &:hover {
     color: @color-text-1;
+  }
+
+  // 在宽度小于1240px时隐藏博客和知识库
+  @media (max-width: 1239px) and (min-width: 769px) {
+    &:nth-child(2),
+    &:nth-child(3) {
+      display: none;
+    }
+  }
+
+  // 在宽度小于820px时隐藏关于
+  @media (max-width: 819px) and (min-width: 769px) {
+    &:nth-child(4) {
+      display: none;
+    }
+  }
+
+  // 在768px以下，显示所有导航项
+  @media (max-width: 768px) {
+    display: inline-flex !important;
+  }
+
+  // 平板端优化
+  @media (max-width: 1024px) {
+    margin: 0 8px;
+    padding: 8px 12px;
+    font-size: 15px;
+  }
+
+  // 手机端优化
+  @media (max-width: 768px) {
+    margin: 0 4px;
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  // 小手机端优化
+  @media (max-width: 480px) {
+    margin: 0 2px;
+    padding: 4px 6px;
+    font-size: 13px;
   }
 }
 

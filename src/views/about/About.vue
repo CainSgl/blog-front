@@ -18,7 +18,7 @@
           <div v-if="loading" class="loading-container">
             <a-spin size="large" tip="加载中..." />
           </div>
-          <WelcomeView v-else-if="currentView === 'welcome'" />
+          <WelcomeView v-else-if="currentView === 'welcome'" @enter-directory="handleEnterDirectory" />
           <ArticleView v-else-if="currentView === 'article'" :node="currentNode"
             @scroll-to-bottom="handleScrollToBottom" @scroll-to-top="handleScrollToTop" />
           <DirView v-else-if="currentView === 'dir'" :node="currentNode" :has-previous="hasPreviousNode"
@@ -321,6 +321,27 @@ const handleDirItemClick = (item) => {
   // sidebar 会通过 node-select 事件通知回来，然后再修改路由
   if (sidebarRef.value && item.id) {
     sidebarRef.value.selectNodeById(item.id);
+  }
+};
+
+// 处理从欢迎页进入目录
+const handleEnterDirectory = () => {
+  if (!sidebarRef.value) {
+    return;
+  }
+
+  // 从 sidebar 组件获取树形数据
+  const rawTreeData = sidebarRef.value.rawTreeData;
+
+  if (!rawTreeData || rawTreeData.length === 0) {
+    console.warn('无法获取树形数据');
+    return;
+  }
+
+  // 选中第一个节点
+  const firstNode = rawTreeData[0];
+  if (firstNode) {
+    sidebarRef.value.selectNodeById(firstNode.id);
   }
 };
 

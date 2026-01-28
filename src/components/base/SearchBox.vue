@@ -37,8 +37,8 @@
         <icon-search class="search-icon" />
 
         <!-- 输入框 -->
-        <input 
-          v-model="searchQuery"
+          <input 
+            v-model="searchQuery"
           type="text"
           class="search-input"
           :placeholder="inputPlaceholder"
@@ -91,11 +91,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { IconSearch, IconClose, IconDown } from '@arco-design/web-vue/es/icon';
 import { useAuthStore } from '@/store/auth';
 import { Message } from '@arco-design/web-vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 // Props
 const props = defineProps({
@@ -120,6 +120,23 @@ const isLoggedIn = computed(() => authStore.checkLogin());
 
 // 路由
 const router = useRouter();
+const route = useRoute();
+
+// 从 URL 初始化搜索参数
+onMounted(() => {
+  if (route.query.query) {
+    searchQuery.value = route.query.query;
+  }
+  if (route.query.mode) {
+    searchMode.value = route.query.mode;
+  }
+  if (route.query.filters) {
+    const urlFilters = route.query.filters.split(',');
+    filters.value.forEach(filter => {
+      filter.checked = urlFilters.includes(filter.value);
+    });
+  }
+});
 
 // 搜索模式配置
 const searchModes = [
@@ -236,8 +253,8 @@ const handleSearch = () => {
     ? filters.value.filter(f => f.checked).map(f => f.value)
     : [];
 
-  // 跳转到搜索页面
-  router.push({
+  // 构建搜索 URL
+  const searchUrl = router.resolve({
     path: '/search',
     query: {
       mode: searchMode.value,
@@ -245,6 +262,9 @@ const handleSearch = () => {
       filters: activeFilters.join(',')
     }
   });
+
+  // 在新窗口打开搜索结果
+  window.open(searchUrl.href, '_blank');
 };
 </script>
 
@@ -294,17 +314,20 @@ const handleSearch = () => {
 
 /* Mini 模式下的搜索框样式 */
 .search-container:has(.search-mode-dropdown.mini) .search-box {
-  
-  border:1px solid rgba(0, 0, 0, 0.151);
-  box-shadow: none;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.98);
 
   &:hover {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.18);
   }
 
   &.focused {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.18);
   }
 }
 
@@ -341,8 +364,14 @@ const handleSearch = () => {
 
   /* Mini 模式样式 */
   &.mini {
-    padding: 6px 10px;
-    gap: 4px;
+    padding: 4px 8px;
+    gap: 3px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.02);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
 
     .mode-text {
       font-size: 12px;
@@ -466,10 +495,30 @@ const handleSearch = () => {
 
 /* Mini 模式下的搜索按钮 */
 .search-container:has(.search-mode-dropdown.mini) .search-btn {
-  height: 28px;
-  min-width: 50px;
+  height: 30px;
+  min-width: 56px;
   border-radius: 6px;
   font-size: 13px;
+  font-weight: 500;
+  padding: 0 14px;
+}
+
+/* Mini 模式下的分隔线 */
+.search-container:has(.search-mode-dropdown.mini) .divider {
+  height: 20px;
+  margin: 0 6px;
+}
+
+/* Mini 模式下的搜索图标 */
+.search-container:has(.search-mode-dropdown.mini) .search-icon {
+  font-size: 16px;
+  margin-left: 6px;
+}
+
+/* Mini 模式下的输入框 */
+.search-container:has(.search-mode-dropdown.mini) .search-input {
+  font-size: 14px;
+  padding: 0 10px;
 }
 
 /* 搜索过滤选项 - 使用 Arco Button */

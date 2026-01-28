@@ -6,7 +6,9 @@
           <div class="list">
             <slot :pageSize="pageSize" :containerWidth="containerWidth" :containerHeight="containerHeight"></slot>
           </div>
-          <slot v-if="$slots.empty && listData.length === 0 && !loading" name="empty"></slot>
+          <div v-if="$slots.empty && listData.length === 0 && !loading" class="empty-container">
+            <slot name="empty"></slot>
+          </div>
           <div v-else-if="listData.length === 0 && loading" :style="{ height: emptyHeight, width: emptyWidth }"></div>
         </div>
       </a-spin>
@@ -189,6 +191,14 @@ onUnmounted(() =>
     justify-content: flex-start;
     padding: 16px 0;
     align-items: flex-start;
+  }
+
+  .empty-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
   }
 }
 

@@ -5,10 +5,7 @@
     <HomeHeader />
 
     <div class="container">
-      <!-- 左侧目录区域 -->
-      <div class="left-sidebar">
-       
-      </div>
+   
 
       <!-- 中间区域：主内容 + 公告 -->
       <div class="center-wrapper">
@@ -219,33 +216,7 @@ const updateScreenSize = () => {
   width: 100%;
 }
 
-// 左侧目录区域
-.left-sidebar {
-  width: 280px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 80px;
-  align-self: flex-start;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #c9cdd4;
-    border-radius: 3px;
-
-    &:hover {
-      background: #a9aeb8;
-    }
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-}
 
 // 中间区域包装器：包含主内容和公告
 .center-wrapper {

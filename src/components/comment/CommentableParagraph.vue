@@ -185,6 +185,7 @@ onUnmounted(() =>
 }
 
 .comment-button {
+  z-index: 10000;
   position: absolute;
   display: flex;
   align-items: center;

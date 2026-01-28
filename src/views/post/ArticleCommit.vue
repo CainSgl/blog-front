@@ -85,7 +85,6 @@
 
                                 <a-form-item label="可见性" required>
                                     <a-select v-model="articleForm.status" placeholder="请选择文章状态">
-                                        <a-option value="草稿">私密</a-option>
                                         <a-option value="已发布">公开</a-option>
                                         <a-option value="仅粉丝">仅粉丝</a-option>
                                     </a-select>
@@ -398,13 +397,12 @@ const publishArticle = async () =>
       id: articleForm.value.id,
       title: articleForm.value.title,
       summary: articleForm.value.summary,
-      status: articleForm.value.status,
       isTop: articleForm.value.top,
       tags: articleForm.value.tags,
       img: articleForm.value.img,
     });
     // 然后发布文章
-    await api.post('/post/publish', { id: articleForm.value.id });
+    await api.post('/post/publish', { id: articleForm.value.id ,status:articleForm.value.status});
     // 发布成功提示
     Message.success('文章发布成功！');
     // 跳转到文章列表页

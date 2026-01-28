@@ -7,7 +7,7 @@
         <div v-show="isExpanded" class="post-actions-panel">
             <div class="action-item" @click="handleLike">
                 <a-tooltip content="点赞" position="right">
-                    <div class="action-button" :class="{ 'liked': isLiked }">
+                    <div class="action-button like-button" :class="{ 'liked': isLiked }">
                         <icon-heart-fill v-if="isLiked" :style="{ fontSize: '24px' }" />
                         <icon-heart v-else :style="{ fontSize: '24px' }" />
                         <span class="action-count">{{ formatCount(likeCount) }}</span>
@@ -17,7 +17,7 @@
 
             <div class="action-item" @click="handleFavorite">
                 <a-tooltip content="收藏" position="right">
-                    <div class="action-button" :class="{ 'favorited': isFavorited }">
+                    <div class="action-button favorite-button" :class="{ 'favorited': isFavorited }">
                         <icon-star-fill v-if="isFavorited" :style="{ fontSize: '24px' }" />
                         <icon-star v-else :style="{ fontSize: '24px' }" />
                           <span class="action-count" >{{ formatCount(starCount) }}</span>
@@ -27,7 +27,7 @@
 
             <div class="action-item" @click="handleComment">
                 <a-tooltip content="评论" position="right">
-                    <div class="action-button">
+                    <div class="action-button comment-button">
                         <icon-message :style="{ fontSize: '24px' }" />
                         <span class="action-count" >{{ formatCount(commentCount) }}</span>
                     </div>
@@ -36,7 +36,7 @@
 
             <div class="action-item" @click="handleReport">
                 <a-tooltip content="举报" position="right">
-                    <div class="action-button">
+                    <div class="action-button report-button">
                         <icon-exclamation-circle :style="{ fontSize: '24px' }" />
                     </div>
                 </a-tooltip>
@@ -88,6 +88,9 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    authorId:{
+        type:String
+    }
 });
 
 const emit = defineEmits(['like', 'favorite', 'comment', 'report']);
@@ -119,7 +122,7 @@ const handleLike = async () => {
             id: id, 
             content: '加载中...' 
         });
-        await api.get('/post/op/like', { id: props.postId, add: !props.isLiked });
+        await api.get('/post/op/like', { id: props.postId, add: !props.isLiked,authorId:props.authorId});
         Message.success({ 
             id: id, 
             content: props.isLiked ? '已取消点赞' : '点赞成功' 
@@ -241,8 +244,12 @@ const handleReport = () => {
     color: var(--color-text-2);
     transition: color 0.3s ease;
 
-    &:hover {
-        color: rgb(var(--primary-6));
+    &.like-button:hover {
+        color: rgb(var(--primary-4));
+    }
+
+    &.favorite-button:hover {
+        color: rgb(var(--warning-6));
     }
 
     &.liked {

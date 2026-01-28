@@ -1,24 +1,16 @@
 <template>
-  <div style="display: flex;">
-    <!-- 左侧固定交互组件 -->
-    <PostActions 
-      v-if="post"
-      :postId="post.id"
-      :likeCount="post.likeCount"
-      :commentCount="post?.commentCount"
-      :isLiked="isLiked"
-      :isFavorited="isFavorited"
-      :starCount="post?.starCount"
-      @like="handleLike"
-      @comment="scrollToComments"
-      @favorite="handleFavoriteSuccess"
-      @report="handleReport"
-    />
-    
-    <div>
-      <div style="display: flex;">
+  <div>
+  <Header></Header>
+  <div class="header-container"></div>
+      <!-- 左侧固定交互组件 -->
+    <PostActions v-if="post" :postId="post.id" :likeCount="post.likeCount" :commentCount="post?.commentCount"
+      :isLiked="isLiked" :isFavorited="isFavorited" :starCount="post?.starCount" @like="handleLike"
+      @comment="scrollToComments" @favorite="handleFavoriteSuccess" @report="handleReport" :authorId="post.userId" />
+  <div class="main-layout">
+    <div class="content-wrapper">
+      <div class="left-content">
         <div class="post-sidebar" v-if="showMoreInfo">
-          <div :style="{ height: placeholderHeight + 'px' }"></div>
+          <div :style="{ height: placeholderHeight-60 + 'px' }"></div>
           <PostHistroy :postId="post?.id" @history-item-click="handleHistoryClick" :post="post" />
           <div></div>
         </div>
@@ -69,18 +61,20 @@
 
         </div>
       </div>
-      <div :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
+      <div class="comment-section" :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
         <a-divider dashed ref="commentDividerRef" />
         <CommentList :version="version" :postId="post?.id" :postCount="post?.commentCount" />
       </div>
     </div>
 
     <div class="post-right-sidebar" v-if="showMoreInfo">
-      <div :style="{ height: placeholderHeight / 3 + 'px' }"></div>
+      <div :style="{ height: (placeholderHeight)/2 + 'px' }"></div>
       <!-- 展示知识库 -->
       <PostRecommend :postId="post?.id" />
     </div>
   </div>
+  </div>
+ 
 
   <CodeLoader v-if="codeLoader > 0"></CodeLoader>
 </template>
@@ -100,6 +94,8 @@ import { useCommentStore } from '@/components/comment/commentStore.js';
 import CodeLoader from '@/components/base/CodeLoader.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
 import PostActions from '@/components/post/PostActions.vue';
+import Header from '../../components/layout/Header.vue';
+
 const userStore = useUserStore();
 const commentStore = useCommentStore();
 
@@ -120,31 +116,25 @@ const isLiked = ref(false);
 let originContent;
 let orginCommentCountData;
 let summaryCache;
-function getSummrayElment(summary) 
-{
-  if (summaryCache) 
-  {
+function getSummrayElment(summary) {
+  if (summaryCache) {
     return summaryCache;
   }
-  if (!summary) 
-  {
+  if (!summary) {
     summary = '这个人没有设置任何摘要哦';
   }
   summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>`;
   return summaryCache;
 }
-const loadPostContent = async (postId) => 
-{
+const loadPostContent = async (postId) => {
   codeLoader.value++;
 
-  try 
-  {
+  try {
     const { data } = await api.get('/post', { id: postId });
     codeLoader.value--;
     //获取评论数据
     version.value = data.version;
-    commentStore.getParagraphCommentCountByPost(postId, data.version).then(countMap => 
-    {
+    commentStore.getParagraphCommentCountByPost(postId, data.version).then(countMap => {
       orginCommentCountData = {
         postId: postId,
         version: data.version,
@@ -152,46 +142,40 @@ const loadPostContent = async (postId) =>
       };
     });
     post.value = data;
-    
+
     // 从 operate 字段中获取点赞和收藏状态
     if (data.operate) {
       // 兼容两种数据格式：字符串数组或对象数组
-      isLiked.value = data.operate.some(op => 
+      isLiked.value = data.operate.some(op =>
         typeof op === 'string' ? op === '点赞' : op.type === '点赞'
       );
-      isFavorited.value = data.operate.some(op => 
+      isFavorited.value = data.operate.some(op =>
         typeof op === 'string' ? op === '收藏文章' : op.type === '收藏文章'
       );
-    } 
+    }
     console.log('operate数据:', data.operate, '点赞状态:', isLiked.value, '收藏状态:', isFavorited.value)
     post.value.content = getSummrayElment(data.summary) + '\n' + data.content;
     originContent = post.value.content;
 
-    if (data.userId) 
-    {
+    if (data.userId) {
       author.value = await userStore.getUserInfo(data.userId);
     }
   }
-  catch (error) 
-  {
+  catch (error) {
     console.error('加载文章内容失败:', error);
     codeLoader.value--;
   }
-  finally 
-  {
+  finally {
 
   }
   placeholderHeight.value = getBestReadingTop();
 };
 
-async function handleHistoryClick(item) 
-{
+async function handleHistoryClick(item) {
   Message.loading({ id: 'loadingHistory', content: '正在加载文章历史版本...', duration: 10000 });
   version.value = item.version;
-  try 
-  {
-    if (item.publishVersion) 
-    {
+  try {
+    if (item.publishVersion) {
       commentStore.getParagraphCommentCountByPost(orginCommentCountData.postId, orginCommentCountData.version, orginCommentCountData.countMap);
       post.value.content = originContent;
       Message.success({ id: 'loadingHistory', content: '已恢复到原始版本', duration: 500 });
@@ -204,8 +188,7 @@ async function handleHistoryClick(item)
     post.value.content = data;
     Message.success({ id: 'loadingHistory', content: '文章历史版本加载成功', duration: 500 });
   }
-  catch (error) 
-  {
+  catch (error) {
     console.error('加载文章历史版本失败:', error);
     Message.error({ id: 'loadingHistory', content: '加载文章历史版本失败', duration: 500 });
   }
@@ -213,8 +196,7 @@ async function handleHistoryClick(item)
 }
 
 // 格式化日期
-const formatDate = (dateString) => 
-{
+const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
@@ -226,15 +208,11 @@ const formatDate = (dateString) =>
 };
 
 // 节流函数，减少事件触发频率
-const throttle = (func, delay) => 
-{
+const throttle = (func, delay) => {
   let timer = null;
-  return function (...args) 
-  {
-    if (!timer) 
-    {
-      timer = setTimeout(() => 
-      {
+  return function (...args) {
+    if (!timer) {
+      timer = setTimeout(() => {
         func.apply(this, args);
         timer = null;
       }, delay);
@@ -245,24 +223,20 @@ const containerRef = ref(null);
 const commentDividerRef = ref(null);
 const notBestReading = ref(false);
 let firstDivider;
-const getBestReadingTop = () => 
-{
-  if (firstDivider) 
-  {
+const getBestReadingTop = () => {
+  if (firstDivider) {
     const rect = firstDivider.getBoundingClientRect();
     return window.pageYOffset + rect.top;
   }
   const dividers = containerRef.value?.querySelectorAll('.arco-divider') || [];
   firstDivider = dividers.length > 0 ? dividers[0] : null;
-  if (firstDivider) 
-  {
+  if (firstDivider) {
     const rect = firstDivider.getBoundingClientRect();
     return window.pageYOffset + rect.top;
   }
   return 113;
 };
-function handleFullScreenClick() 
-{
+function handleFullScreenClick() {
   notBestReading.value = false;
   console.log('滑动到', getBestReadingTop());
   window.scrollTo({
@@ -272,20 +246,16 @@ function handleFullScreenClick()
 }
 
 // 处理内容滚动事件
-const handleContentScroll = throttle((event) => 
-{
-  if (codeLoader.value > 0 || !author.value) 
-  {
+const handleContentScroll = throttle((event) => {
+  if (codeLoader.value > 0 || !author.value) {
     return;
   }
 
   const currentBestReadingTop = getBestReadingTop();
-  if (window.scrollY < currentBestReadingTop + 5 && window.scrollY > currentBestReadingTop - 5) 
-  {
+  if (window.scrollY < currentBestReadingTop + 5 && window.scrollY > currentBestReadingTop - 5) {
     notBestReading.value = false;
   }
-  else 
-  {
+  else {
     notBestReading.value = true;
   }
   const contentElement = event.target;
@@ -293,11 +263,9 @@ const handleContentScroll = throttle((event) =>
   // 判断滚动方向
   const isScrollingDown = scrollTop > lastScrollTop.value;
   // 如果是向下滚动
-  if (isScrollingDown) 
-  {
+  if (isScrollingDown) {
     // 计算本次滚动的距离
-    if (window.scrollY < currentBestReadingTop - 5) 
-    {
+    if (window.scrollY < currentBestReadingTop - 5) {
       window.scrollTo({
         top: currentBestReadingTop,
         behavior: 'smooth'
@@ -308,10 +276,8 @@ const handleContentScroll = throttle((event) =>
 }, 50);
 
 // 滚动到评论区
-const scrollToComments = () => 
-{
-  if (commentDividerRef.value) 
-  {
+const scrollToComments = () => {
+  if (commentDividerRef.value) {
     const element = commentDividerRef.value.$el || commentDividerRef.value;
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -319,8 +285,8 @@ const scrollToComments = () =>
 
 
 
-const handleLike=(b)=>{
-  isLiked.value=b;
+const handleLike = (b) => {
+  isLiked.value = b;
   // 更新本地点赞数
   if (post.value) {
     post.value.likeCount = b ? post.value.likeCount + 1 : post.value.likeCount - 1;
@@ -328,8 +294,7 @@ const handleLike=(b)=>{
 }
 
 // 收藏成功处理
-const handleFavoriteSuccess = (b) => 
-{
+const handleFavoriteSuccess = (b) => {
   isFavorited.value = b;
   // 更新本地收藏数
   if (post.value) {
@@ -338,18 +303,15 @@ const handleFavoriteSuccess = (b) =>
 };
 
 // 举报处理（后续实现）
-const handleReport = () => 
-{
+const handleReport = () => {
   Message.info('举报功能待实现');
 };
 
 // 组件挂载时的逻辑
-onMounted(() => 
-{
+onMounted(() => {
   const postId = route.params.id;
   placeholderHeight.value = getBestReadingTop();
-  if (postId) 
-  {
+  if (postId) {
     loadPostContent(postId);
   }
 });
@@ -362,39 +324,58 @@ onMounted(() =>
   left: 20px;
 }
 
+.main-layout {
+  display: flex;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.content-wrapper {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.left-content {
+  display: flex;
+  max-width: 100%;
+}
+
+.comment-section {
+  max-width: 100%;
+  padding-right: 30px;
+  box-sizing: border-box;
+}
+
 .post-sidebar {
+  margin-left: 200px;
   padding: 0px 20px 20px 20px;
-  width: 20dvw;
+  width: 200px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+
   @media screen and (max-width: 1400px) {
-    padding: 0px;
-    width: 20dvw;
+    margin-left: 20px;
+    padding: 0px 10px;
+    width: 180px;
   }
 
   @media screen and (max-width: 768px) {
-    max-width: 0;
-    width: 0vw;
+     margin-left: 10px;
     display: none;
   }
 }
 
 .post-right-sidebar {
-  margin-left: auto;
-  width: 20dvw;
-  max-width: 360px;
+  width: 280px;
+  flex-shrink: 0;
 
-  @media screen and (max-width: 768px) {
-    min-width: 0;
-    width: 0vw;
-    display: none;
-  }
+  box-sizing: border-box;
 
-  @media screen and (max-width: 1000px) {
-    /* 当 20vw < 200px 时隐藏侧边栏 */
-    min-width: 0;
-    width: 0vw;
+  @media screen and (max-width: 1200px) {
     display: none;
   }
 }
@@ -402,8 +383,10 @@ onMounted(() =>
 .post-container {
   box-sizing: border-box;
   scrollbar-width: none;
-  width: 60dvw;
-
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  
   &::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
@@ -412,19 +395,14 @@ onMounted(() =>
 
   padding: 20px;
   overflow-y: auto;
+
   @media screen and (max-width: 1400px) {
-    padding: 0px;
-    width: calc(70dvw  - 200px);
-    margin-right: 0vw;
-  }
-  @media screen and (max-width: 768px) {
-    padding: 0px;
-    width: 100dvw;
-    margin-right: 0vw;
+    padding: 10px;
   }
 
-  @media screen and (max-width: 1000px) {
-    width: 70dvw;
+  @media screen and (max-width: 768px) {
+    padding: 10px;
+    width: 100%;
   }
 }
 

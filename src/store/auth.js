@@ -33,6 +33,10 @@ export const useAuthStore = defineStore('auth', () =>
       });
       //如果没抛出异常，代码肯定是执行到这里了，继续执行
       console.log(res);
+      if(!res.data.userInfo)
+      {
+        throw res.data
+      }
       userStore.setUserInfo(res.data.userInfo);
       userStore.setToken(res.data.token);
     }

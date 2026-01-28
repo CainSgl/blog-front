@@ -1,7 +1,7 @@
 <template>
   <div class="home-container">
     <!-- 使用 Header 组件 -->
-    <Header transparent-background :show-border="true" :showSearch="false" :padding="false" />
+    <Header transparent-background :show-border="true" :showSearch="false" :padding="false" :scrollThreshold="'120vh'" />
 
     <!-- 背景图片设置为绝对定位 -->
     <div class="background-container" :style="{ opacity: backgroundOpacity, transform: `translateX(-50%) scale(${backgroundScale})` }">

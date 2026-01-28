@@ -1,7 +1,7 @@
 <template>
 
   <div ref="previewContainerRef" class="cainsgl-markdown-preview">
-
+    
     <div ref="previewContentRef"  class="cainsgl-preview-content"
       v-html="renderedMarkdown" />
       <div v-if="!renderedMarkdown&&content">
@@ -315,8 +315,10 @@ const renderedMarkdown = computed(() =>
   // 每次渲染前重置段落ID计数器和标题ID计数器
   paragraphIdCounter = 0;
   usedHeadingIds.clear();
+  const preFix=`<div></div>`
+  const reallyContent=preFix+props.content
 
-  const rawHtml = marked(props.content);
+  const rawHtml = marked(reallyContent);
   const clean = DOMPurify.sanitize(rawHtml, {
     ADD_ATTR: ['target']
   });
@@ -502,8 +504,6 @@ const addVisualHighlight = (element) =>
   }, 3000);
 };
 
-// 添加滚动状态标志
-let isScrollingToElement = false; // 标记是否正在滚动到元素（由程序触发，而非用户手动滚动）
 
 // 滚动监听函数，检测当前可视区域的标题元素
 const handleScroll = () => 

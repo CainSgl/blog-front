@@ -51,6 +51,7 @@ export const useUserStore = defineStore('user', () =>
   // 获取用户信息
   let userInfoPromise = null;
   const userInfoPromises = new Map(); // 为不同ID的用户信息请求创建Promise缓存
+  const userInfoCache = new Map(); // 存储已获取的用户数据
 
   // 检查缓存是否过期（3天 = 3 * 24 * 60 * 60 * 1000 毫秒）
   const isCacheExpired = (timestamp) => 
@@ -63,22 +64,34 @@ export const useUserStore = defineStore('user', () =>
   {
     if (id) 
     {
+      
+      // 先检查数据缓存中是否已有该用户信息
+      if (userInfoCache.has(id)) 
+      {
+        return userInfoCache.get(id);
+      }
+      
       // 如果已经有相同ID的请求在进行中，直接返回同一个Promise
       if (userInfoPromises.has(id)) 
       {
         return userInfoPromises.get(id);
       }
-
+      
       // 创建一个新的请求 Promise 并缓存它
-      const promise = api
-        .get('/user', { id: id })
+      const promise = api.get('/user', { id: id })
         .then((response) => 
         {
+          // 将用户数据存储到缓存中
+          userInfoCache.set(id, response.data);
+          // 请求完成后清理Promise缓存
+          userInfoPromises.delete(id);
           return response.data;
         })
         .catch((error) => 
         {
           console.error('获取用户信息失败:', error);
+          // 请求失败后也要清理缓存，允许重试
+          userInfoPromises.delete(id);
           return {};
         });
 
@@ -139,6 +152,8 @@ export const useUserStore = defineStore('user', () =>
               timestamp: Date.now(),
             };
             localStorage.setItem('userInfo', JSON.stringify(cacheData));
+            // 请求完成后清理Promise缓存
+            userInfoPromise = null;
             return response.data;
           })
           .catch((error) => 

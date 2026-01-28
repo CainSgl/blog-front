@@ -133,19 +133,7 @@ const handleLogin = async () =>
   }
   catch(error)
   {
-    // 显示具体的错误信息给用户
-    if (error && error.message) 
-    {
-      loginError.value = error.message;
-    }
-    else if (error && error.data && error.data.msg) 
-    {
-      loginError.value = error.data.msg;
-    }
-    else 
-    {
-      loginError.value = '登录失败，请稍后重试';
-    }
+    loginError.value = error;
     console.log('登录失败:', error);
   }
 };
