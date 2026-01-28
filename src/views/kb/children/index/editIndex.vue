@@ -42,7 +42,7 @@
 
               <!-- 公开开关 -->
               <a-form-item label="是否公开">
-                <a-switch v-model="kbInfo.status" checked-value="已发布" unchecked-value="草稿" />
+                <a-switch v-model="kbInfo.status" checked-text="公开" unchecked-text="私密" />
               </a-form-item>
 
               <!-- 封面上传 -->

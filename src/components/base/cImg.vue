@@ -65,9 +65,7 @@ defineOptions({
 
 <style scoped>
 .c-img {
-  /* 固定默认尺寸，可以通过 props 或 class 覆盖 */
-  width: 100%;
-  height: 100%; 
+  display: inline-block;
 }
 
 .c-img :deep(.arco-image-img) {

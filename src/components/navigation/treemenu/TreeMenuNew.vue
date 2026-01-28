@@ -461,8 +461,8 @@ const actionHandlers = {
       if (data > 0) 
       {
         const message = node.postId 
-          ? `${node.name}将移入游离文档列表，若需要完全删除，请在个人空间操作。`
-          : `${node.name}目录下的${data}个文章已自动移入游离文档列表，可在个人空间查看。`;
+          ? `${node.name}将移入回收站，若需要完全删除，请在个人空间操作。`
+          : `${node.name}目录下的${data}个文章已自动移入回收站列表，可在个人空间查看。`;
         Message[node.postId ? 'success' : 'warning'](message);
       }
       

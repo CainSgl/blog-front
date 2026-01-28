@@ -1,5 +1,5 @@
 <template>
-    <a-link :hoverable="false" :href="kbInfo.id?`/kb?kb=${kbInfo.id}`:undefined" class="kb-card" target="_ablank">
+    <a-link :hoverable="false" :href="kbInfo.id&&useLink?`/kb?kb=${kbInfo.id}`:undefined" class="kb-card" target="_ablank">
         <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }" 
             v-if="kbInfo.id">
             <!-- 封面图片 -->
@@ -63,6 +63,10 @@ const props = defineProps({
       coverUrl: '',
       postCount: 0
     })
+  },
+  useLink:{
+    type:Boolean,
+    default:true
   },
   showStatus: {
     type: Boolean,

@@ -127,10 +127,9 @@ import { Message, Modal } from '@arco-design/web-vue';
 import { showLoginModal } from '@/services/authService';
 import FileCard from './FileCard.vue';
 import api from '@/api/index.js';
-
 const viewMode = ref('list');
 const route = useRoute();
-
+const userStore = useUserStore();
 const userInfo = ref(null); // 用户信息
 const files = ref([]);
 const totalStorageBytes = ref(3 * 1024 * 1024 * 1024); // 3GB in bytes
@@ -188,7 +187,7 @@ const fetchUserInfo = async (id) => {
   try {
     userInfo.value = await userStore.getUserInfo(id)
     // 更新存储使用情况
-    if (response.data.usedMemory !== undefined) {
+    if ( userInfo.value.usedMemory !== undefined) {
       // 直接存储字节数
       usedStorageBytes.value = userInfo.value.usedMemory;
     }
