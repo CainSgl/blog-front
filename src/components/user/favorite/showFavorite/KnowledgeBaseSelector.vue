@@ -3,8 +3,8 @@
     :ok-loading="confirmLoading" ok-text="确认" cancel-text="取消" width="700px">
     <div class="kb-selector">
       <!-- 搜索框 -->
-      <a-input-search v-model="searchKeyword" placeholder="搜索知识库..." style="margin-bottom: 16px;"
-        @search="handleSearch" @clear="handleSearch" allow-clear />
+      <a-input-search v-model="searchKeyword" placeholder="搜索知识库..." style="margin-bottom: 16px;" @search="handleSearch"
+        @clear="handleSearch" allow-clear />
 
       <!-- 知识库列表 -->
       <a-spin :loading="loading" style="width: 100%;">
@@ -33,9 +33,9 @@
       </a-spin>
 
       <!-- 分页 -->
-      <div class="pagination-wrapper" v-if="total > pageSize">
-        <a-pagination :total="total" :current="currentPage" :page-size="pageSize" simple
-          @change="handlePageChange" />
+      <div class="pagination-wrapper" v-if="knowledgeBases.length > 0">
+        <a-pagination v-if="total > pageSize" :total="total" :current="currentPage" :page-size="pageSize" simple
+          show-total @change="handlePageChange" />
       </div>
     </div>
   </a-modal>
@@ -95,6 +95,7 @@ const loadKnowledgeBases = async (page = 1) => {
       page,
       size: pageSize.value,
       userId: props.userId,
+      simple: page != 1,
       status: '已发布' // 只显示已发布的知识库
     };
 
@@ -103,8 +104,13 @@ const loadKnowledgeBases = async (page = 1) => {
     }
 
     const { data } = await api.post('/kb/list', params);
+
     knowledgeBases.value = data.records;
-    total.value = data.total;
+    if (data.total) {
+      total.value = data.total;
+    }
+
+
     currentPage.value = page;
   } catch (error) {
     console.error('加载知识库列表失败:', error);

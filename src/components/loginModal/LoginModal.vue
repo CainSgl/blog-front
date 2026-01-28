@@ -1,29 +1,15 @@
 <template>
-  <a-drawer
-    :visible="authStore.showLoginModal"
-    placement="bottom"
-    :height="'100vh'"
-    :mask-closable="authStore.allowClose"
-    :closable="false"
-    :hide-cancel="true"
-    :footer="false"
-    :header="false"
-    @close="authStore.closeLogin"
-    :wrap-style="{ padding: 0, margin: 0 }"
-    :body-style="{ padding: 0, margin: 0, overflow: 'hidden' }"
-  >
-    <div class="login-modal">
+  <a-drawer :visible="authStore.showLoginModal" placement="bottom" :height="'100vh'"
+    :mask-closable="authStore.allowClose" :closable="false" :hide-cancel="true" :footer="false" :header="false"
+    @close="authStore.closeLogin" :wrap-style="{ padding: 0, margin: 0 }"
+    :body-style="{ padding: 0, margin: 0, overflow: 'hidden' }">
+    <div class="login-modal" v-if="authStore.showLoginModal">
       <!-- 渐变背景组件 - 仅在模态框显示时渲染 -->
       <GradientBackground v-if="authStore.showLoginModal" />
-      
+
       <!-- 关闭按钮 - 移动到右上角 -->
       <div v-if="authStore.allowClose" class="close-button">
-        <a-button
-          type="text"
-          shape="circle"
-          size="large"
-          @click="authStore.closeLogin"
-        >
+        <a-button type="text" shape="circle" size="large" @click="authStore.closeLogin">
           <template #icon>
             <IconClose />
           </template>
@@ -36,19 +22,17 @@
           <div class="login-title">登录Cattiy</div>
           <a-tabs v-model:active-key="activeTab" size="large">
             <a-tab-pane key="password" title="密码登录">
-              <PasswordLogin 
-                :is-loading="authStore.isLoading" 
-                @login-success="handleLoginSuccess"
-              />
+              <PasswordLogin :is-loading="authStore.isLoading" @login-success="handleLoginSuccess" />
+
             </a-tab-pane>
-            
+
             <a-tab-pane key="code" title="验证码登录">
-              <CodeLogin 
-                :is-loading="authStore.isLoading" 
-                @login-success="handleLoginSuccess"
-              />
+              <CodeLogin :is-loading="authStore.isLoading" @login-success="handleLoginSuccess" />
             </a-tab-pane>
           </a-tabs>
+          <div>
+            <ThirdPartyLogin></ThirdPartyLogin>
+          </div>
         </div>
       </div>
     </div>
@@ -62,15 +46,14 @@ import { IconClose } from '@arco-design/web-vue/es/icon';
 import GradientBackground from './children/GradientBackground.vue';
 import PasswordLogin from './children/PasswordLogin.vue';
 import CodeLogin from './children/CodeLogin.vue';
-
+import ThirdPartyLogin from './children/ThirdPartyLogin.vue';
 const authStore = useAuthStore();
 
 // 标签页控制
 const activeTab = ref('password');
 
 // 处理登录成功
-const handleLoginSuccess = () => 
-{
+const handleLoginSuccess = () => {
   // 登录成功后刷新页面
   console.log('登录成功');
   window.location.reload();
@@ -149,13 +132,15 @@ const handleLoginSuccess = () =>
 }
 
 :deep(.arco-tabs-content) {
-  min-height: 200px; /* 设置最小高度防止内容变化时跳动 */
+  min-height: 200px;
+  /* 设置最小高度防止内容变化时跳动 */
 }
 
 /* 标签页样式 */
 :deep(.arco-tabs-tab) {
   color: @color-text-2;
   font-size: @font-size-body-3;
+
   &:hover {
     color: @primary-6;
   }

@@ -362,7 +362,7 @@ const handleKbSelected = async (kb) => {
       content: '正在挂载到知识库...',
     });
 
-    await api.put('/post', {
+    await api.get('/post/setKb', {
       id: currentMountPostId.value,
       kbId: kb.id
     });

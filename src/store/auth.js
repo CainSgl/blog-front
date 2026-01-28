@@ -27,14 +27,23 @@ export const useAuthStore = defineStore('auth', () =>
     try 
     {
       // 调用登录接口
-      const res = await api.post('/user/login', {
+      const loginData = {
         account: credentials.username,
         password: credentials.password,
-      });
+      };
+      
+      // 如果有验证码，添加验证码相关参数
+      if (credentials.captcha) {
+        loginData.captcha = credentials.captcha;
+        loginData.code = credentials.code;
+      }
+      
+      const res = await api.post('/user/login', loginData);
       //如果没抛出异常，代码肯定是执行到这里了，继续执行
       console.log(res);
       if(!res.data.userInfo)
       {
+        //返回
         throw res.data
       }
       userStore.setUserInfo(res.data.userInfo);

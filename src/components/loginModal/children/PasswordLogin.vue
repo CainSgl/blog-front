@@ -1,41 +1,32 @@
 <template>
-  
+
   <a-form :model="loginForm" @submit="handleLogin">
     <a-form-item field="username" label="用户名" :help="usernameHelp" :validate-status="usernameValidateStatus">
-      <a-input
-        v-model="loginForm.username"
-        placeholder="请输入用户名/邮件/手机号"
-        size="large"
-        allow-clear
-        :class="{ 'invalid-input': isUsernameInvalid }"
-        autocomplete="username"
-      />
+      <a-input v-model="loginForm.username" placeholder="请输入用户名/邮件/手机号" size="large" allow-clear
+        :class="{ 'invalid-input': isUsernameInvalid }" autocomplete="username" />
     </a-form-item>
-    
+
     <a-form-item field="password" label="密码" :help="passwordHelp" :validate-status="passwordValidateStatus">
-      <a-input-password
-        v-model="loginForm.password"
-        placeholder="请输入密码"
-        size="large"
-        allow-clear
-        :class="{ 'invalid-input': isPasswordInvalid }"
-        autocomplete="current-password"
-      />
+      <a-input-password v-model="loginForm.password" placeholder="请输入密码" size="large" allow-clear
+        :class="{ 'invalid-input': isPasswordInvalid }" autocomplete="current-password" />
     </a-form-item>
-    
+
+    <!-- 验证码输入框 -->
+    <a-form-item v-if="needCaptcha" field="captcha" label="验证码">
+      <div class="captcha-container">
+        <a-input v-model="loginForm.captcha" placeholder="请输入验证码" size="large" allow-clear
+          class="captcha-input" />
+        <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" @click="refreshCaptcha" />
+      </div>
+    </a-form-item>
+
     <!-- 登录错误信息显示 -->
     <div v-if="loginError" class="login-error-message">
       {{ loginError }}
     </div>
-    
+
     <a-form-item>
-      <a-button
-        type="primary"
-        size="large"
-        long
-        :loading="isLoading"
-        @click="handleLogin"
-      >
+      <a-button type="primary" size="large" long :loading="isLoading" @click="handleLogin">
         登录
       </a-button>
     </a-form-item>
@@ -43,8 +34,9 @@
 </template>
 
 <script setup>
-import { reactive, computed, ref, watch } from 'vue';
+import { reactive, computed, ref } from 'vue';
 import { useAuthStore } from '@/store/auth';
+import api from '@/api';
 
 const authStore = useAuthStore();
 
@@ -62,7 +54,9 @@ const emit = defineEmits(['login-success']);
 // 登录表单数据
 const loginForm = reactive({
   username: '',
-  password: ''
+  password: '',
+  captcha: '',
+  code: '' // 验证码的唯一标识
 });
 
 // 表单提交标志
@@ -71,71 +65,86 @@ const isFormSubmitted = ref(false);
 // 登录错误信息
 const loginError = ref('');
 
+// 验证码相关
+const needCaptcha = ref(false);
+const captchaImage = ref('');
+
 // 计算属性：检查用户名是否有效（长度>=4）
-const isUsernameInvalid = computed(() => 
-{
+const isUsernameInvalid = computed(() => {
   return loginForm.username.length > 0 && loginForm.username.length < 4;
 });
 
 // 用户名验证状态
-const usernameValidateStatus = computed(() => 
-{
+const usernameValidateStatus = computed(() => {
   if (loginForm.username.length === 0 && isFormSubmitted.value) return 'error';
   return isUsernameInvalid.value ? 'error' : '';
 });
 
 // 用户名帮助文本
-const usernameHelp = computed(() => 
-{
+const usernameHelp = computed(() => {
   if (loginForm.username.length === 0 && isFormSubmitted.value) return '用户名不能为空';
   return isUsernameInvalid.value ? '用户名长度至少长4位' : '';
 });
 
 // 计算属性：检查密码是否有效（长度>=6）
-const isPasswordInvalid = computed(() => 
-{
+const isPasswordInvalid = computed(() => {
   return loginForm.password.length > 0 && loginForm.password.length < 6;
 });
 
 // 密码验证状态
-const passwordValidateStatus = computed(() => 
-{
+const passwordValidateStatus = computed(() => {
   if (loginForm.password.length === 0 && isFormSubmitted.value) return 'error';
   return isPasswordInvalid.value ? 'error' : '';
 });
 
 // 密码帮助文本
-const passwordHelp = computed(() => 
-{
+const passwordHelp = computed(() => {
   if (loginForm.password.length === 0 && isFormSubmitted.value) return '密码不能为空';
   return isPasswordInvalid.value ? '密码长度至少长6位' : '';
 });
 
 // 处理登录
-const handleLogin = async () => 
-{
+const handleLogin = async () => {
   // 清除之前的错误信息
   loginError.value = '';
-  
+
   // 设置表单已提交标志
   isFormSubmitted.value = true;
   // 如果用户名或密码为空，则不继续执行登录逻辑
-  if (isUsernameInvalid.value || isPasswordInvalid.value || !loginForm.username || !loginForm.password) 
-  {
+  if (isUsernameInvalid.value || isPasswordInvalid.value || !loginForm.username || !loginForm.password) {
     return;
   }
-  try
-  {
+  try {
     await authStore.login(loginForm);
     authStore.closeLogin();
     // 发射登录成功事件
     emit('login-success');
   }
-  catch(error)
-  {
-    loginError.value = error;
+  catch (error) {
+    console.log(error)
+    loginError.value = error.msg;
+    if (error.needCaptcha) {
+      needCaptcha.value = true;
+      // 验证码图片是 base64 编码的
+      captchaImage.value = error.captchaImage;
+      // 保存验证码的唯一标识
+      loginForm.code = error.code;
+    }
     console.log('登录失败:', error);
   }
+};
+
+// 刷新验证码（点击图片重新获取）
+const refreshCaptcha = async () => {
+  if (!loginForm.username) {
+    console.log('请先输入用户名');
+    return;
+  }
+    const {data} = await api.get('/user/auth/captcha', { account: loginForm.username });
+    captchaImage.value = data.captchaImage;
+    needCaptcha.value = data.needCaptcha;
+    // 保存验证码的唯一标识
+    loginForm.code = data.code;
 };
 </script>
 
@@ -171,9 +180,11 @@ div {
 /* 使用全局主题变量设置输入框样式 */
 :deep(.arco-input-wrapper) {
   border-color: @color-border-2;
+
   &:hover {
     border-color: @primary-6;
   }
+
   &:focus-within {
     border-color: @primary-6;
   }
@@ -182,9 +193,11 @@ div {
 /* 输入框无效时的红边框样式 */
 :deep(.arco-input-wrapper.invalid-input) {
   border-color: @danger-6 !important;
+
   &:hover {
     border-color: @danger-5 !important;
   }
+
   &:focus-within {
     border-color: @danger-6 !important;
   }
@@ -201,10 +214,12 @@ div {
 :deep(.arco-btn-primary) {
   background-color: @primary-6;
   border-color: @primary-6;
+
   &:hover {
     background-color: @primary-5;
     border-color: @primary-5;
   }
+
   &:active {
     background-color: @primary-7;
     border-color: @primary-7;
@@ -224,5 +239,30 @@ div {
   width: calc(100% - 85px);
   max-width: calc(400px - 85px);
   box-sizing: border-box;
+}
+
+/* 验证码容器样式 */
+.captcha-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-image {
+  width: 150px;
+  height: 50px;
+  cursor: pointer;
+  border: 1px solid @color-border-2;
+  border-radius: @border-radius-small;
+  transition: all 0.3s;
+}
+
+.captcha-image:hover {
+  border-color: @primary-6;
+  opacity: 0.8;
 }
 </style>

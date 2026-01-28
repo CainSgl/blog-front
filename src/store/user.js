@@ -53,11 +53,11 @@ export const useUserStore = defineStore('user', () =>
   const userInfoPromises = new Map(); // 为不同ID的用户信息请求创建Promise缓存
   const userInfoCache = new Map(); // 存储已获取的用户数据
 
-  // 检查缓存是否过期（3天 = 3 * 24 * 60 * 60 * 1000 毫秒）
+  // 检查缓存是否过期（10分钟 = 10 * 60 * 1000 毫秒）
   const isCacheExpired = (timestamp) => 
   {
-    const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
-    return Date.now() - timestamp > threeDaysInMs;
+    const tenMinutesInMs = 10 * 60 * 1000;
+    return Date.now() - timestamp > tenMinutesInMs;
   };
 
   const getUserInfo = async (id = null) => 
