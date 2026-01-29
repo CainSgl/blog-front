@@ -41,7 +41,7 @@ const props = defineProps({
 });
 
 const commentStore = useCommentStore();
-const { targetDataId, parCommentId } = storeToRefs(commentStore);
+const { targetDataId, targetParVersion } = storeToRefs(commentStore);
 const paragraphRef = ref(null);
 const showCommentButton = ref(false);
 const buttonPosition = ref({ top: 0, left: 0 });
@@ -139,6 +139,10 @@ const handleClickOutside = (event) => {
 };
 
 function updateWhenTargetDataIdUpdate(newTargetDataId) {
+  //先匹配版本是否相吻合
+  if (targetParVersion.value !== commentStore.version) {
+    return;
+  }
   if (newTargetDataId && newTargetDataId == props.commentId) {
     console.log('匹配成功！准备滚动到段落并打开抽屉');
 

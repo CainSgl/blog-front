@@ -11,7 +11,8 @@
         <div class="left-content">
           <div class="post-sidebar" v-if="showMoreInfo">
             <div :style="{ height: placeholderHeight - 60 + 'px' }"></div>
-            <PostHistroy :postId="post?.id" @history-item-click="handleHistoryClick" :post="post" :targetVersion="targetVersion" />
+            <PostHistroy :postId="post?.id" @history-item-click="handleHistoryClick" :post="post"
+              :targetVersion="targetVersion" />
             <div></div>
           </div>
           <div class="post-container" ref="containerRef">
@@ -63,7 +64,7 @@
         </div>
         <div class="comment-section" :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
           <a-divider dashed ref="commentDividerRef" />
-          <CommentList :version="version" :postId="post?.id" :postCount="post?.commentCount" />
+          <CommentList :defaultPostCommentId="defaultPostCommentId" :version="version" :postId="post?.id" :postCount="post?.commentCount" />
         </div>
       </div>
 
@@ -309,13 +310,14 @@ const handleReport = () => {
 };
 
 
-const { targetDataId, parCommentId } = storeToRefs(commentStore);
+const { targetDataId, parCommentId,targetParVersion } = storeToRefs(commentStore);
 async function processParCommentId(parCommentId2) {
   try {
     const { data } = await api.get('/comment/locate', { id: parCommentId2 });
     console.log("需要定位到段评", parCommentId2, "返回数据:", data);
     if (data && data.version) {
       targetVersion.value = data.version;
+      targetParVersion.value=data.version
     }
     if (data && data.dataId) {
       // 直接赋值给 store 的属性
@@ -328,7 +330,8 @@ async function processParCommentId(parCommentId2) {
   }
 }
 
-
+//默认不跳转到任何文章评论
+const defaultPostCommentId = ref(null)
 // 组件挂载时的逻辑
 onMounted(() => {
   const postId = route.params.id;
@@ -342,12 +345,9 @@ onMounted(() => {
   if (parCommentId) {
     processParCommentId(parCommentId)
   }
-
   if (postCommentId) {
-    console.log('文章评论ID:', postCommentId);
-    // 这里可以添加滚动到对应评论的逻辑
+    defaultPostCommentId.value = postCommentId
   }
-
   // 移除 URL 参数
   if (parCommentId || postCommentId) {
     const newQuery = { ...route.query };

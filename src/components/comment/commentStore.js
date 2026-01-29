@@ -13,6 +13,7 @@ export const useCommentStore = defineStore('comment', () =>
   // 用于定位评论的响应式变量
   const targetDataId = ref(null);
   const parCommentId = ref(null);
+  const targetParVersion=ref(null);
   const getParagraphCommentCountByPost = async (
     postIdCache,
     versionCache,
@@ -126,5 +127,6 @@ export const useCommentStore = defineStore('comment', () =>
     version,
     targetDataId,
     parCommentId,
+    targetParVersion
   };
 });
