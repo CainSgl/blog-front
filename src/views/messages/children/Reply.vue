@@ -190,12 +190,12 @@ async function handleClickReply(message) {
       const { data } = await api.get('/comment/locate', { id: message.parCommentId })
       
       //跳转到对应的文章
-      const route = `/p/${data.postId}?par=${message.parCommentId}`
+      const route = `/p/${data.postId}?par=${message.parCommentId}&reply=${message.id}`
       window.open(route, '_blank')
     } else {
       //跳转到对应的文章
       const { data } = await api.get('/post/comment/locate', { id: message.postCommentId })
-      const route = `/p/${data.postId}?comment=${message.postCommentId}`
+      const route = `/p/${data.postId}?comment=${message.postCommentId}&reply=${message.id}`
       window.open(route, '_blank')
     }
   } catch (error) {

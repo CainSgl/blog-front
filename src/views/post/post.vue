@@ -64,7 +64,7 @@
         </div>
         <div class="comment-section" :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
           <a-divider dashed ref="commentDividerRef" />
-          <CommentList :defaultPostCommentId="defaultPostCommentId" :version="version" :postId="post?.id" :postCount="post?.commentCount" />
+          <CommentList  :version="version" :postId="post?.id" :postCount="post?.commentCount" />
         </div>
       </div>
 
@@ -310,7 +310,7 @@ const handleReport = () => {
 };
 
 
-const { targetDataId, parCommentId,targetParVersion } = storeToRefs(commentStore);
+const { targetDataId, parCommentId,targetParVersion,targetReplyId,postCommentId } = storeToRefs(commentStore);
 async function processParCommentId(parCommentId2) {
   try {
     const { data } = await api.get('/comment/locate', { id: parCommentId2 });
@@ -330,8 +330,10 @@ async function processParCommentId(parCommentId2) {
   }
 }
 
-//默认不跳转到任何文章评论
-const defaultPostCommentId = ref(null)
+async function processPostCommentId(p) {
+  postCommentId.value=p
+}
+
 // 组件挂载时的逻辑
 onMounted(() => {
   const postId = route.params.id;
@@ -340,20 +342,24 @@ onMounted(() => {
   // 获取 URL 参数
   const parCommentId = route.query.par;
   const postCommentId = route.query.comment;
-
+  const replyId=route.query.reply
   // 处理参数（如果需要的话）
   if (parCommentId) {
     processParCommentId(parCommentId)
   }
+  if(replyId)
+  {
+    targetReplyId.value=replyId
+  }
   if (postCommentId) {
-    defaultPostCommentId.value = postCommentId
+    processPostCommentId(postCommentId)
   }
   // 移除 URL 参数
   if (parCommentId || postCommentId) {
     const newQuery = { ...route.query };
     delete newQuery.par;
     delete newQuery.comment;
-
+    delete newQuery.reply;
     window.history.replaceState(
       {},
       '',

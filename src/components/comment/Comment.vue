@@ -92,7 +92,10 @@ import ReplyInput from './ReplyInput.vue'; // 引入ReplyInput组件
 import api from '@/api/index.js';
 import { formatDate, getDateNow } from '@/utils/DateFormatter.js';
 import { useCommentStore } from '@/components/comment/commentStore.js';
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 const commentStore = useCommentStore();
+
 // 定义组件属性
 const props = defineProps({
   commentData: {
@@ -189,10 +192,9 @@ function buildReplyPost(content) {
       //还需要知道具体是哪个回复
       replyCommentId: idCache,
     };
-  }else
-  {
-    req={
-       replyId: props.commentData.userId,
+  } else {
+    req = {
+      replyId: props.commentData.userId,
     }
   }
   if (props.postComment) {
@@ -275,7 +277,6 @@ const handleSubmitReply = async (content) => {
       console.log("回复他人")
     } else {
       console.log("回复主评论")
-      
     }
     const { data } = await api.post('/comment/reply', buildReplyPost(content));
     Message.success('成功回复评论');
@@ -366,6 +367,17 @@ const handleReplyToClick = async (replyCommentId) => {
   } else {
     // 没找到，发起请求获取
     try {
+      if (loadingReply.value) {
+        //已经在加载数据了，那就等待他为false后重新执行一遍自己就好了
+        return new Promise((resolve) => {
+          const unwatch = watch(loadingReply, (newVal) => {
+            if (!newVal) {
+              unwatch(); // 停止监听
+              resolve(handleReplyToClick(replyCommentId)); // 重新执行
+            }
+          });
+        });
+      }
       const { data } = await api.get('/comment/reply/getMyReply', {
         id: replyCommentId
       });
@@ -418,7 +430,37 @@ const onLikeChange = async () => {
     console.error('点赞操作失败:', error);
   }
 };
+async function getReply() {
+  console.log("自动展开，并获取回复");
+  // 如果有目标回复ID，直接调用 handleReplyToClick（它会自动展开）
+  if (targetReplyId.value) {
+    await handleReplyToClick(targetReplyId.value);
+  } else {
+    // 如果没有目标回复ID，只展开回复列表
+    if (!showReplies.value) {
+      await toggleReplies();
+    }
+  }
+  targetReplyId.value=null
+}
 
+
+const { parCommentId, targetReplyId, postCommentId } = storeToRefs(commentStore);
+onMounted(async () => {
+  if (!props.postComment) {
+    if (props.commentData.id == parCommentId.value) {
+      getReply()
+      // 清空标记，避免重复触发
+      parCommentId.value = null;
+    }
+  } else {
+    if (props.commentData.id == postCommentId.value) {
+      getReply()
+      // 清空标记，避免重复触发
+      postCommentId.value = null;
+    }
+  }
+})
 
 // 定义组件事件
 const emit = defineEmits(['reply']);

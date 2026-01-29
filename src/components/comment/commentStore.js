@@ -14,6 +14,8 @@ export const useCommentStore = defineStore('comment', () =>
   const targetDataId = ref(null);
   const parCommentId = ref(null);
   const targetParVersion=ref(null);
+  const targetReplyId=ref(null);
+  const postCommentId=ref(null)
   const getParagraphCommentCountByPost = async (
     postIdCache,
     versionCache,
@@ -127,6 +129,8 @@ export const useCommentStore = defineStore('comment', () =>
     version,
     targetDataId,
     parCommentId,
-    targetParVersion
+    targetParVersion,
+    targetReplyId,
+    postCommentId
   };
 });

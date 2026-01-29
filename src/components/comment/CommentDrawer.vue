@@ -171,7 +171,7 @@ const handleParCommentId = async (loadedComments) => {
       await scrollToComment(data.id);
     }
   }
-  parCommentId.value=null
+
 };
 
 // 滚动事件处理

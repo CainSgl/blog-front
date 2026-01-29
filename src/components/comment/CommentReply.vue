@@ -14,7 +14,7 @@
             v-if="userDetail?.level !== undefined" :level="userDetail?.level" />
         </div>
         <div style="margin-top: 5px;">
-          <a-link class="reply-to" v-if="replyUserInfo&&commentData.reply_comment_id" @click="handleReplyToClick" >
+          <a-link class="reply-to" v-if="replyUserInfo&&commentData.replyCommentId" @click="handleReplyToClick" >
            @{{ replyUserInfo?.nickname }}
           </a-link>
           <span class="content"> {{ commentData.content }}</span>
