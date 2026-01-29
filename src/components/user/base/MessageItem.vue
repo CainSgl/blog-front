@@ -1,29 +1,33 @@
 <template>
   <a-badge :count="message.checked ? 0 : 1" text="新" color="arcoblue">
     <div class="message-item" @click="handleClick">
-      <a-link class="user-info" :hoverable="false" target="_ablank" :href="`/space/${message.targetUser}`">
-        <Avatar :size="48" :src="message.targetUserAvatarUrl" class="user-avatar" />
-        <div class="user-details">
-          <div class="user-name-row">
-            <span class="user-nickname">{{ message.targetUserNickname }}</span>
-            <icon-man v-if="message.targetUserGender === '男'" class="gender-icon male" />
-            <icon-woman v-if="message.targetUserGender === '女'" class="gender-icon female" />
-            <a-tag color="arcoblue" size="small" class="level-tag">LV.{{ message.targetUserLevel }}</a-tag>
+      <div>
+        <a-link class="user-info" :hoverable="false" target="_ablank" :href="`/space/${message.targetUser}`">
+          <Avatar :size="48" :src="message.targetUserAvatarUrl" class="user-avatar" />
+          <div class="user-details">
+            <div class="user-name-row">
+              <span class="user-nickname">{{ message.targetUserNickname }}</span>
+              <icon-man v-if="message.targetUserGender === '男'" class="gender-icon male" />
+              <icon-woman v-if="message.targetUserGender === '女'" class="gender-icon female" />
+              <a-tag color="arcoblue" size="small" class="level-tag">LV.{{ message.targetUserLevel }}</a-tag>
 
+            </div>
+            <div class="action-text">
+              <span>{{ formatDate(message.createdAt) }}</span>
+              <slot name="action"></slot>
+            </div>
           </div>
-          <div class="action-text">
-            <span>{{ formatDate(message.createdAt) }}</span>
-            <slot name="action"></slot>
-          </div>
-        </div>
-      </a-link>
+        </a-link>
+      </div>
+
       <div class="content-slot">
         <slot></slot>
       </div>
 
     </div>
-    <a-divider dashed />
   </a-badge>
+  <a-divider dashed />
+
 </template>
 
 <script setup>
@@ -47,7 +51,7 @@ const handleClick = () => {
 <style scoped lang="less">
 .message-item {
   display: flex;
-  align-items: center;
+
   gap: 16px;
   padding: 16px;
   background-color: @color-bg-2;
@@ -55,15 +59,13 @@ const handleClick = () => {
 
   transition: all 0.2s;
 
-  &:hover {
-    background-color: @color-fill-2;
-  }
+
 
 
 
   .user-info {
     display: flex;
-    align-items: center;
+
     gap: 12px;
     flex-shrink: 0;
     cursor: pointer;
@@ -116,7 +118,7 @@ const handleClick = () => {
     flex: 1;
     min-width: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .message-status {

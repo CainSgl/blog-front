@@ -16,7 +16,9 @@
     </div>
 
     <a-empty v-else-if="!loading" description="暂无点赞文章消息" />
-    <a-spin v-else :loading="loading" style="width: 100%; padding: 40px 0;" />
+     <a-spin v-else :loading="loading" style="display: block;">
+      <div style="width: 100%; height: 300px;"></div>
+    </a-spin>
   </div>
 </template>
 

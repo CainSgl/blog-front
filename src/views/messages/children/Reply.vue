@@ -6,25 +6,40 @@
       <a-divider dashed />
       <MessageItem v-for="message in messages" :key="message.id" :message="message" @click="handleMessageClick">
         <div class="reply-content">
+          <!-- 你的原始内容 -->
+
           <div class="reply-text" @click="handleClickReply(message.replyInfo)">
-            <span class="reply-label">回复了你：</span>
-            <span class="reply-message">{{ message.replyInfo?.content || ' ' }}</span>
+            <span class="reply-label">回复了我的评论：</span>
+            <div class="reply-content-box">
+              <a-typography-paragraph :ellipsis="{
+                suffix: '',
+                rows: 3,
+                expandable: true,
+              }" class="reply-content-text">
+                {{ message.replyInfo?.content }}
+              </a-typography-paragraph>
+            </div>
+            <a-typography-paragraph :ellipsis="{
+              suffix: '',
+              rows: 3,
+              expandable: true,
+            }">
+              <span class="reply-message">{{ message.replyInfo?.because || ' ' }}</span>
+            </a-typography-paragraph>
           </div>
-
-
           <!-- 操作按钮 -->
           <div class="reply-actions">
             <a-button type="text" size="small" @click.stop="toggleReplyInput(message)">
               <template #icon>
-                <icon-message />
+                <icon-message size="medium" />
               </template>
               回复
             </a-button>
             <a-button type="text" size="small" :class="{ 'liked': message.replyInfo?.isLiked }"
               @click.stop="handleLike(message)">
               <template #icon>
-                <icon-heart-fill v-if="message.replyInfo?.isLiked" />
-                <icon-heart v-else />
+                <icon-heart-fill v-if="message.replyInfo?.isLiked" size="medium" />
+                <icon-heart v-else size="medium" />
               </template>
               {{ message.replyInfo?.likeCount }}
             </a-button>
@@ -47,7 +62,12 @@
     </div>
 
     <a-empty v-else-if="!loading" description="暂无回复消息" />
-    <a-spin v-else :loading="loading" style="width: 100%; padding: 40px 0;" />
+
+    <a-spin v-else :loading="loading" style="display: block;">
+      <div style="width: 100%; height: 300px;"></div>
+    </a-spin>
+
+
   </div>
 </template>
 
@@ -64,7 +84,7 @@ import api from '@/api/index';
 const loading = ref(false);
 const messages = ref([]);
 const after = ref(null);
-const size = ref(15);
+const size = ref(10);
 const hasMore = ref(true);
 const loadMoreTrigger = ref(null);
 let observer = null;
@@ -188,7 +208,7 @@ async function handleClickReply(message) {
     //看看是段评还是文章评，然后直接跳转
     if (message.parCommentId) {
       const { data } = await api.get('/comment/locate', { id: message.parCommentId })
-      
+
       //跳转到对应的文章
       const route = `/p/${data.postId}?par=${message.parCommentId}&reply=${message.id}`
       window.open(route, '_blank')
@@ -243,17 +263,18 @@ onUnmounted(() => {
   }
 
   .reply-content {
-    display: flex;
+    width: 100%;
     flex-direction: column;
     gap: 8px;
-    flex: 1;
     min-width: 0;
+
+
 
     .reply-text {
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 8px;
 
       .reply-label {
         font-size: 13px;
@@ -261,16 +282,27 @@ onUnmounted(() => {
         font-weight: 500;
       }
 
-      .reply-message {
+      .reply-content-box {
+        padding: 12px 0px;
 
-        font-size: 14px;
-        color: @color-text-1;
+        .reply-content-text {
+          margin-bottom: 0;
+          font-size: 14px;
+          color: @color-text-1;
+          line-height: 1.8;
+          word-break: break-word;
+          font-weight: 500;
+        }
+      }
+
+      .reply-message {
+        font-size: 13px;
+        color: @color-text-3;
         line-height: 1.6;
         word-break: break-word;
         padding: 8px 12px;
         background-color: @color-fill-1;
         border-radius: 6px;
-        border-left: 3px solid @color-primary-light-3;
       }
     }
 

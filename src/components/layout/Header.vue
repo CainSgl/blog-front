@@ -98,7 +98,7 @@
                       <span>退出登录</span>
                     </div>
                   </div>
-                      {{ userInfo }}
+                      
                 </div>
                 <div class="login-prompt" v-else>
                   <div class="login-message">
@@ -129,7 +129,7 @@
             <a-dropdown trigger="hover" >
               <div class="action-item">
                 <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
-                  <a-badge :count="userInfo?.msgCount||0" :max-count="99" :offset="['5px','0px','0px','15px']">
+                  <a-badge :count="msgCount" :max-count="99" :offset="['5px','0px','0px','15px']">
                     <icon-notification :size="20" />
                   </a-badge>
                 </a-tooltip>
@@ -218,7 +218,7 @@ import { useUserStore } from '@/store/user.js';
 import { storeToRefs } from 'pinia';
 import Avatar from '@/components/user/base/Avatar.vue';
 import SearchBox from '@/components/base/SearchBox.vue';
-import { onMounted, ref, onUnmounted } from 'vue';
+import { onMounted, ref, onUnmounted, computed } from 'vue';
 import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory, IconMessage, IconHeart, IconEmail, IconExclamationCircle } from '@arco-design/web-vue/es/icon';
 import { useRouter, useRoute } from 'vue-router';
 import { getLoginService, showLoginModal } from '@/services/authService';
@@ -294,7 +294,9 @@ const router = useRouter();
 const route = useRoute();
 // 使用 storeToRefs 创建响应式引用
 const { userInfo } = storeToRefs(userStore);
-
+const msgCount=computed(()=>{
+  return userInfo.value?.msgReplyCount || 0+userInfo.value?.msgLikeCount || 0+userInfo.value?.msgMessageCount || 0+userInfo.value?.msgReportCount || 0
+})
 // 响应式屏幕尺寸检测
 const isSmallScreen = ref(window.innerWidth < 768);
 
@@ -626,20 +628,7 @@ onMounted(async () => {
 
 // 下拉菜单选项样式
 .dropdown-option-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-width: 150px;
-  gap: 16px;
-
-  span {
-    flex: 1;
-  }
-
-  :deep(.arco-badge) {
-    flex-shrink: 0;
-  }
+  margin:5px;
 }
 
 .user-info-popover {
