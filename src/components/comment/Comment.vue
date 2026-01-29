@@ -189,7 +189,11 @@ function buildReplyPost(content) {
       //还需要知道具体是哪个回复
       replyCommentId: idCache,
     };
-    console.log("构建的req", req)
+  }else
+  {
+    req={
+       replyId: props.commentData.userId,
+    }
   }
   if (props.postComment) {
     req = {
@@ -271,6 +275,7 @@ const handleSubmitReply = async (content) => {
       console.log("回复他人")
     } else {
       console.log("回复主评论")
+      
     }
     const { data } = await api.post('/comment/reply', buildReplyPost(content));
     Message.success('成功回复评论');

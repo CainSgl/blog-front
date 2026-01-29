@@ -98,7 +98,7 @@
                       <span>退出登录</span>
                     </div>
                   </div>
-
+                      {{ userInfo }}
                 </div>
                 <div class="login-prompt" v-else>
                   <div class="login-message">
@@ -129,7 +129,7 @@
             <a-dropdown trigger="hover" >
               <div class="action-item">
                 <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
-                  <a-badge :count="getTotalMsgCount()" :max-count="99" :offset="['5px','0px','0px','15px']">
+                  <a-badge :count="userInfo?.msgCount||0" :max-count="99" :offset="['5px','0px','0px','15px']">
                     <icon-notification :size="20" />
                   </a-badge>
                 </a-tooltip>
@@ -368,14 +368,7 @@ const showLogin = () => {
   showLoginModal();
 };
 
-// 计算消息总数
-const getTotalMsgCount = () => {
-  if (!userInfo.value) return 0;
-  return (userInfo.value.msgReplyCount || 0) + 
-         (userInfo.value.msgLikeCount || 0) + 
-         (userInfo.value.msgMessageCount || 0) + 
-         (userInfo.value.msgReportCount || 0);
-};
+
 
 onMounted(async () => {
   userInfo.value = await userStore.getUserInfo();

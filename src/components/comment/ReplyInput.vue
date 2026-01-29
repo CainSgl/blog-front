@@ -127,7 +127,6 @@ onMounted(async () =>
     display: flex;
     gap: 8px;
     padding: 12px;
-    background-color: white;
     position: sticky;
     bottom: 0;
     z-index: 10;

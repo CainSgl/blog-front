@@ -29,7 +29,7 @@ import api from '@/api/index'
 const loading = ref(false);
 const messages = ref([]);
 const after = ref(null);
-const size = ref(20);
+const size = ref(15);
 const hasMore = ref(true);
 const loadMoreTrigger = ref(null);
 let observer = null;

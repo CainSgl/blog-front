@@ -6,17 +6,36 @@
       <a-divider dashed />
       <MessageItem v-for="message in messages" :key="message.id" :message="message" @click="handleMessageClick">
         <div class="reply-content">
-          <div class="reply-text">
+          <div class="reply-text" @click="handleClickReply(message.replyInfo)">
             <span class="reply-label">回复了你：</span>
-            <span class="reply-message">{{ message.replyInfo?.content || '加载中...' }}</span>
+            <span class="reply-message">{{ message.replyInfo?.content||' ' }}</span>
           </div>
-          <div class="reply-meta">
-            <span class="like-count">
-              <icon-heart-fill />
-              {{ message.replyInfo?.likeCount || 0 }}
-            </span>
+
+
+          <!-- 操作按钮 -->
+          <div class="reply-actions">
+            <a-button type="text" size="small" @click.stop="toggleReplyInput(message)">
+              <template #icon>
+                <icon-message />
+              </template>
+              回复
+            </a-button>
+            <a-button type="text" size="small" :class="{ 'liked': message.replyInfo?.isLiked }"
+              @click.stop="handleLike(message)">
+              <template #icon>
+                <icon-heart-fill v-if="message.replyInfo?.isLiked" />
+                <icon-heart v-else />
+              </template>
+              {{ message.replyInfo?.likeCount }}
+            </a-button>
           </div>
-          <a-button>回复</a-button>
+
+          <!-- 回复输入框 -->
+          <div v-if="message.showReplyInput" class="reply-input-container">
+            <ReplyInput :placeholder="`回复 ${message.fromUserInfo?.nickname || '用户'}...`" :show-self="true"
+              :auto-focus="true" :on-submit-comment="(content) => handleSubmitReply(message, content)" />
+          </div>
+
         </div>
       </MessageItem>
 
@@ -34,8 +53,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { IconHeartFill } from '@arco-design/web-vue/es/icon';
+import { IconHeartFill, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
 import MessageItem from '@/components/user/base/MessageItem.vue';
+import ReplyInput from '@/components/comment/ReplyInput.vue';
 import api from '@/api/index';
 
 
@@ -43,7 +64,7 @@ import api from '@/api/index';
 const loading = ref(false);
 const messages = ref([]);
 const after = ref(null);
-const size = ref(20);
+const size = ref(15);
 const hasMore = ref(true);
 const loadMoreTrigger = ref(null);
 let observer = null;
@@ -84,12 +105,63 @@ const loadMessages = async () => {
 };
 
 const handleMessageClick = (message) => {
-  console.log('点击消息:', message);
+  
 };
 
-const formatTime = (timestamp) => {
-  if (!timestamp) return '';
-  return formatDate(timestamp);
+// 切换回复输入框显示
+const toggleReplyInput = (message) => {
+  message.showReplyInput = !message.showReplyInput;
+};
+
+// 处理提交回复
+const handleSubmitReply = async (message, content) => {
+  try {
+    console.log(message.replyInfo)
+    const msgId = 'reply:' + message.id
+    Message.loading({ id: msgId, content: '回复中...' });
+    const otherMessage = message.replyInfo
+    const myMessage = {
+      replyCommentId: otherMessage.id,
+      replyId: message.targetUser,
+      content: content,
+    }
+    if(otherMessage.parCommentId)
+    {
+       const {data}= await api.get('/comment/locate',{id:otherMessage.parCommentId})
+      console.log(data)
+       myMessage.dataId=data.dataId
+       myMessage.parCommentId= otherMessage.parCommentId;
+    }else{
+      myMessage.postCommentId= otherMessage.postCommentId;
+    }
+
+    const { data } = await api.post('/comment/reply', myMessage)
+    console.log('回复消息:', message.targetId, '内容:', content);
+    Message.success({ id: msgId, content: '回复成功' });
+    message.showReplyInput = false;
+  } catch (error) {
+    console.error('回复失败:', error);
+    Message.error('回复失败，请重试');
+    throw error;
+  }
+};
+
+// 处理点赞
+const handleLike = async (message) => {
+  try {
+    // TODO: 调用点赞 API
+    console.log('点赞消息:', message.targetId);
+
+    if (message.replyInfo) {
+      message.replyInfo.isLiked = !message.replyInfo.isLiked;
+      message.replyInfo.likeCount += message.replyInfo.isLiked ? 1 : -1;
+    }
+
+    Message.success(message.replyInfo?.isLiked ? '点赞成功' : '取消点赞');
+  } catch (error) {
+    console.error('点赞失败:', error);
+    Message.error('操作失败，请重试');
+  }
 };
 
 const setupObserver = () => {
@@ -111,7 +183,12 @@ const setupObserver = () => {
 
   observer.observe(loadMoreTrigger.value);
 };
+function handleClickReply(message)
+{
+  console.log(message)
+  //看看是段评还是文章评，然后直接跳转
 
+}
 onMounted(() => {
   loadMessages().then(() => {
     setupObserver();
@@ -157,8 +234,9 @@ onUnmounted(() => {
     gap: 8px;
     flex: 1;
     min-width: 0;
-    cursor: pointer;
+
     .reply-text {
+      cursor: pointer;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -170,6 +248,7 @@ onUnmounted(() => {
       }
 
       .reply-message {
+
         font-size: 14px;
         color: @color-text-1;
         line-height: 1.6;
@@ -188,21 +267,41 @@ onUnmounted(() => {
       font-size: 13px;
       color: @color-text-3;
 
-      .like-count {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        color: @color-text-3;
-
-        svg {
-          font-size: 14px;
-          color: rgb(var(--danger-6));
-        }
-      }
 
       .reply-time {
         color: @color-text-3;
       }
+    }
+
+    .reply-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+
+      .arco-btn-text {
+        color: @color-text-3;
+        font-size: 13px;
+
+        &:hover {
+          color: @color-primary-6;
+          background-color: @color-fill-2;
+        }
+
+        &.liked {
+          color: rgb(var(--danger-6));
+
+          &:hover {
+            color: rgb(var(--danger-7));
+          }
+        }
+      }
+    }
+
+    .reply-input-container {
+      margin-top: 12px;
+      border-top: 1px solid @color-border-2;
+      padding-top: 12px;
     }
   }
 }
