@@ -8,7 +8,7 @@
         <div class="reply-content">
           <div class="reply-text" @click="handleClickReply(message.replyInfo)">
             <span class="reply-label">回复了你：</span>
-            <span class="reply-message">{{ message.replyInfo?.content||' ' }}</span>
+            <span class="reply-message">{{ message.replyInfo?.content || ' ' }}</span>
           </div>
 
 
@@ -105,7 +105,7 @@ const loadMessages = async () => {
 };
 
 const handleMessageClick = (message) => {
-  
+
 };
 
 // 切换回复输入框显示
@@ -125,14 +125,13 @@ const handleSubmitReply = async (message, content) => {
       replyId: message.targetUser,
       content: content,
     }
-    if(otherMessage.parCommentId)
-    {
-       const {data}= await api.get('/comment/locate',{id:otherMessage.parCommentId})
+    if (otherMessage.parCommentId) {
+      const { data } = await api.get('/comment/locate', { id: otherMessage.parCommentId })
       console.log(data)
-       myMessage.dataId=data.dataId
-       myMessage.parCommentId= otherMessage.parCommentId;
-    }else{
-      myMessage.postCommentId= otherMessage.postCommentId;
+      myMessage.dataId = data.dataId
+      myMessage.parCommentId = otherMessage.parCommentId;
+    } else {
+      myMessage.postCommentId = otherMessage.postCommentId;
     }
 
     const { data } = await api.post('/comment/reply', myMessage)
@@ -183,11 +182,26 @@ const setupObserver = () => {
 
   observer.observe(loadMoreTrigger.value);
 };
-function handleClickReply(message)
-{
+async function handleClickReply(message) {
   console.log(message)
-  //看看是段评还是文章评，然后直接跳转
-
+  try {
+    //看看是段评还是文章评，然后直接跳转
+    if (message.parCommentId) {
+      const { data } = await api.get('/comment/locate', { id: message.parCommentId })
+      
+      //跳转到对应的文章
+      const route = `/p/${data.postId}?par=${message.parCommentId}`
+      window.open(route, '_blank')
+    } else {
+      //跳转到对应的文章
+      const { data } = await api.get('/post/comment/locate', { id: message.postCommentId })
+      const route = `/p/${data.postId}?comment=${message.postCommentId}`
+      window.open(route, '_blank')
+    }
+  } catch (error) {
+    console.error('跳转失败:', error)
+    Message.error('跳转失败，请重试')
+  }
 }
 onMounted(() => {
   loadMessages().then(() => {

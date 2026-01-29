@@ -23,12 +23,11 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref, onMounted, onUnmounted } from 'vue';
+import { defineProps, computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useCommentStore } from '@/components/comment/commentStore.js';
+import { storeToRefs } from 'pinia';
 import { IconMessage } from '@arco-design/web-vue/es/icon';
-import { Modal } from '@arco-design/web-vue';
 import { Message } from '@arco-design/web-vue';
-import { useUserStore } from '@/store/user.js';
 import api from '@/api/index.js';
 const props = defineProps({
   text: {
@@ -42,6 +41,7 @@ const props = defineProps({
 });
 
 const commentStore = useCommentStore();
+const { targetDataId, parCommentId } = storeToRefs(commentStore);
 const paragraphRef = ref(null);
 const showCommentButton = ref(false);
 const buttonPosition = ref({ top: 0, left: 0 });
@@ -49,67 +49,56 @@ const commentModalVisible = ref(false);
 const commentContent = ref('');
 
 // 计算评论数量
-const commentCount = computed(() => 
-{
+const commentCount = computed(() => {
   return commentStore.getCommentCountById(props.commentId);
 });
 
 // 处理评论点击事件
-const handleCommentClick = () => 
-{
+const handleCommentClick = () => {
   commentStore.toggleCommentDrawer(props.commentId);
 };
-const handleCommentParClick = () => 
-{
+const handleCommentParClick = () => {
   commentModalVisible.value = true;
 };
 // 提交评论
-const submitComment = async () => 
-{
-  if (!commentContent.value.trim()) 
-  {
+const submitComment = async () => {
+  if (!commentContent.value.trim()) {
     Message.warning('请输入评论内容');
     return;
   }
-  if (!props.commentId) 
-  {
+  if (!props.commentId) {
     Message.error('发生了未知的错误，请尝试刷新页面！');
     return;
   }
-  commentModalVisible.value=false;
-  const id='paragraph'+commentStore.postId+":"+ props.commentId
-  Message.loading({id:id,content:'发送评论中...'});
+  commentModalVisible.value = false;
+  const id = 'paragraph' + commentStore.postId + ":" + props.commentId
+  Message.loading({ id: id, content: '发送评论中...' });
   await api.post('/paragraph/comment', { postId: commentStore.postId, version: commentStore.version, dataId: props.commentId, content: commentContent.value });
   // 成功发布评论后，更新评论计数
   commentStore.incrementCommentCount(props.commentId);
-  Message.success({id:id,content:'成功发布评论'});
+  Message.success({ id: id, content: '成功发布评论' });
 };
 
 // 检查文本是否被选中
-const checkSelection = () => 
-{
+const checkSelection = () => {
   const selection = window.getSelection();
-  if (!selection.toString().trim()) 
-  {
+  if (!selection.toString().trim()) {
     showCommentButton.value = false;
     return;
   }
 
-  try 
-  {
+  try {
     // 检查选中的文本是否在当前段落内
     const selectedRange = selection.getRangeAt(0);
     const parentElement = selectedRange.commonAncestorContainer;
 
     // 查找最近的祖先元素
     let currentElement = parentElement.nodeType === Node.ELEMENT_NODE ? parentElement : parentElement.parentElement;
-    while (currentElement && currentElement !== paragraphRef.value) 
-    {
+    while (currentElement && currentElement !== paragraphRef.value) {
       currentElement = currentElement.parentElement;
     }
 
-    if (currentElement === paragraphRef.value) 
-    {
+    if (currentElement === paragraphRef.value) {
       // 获取选中区域的位置
       const rect = selectedRange.getBoundingClientRect();
       const paragraphRect = paragraphRef.value.getBoundingClientRect();
@@ -122,13 +111,11 @@ const checkSelection = () =>
 
       showCommentButton.value = true;
     }
-    else 
-    {
+    else {
       showCommentButton.value = false;
     }
   }
-  catch (error) 
-  {
+  catch (error) {
     // 如果获取选择区域失败，隐藏按钮
     showCommentButton.value = false;
   }
@@ -137,32 +124,76 @@ const checkSelection = () =>
 
 
 // 监听鼠标释放事件
-const handleMouseUp = () => 
-{
-  setTimeout(() => 
-  { // 使用setTimeout确保在选择完成后获取到选中内容
+const handleMouseUp = () => {
+  setTimeout(() => { // 使用setTimeout确保在选择完成后获取到选中内容
     checkSelection();
   }, 1);
 };
 
 // 监听点击其他地方的事件
-const handleClickOutside = (event) => 
-{
+const handleClickOutside = (event) => {
   if (paragraphRef.value && !paragraphRef.value.contains(event.target) &&
-    !event.target.classList.contains('comment-button')) 
-  {
+    !event.target.classList.contains('comment-button')) {
     showCommentButton.value = false;
   }
 };
 
-onMounted(() => 
-{
+function updateWhenTargetDataIdUpdate(newTargetDataId) {
+  if (newTargetDataId && newTargetDataId == props.commentId) {
+    console.log('匹配成功！准备滚动到段落并打开抽屉');
+
+    // 轮询等待 DOM 元素准备好
+    const tryScroll = (retryCount = 0, maxRetries = 20) => {
+      if (paragraphRef.value) {
+        console.log('DOM 元素已准备好，开始滚动');
+        const scrollContainer = document.querySelector('.cainsgl-markdown-preview');
+        console.log(scrollContainer);
+        if (scrollContainer) {
+          // 获取段落相对于容器的位置
+          const paragraphRect = paragraphRef.value.getBoundingClientRect();
+          const containerRect = scrollContainer.getBoundingClientRect();
+          const relativeTop = paragraphRect.top - containerRect.top + scrollContainer.scrollTop;
+
+          // 滚动到段落位置，居中显示
+          const scrollToPosition = relativeTop - (scrollContainer.clientHeight / 2) + (paragraphRect.height / 2);
+          scrollContainer.scrollTo({
+            top: scrollToPosition,
+            behavior: 'smooth'
+          });
+        }
+
+        // 延迟打开抽屉，等待滚动完成
+        setTimeout(() => {
+          commentStore.toggleCommentDrawer(props.commentId);
+          // 清空 targetDataId，避免重复触发
+          targetDataId.value = null;
+        }, 500);
+      } else if (retryCount < maxRetries) {
+        console.log(`DOM 元素未准备好，100ms 后重试 (${retryCount + 1}/${maxRetries})`);
+        setTimeout(() => tryScroll(retryCount + 1, maxRetries), 100);
+      } else {
+        console.error('等待 DOM 元素超时，无法滚动到目标段落');
+        // 清空 targetDataId，避免卡住
+        targetDataId.value = null;
+      }
+    };
+
+    tryScroll();
+  }
+}
+
+
+
+watch(targetDataId, (newTargetDataId) => {
+  updateWhenTargetDataIdUpdate(newTargetDataId);
+}, { immediate: true });
+
+onMounted(() => {
   document.addEventListener('mouseup', handleMouseUp);
   document.addEventListener('click', handleClickOutside);
 });
 
-onUnmounted(() => 
-{
+onUnmounted(() => {
   document.removeEventListener('mouseup', handleMouseUp);
   document.removeEventListener('click', handleClickOutside);
 });

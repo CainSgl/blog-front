@@ -33,6 +33,10 @@ const props = defineProps({
   post: {
     type: Object,
     default: {}
+  },
+  targetVersion: {
+    type: Number,
+    default: null
   }
 });
 const showVersionId = ref(0);
@@ -71,6 +75,16 @@ watch(() => props.postId, (newPostId) =>
     historyList.value = [];
   }
 }, { immediate: true });
+
+// 监听 targetVersion 变化，自动切换到对应版本
+watch(() => props.targetVersion, (newVersion) => {
+  if (newVersion && historyList.value.length > 0) {
+    const historyItem = historyList.value.find(item => item.version === newVersion);
+    if (historyItem && !historyItem.publishVersion) {
+      switchOtherVersion(historyItem);
+    }
+  }
+});
 
 // 处理历史记录点击事件
 const handleHistoryItemClick = (item) =>

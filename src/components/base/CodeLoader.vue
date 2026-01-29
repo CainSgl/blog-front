@@ -76,7 +76,6 @@ const startAnimation = () =>
   let currentIndex = 0;
   intervalId = setInterval(() => 
   {
-    console.log('加载中，再加入一个函数栈');
     if (currentIndex < FUNCTIONS.length) 
     {
       const newStack = [

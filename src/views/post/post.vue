@@ -1,80 +1,80 @@
 <template>
   <div>
-  <Header></Header>
-  <div class="header-container"></div>
-      <!-- 左侧固定交互组件 -->
+    <Header></Header>
+    <div class="header-container"></div>
+    <!-- 左侧固定交互组件 -->
     <PostActions v-if="post" :postId="post.id" :likeCount="post.likeCount" :commentCount="post?.commentCount"
       :isLiked="isLiked" :isFavorited="isFavorited" :starCount="post?.starCount" @like="handleLike"
       @comment="scrollToComments" @favorite="handleFavoriteSuccess" @report="handleReport" :authorId="post.userId" />
-  <div class="main-layout">
-    <div class="content-wrapper">
-      <div class="left-content">
-        <div class="post-sidebar" v-if="showMoreInfo">
-          <div :style="{ height: placeholderHeight-60 + 'px' }"></div>
-          <PostHistroy :postId="post?.id" @history-item-click="handleHistoryClick" :post="post" />
-          <div></div>
-        </div>
-        <div class="post-container" ref="containerRef">
-          <!-- 文章头部信息 -->
-          <div class="post-header">
-            <div class="post-user-info">
-              <AvatarWithInfo :user="author" :size="70" />
-              <div class="post-title-section">
-                <h1 class="post-title">{{ post?.title || '加载中' }}</h1>
-                <div class="post-meta">
-                  <span class="post-date">发布于：{{ formatDate(post?.publishedAt) }} <span style="margin-left: 16px;"
-                      v-if="showMoreInfo">创建于：{{
-                        formatDate(post?.createdAt)
-                      }}</span></span>
+    <div class="main-layout">
+      <div class="content-wrapper">
+        <div class="left-content">
+          <div class="post-sidebar" v-if="showMoreInfo">
+            <div :style="{ height: placeholderHeight - 60 + 'px' }"></div>
+            <PostHistroy :postId="post?.id" @history-item-click="handleHistoryClick" :post="post" :targetVersion="targetVersion" />
+            <div></div>
+          </div>
+          <div class="post-container" ref="containerRef">
+            <!-- 文章头部信息 -->
+            <div class="post-header">
+              <div class="post-user-info">
+                <AvatarWithInfo :user="author" :size="70" />
+                <div class="post-title-section">
+                  <h1 class="post-title">{{ post?.title || '加载中' }}</h1>
+                  <div class="post-meta">
+                    <span class="post-date">发布于：{{ formatDate(post?.publishedAt) }} <span style="margin-left: 16px;"
+                        v-if="showMoreInfo">创建于：{{
+                          formatDate(post?.createdAt)
+                        }}</span></span>
 
-                  <span class="post-stats">
-                    <span class="stat-item">
-                      <icon-eye /> {{ post?.viewCount || 0 }} 浏览
+                    <span class="post-stats">
+                      <span class="stat-item">
+                        <icon-eye /> {{ post?.viewCount || 0 }} 浏览
+                      </span>
+                      <span class="stat-item" style="margin-left: 16px;">
+                        <icon-heart /> {{ post?.likeCount || 0 }} 点赞
+                      </span>
+                      <span class="stat-item" style="margin-left: 16px;">
+                        <icon-message /> {{ post?.commentCount || 0 }} 评论
+                      </span>
                     </span>
-                    <span class="stat-item" style="margin-left: 16px;">
-                      <icon-heart /> {{ post?.likeCount || 0 }} 点赞
-                    </span>
-                    <span class="stat-item" style="margin-left: 16px;">
-                      <icon-message /> {{ post?.commentCount || 0 }} 评论
-                    </span>
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <a-divider dashed />
-          <!-- 文章内容 -->
-          <div class="post-content">
+            <a-divider dashed />
+            <!-- 文章内容 -->
+            <div class="post-content">
 
-            <div class="markdown-content" :class="{ 'best-reading-content': !notBestReading }">
-              <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content" :showComment="true" />
-              <div v-show="notBestReading" class="full-screen-tip">
-                <a-tooltip content="点我可回正屏幕获取最佳阅读体验哦">
-                  <a-button type="primary" shape="circle" @click="handleFullScreenClick">
-                    <icon-fullscreen />
-                  </a-button>
-                </a-tooltip>
+              <div class="markdown-content" :class="{ 'best-reading-content': !notBestReading }">
+                <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content" :showComment="true" />
+                <div v-show="notBestReading" class="full-screen-tip">
+                  <a-tooltip content="点我可回正屏幕获取最佳阅读体验哦">
+                    <a-button type="primary" shape="circle" @click="handleFullScreenClick">
+                      <icon-fullscreen />
+                    </a-button>
+                  </a-tooltip>
+                </div>
               </div>
+
             </div>
 
           </div>
-
+        </div>
+        <div class="comment-section" :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
+          <a-divider dashed ref="commentDividerRef" />
+          <CommentList :version="version" :postId="post?.id" :postCount="post?.commentCount" />
         </div>
       </div>
-      <div class="comment-section" :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
-        <a-divider dashed ref="commentDividerRef" />
-        <CommentList :version="version" :postId="post?.id" :postCount="post?.commentCount" />
+
+      <div class="post-right-sidebar" v-if="showMoreInfo">
+        <div :style="{ height: (placeholderHeight) / 2 + 'px' }"></div>
+        <!-- 展示知识库 -->
+        <PostRecommend :postId="post?.id" />
       </div>
     </div>
+  </div>
 
-    <div class="post-right-sidebar" v-if="showMoreInfo">
-      <div :style="{ height: (placeholderHeight)/2 + 'px' }"></div>
-      <!-- 展示知识库 -->
-      <PostRecommend :postId="post?.id" />
-    </div>
-  </div>
-  </div>
- 
 
   <CodeLoader v-if="codeLoader > 0"></CodeLoader>
 </template>
@@ -95,7 +95,7 @@ import CodeLoader from '@/components/base/CodeLoader.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
 import PostActions from '@/components/post/PostActions.vue';
 import Header from '../../components/layout/Header.vue';
-
+import { storeToRefs } from 'pinia';
 const userStore = useUserStore();
 const commentStore = useCommentStore();
 
@@ -222,6 +222,7 @@ const throttle = (func, delay) => {
 const containerRef = ref(null);
 const commentDividerRef = ref(null);
 const notBestReading = ref(false);
+const targetVersion = ref(null);
 let firstDivider;
 const getBestReadingTop = () => {
   if (firstDivider) {
@@ -307,10 +308,59 @@ const handleReport = () => {
   Message.info('举报功能待实现');
 };
 
+
+const { targetDataId, parCommentId } = storeToRefs(commentStore);
+async function processParCommentId(parCommentId2) {
+  try {
+    const { data } = await api.get('/comment/locate', { id: parCommentId2 });
+    console.log("需要定位到段评", parCommentId2, "返回数据:", data);
+    if (data && data.version) {
+      targetVersion.value = data.version;
+    }
+    if (data && data.dataId) {
+      // 直接赋值给 store 的属性
+      targetDataId.value = data.dataId;
+      parCommentId.value = parCommentId2;
+      console.log("已设置 targetDataId:", commentStore.targetDataId, "parCommentId:", commentStore.parCommentId);
+    }
+  } catch (error) {
+    console.error('定位评论失败:', error);
+  }
+}
+
+
 // 组件挂载时的逻辑
 onMounted(() => {
   const postId = route.params.id;
   placeholderHeight.value = getBestReadingTop();
+
+  // 获取 URL 参数
+  const parCommentId = route.query.par;
+  const postCommentId = route.query.comment;
+
+  // 处理参数（如果需要的话）
+  if (parCommentId) {
+    processParCommentId(parCommentId)
+  }
+
+  if (postCommentId) {
+    console.log('文章评论ID:', postCommentId);
+    // 这里可以添加滚动到对应评论的逻辑
+  }
+
+  // 移除 URL 参数
+  if (parCommentId || postCommentId) {
+    const newQuery = { ...route.query };
+    delete newQuery.par;
+    delete newQuery.comment;
+
+    window.history.replaceState(
+      {},
+      '',
+      `${route.path}${Object.keys(newQuery).length > 0 ? '?' + new URLSearchParams(newQuery).toString() : ''}`
+    );
+  }
+
   if (postId) {
     loadPostContent(postId);
   }
@@ -364,7 +414,7 @@ onMounted(() => {
   }
 
   @media screen and (max-width: 768px) {
-     margin-left: 10px;
+    margin-left: 10px;
     display: none;
   }
 }
@@ -386,7 +436,7 @@ onMounted(() => {
   flex: 1;
   min-width: 0;
   max-width: 100%;
-  
+
   &::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
