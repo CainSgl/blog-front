@@ -186,6 +186,33 @@ const routes = [
     component: () => import('@/views/post/ArticleCommit.vue'),
   },
   {
+    path: '/messages',
+    name: 'Messages',
+    component: () => import('@/views/messages/Messages.vue'),
+    children: [
+      {
+        path: 'reply',
+        name: 'MessagesReply',
+        component: () => import('@/views/messages/children/Reply.vue'),
+      },
+      {
+        path: 'like',
+        name: 'MessagesLike',
+        component: () => import('@/views/messages/children/Like.vue'),
+      },
+      {
+        path: 'message',
+        name: 'MessagesMessage',
+        component: () => import('@/views/messages/children/Message.vue'),
+      },
+      {
+        path: 'report',
+        name: 'MessagesReport',
+        component: () => import('@/views/messages/children/Report.vue'),
+      },
+    ],
+  },
+  {
     path: '/redirect',
     name: 'Redirect',
     component: () => import('@/views/misc/RedirectPage.vue'),

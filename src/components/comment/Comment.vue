@@ -40,7 +40,7 @@
       <div v-if="showReplies && replies.length > 0" class="replies-container" key="replies">
         <transition-group name="reply-list" tag="div">
           <CommentReply v-for="replyComment in replies" :key="replyComment.id" :comment-data="replyComment"
-            @reply="handleReply" />
+            :data-reply-id="replyComment.id" @reply="handleReply" @reply-to-click="handleReplyToClick" />
         </transition-group>
       </div>
     </transition>
@@ -62,7 +62,8 @@
           <span class="arco-comment-datetime" style="font-size: 14px;" v-if="showReplies">
             共{{ commentData.replyCount }}条回复，
           </span>
-          <span class="view-replies arco-comment-datetime" v-if="hasMore&&commentData.replyCount>replies.length" @click="loadReply()" style="font-size: 14px;">
+          <span class="view-replies arco-comment-datetime" v-if="hasMore && commentData.replyCount > replies.length"
+            @click="loadReply()" style="font-size: 14px;">
             查看更多，
           </span>
           <span class="view-replies arco-comment-datetime" @click="toggleReplies" style="font-size: 14px;">
@@ -140,13 +141,13 @@ const userStore = useUserStore();
 const userDetail = ref(null);
 const hasMore = ref(true);
 const loadingReply = ref(false);
+// 记录已经移动到顶部的评论ID，用于去重
+const movedToTopIds = ref(new Set());
 // 监听 commentData 变化，如果包含 userId 则获取完整用户信息
 watch(
   () => props.commentData,
-  async (newCommentData) => 
-  {
-    if (newCommentData && newCommentData.userId) 
-    {
+  async (newCommentData) => {
+    if (newCommentData && newCommentData.userId) {
       // 如果 commentData 中有 userId，则获取用户信息
       const userInfo = await userStore.getUserInfo(newCommentData.userId);
       userDetail.value = userInfo;
@@ -159,23 +160,19 @@ watch(
 let lastCreatedAt;
 let lastLikeCount;
 let lastId;
-function buildReplyRequest() 
-{
+function buildReplyRequest() {
   let req;
-  if (props.postComment) 
-  {
+  if (props.postComment) {
     req = {
       postCommentId: props.commentData.id,
     };
   }
-  else 
-  {
+  else {
     req = {
       parCommentId: props.commentData.id,
     };
   }
-  if (lastCreatedAt) 
-  {
+  if (lastCreatedAt) {
     req.lastCreatedAt = lastCreatedAt;
     req.lastLikeCount = lastLikeCount;
     req.lastId = lastId;
@@ -184,35 +181,35 @@ function buildReplyRequest()
 }
 let replyIdCache = null;
 
-function buildReplyPost(content) 
-{
+function buildReplyPost(content) {
   let req;
-  if (replyIdCache) 
-  {
+  if (replyIdCache) {
     req = {
       replyId: replyIdCache,
+      //还需要知道具体是哪个回复
+      replyCommentId: idCache,
     };
+    console.log("构建的req", req)
   }
-  if (props.postComment) 
-  {
+  if (props.postComment) {
     req = {
+      ...req,
       postCommentId: props.commentData.id,
     };
   }
-  else 
-  {
+  else {
     req = {
+      ...req,
       dataId: commentStore.paragrahphId,
       parCommentId: props.commentData.id,
     };
   }
-  req.postId=commentStore.postId;
-  req.version=commentStore.version; 
+  req.postId = commentStore.postId;
+  req.version = commentStore.version;
   req.content = content;
   return req;
 }
-async function buildReplyMessage({id, content}) 
-{
+async function buildReplyMessage({ id, content }) {
   const current = await userStore.getUserInfo();
 
   const message = {
@@ -224,35 +221,29 @@ async function buildReplyMessage({id, content})
     userId: current.id,
   };
   console.log(message, current);
-  if (replyIdCache) 
-  {
+  if (replyIdCache) {
     message.replyId = replyIdCache;
+    message.replyCommentId = idCache
     return message;
   }
 
-  if (props.postComment) 
-  {
+  if (props.postComment) {
     message.postCommentId = props.commentData.id;
     return message;
   }
-  else 
-  {
+  else {
     message.parCommentId = props.commentData.id;
     return message;
   }
 }
 
 // 切换显示回复
-const toggleReplies = async () => 
-{
-  if (showReplies.value) 
-  {
+const toggleReplies = async () => {
+  if (showReplies.value) {
     showReplies.value = false;
   }
-  else 
-  {
-    if (replies.value.length === 0) 
-    {
+  else {
+    if (replies.value.length === 0) {
       loadReply();
     }
     showReplies.value = true;
@@ -260,8 +251,7 @@ const toggleReplies = async () =>
 };
 
 // 切换回复输入框显示/隐藏
-const toggleReplyInput = () => 
-{
+const toggleReplyInput = () => {
   showReplyInput.value = !showReplyInput.value;
   replyIdCache = null;
 };
@@ -269,81 +259,79 @@ const toggleReplyInput = () =>
 
 
 // 处理回复提交
-const handleSubmitReply = async (content) => 
-{
-  if (!content.trim()) 
-  {
+const handleSubmitReply = async (content) => {
+  if (!content.trim()) {
     Message.warning('请输入回复内容');
     return;
   }
 
-  try 
-  {
+  try {
+    console.log(replyIdCache)
+    if (replyIdCache) {
+      console.log("回复他人")
+    } else {
+      console.log("回复主评论")
+    }
     const { data } = await api.post('/comment/reply', buildReplyPost(content));
     Message.success('成功回复评论');
     replies.value.unshift(await buildReplyMessage(data));
     // 隐藏输入框
     showReplyInput.value = false;
+    replyIdCache = null;
     // 更新回复计数
     props.commentData.replyCount += 1;
   }
-  catch (error) 
-  {
+  catch (error) {
     console.error('回复评论失败:', error);
     Message.error('回复评论失败，请重试！');
   }
 };
 
-async function loadReply() 
-{
+async function loadReply() {
   loadingReply.value = true;
-  try 
-  {
+  try {
     const { data } = await api.get('/comment/reply', buildReplyRequest());
-    if (data && data.length > 0) 
-    {
+    if (data && data.length > 0) {
       lastCreatedAt = data[data.length - 1].createdAt;
       lastLikeCount = data[data.length - 1].likeCount;
       lastId = data[data.length - 1].id;
     }
 
-    replies.value = [...replies.value, ...data];
-    if (data.length < 10) 
-    {
+    // 过滤掉已经移动到顶部的评论，防止重复
+    const filteredData = data.filter(reply => !movedToTopIds.value.has(reply.id));
+    replies.value = [...replies.value, ...filteredData];
+
+    if (data.length < 10) {
       hasMore.value = false;
     }
 
     showReplies.value = true;
   }
-  catch (error) 
-  {
+  catch (error) {
     console.error('获取回复评论失败:', error);
   }
-  finally 
-  {
+  finally {
     loadingReply.value = false;
   }
 }
 let idCache;
-function handleReply({ id, replyId, nickname }) 
-{
-  if (showReplyInput.value) 
-  {
-    if (replyIdCache === replyId && idCache === id) 
-    {
+function handleReply({ id, replyId, nickname }) {
+  console.log("回复的评论id是", id)
+  console.log("回复的用户id是", replyId)
+  if (showReplyInput.value) {
+    if (replyIdCache === replyId && idCache === id) {
       //关闭回复
       toggleReplyInput();
       return;
     }
-    else 
-    {
+    else {
       replyIdCache = replyId;
+      replyCommentIdCache = replyCommentId
       idCache = id;
       placeholder.value = `回复 @${nickname}：`;
     }
   }
-  else 
-  {
+  else {
     //打开回复
     toggleReplyInput();
     placeholder.value = `回复 @${nickname}：`;
@@ -351,16 +339,75 @@ function handleReply({ id, replyId, nickname })
     idCache = id;
   }
 }
+
+// 处理点击@用户，跳转到对应回复
+const handleReplyToClick = async (replyCommentId) => {
+  if (!replyCommentId) return;
+
+  // 先确保回复列表已展开
+  if (!showReplies.value) {
+    await toggleReplies();
+  }
+
+  // 等待DOM更新
+  await nextTick();
+
+  // 在当前回复列表中查找目标回复
+  const targetIndex = replies.value.findIndex(reply => reply.id === replyCommentId);
+  if (targetIndex !== -1) {
+    //直接就能找到，返回，等待滚动
+    await nextTick();
+    scrollToReply(replyCommentId);
+  } else {
+    // 没找到，发起请求获取
+    try {
+      const { data } = await api.get('/comment/reply/getMyReply', {
+        id: replyCommentId
+      });
+
+      if (data) {
+        // 添加到首位
+        replies.value.unshift(data);
+
+        // 记录已移动到顶部的ID
+        movedToTopIds.value.add(replyCommentId);
+
+        // 等待DOM更新后滚动
+        await nextTick();
+        scrollToReply(replyCommentId);
+      }
+    } catch (error) {
+      console.error('获取回复失败:', error);
+      Message.error('获取回复失败');
+    }
+  }
+};
+
+// 滚动到指定回复
+const scrollToReply = (replyId) => {
+  // 通过 data-reply-id 属性定位元素
+  const targetElement = document.querySelector(`[data-reply-id="${replyId}"]`);
+
+  if (targetElement) {
+    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // 添加高亮效果
+    const commentElement = targetElement.querySelector('.arco-comment') || targetElement;
+    commentElement.style.transition = 'background-color 0.3s';
+    commentElement.style.backgroundColor = 'var(--color-fill-2)';
+    setTimeout(() => {
+      commentElement.style.backgroundColor = '';
+    }, 2000);
+  }
+};
+
 // 点赞处理函数
-const onLikeChange = async () => 
-{
+const onLikeChange = async () => {
   like.value = !like.value;
-  try 
-  {
+  try {
     console.log(`点赞状态已更新: ${props.commentData.id}, 点赞: ${like.value}`);
   }
-  catch (error) 
-  {
+  catch (error) {
     // 如果API调用失败，回滚状态
     like.value = !like.value;
     console.error('点赞操作失败:', error);
@@ -470,7 +517,8 @@ const emit = defineEmits(['reply']);
 }
 
 .replies-container-enter-to {
-  max-height: 500px; /* 设置一个足够大的值，确保内容完全显示 */
+  max-height: 500px;
+  /* 设置一个足够大的值，确保内容完全显示 */
   opacity: 1;
 }
 

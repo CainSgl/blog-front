@@ -1,10 +1,68 @@
 <template>
+  <!-- 设置用户名弹窗 -->
+  <a-modal 
+    v-model:visible="usernameModalVisible" 
+    title="设置用户名" 
+    :footer="null" 
+    @cancel="handleUsernameModalCancel"
+    width="500px"
+  >
+    <a-space direction="vertical" size="large" style="width: 100%;">
+      <a-alert type="warning" :show-icon="true">
+        当前用户名为空，用户名是唯一标识用户字符，目前仅可以设置一次，请慎重！
+      </a-alert>
+      
+      <a-form :model="usernameForm" @submit="handleUsernameSubmit" ref="usernameFormRef">
+        <a-form-item 
+          field="username" 
+          label="用户名" 
+          :rules="[
+            { required: true, message: '请输入用户名' },
+            { minLength: 3, message: '用户名至少3个字符' },
+            { maxLength: 20, message: '用户名最多20个字符' },
+            { 
+              match: /^[a-zA-Z0-9_]+$/, 
+              message: '用户名只能包含字母、数字和下划线' 
+            }
+          ]"
+        >
+          <a-input 
+            v-model="usernameForm.username" 
+            placeholder="请输入用户名（字母、数字、下划线）" 
+            :max-length="20"
+            show-word-limit
+          />
+        </a-form-item>
+        
+        <a-form-item>
+          <div style="display: flex; justify-content: flex-end; gap: 12px; width: 100%;">
+            <a-button @click="handleUsernameModalCancel">取消</a-button>
+            <a-button 
+              type="primary" 
+              html-type="submit" 
+              :loading="usernameSubmitting"
+            >
+              {{ usernameSubmitting ? '设置中...' : '确认设置' }}
+            </a-button>
+          </div>
+        </a-form-item>
+      </a-form>
+    </a-space>
+  </a-modal>
+
+  <!-- 编辑个人信息弹窗 -->
   <a-modal v-model:visible="modalVisible" title="编辑个人信息" :footer="null" @cancel="handleCancel" width="auto">
     <a-space class="edit-user-info-modal" direction="vertical">
       <a-form :model="form" :rules="rules" :label-col-props="{ span: 3 }" :wrapper-col-props="{ span: 20 }"
         @submit="handleSubmit" ref="formRef" class="form-container">
         <a-form-item field="username" label="用户名">
-          <a-input v-model="form.username" disabled />
+          <a-input 
+            v-model="form.username" 
+            :disabled="!!form.username" 
+            :placeholder="form.username ? '' : '用户名为空，可以修改'"
+            @click="handleUsernameClick"
+            style="cursor: pointer;"
+          />
         </a-form-item>
         <a-form-item field="nickname" label="昵称" required>
           <a-input v-model="form.nickname" placeholder="请输入昵称" :max-length="30" show-word-limit />
@@ -85,6 +143,14 @@ const hasChanges = computed(() =>
 const submitting = ref(false);
 const formRef = ref();
 
+// 用户名设置相关
+const usernameModalVisible = ref(false);
+const usernameSubmitting = ref(false);
+const usernameFormRef = ref();
+const usernameForm = reactive({
+  username: ''
+});
+
 // 表单验证规则
 const rules = {
   nickname: [
@@ -131,6 +197,66 @@ watch(() => props.modelValue, (visible) =>
 const handleCancel = () => 
 {
   modalVisible.value = false;
+};
+
+// 点击用户名输入框
+const handleUsernameClick = () => 
+{
+  if (!form.username) 
+  {
+    usernameModalVisible.value = true;
+    usernameForm.username = '';
+  }
+};
+
+// 取消设置用户名
+const handleUsernameModalCancel = () => 
+{
+  usernameModalVisible.value = false;
+  usernameForm.username = '';
+};
+
+// 提交用户名设置
+const handleUsernameSubmit = async () => 
+{
+  try 
+  {
+    await usernameFormRef.value.validate();
+    usernameSubmitting.value = true;
+    
+    Message.loading({ id: 'setUsername', content: '设置中...' });
+    
+    // 调用 PUT 请求更新用户名
+    await userStore.updateUserInfo({ username: usernameForm.username });
+    
+    Message.success({ id: 'setUsername', content: '用户名设置成功' });
+    
+    // 更新表单中的用户名
+    form.username = usernameForm.username;
+    originalData.username = usernameForm.username;
+    
+    // 关闭弹窗
+    usernameModalVisible.value = false;
+    usernameForm.username = '';
+    
+    emit('saved');
+  }
+  catch (error) 
+  {
+    console.error('设置用户名失败:', error);
+    if (error?.message) 
+    {
+      Message.error({ id: 'setUsername', content: error.message });
+    }
+    else 
+    {
+      Message.error({ id: 'setUsername', content: '设置用户名失败，请稍后重试' });
+    }
+  }
+  finally 
+  {
+    usernameSubmitting.value = false;
+  }
 };
 
 // 提交表单

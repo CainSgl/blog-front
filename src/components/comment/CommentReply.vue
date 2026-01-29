@@ -6,19 +6,20 @@
     <template #author>
       <div>
         <div style="display: flex;align-items: center;">
-          <a-link class="author-with-level" :loading="!userDetail?.nickname" :href="`/space/${userDetail?.id}`"  :hoverable="false" style="color: black;">
-            {{ userDetail?.nickname ||'加载中'}}
+          <a-link class="author-with-level" :loading="!userDetail?.nickname" :href="`/space/${userDetail?.id}`"
+            :hoverable="false" style="color: black;">
+            {{ userDetail?.nickname || '加载中' }}
           </a-link>
           <UserLevel style=" display: flex;align-items: center;height: 100%;margin-left: 15px;"
             v-if="userDetail?.level !== undefined" :level="userDetail?.level" />
         </div>
         <div style="margin-top: 5px;">
-           <a-link class="reply-to" v-if="replyUserInfo" :href="`/space/${replyUserInfo.id}`">
-          @{{ replyUserInfo?.nickname }}
-        </a-link>
-        <span class="content"> {{ commentData.content }}</span>
+          <a-link class="reply-to" v-if="replyUserInfo" @click="handleReplyToClick">
+           @{{ replyUserInfo?.nickname }}
+          </a-link>
+          <span class="content"> {{ commentData.content }}</span>
         </div>
-       
+
         <div>
           <span class="arco-comment-datetime">{{ formatTime(commentData.createdAt) }}</span>
           <span class="action arco-comment-actions arco-comment-actions-align-left" key="heart" @click="onLikeChange">
@@ -62,7 +63,7 @@ const props = defineProps({
 });
 
 // 定义emit事件
-const emit = defineEmits(['reply']);
+const emit = defineEmits(['reply', 'replyToClick']);
 
 // 点赞状态
 const like = ref(false);
@@ -74,15 +75,12 @@ const replyUserInfo = ref(null);
 // 监听 commentData 变化，如果包含 userId 则获取完整用户信息
 watch(
   () => props.commentData,
-  async (newCommentData) => 
-  {
-    if (newCommentData && newCommentData.userId) 
-    {
+  async (newCommentData) => {
+    if (newCommentData && newCommentData.userId) {
       // 如果 commentData 中有 userId，则获取用户信息
       const userInfo = await userStore.getUserInfo(newCommentData.userId);
       userDetail.value = userInfo;
-      if (newCommentData.replyId) 
-      {
+      if (newCommentData.replyId) {
         replyUserInfo.value = await userStore.getUserInfo(newCommentData.replyId);
       }
     }
@@ -91,20 +89,17 @@ watch(
 );
 
 // 点赞处理函数
-const onLikeChange = async () => 
-{
+const onLikeChange = async () => {
   // 临时更新本地状态
   like.value = !like.value;
 
   // 这里可以调用API更新点赞状态
-  try 
-  {
+  try {
     // 示例API调用，实际项目中需要替换为真实的API
     // await api.likeComment(props.commentData.id, like.value);
     console.log(`点赞状态已更新: ${props.commentData.id}, 点赞: ${like.value}`);
   }
-  catch (error) 
-  {
+  catch (error) {
     // 如果API调用失败，回滚状态
     like.value = !like.value;
     console.error('点赞操作失败:', error);
@@ -112,8 +107,7 @@ const onLikeChange = async () =>
 };
 
 // 格式化时间
-const formatTime = (time) => 
-{
+const formatTime = (time) => {
   if (!time) return '';
   const date = new Date(time);
   const now = new Date();
@@ -132,19 +126,15 @@ const formatTime = (time) =>
   return date.toLocaleDateString('zh-CN');
 };
 
-// 处理回复用户点击
-const handleReplyUserClick = (userInfo) => 
-{
-  // 可以在这里添加跳转到用户页面或其他交互逻辑
-  console.log('点击了回复用户:', userInfo);
-  // 触发回复操作，预填回复内容
-  emit('reply', { id: props.commentData.id, replyId: userInfo?.id, nickname: userInfo?.nickname });
-};
 
 // 回复处理函数
-const reply = () => 
-{
+const reply = () => {
   emit('reply', { id: props.commentData.id, replyId: userDetail.value?.id, nickname: userDetail.value?.nickname });
+};
+
+// 处理点击@用户
+const handleReplyToClick = () => {
+  emit('replyToClick', props.commentData.replyCommentId);
 };
 </script>
 

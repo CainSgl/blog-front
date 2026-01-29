@@ -19,7 +19,7 @@
       <!-- 右侧登录区域 -->
       <div class="login-right">
         <div class="login-content">
-          <div class="login-title">登录Cattiy</div>
+          <div class="login-title">登录</div>
           <a-tabs v-model:active-key="activeTab" size="large">
             <a-tab-pane key="password" title="密码登录">
               <PasswordLogin :is-loading="authStore.isLoading" @login-success="handleLoginSuccess" />
@@ -40,10 +40,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import { useAuthStore } from '@/store/auth';
 import { IconClose } from '@arco-design/web-vue/es/icon';
-import GradientBackground from './children/GradientBackground.vue';
+// 懒加载 GradientBackground，延迟加载 three.js
+const GradientBackground = defineAsyncComponent(() => 
+  import('./children/GradientBackground.vue')
+);
 import PasswordLogin from './children/PasswordLogin.vue';
 import CodeLogin from './children/CodeLogin.vue';
 import ThirdPartyLogin from './children/ThirdPartyLogin.vue';
@@ -104,7 +107,7 @@ const handleLoginSuccess = () => {
 }
 
 .login-title {
-  font-size: @font-size-title-4;
+  
   font-weight: @font-weight-600;
   color: @color-text-1;
   margin-bottom: 24px;
@@ -152,5 +155,57 @@ const handleLoginSuccess = () => {
 
 :deep(.arco-tabs-ink-bar) {
   background-color: @primary-6;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .login-modal {
+    display: block;
+  }
+
+  /* 背景占满整个屏幕 */
+  :deep(.character-flow-background) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    flex: none;
+    z-index: 1;
+  }
+
+  /* 登录区域叠加在背景上 */
+  .login-right {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 2;
+  }
+
+  .login-content {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    margin: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .login-title {
+
+    color: @color-text-1;
+  }
+
+  :deep(.arco-tabs-tab) {
+    color: @color-text-2;
+  }
+
+  :deep(.arco-tabs-tab-active) {
+    color: @primary-6;
+  }
 }
 </style>

@@ -34,11 +34,13 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { Message } from '@arco-design/web-vue'
+import { Message, Modal } from '@arco-design/web-vue'
 import api from '@/api'
 import { useAuthStore } from '@/store/auth'
+import { useUserStore } from '@/store/user'
 
 const authStore = useAuthStore()
+const userStore = useUserStore()
 
 const visible = defineModel('visible', { type: Boolean, default: false })
 const token = ref('')
@@ -103,7 +105,28 @@ const handleOk = async () => {
       }
       return
     }
-    console.log(data)
+
+    // 登录成功，保存 token 和用户信息
+    if (data.token && data.userInfo) {
+      userStore.setToken(data.token)
+      // 关闭登录弹窗
+      authStore.closeLogin()
+      
+      Message.success('登录成功')
+      
+      // 如果是新用户，询问是否完善信息
+      if (data.isNew) {
+        Modal.confirm({
+          title: '完善个人信息',
+          content: '检测到您是新用户，是否前往完善个人信息？',
+          okText: '立即前往',
+          cancelText: '暂不',
+          onOk: () => {
+            window.open('/space', '_blank')
+          }
+        })
+      }
+    }
   } catch (error) {
     console.error('Bilibili 登录失败:', error)
     errorMsg.value = error.msg || '登录失败，请重试'

@@ -126,14 +126,54 @@
           </div>
           <!-- 登录后显示的功能入口 -->
           <div class="user-actions" v-if="userInfo?.id != '-1'">
-            <div class="action-item" @click="openInNewTab('/messages')">
-              <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
-                <a-badge :count="0" :dot-style="{width: '8px', height: '8px'}">
-                  <icon-notification :size="20" />
-                </a-badge>
-              </a-tooltip>
-              <span class="action-text">消息</span>
-            </div>
+            <a-dropdown trigger="hover" >
+              <div class="action-item">
+                <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
+                  <a-badge :count="getTotalMsgCount()" :max-count="99" :offset="['5px','0px','0px','15px']">
+                    <icon-notification :size="20" />
+                  </a-badge>
+                </a-tooltip>
+                <span class="action-text">消息</span>
+              </div>
+              <template #content>
+                <a-doption @click="openInNewTab('/messages/reply')">
+                  <template #icon>
+                    <icon-message />
+                  </template>
+                  <div class="dropdown-option-content">
+                    <span>回复我的</span>
+                    <a-badge :count="userInfo?.msgReplyCount || 0" :max-count="99" />
+                  </div>
+                </a-doption>
+                <a-doption @click="openInNewTab('/messages/like')">
+                  <template #icon>
+                    <icon-heart />
+                  </template>
+                  <div class="dropdown-option-content">
+                    <span>收到的赞</span>
+                    <a-badge :count="userInfo?.msgLikeCount || 0" :max-count="99" />
+                  </div>
+                </a-doption>
+                <a-doption @click="openInNewTab('/messages/message')">
+                  <template #icon>
+                    <icon-email />
+                  </template>
+                  <div class="dropdown-option-content">
+                    <span>消息</span>
+                    <a-badge :count="userInfo?.msgMessageCount || 0" :max-count="99" />
+                  </div>
+                </a-doption>
+                <a-doption @click="openInNewTab('/messages/report')">
+                  <template #icon>
+                    <icon-exclamation-circle />
+                  </template>
+                  <div class="dropdown-option-content">
+                    <span>举报消息</span>
+                    <a-badge :count="userInfo?.msgReportCount || 0" :max-count="99" />
+                  </div>
+                </a-doption>
+              </template>
+            </a-dropdown>
 
             <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/favorites`)">
               <a-tooltip content="收藏" :popup-visible="isSmallScreen ? undefined : false">
@@ -179,7 +219,7 @@ import { storeToRefs } from 'pinia';
 import Avatar from '@/components/user/base/Avatar.vue';
 import SearchBox from '@/components/base/SearchBox.vue';
 import { onMounted, ref, onUnmounted } from 'vue';
-import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory } from '@arco-design/web-vue/es/icon';
+import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory, IconMessage, IconHeart, IconEmail, IconExclamationCircle } from '@arco-design/web-vue/es/icon';
 import { useRouter, useRoute } from 'vue-router';
 import { getLoginService, showLoginModal } from '@/services/authService';
 
@@ -326,6 +366,15 @@ const openInNewTab = (path) => {
 // 显示登录弹窗
 const showLogin = () => {
   showLoginModal();
+};
+
+// 计算消息总数
+const getTotalMsgCount = () => {
+  if (!userInfo.value) return 0;
+  return (userInfo.value.msgReplyCount || 0) + 
+         (userInfo.value.msgLikeCount || 0) + 
+         (userInfo.value.msgMessageCount || 0) + 
+         (userInfo.value.msgReportCount || 0);
 };
 
 onMounted(async () => {
@@ -579,6 +628,24 @@ onMounted(async () => {
         height: 32px !important;
       }
     }
+  }
+}
+
+// 下拉菜单选项样式
+.dropdown-option-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 150px;
+  gap: 16px;
+
+  span {
+    flex: 1;
+  }
+
+  :deep(.arco-badge) {
+    flex-shrink: 0;
   }
 }
 
