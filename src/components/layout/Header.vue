@@ -130,7 +130,7 @@
 import {useUserStore} from '@/store/user.js';
 import {storeToRefs} from 'pinia';
 import SearchBox from '@/components/base/SearchBox.vue';
-import HeaderIcon from './HeaderIcon.vue';
+import HeaderIcon from './common/HeaderIcon.vue';
 import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {
   IconBook,

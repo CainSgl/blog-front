@@ -17,11 +17,11 @@ import {marked} from 'marked';
 import DOMPurify from 'dompurify';
 import 'highlight.js/styles/github.css';
 import ArcoVue, {Image as AImage} from '@arco-design/web-vue';
-import CodeBlock from './CodeBlock.vue';
+import CodeBlock from './common/CodeBlock.vue';
 import CommentableParagraph from '../comment/CommentableParagraph.vue';
 import {API_BASE_URL} from '@/config';
 import containerExtension from '@/plugins/md-tip-info-extens.js';
-import {useTocStore} from '../navigation/toc/toc.js';
+import {useTocStore} from './common/toc/toc.js';
 import {storeToRefs} from 'pinia';
 // 使用 marked 的 use 方法注册扩展
 marked.use({

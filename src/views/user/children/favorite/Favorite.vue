@@ -51,11 +51,11 @@ import {useRoute, useRouter} from 'vue-router';
 import {IconBook, IconDown, IconFile} from '@arco-design/web-vue/es/icon';
 import api from '@/api/index.js';
 import {useUserStore} from '@/store/user.js';
-import UserPageHeader from './components/UserPageHeader.vue';
-import FavoriteItem from '@/components/user/favorite/FavoriteItem.vue';
-import FavoriteItemCreate from '@/components/user/favorite/FavoriteItemCreate.vue';
-import FavoriteDetailModal from '@/components/user/favorite/FavoriteDetailModal.vue';
-import CreateFavoriteModal from '@/components/user/favorite/CreateFavoriteModal.vue';
+import UserPageHeader from '../components/UserPageHeader.vue';
+import FavoriteItem from '@/components/base/favorite/FavoriteItem.vue';
+import FavoriteItemCreate from '@/components/base/favorite/FavoriteItemCreate.vue';
+import FavoriteDetailModal from '@/views/user/children/favorite/components/FavoriteDetailModal.vue';
+import CreateFavoriteModal from '@/components/base/favorite/CreateFavoriteModal.vue';
 
 const router = useRouter();
 const route = useRoute();

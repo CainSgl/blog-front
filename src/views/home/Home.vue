@@ -36,7 +36,7 @@
 
 <script setup>
 import {onMounted, onUnmounted, ref} from 'vue';
-import HomeHeader from '../components/home/HomeHeader.vue';
+import HomeHeader from '../../components/home/HomeHeader.vue';
 import BannerCarousel from '@/components/home/children/BannerCarousel.vue';
 import AnnouncementBanner from '@/components/home/children/AnnouncementBanner.vue';
 import PostList from '@/components/home/children/PostList.vue';

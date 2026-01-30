@@ -1,40 +1,41 @@
-import {createRouter, createWebHistory} from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/Home.vue'),
+    component: () => import('@/views/home/Home.vue'),
+    meta: { title: 'cainsgl的小破站，交个朋友吧！(,,・ω・,,)' }
   },
   {
     path: '/blog',
     name: 'Blog',
     component: () => import('@/views/Blog.vue'),
+    meta: { title: 'cainsgl小站的博客_(:3 ⌒ﾞ)_' }
   },
   {
     path: '/knowledge',
     name: 'Knowledge',
     component: () => import('@/views/Knowledge.vue'),
-  },
-  {
-    path: '/components',
-    name: 'Components',
-    component: () => import('@/views/misc/Components.vue'),
+    meta: { title: '都是一些知识库呢' }
   },
   {
     path: '/p/:id',
     name: 'Post',
     component: () => import('@/views/post/post.vue'),
+    meta: { title: '加载中' }
   },
   {
     path: '/search',
     name: 'Search',
     component: () => import('@/views/search/Search.vue'),
+    meta: { title: '全力搜索中' }
   },
   {
     path: '/about',
     name: 'About',
     component: () => import('@/views/about/About.vue'),
+    meta: { title: '关于我们' }
   },
   {
     path: '/about/view/:id',
@@ -50,38 +51,33 @@ const routes = [
     path: '/announcement/:id',
     name: 'Announcement',
     component: () => import('@/views/announcement/Announcement.vue'),
+    meta: { title: '公告' }
   },
   {
     path: '/space',
     name: 'SpaceRedirect',
-    beforeEnter: async (to, from, next) => 
-    {
+    beforeEnter: async (to, from, next) => {
       // 导入用户store来获取当前用户信息
       const { useUserStore } = await import('@/store/user.js');
       const userStore = useUserStore();
-      
+
       // 尝试获取用户信息
-      try 
-      {
+      try {
         const userInfo = await userStore.getUserInfo();
-        if(userInfo.id=='-1')
-        {
+        if (userInfo.id == '-1') {
           //必须登录才行，直接跳转到登录页
-          const { showLoginModal } = await import('@/services/authService' );
+          const { showLoginModal } = await import('@/services/authService');
           showLoginModal(false);
           return;
         }
-        if (userInfo && userInfo.id) 
-        {
+        if (userInfo && userInfo.id) {
           next(`/space/${userInfo.id}`);
         }
-        else 
-        {
+        else {
           next('/404');
         }
       }
-      catch (error) 
-      {
+      catch (error) {
         next('/404');
       }
     }
@@ -119,7 +115,7 @@ const routes = [
       {
         path: 'knowledge',
         name: 'UserKnowledge',
-        component: () => import('@/views/user/children/Knowledge.vue'),
+        component: () => import('@/views/user/children/kb/Knowledge.vue'),
       },
       {
         path: 'docs',
@@ -131,10 +127,10 @@ const routes = [
         name: 'UserCloud',
         component: () => import('@/views/user/children/Cloud.vue'),
       },
-       {
+      {
         path: 'favorites',
         name: 'UserFavorite',
-        component: () => import('@/views/user/children/Favorite.vue'),
+        component: () => import('@/views/user/children/favorite/Favorite.vue'),
       },
       {
         path: 'history',
@@ -147,6 +143,7 @@ const routes = [
     path: '/kb',
     name: 'KB',
     component: () => import('@/views/kb/kb.vue'),
+    meta: { title: '加载知识库中' },
     children: [
       {
         path: '',
@@ -172,6 +169,7 @@ const routes = [
         path: 'no',
         name: 'NoPermission',
         component: () => import('@/views/kb/children/NoPermission.vue'),
+        meta: { title: '你似乎没有权限访问呢，如果这是个异常请联系管理员' }
       },
     ],
   },
@@ -179,36 +177,43 @@ const routes = [
     path: '/kb/create',
     name: 'KBCreate',
     component: () => import('@/views/kb/children/create.vue'),
+    meta: { title: '创建知识库' }
   },
   {
     path: '/commit',
     name: 'ArticleCommit',
     component: () => import('@/views/post/ArticleCommit.vue'),
+    meta: { title: '发布文章' }
   },
   {
     path: '/messages',
     name: 'Messages',
     component: () => import('@/views/messages/Messages.vue'),
+    meta: { title: '消息中心' },
     children: [
       {
         path: 'reply',
         name: 'MessagesReply',
         component: () => import('@/views/messages/children/Reply.vue'),
+        meta: { title: '回复我的' }
       },
       {
         path: 'like',
         name: 'MessagesLike',
         component: () => import('@/views/messages/children/Like.vue'),
+        meta: { title: '收到的赞' }
       },
       {
         path: 'message',
         name: 'MessagesMessage',
         component: () => import('@/views/messages/children/Message.vue'),
+        meta: { title: '系统消息' }
       },
       {
         path: 'report',
         name: 'MessagesReport',
         component: () => import('@/views/messages/children/Report.vue'),
+        meta: { title: '举报通知' }
       },
     ],
   },
@@ -216,6 +221,7 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: () => import('@/views/auth/Register.vue'),
+    meta: { title: '注册账号 - 加入我们' }
   },
   {
     path: '/redirect',
@@ -226,12 +232,21 @@ const routes = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/misc/NotFound.vue'),
+    meta: { title: '页面走丢了(｡•́︿•̀｡)' }
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+// 全局路由守卫：更新页面标题
+router.beforeEach((to, from, next) => {
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
+  next();
 });
 
 export default router;

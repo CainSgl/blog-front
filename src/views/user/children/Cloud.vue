@@ -120,7 +120,7 @@ import {useUserStore} from '@/store/user.js';
 import {IconDriveFile, IconFile, IconFileImage, IconFilePdf,} from '@arco-design/web-vue/es/icon';
 import {Message, Modal} from '@arco-design/web-vue';
 import {showLoginModal} from '@/services/authService';
-import FileCard from './FileCard.vue';
+import FileCard from './components/FileCard.vue';
 import api from '@/api/index.js';
 import {API_BASE_URL} from '@/config';
 

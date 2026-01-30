@@ -86,14 +86,14 @@ import {IconEye, IconFullscreen, IconHeart, IconMessage} from '@arco-design/web-
 import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
-import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
+import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import {useUserStore} from '@/store/user.js';
-import PostHistroy from '@/components/post/PostHistroy.vue';
-import PostRecommend from '@/components/post/PostRecommend.vue';
+import PostHistroy from '@/views/post/components/PostHistroy.vue';
+import PostRecommend from '@/views/post/components/PostRecommend.vue';
 import {useCommentStore} from '@/components/comment/commentStore.js';
-import CodeLoader from '@/components/base/CodeLoader.vue';
+import CodeLoader from '@/components/base/loader/CodeLoader.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
-import PostActions from '@/components/post/PostActions.vue';
+import PostActions from '@/components/post/common/PostActions.vue';
 import Header from '../../components/layout/Header.vue';
 import {storeToRefs} from 'pinia';
 
@@ -143,6 +143,9 @@ const loadPostContent = async (postId) => {
       };
     });
     post.value = data;
+
+    // 设置页面标题
+    document.title = data.title || '文章详情';
 
     // 从 operate 字段中获取点赞和收藏状态
     if (data.operate) {

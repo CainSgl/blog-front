@@ -18,7 +18,7 @@
 import {nextTick, onMounted, ref} from 'vue';
 import {Message} from '@arco-design/web-vue';
 import {useUserStore} from '@/store/user.js';
-import Avatar from '@/components/user/base/Avatar.vue';
+import Avatar from '@/components/base/avatar/Avatar.vue';
 
 const userStore = useUserStore();
 // 定义组件属性

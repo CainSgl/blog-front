@@ -8,7 +8,7 @@
 import {onMounted, ref, watch} from 'vue';
 import {Modal} from '@arco-design/web-vue';
 import {useUserStore} from '@/store/user.js';
-import followCache from './followCache.js';
+import followCache from '../../../views/user/children/home/components/followCache.js';
 
 const props = defineProps({
   userId: {

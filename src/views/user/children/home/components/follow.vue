@@ -25,8 +25,8 @@
 <script setup>
 import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
-import FollowButton from '@/components/user/home/follow/FollowButton.vue';
-import Avatar from '@/components/user/base/Avatar.vue';
+import FollowButton from '@/components/base/follow/FollowButton.vue';
+import Avatar from '@/components/base/avatar/Avatar.vue';
 
 // 定义组件接收的属性
 const props = defineProps({

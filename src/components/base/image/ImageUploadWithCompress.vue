@@ -42,7 +42,7 @@ import {ref} from 'vue';
 import {Message} from '@arco-design/web-vue';
 import {IconDelete, IconPlus} from '@arco-design/web-vue/es/icon';
 import ImageCompressor from './ImageCompressor.vue';
-import {compressImage} from '@/utils/imageCompressor';
+import {compressImage} from '@/utils/imageCompressor.js';
 
 const props = defineProps({
   // 是否自动压缩（不显示压缩弹窗）

@@ -35,9 +35,9 @@ import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import AboutSidebar from './components/AboutSidebar.vue';
 import AboutBreadcrumb from './components/AboutBreadcrumb.vue';
-import ArticleView from './components/ArticleView.vue';
-import WelcomeView from './components/WelcomeView.vue';
-import DirView from './components/DirView.vue';
+import ArticleView from './children/ArticleView.vue';
+import WelcomeView from './children/WelcomeView.vue';
+import DirView from './children/DirView.vue';
 import api from '@/api/index'
 import Header from '@/components/layout/Header.vue';
 
@@ -95,6 +95,8 @@ const handleNodeSelect = async (node) => {
   if (!node) {
     return;
   }
+  document.title = `${node.name} - 关于`;
+  console.log(node)
   if (node.postId) {
     currentNode.value = node;
     if (!node.content) {
@@ -104,10 +106,10 @@ const handleNodeSelect = async (node) => {
         const newnode = { ...node, content: data };
         currentNode.value = newnode;
       });
-
-    }
+    } 
     router.push(`/about/view/${node.id}`);
   } else {
+    // 目录页面设置标题
     currentNode.value = node;
     router.push(`/about/dir/${node.id}`);
   }
@@ -281,7 +283,8 @@ const handleLoadPrevious = () => {
 const clearSelection = () => {
   sidebarRef.value?.clearSelection();
   breadcrumbs.value = [];
-  // 返回欢迎页
+  // 返回欢迎页，恢复默认标题
+  document.title = '关于我们 - cainsgl的小站';
   router.push('/about');
 };
 

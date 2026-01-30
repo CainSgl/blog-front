@@ -33,6 +33,8 @@ onMounted(() =>
       const url = decodeURIComponent(route.query.url);
       const parsedUrl = new URL(url);
       decodedUrl.value = parsedUrl.href;
+      document.title='跳转到'+decodedUrl.value
+
     }
     catch (error) 
     {

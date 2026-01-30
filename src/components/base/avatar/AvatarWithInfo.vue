@@ -55,7 +55,7 @@
 <script setup>
 import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
-import Avatar from '@/components/user/base/Avatar.vue';
+import Avatar from '@/components/base/avatar/Avatar.vue';
 
 const props = defineProps({
   user: {

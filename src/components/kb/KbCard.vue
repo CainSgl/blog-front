@@ -44,7 +44,7 @@
 
 <script setup>
 import {IconBook} from '@arco-design/web-vue/es/icon';
-import CImg from '../base/cImg.vue';
+import CImg from '../base/image/cImg.vue';
 import {useRouter} from 'vue-router';
 import {formatDate} from '@/utils/DateFormatter.js';
 

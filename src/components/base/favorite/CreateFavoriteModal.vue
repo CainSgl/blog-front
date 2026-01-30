@@ -37,7 +37,7 @@
 <script setup>
 import {computed, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
-import api from '@/api';
+import api from '@/api/index.js';
 
 const props = defineProps({
     modelValue: {

@@ -24,7 +24,7 @@
 <script setup>
 import {onMounted, ref} from 'vue';
 import MarkdownPreview from '@/components/md/MarkdownPreview.vue';
-import ScrollProgressTrigger from '@/components/about/ScrollProgressTrigger.vue';
+import ScrollProgressTrigger from '@/views/about/components/ScrollProgressTrigger.vue';
 import api from '@/api';
 
 const emit = defineEmits(['enter-directory']);

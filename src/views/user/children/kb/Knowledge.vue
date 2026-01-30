@@ -146,10 +146,10 @@ import {Message, Upload} from '@arco-design/web-vue';
 import KbCard from '@/components/kb/KbCard.vue';
 import api from '@/api/index.js';
 import {useUserStore} from '@/store/user.js';
-import UserPageHeader from './components/UserPageHeader.vue';
-import ContentArea from './components/ContentArea.vue';
-import CImg from '@/components/base/cImg.vue';
-import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
+import UserPageHeader from '../components/UserPageHeader.vue';
+import ContentArea from '../components/ContentArea.vue';
+import CImg from '@/components/base/image/cImg.vue';
+import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 
 // 定义排序选项
 const sortOptions = [

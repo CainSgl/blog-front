@@ -61,7 +61,7 @@
 
 <script setup>
 import {onMounted, reactive, ref} from 'vue'
-import AvatarSection from '@/components/user/home/AvatarSection.vue'
+import AvatarSection from '@/components/base/avatar/AvatarSection.vue'
 import {useUserStore} from '@/store/user.js';
 
 const props = defineProps({

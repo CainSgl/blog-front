@@ -35,7 +35,7 @@
 import {ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import SearchBox from '@/components/base/SearchBox.vue';
-import SearchResults from './SearchResults.vue';
+import SearchResults from './components/SearchResults.vue';
 import Header from '@/components/layout/Header.vue';
 
 const route = useRoute();
@@ -73,6 +73,13 @@ const parseRouteParams = () => {
 
   const filtersParam = route.query.filters || '';
   activeFilters.value = filtersParam ? filtersParam.split(',').filter(f => f) : [];
+
+  // 设置页面标题
+  if (searchQuery.value) {
+    document.title = `${searchQuery.value} - cainsgl的小站`;
+  } else {
+    document.title = '搜索 - cainsgl的小站';
+  }
 };
 
 // 更新总数

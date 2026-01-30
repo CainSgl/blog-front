@@ -95,7 +95,7 @@
 <script setup>
 import {useUserStore} from '@/store/user.js';
 import {storeToRefs} from 'pinia';
-import Avatar from '@/components/user/base/Avatar.vue';
+import Avatar from '@/components/base/avatar/Avatar.vue';
 import {
   IconBook,
   IconCloud,
@@ -107,7 +107,7 @@ import {
   IconWoman
 } from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
-import {getLoginService, showLoginModal} from '@/services/authService';
+import {getLoginService, showLoginModal} from '@/services/authService.js';
 
 const userStore = useUserStore();
 const router = useRouter();

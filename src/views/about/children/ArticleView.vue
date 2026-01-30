@@ -67,7 +67,7 @@ import {computed, nextTick, ref, watch} from 'vue';
 import {IconExclamationCircleFill, IconInfoCircle, IconMessage} from '@arco-design/web-vue/es/icon';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
-import ScrollProgressTrigger from '@/components/about/ScrollProgressTrigger.vue';
+import ScrollProgressTrigger from '@/views/about/components/ScrollProgressTrigger.vue';
 import {useCommentStore} from '@/components/comment/commentStore.js';
 
 const props = defineProps({

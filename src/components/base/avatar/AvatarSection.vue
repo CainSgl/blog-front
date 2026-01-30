@@ -15,10 +15,10 @@
 
 <script setup>
 import {IconEdit} from '@arco-design/web-vue/es/icon';
-import Avatar from '@/components/user/base/Avatar.vue';
+import Avatar from '@/components/base/avatar/Avatar.vue';
 import {useUserStore} from '@/store/user.js';
 import {nextTick, onMounted, ref, watch} from 'vue';
-import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
+import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import api from '@/api/index.js';
 import {Message} from '@arco-design/web-vue';
 

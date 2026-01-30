@@ -92,8 +92,8 @@ import {useKbStore} from '../../kbStore.js';
 import {useUserStore} from '@/store/user.js';
 import MarkdownPreview from '@/components/md/MarkdownPreview.vue';
 import {IconCopy, IconEdit, IconMore, IconSettings, IconShareInternal} from '@arco-design/web-vue/es/icon';
-import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
-import FollowButton from '@/components/user/home/follow/FollowButton.vue';
+import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
+import FollowButton from '@/components/base/follow/FollowButton.vue';
 
 const route = useRoute();
 const router = useRouter();

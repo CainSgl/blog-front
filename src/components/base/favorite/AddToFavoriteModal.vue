@@ -22,7 +22,7 @@
 <script setup>
 import {computed, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
-import api from '@/api';
+import api from '@/api/index.js';
 import FavoriteItem from './FavoriteItem.vue';
 import FavoriteItemCreate from './FavoriteItemCreate.vue';
 import CreateFavoriteModal from './CreateFavoriteModal.vue';

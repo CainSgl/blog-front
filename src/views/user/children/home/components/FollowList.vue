@@ -29,7 +29,7 @@
 import {onMounted, ref} from 'vue';
 import {useRoute} from 'vue-router';
 import api from '@/api/index.js';
-import FollowItem from '@/components/user/home/follow/follow.vue';
+import FollowItem from '@/views/user/children/home/components/follow.vue';
 
 const props = defineProps({
   type: {

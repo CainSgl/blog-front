@@ -21,7 +21,7 @@
 <script setup>
 import {ref, watch} from 'vue';
 import api from '@/api/index.js';
-import PostCardWrapper from './PostCardWrapper.vue';
+import PostCardWrapper from '../../../components/post/PostCardWrapper.vue';
 
 const props = defineProps({
   postId: {

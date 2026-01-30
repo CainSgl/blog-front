@@ -91,7 +91,7 @@ import {Message, Upload} from '@arco-design/web-vue';
 import {IconArrowLeft, IconPlus, IconSave} from '@arco-design/web-vue/lib/icon';
 import api from '@/api/index.js';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
-import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
+import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import KbCard from '../../../../components/kb/KbCard.vue';
 import {useKbStore} from '../../kbStore.js';
 

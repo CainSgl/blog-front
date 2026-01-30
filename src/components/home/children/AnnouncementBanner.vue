@@ -28,7 +28,7 @@
 
 <script setup>
 import {onMounted, ref} from 'vue';
-import cImg from '@/components/base/cImg.vue';
+import cImg from '@/components/base/image/cImg.vue';
 import api from '@/api/index';
 
 const announcements = ref([]);

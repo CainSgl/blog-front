@@ -23,7 +23,7 @@ import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {Message} from '@arco-design/web-vue';
 
-import KBCardHeader from '@/components/kb/KBCardHeader.vue';
+import KBCardHeader from '@/views/kb/components/KBCardHeader.vue';
 import api from '@/api/index.js';
 import {useKbStore} from '../kbStore.js';
 import {messageManager} from '@/api/request.js';

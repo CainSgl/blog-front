@@ -31,10 +31,10 @@
 </template>
 
 <script setup>
-import CImg from '@/components/base/cImg.vue';
+import CImg from '@/components/base/image/cImg.vue';
 import SearchBox from '@/components/base/SearchBox.vue';
 import {computed, onMounted, onUnmounted, ref} from 'vue';
-import TypewriterWelcome from '@/components/typewriter/TypewriterWelcome.vue';
+import TypewriterWelcome from '@/views/home/components/TypewriterWelcome.vue';
 import {IconDoubleDown, IconDoubleUp} from '@arco-design/web-vue/es/icon';
 import Header from '@/components/layout/Header.vue';
 

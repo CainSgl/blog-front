@@ -52,10 +52,10 @@ import {useAuthStore} from '@/store/auth';
 import {IconClose} from '@arco-design/web-vue/es/icon';
 import PasswordLogin from './children/PasswordLogin.vue';
 import CodeLogin from './children/CodeLogin.vue';
-import ThirdPartyLogin from './children/ThirdPartyLogin.vue';
+import ThirdPartyLogin from './children/third/ThirdPartyLogin.vue';
 // 懒加载 GradientBackground，延迟加载 three.js
 const GradientBackground = defineAsyncComponent(() =>
-  import('./children/GradientBackground.vue')
+  import('./children/common/GradientBackground.vue')
 );
 
 const router = useRouter();

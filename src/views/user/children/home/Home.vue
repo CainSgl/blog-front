@@ -83,10 +83,10 @@ import {computed, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
 import {useUserStore} from '@/store/user.js';
-import AvatarSection from '@/components/user/home/AvatarSection.vue';
-import FollowButton from '@/components/user/home/follow/FollowButton.vue';
-import EditUserInfoModal from '@/components/user/home/EditUserInfoModal.vue';
-import UserLevel from '@/components/user/base/UserLevel.vue';
+import AvatarSection from '@/components/base/avatar/AvatarSection.vue';
+import FollowButton from '@/components/base/follow/FollowButton.vue';
+import EditUserInfoModal from '@/views/user/children/home/components/EditUserInfoModal.vue';
+import UserLevel from '@/components/base/UserLevel.vue';
 
 const userStore = useUserStore();
 const route = useRoute();

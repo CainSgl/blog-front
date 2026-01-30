@@ -62,7 +62,7 @@ const fetchAnnouncement = async () => {
     const id = route.params.id;
     const { data } = await api.get(`/system/announcement/content`, { id });
     announcement.value = data;
-
+    document.title='公告-'+data.title
     // 获取版本号和段评数据
     version.value = data.version;
 

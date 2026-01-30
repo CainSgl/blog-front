@@ -33,7 +33,7 @@
 <script setup>
 import {computed, nextTick, ref, watch} from 'vue';
 import {IconFile, IconFolder} from '@arco-design/web-vue/es/icon';
-import ScrollProgressTrigger from '@/components/about/ScrollProgressTrigger.vue';
+import ScrollProgressTrigger from '@/views/about/components/ScrollProgressTrigger.vue';
 
 const props = defineProps({
   node: {
@@ -55,7 +55,7 @@ const isProgressUpActive = ref(false);
 
 
 
-// 直接使用当前节点的 components 数组
+// 直接使用当前节点的 children 数组
 const items = computed(() => {
   if (!props.node || !props.node.children) return [];
   return props.node.children;

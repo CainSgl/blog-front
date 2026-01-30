@@ -51,7 +51,7 @@ import {useRoute} from 'vue-router';
 import {IconSearch} from '@arco-design/web-vue/es/icon';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import {Message} from '@arco-design/web-vue';
-import api from '@/api/index';
+import api from '@/api/index.js';
 
 const route = useRoute();
 

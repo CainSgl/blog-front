@@ -24,8 +24,8 @@
 
 <script setup>
 import {onMounted, onUnmounted, ref} from 'vue';
-import api from '@/api/index'
-import MessageItem from '@/components/user/base/MessageItem.vue';
+import api from '@/api/index.js'
+import MessageItem from '@/views/messages/components/MessageItem.vue';
 
 const loading = ref(false);
 const messages = ref([]);

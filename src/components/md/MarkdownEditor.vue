@@ -240,7 +240,7 @@ import {
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
-import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
+import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import VMdEditor from '@/plugins/v-md-editor';
 
 // 定义 props

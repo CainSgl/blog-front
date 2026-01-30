@@ -47,8 +47,8 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted, ref} from 'vue';
-import TreeMenu from '@/components/navigation/treemenu/TreeMenuWrapper.vue';
-import AddToFavoriteModal from '@/components/user/favorite/AddToFavoriteModal.vue';
+import TreeMenu from '@/views/kb/components/treemenu/TreeMenuWrapper.vue';
+import AddToFavoriteModal from '@/components/base/favorite/AddToFavoriteModal.vue';
 
 import {IconDoubleLeft, IconDoubleRight, IconHome, IconStar, IconStarFill} from '@arco-design/web-vue/es/icon';
 import {useRoute, useRouter} from 'vue-router';
@@ -125,10 +125,10 @@ onMounted(async () => {
   if (kbParam) {
     try {
       const kbData = await kbStore.getKbInfo(kbParam);
-      //如果是无权限操作，说明
       if (kbData) {
         kbId.value = kbData.id;
         kbInfo.value = kbData;
+        document.title=kbInfo.value.name+'-知识库'
         const userInfo = await useUserStore().getUserInfo();
         if (kbData.userId == userInfo.id) {
           edit.value = true;

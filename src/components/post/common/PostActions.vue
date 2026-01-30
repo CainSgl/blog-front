@@ -70,8 +70,8 @@ import {
   IconStar,
   IconStarFill
 } from '@arco-design/web-vue/es/icon';
-import AddToFavoriteModal from '@/components/user/favorite/AddToFavoriteModal.vue';
-import api from '@/api/index'
+import AddToFavoriteModal from '@/components/base/favorite/AddToFavoriteModal.vue';
+import api from '@/api/index.js'
 
 const props = defineProps({
     postId: {

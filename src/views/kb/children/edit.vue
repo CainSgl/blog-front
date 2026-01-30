@@ -17,7 +17,7 @@ import {computed, h, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import {onBeforeRouteLeave, useRoute, useRouter} from 'vue-router';
 import {Message, Modal} from '@arco-design/web-vue';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
-import KBCardHeader from '@/components/kb/KBCardHeader.vue';
+import KBCardHeader from '@/views/kb/components/KBCardHeader.vue';
 import api from '@/api/index.js';
 import {useKbStore} from '../kbStore.js';
 

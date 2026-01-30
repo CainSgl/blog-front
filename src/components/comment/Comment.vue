@@ -81,8 +81,8 @@ import {defineProps, nextTick, onMounted, ref, watch} from 'vue';
 import {useUserStore} from '@/store/user.js';
 import {Message} from '@arco-design/web-vue';
 import {IconHeart, IconHeartFill,} from '@arco-design/web-vue/es/icon';
-import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
-import UserLevel from '@/components/user/base/UserLevel.vue';
+import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
+import UserLevel from '@/components/base/UserLevel.vue';
 import CommentReply from './CommentReply.vue'; // 引入新的回复组件
 import ReplyInput from './ReplyInput.vue'; // 引入ReplyInput组件
 import api from '@/api/index.js';

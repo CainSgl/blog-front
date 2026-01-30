@@ -25,9 +25,9 @@
 
 <script setup>
 import {onMounted, onUnmounted, ref} from 'vue';
-import api from '@/api/index'
+import api from '@/api/index.js'
 import {IconHeart} from '@arco-design/web-vue/es/icon';
-import MessageItem from '@/components/user/base/MessageItem.vue';
+import MessageItem from '@/views/messages/components/MessageItem.vue';
 
 const loading = ref(false);
 const messages = ref([]);

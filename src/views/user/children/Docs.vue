@@ -134,12 +134,12 @@ import {IconBook, IconDelete, IconFile, IconLink, IconPlus, IconSettings} from '
 import {Message, Modal, Upload} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import PostCard from '@/components/post/PostCard.vue';
-import UserPageHeader from './common/UserPageHeader.vue';
-import ContentArea from './common/ContentArea.vue';
-import CImg from '@/components/base/cImg.vue';
-import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
+import UserPageHeader from './components/UserPageHeader.vue';
+import ContentArea from './components/ContentArea.vue';
+import CImg from '@/components/base/image/cImg.vue';
+import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import {useUserStore} from '@/store/user.js';
-import KnowledgeBaseSelector from '@/components/user/favorite/showFavorite/KnowledgeBaseSelector.vue';
+import KnowledgeBaseSelector from '@/views/user/children/kb/components/KnowledgeBaseSelector.vue';
 
 // 定义排序选项
 const sortOptions = [

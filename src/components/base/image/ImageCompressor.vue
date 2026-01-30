@@ -90,7 +90,7 @@
 <script setup>
 import {computed, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
-import {compressImage, formatFileSize, getImageInfo} from '@/utils/imageCompressor';
+import {compressImage, formatFileSize, getImageInfo} from '@/utils/imageCompressor.js';
 
 const props = defineProps({
   modelValue: {
