@@ -37,11 +37,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { IconSearch } from '@arco-design/web-vue/es/icon';
-import { debounce } from 'lodash-es';
+import {computed, ref} from 'vue';
+import {IconSearch} from '@arco-design/web-vue/es/icon';
+import {debounce} from 'lodash-es';
 import api from '@/api/index.js';
-import { useUserStore } from '@/store/user.js';
+import {useUserStore} from '@/store/user.js';
 // 接收 props
 const props = defineProps({
   userId: {

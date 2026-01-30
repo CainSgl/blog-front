@@ -21,9 +21,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Message } from '@arco-design/web-vue'
+import {ref} from 'vue'
+import {Message} from '@arco-design/web-vue'
 import api from '@/api'
+
 const props = defineProps({
   formData: {
     type: Object,

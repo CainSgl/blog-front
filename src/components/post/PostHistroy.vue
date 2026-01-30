@@ -21,8 +21,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { formatDate } from '@/utils/DateFormatter.js';
+import {ref, watch} from 'vue';
+import {formatDate} from '@/utils/DateFormatter.js';
 import api from '@/api/index.js';
 
 const props = defineProps({

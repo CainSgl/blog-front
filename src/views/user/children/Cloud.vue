@@ -114,19 +114,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
-import {
-  IconFile,
-  IconFileImage,
-  IconFilePdf,
-  IconDriveFile,
-} from '@arco-design/web-vue/es/icon';
-import { Message, Modal } from '@arco-design/web-vue';
-import { showLoginModal } from '@/services/authService';
+import {computed, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {useUserStore} from '@/store/user.js';
+import {IconDriveFile, IconFile, IconFileImage, IconFilePdf,} from '@arco-design/web-vue/es/icon';
+import {Message, Modal} from '@arco-design/web-vue';
+import {showLoginModal} from '@/services/authService';
 import FileCard from './FileCard.vue';
 import api from '@/api/index.js';
+import {API_BASE_URL} from '@/config';
+
 const viewMode = ref('list');
 const route = useRoute();
 const userStore = useUserStore();
@@ -141,9 +138,6 @@ const hasMore = ref(true); // 是否还有更多数据
 
 // 初始化 userId，并监听路由变化
 const userId = ref(route.params.id);
-
-import { API_BASE_URL } from '@/config';
-
 
 
 // 图片预览相关状态

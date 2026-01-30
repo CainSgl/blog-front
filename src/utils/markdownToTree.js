@@ -1,4 +1,4 @@
-import { marked } from 'marked';
+import {marked} from 'marked';
 
 // 生成标题 ID 的辅助函数，与 MarkdownPreview.vue 中保持一致
 const generateId = (text) => 

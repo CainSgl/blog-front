@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import {defineStore} from 'pinia';
+import {ref} from 'vue';
 
 export const useTocStore = defineStore('toc', () => 
 {

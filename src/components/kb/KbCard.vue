@@ -43,10 +43,11 @@
 </template>
 
 <script setup>
-import { IconHeart, IconBook } from '@arco-design/web-vue/es/icon';
+import {IconBook} from '@arco-design/web-vue/es/icon';
 import CImg from '../base/cImg.vue';
-import { useRouter } from 'vue-router';
-import { formatDate } from '@/utils/DateFormatter.js';
+import {useRouter} from 'vue-router';
+import {formatDate} from '@/utils/DateFormatter.js';
+
 const router = useRouter();
 
 const props = defineProps({

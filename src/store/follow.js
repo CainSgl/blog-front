@@ -1,6 +1,5 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { useAuthStore } from './auth.js';
+import {defineStore} from 'pinia';
+import {ref} from 'vue';
 import api from '@/api/index.js';
 
 export const useFollowStore = defineStore('follow', () => 

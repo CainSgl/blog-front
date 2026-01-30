@@ -23,10 +23,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { IconExclamationCircle } from '@arco-design/web-vue/es/icon';
+import {onMounted, onUnmounted, ref} from 'vue';
 import api from '@/api/index'
 import MessageItem from '@/components/user/base/MessageItem.vue';
+
 const loading = ref(false);
 const messages = ref([]);
 const after = ref(null);

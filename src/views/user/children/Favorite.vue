@@ -46,12 +46,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { IconFile, IconBook, IconDown } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import {computed, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {IconBook, IconDown, IconFile} from '@arco-design/web-vue/es/icon';
 import api from '@/api/index.js';
-import { useUserStore } from '@/store/user.js';
+import {useUserStore} from '@/store/user.js';
 import UserPageHeader from './common/UserPageHeader.vue';
 import FavoriteItem from '@/components/user/favorite/FavoriteItem.vue';
 import FavoriteItemCreate from '@/components/user/favorite/FavoriteItemCreate.vue';

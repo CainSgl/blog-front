@@ -1,5 +1,5 @@
 // 关注状态缓存管理模块
-import { useFollowStore } from '@/store/follow.js';
+import {useFollowStore} from '@/store/follow.js';
 
 class FollowCache 
 {

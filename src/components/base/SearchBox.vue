@@ -91,11 +91,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { IconSearch, IconClose, IconDown } from '@arco-design/web-vue/es/icon';
-import { useAuthStore } from '@/store/auth';
-import { Message } from '@arco-design/web-vue';
-import { useRouter, useRoute } from 'vue-router';
+import {computed, onMounted, ref} from 'vue';
+import {IconClose, IconDown, IconSearch} from '@arco-design/web-vue/es/icon';
+import {useAuthStore} from '@/store/auth';
+import {Message} from '@arco-design/web-vue';
+import {useRoute, useRouter} from 'vue-router';
 
 // Props
 const props = defineProps({

@@ -165,11 +165,29 @@
 </template>
 
 <script setup>
-import { ref, watch, reactive, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { IconDown, IconRight, IconPlus, IconEye, IconFile, IconMore, IconImport, IconFolder, IconDriveFile, IconEdit, IconPen, IconCopy, IconToTop, IconLaunch, IconDelete, IconSync, IconSearch } from '@arco-design/web-vue/es/icon';
-import { Dropdown, Menu, Spin, Input, Message } from '@arco-design/web-vue';
+import {computed, reactive, ref, watch} from 'vue';
+import {useRouter} from 'vue-router';
+import {
+  IconCopy,
+  IconDelete,
+  IconDown,
+  IconDriveFile,
+  IconEdit,
+  IconEye,
+  IconFile,
+  IconFolder,
+  IconImport,
+  IconLaunch,
+  IconMore,
+  IconPen,
+  IconPlus,
+  IconRight,
+  IconSearch,
+  IconSync
+} from '@arco-design/web-vue/es/icon';
+import {Dropdown, Input, Menu, Message, Spin} from '@arco-design/web-vue';
 import api from '@/api/index.js';
+
 const props = defineProps({
   treeData: {
     type: Array,

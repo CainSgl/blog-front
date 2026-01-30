@@ -26,8 +26,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import {onMounted, ref} from 'vue';
+import {useRoute} from 'vue-router';
 import api from '@/api/index.js';
 import FollowItem from '@/components/user/home/follow/follow.vue';
 

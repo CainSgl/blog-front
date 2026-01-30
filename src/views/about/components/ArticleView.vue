@@ -69,12 +69,12 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, nextTick } from 'vue';
-import { IconMessage, IconExclamationCircleFill, IconInfoCircle } from '@arco-design/web-vue/es/icon';
+import {computed, nextTick, ref, watch} from 'vue';
+import {IconExclamationCircleFill, IconInfoCircle, IconMessage} from '@arco-design/web-vue/es/icon';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
 import ScrollProgressTrigger from '@/components/about/ScrollProgressTrigger.vue';
-import { useCommentStore } from '@/components/comment/commentStore.js';
+import {useCommentStore} from '@/components/comment/commentStore.js';
 
 const props = defineProps({
   node: {

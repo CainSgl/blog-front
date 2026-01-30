@@ -31,9 +31,10 @@
 </template>
 
 <script setup>
-import { IconMan, IconWoman } from '@arco-design/web-vue/es/icon';
+import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
 import Avatar from '@/components/user/base/Avatar.vue';
-import { formatDate } from '@/utils/DateFormatter';
+import {formatDate} from '@/utils/DateFormatter';
+
 const props = defineProps({
   message: {
     type: Object,

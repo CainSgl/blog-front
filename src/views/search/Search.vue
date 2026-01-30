@@ -32,8 +32,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import {ref, watch} from 'vue';
+import {useRoute} from 'vue-router';
 import SearchBox from '@/components/base/SearchBox.vue';
 import SearchResults from './SearchResults.vue';
 import Header from '@/components/layout/Header.vue';

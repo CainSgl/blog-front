@@ -32,20 +32,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import {ref} from 'vue';
+import {useRouter} from 'vue-router';
 import {
-  IconHome,
-  IconUser,
   IconBook,
-  IconFile,
+  IconClockCircle,
   IconCloud,
+  IconFile,
+  IconFire,
   IconHeart,
   IconHistory,
-  IconFire,
-  IconStar,
+  IconHome,
   IconMessage,
-  IconClockCircle
+  IconStar,
+  IconUser
 } from '@arco-design/web-vue/es/icon';
 
 const router = useRouter();

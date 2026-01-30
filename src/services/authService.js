@@ -1,6 +1,5 @@
-import { useAuthStore } from '@/store/auth';
-import { useUserStore } from '@/store/user';
-import { backgroundBlurriness } from 'three/tsl';
+import {useAuthStore} from '@/store/auth';
+import {useUserStore} from '@/store/user';
 
 // 使用工厂函数创建登录服务，避免循环依赖
 let loginServiceInstance = null;

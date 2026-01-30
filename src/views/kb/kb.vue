@@ -46,18 +46,19 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, computed } from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 import TreeMenu from '@/components/navigation/treemenu/TreeMenuWrapper.vue';
 import AddToFavoriteModal from '@/components/user/favorite/AddToFavoriteModal.vue';
 
-import { IconHome, IconDoubleLeft, IconDoubleRight, IconStar, IconStarFill } from '@arco-design/web-vue/es/icon';
-import { useRoute, useRouter } from 'vue-router';
-import { useKbStore } from './kbStore.js';
-import { useUserStore } from '@/store/user';
-import { messageManager } from '@/api/request.js';
-import { Message, Modal } from '@arco-design/web-vue';
+import {IconDoubleLeft, IconDoubleRight, IconHome, IconStar, IconStarFill} from '@arco-design/web-vue/es/icon';
+import {useRoute, useRouter} from 'vue-router';
+import {useKbStore} from './kbStore.js';
+import {useUserStore} from '@/store/user';
+import {messageManager} from '@/api/request.js';
+import {Message, Modal} from '@arco-design/web-vue';
 import Header from '@/components/layout/Header.vue';
 import api from '@/api/index';
+
 const hasError = ref(false);
 
 const route = useRoute();

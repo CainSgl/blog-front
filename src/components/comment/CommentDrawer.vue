@@ -30,16 +30,17 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, computed, ref, nextTick, watch } from 'vue';
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import Comment from '@/components/comment/Comment.vue';
-import { useCommentStore } from '@/components/comment/commentStore.js';
-import { Message } from '@arco-design/web-vue';
-import { useUserStore } from '@/store/user.js';
+import {useCommentStore} from '@/components/comment/commentStore.js';
+import {Message} from '@arco-design/web-vue';
+import {useUserStore} from '@/store/user.js';
 import api from '@/api/index.js';
-import { getDateNow } from '@/utils/DateFormatter.js';
+import {getDateNow} from '@/utils/DateFormatter.js';
+import {storeToRefs} from 'pinia';
+
 const commentStore = useCommentStore();
 const userStore = useUserStore();
-import { storeToRefs } from 'pinia';
 const { parCommentId } = storeToRefs(commentStore);
 
 // 评论数据和分页状态

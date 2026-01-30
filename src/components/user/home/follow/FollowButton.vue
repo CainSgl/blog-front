@@ -5,9 +5,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { Modal } from '@arco-design/web-vue';
-import { useUserStore } from '@/store/user.js';
+import {onMounted, ref, watch} from 'vue';
+import {Modal} from '@arco-design/web-vue';
+import {useUserStore} from '@/store/user.js';
 import followCache from './followCache.js';
 
 const props = defineProps({

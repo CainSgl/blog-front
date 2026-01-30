@@ -1052,8 +1052,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Message, Notification } from '@arco-design/web-vue';
+import {ref} from 'vue';
+import {Message, Notification} from '@arco-design/web-vue';
 
 // 基础输入组件数据
 const inputValue = ref('');

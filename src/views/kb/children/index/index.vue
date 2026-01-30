@@ -84,14 +84,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { Message } from '@arco-design/web-vue';
+import {computed, nextTick, onMounted, ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
-import { useKbStore } from '../../kbStore.js';
-import { useUserStore } from '@/store/user.js';
+import {useKbStore} from '../../kbStore.js';
+import {useUserStore} from '@/store/user.js';
 import MarkdownPreview from '@/components/md/MarkdownPreview.vue';
-import { IconShareInternal, IconMore, IconEdit, IconSettings, IconCopy } from '@arco-design/web-vue/es/icon';
+import {IconCopy, IconEdit, IconMore, IconSettings, IconShareInternal} from '@arco-design/web-vue/es/icon';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 import FollowButton from '@/components/user/home/follow/FollowButton.vue';
 

@@ -31,8 +31,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue';
-import { IconFile, IconFolder } from '@arco-design/web-vue/es/icon';
+import {computed, nextTick, ref, watch} from 'vue';
+import {IconFile, IconFolder} from '@arco-design/web-vue/es/icon';
 import ScrollProgressTrigger from '@/components/about/ScrollProgressTrigger.vue';
 
 const props = defineProps({

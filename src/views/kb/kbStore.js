@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import {defineStore} from 'pinia';
+import {ref} from 'vue';
 import api from '@/api/index.js';
 
 export const useKbStore = defineStore('kb', () => 

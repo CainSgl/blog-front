@@ -19,17 +19,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { Message } from '@arco-design/web-vue';
-import { IconFullscreen } from '@arco-design/web-vue/es/icon';
+import {computed, onMounted, ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {Message} from '@arco-design/web-vue';
 
 import KBCardHeader from '@/components/kb/KBCardHeader.vue';
 import api from '@/api/index.js';
-import { useKbStore } from '../kbStore.js';
-import { messageManager } from '@/api/request.js';
+import {useKbStore} from '../kbStore.js';
+import {messageManager} from '@/api/request.js';
 
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
+
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();

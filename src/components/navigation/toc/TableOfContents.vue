@@ -30,11 +30,11 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { parseMarkdownToTree } from '@/utils/markdownToTree.js';
-import { IconEye, IconEyeInvisible, IconShrink } from '@arco-design/web-vue/es/icon';
-import { useTocStore } from './toc.js';
-import { storeToRefs } from 'pinia';
+import {nextTick, onMounted, ref, watch} from 'vue';
+import {parseMarkdownToTree} from '@/utils/markdownToTree.js';
+import {IconEye, IconEyeInvisible, IconShrink} from '@arco-design/web-vue/es/icon';
+import {useTocStore} from './toc.js';
+import {storeToRefs} from 'pinia';
 
 const containerRef = ref(null);
 // 定义组件props

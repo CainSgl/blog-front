@@ -93,12 +93,21 @@
 </template>
 
 <script setup>
-import { useUserStore } from '@/store/user.js';
-import { storeToRefs } from 'pinia';
+import {useUserStore} from '@/store/user.js';
+import {storeToRefs} from 'pinia';
 import Avatar from '@/components/user/base/Avatar.vue';
-import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock } from '@arco-design/web-vue/es/icon';
-import { useRouter } from 'vue-router';
-import { getLoginService, showLoginModal } from '@/services/authService';
+import {
+  IconBook,
+  IconCloud,
+  IconExport,
+  IconFile,
+  IconLock,
+  IconMan,
+  IconUser,
+  IconWoman
+} from '@arco-design/web-vue/es/icon';
+import {useRouter} from 'vue-router';
+import {getLoginService, showLoginModal} from '@/services/authService';
 
 const userStore = useUserStore();
 const router = useRouter();

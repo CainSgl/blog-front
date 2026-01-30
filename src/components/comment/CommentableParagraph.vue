@@ -23,12 +23,13 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref, onMounted, onUnmounted, watch } from 'vue';
-import { useCommentStore } from '@/components/comment/commentStore.js';
-import { storeToRefs } from 'pinia';
-import { IconMessage } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import {computed, defineProps, onMounted, onUnmounted, ref, watch} from 'vue';
+import {useCommentStore} from '@/components/comment/commentStore.js';
+import {storeToRefs} from 'pinia';
+import {IconMessage} from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
+
 const props = defineProps({
   text: {
     type: String,

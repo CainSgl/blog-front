@@ -18,8 +18,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import {onMounted, ref} from 'vue';
+import {useRouter} from 'vue-router';
 import api from '@/api/index.js';
 import CImg from '../../base/cImg.vue';
 

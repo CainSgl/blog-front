@@ -60,11 +60,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import api from '@/api'
-import { Message } from '@arco-design/web-vue'
+import {onMounted, reactive, ref} from 'vue'
 import AvatarSection from '@/components/user/home/AvatarSection.vue'
-import { useUserStore } from '@/store/user.js';
+import {useUserStore} from '@/store/user.js';
+
 const props = defineProps({
   formData: {
     type: Object,

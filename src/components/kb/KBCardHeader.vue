@@ -30,10 +30,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { IconFilePdf, IconWifi,IconUserGroup } from '@arco-design/web-vue/es/icon';
-import { useUserStore } from '@/store/user.js';
+import {computed, ref, watch} from 'vue';
+import {useRouter} from 'vue-router';
+import {IconFilePdf, IconUserGroup, IconWifi} from '@arco-design/web-vue/es/icon';
+import {useUserStore} from '@/store/user.js';
+
 const router = useRouter();
 
 // 定义 props

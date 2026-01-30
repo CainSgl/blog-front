@@ -12,19 +12,17 @@
 </template>
 
 <script setup>
-import { defineProps, computed, nextTick, onMounted, onUpdated, onUnmounted, ref, watch } from 'vue';
-import { createApp, h } from 'vue';
-import { marked } from 'marked';
+import {computed, createApp, defineProps, h, nextTick, onMounted, onUnmounted, onUpdated, ref, watch} from 'vue';
+import {marked} from 'marked';
 import DOMPurify from 'dompurify';
 import 'highlight.js/styles/github.css';
-import { Image as AImage } from '@arco-design/web-vue';
+import ArcoVue, {Image as AImage} from '@arco-design/web-vue';
 import CodeBlock from './CodeBlock.vue';
 import CommentableParagraph from '../comment/CommentableParagraph.vue';
-import { API_BASE_URL } from '@/config';
+import {API_BASE_URL} from '@/config';
 import containerExtension from '@/plugins/md-tip-info-extens.js';
-import ArcoVue from '@arco-design/web-vue';
-import { useTocStore } from '../navigation/toc/toc.js';
-import { storeToRefs } from 'pinia';
+import {useTocStore} from '../navigation/toc/toc.js';
+import {storeToRefs} from 'pinia';
 // 使用 marked 的 use 方法注册扩展
 marked.use({
   extensions: [containerExtension]

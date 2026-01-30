@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref} from 'vue'
 import BilibiliLoginModal from './BilibiliLoginModal.vue'
 
 const showBilibiliModal = ref(false)

@@ -56,11 +56,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { IconSearch } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import {ref} from 'vue';
+import {IconSearch} from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
-import { debounce } from 'lodash-es';
+import {debounce} from 'lodash-es';
 import PostCard from '../../../post/PostCardWrapper.vue';
 
 // 接收父组件传入的用户ID

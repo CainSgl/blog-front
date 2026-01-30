@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { useUserStore } from './user';
+import {defineStore} from 'pinia';
+import {ref} from 'vue';
+import {useUserStore} from './user';
 import api from '@/api/index.js';
 
 export const useAuthStore = defineStore('auth', () => 

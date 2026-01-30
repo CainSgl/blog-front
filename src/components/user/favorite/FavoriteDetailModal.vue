@@ -29,10 +29,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import {computed, ref, watch} from 'vue';
 import api from '@/api/index.js';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import KbCard from '@/components/kb/KbCard.vue';
+
 const props = defineProps({
     modelValue: {
         type: Boolean,

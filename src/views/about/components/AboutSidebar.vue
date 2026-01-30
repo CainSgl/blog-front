@@ -48,11 +48,11 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { IconMenuFold, IconMenuUnfold } from '@arco-design/web-vue/es/icon';
+import {computed, nextTick, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {IconMenuFold, IconMenuUnfold} from '@arco-design/web-vue/es/icon';
 import api from '@/api/index';
-import { Message } from '@arco-design/web-vue';
+import {Message} from '@arco-design/web-vue';
 
 const emit = defineEmits(['node-select']);
 const router = useRouter();

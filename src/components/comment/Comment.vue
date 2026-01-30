@@ -77,23 +77,19 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, nextTick } from 'vue';
-import { useUserStore } from '@/store/user.js';
-import { Message } from '@arco-design/web-vue';
-import {
-  IconHeart,
-  IconMessage,
-  IconHeartFill,
-} from '@arco-design/web-vue/es/icon';
+import {defineProps, nextTick, onMounted, ref, watch} from 'vue';
+import {useUserStore} from '@/store/user.js';
+import {Message} from '@arco-design/web-vue';
+import {IconHeart, IconHeartFill,} from '@arco-design/web-vue/es/icon';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 import UserLevel from '@/components/user/base/UserLevel.vue';
 import CommentReply from './CommentReply.vue'; // 引入新的回复组件
 import ReplyInput from './ReplyInput.vue'; // 引入ReplyInput组件
 import api from '@/api/index.js';
-import { formatDate, getDateNow } from '@/utils/DateFormatter.js';
-import { useCommentStore } from '@/components/comment/commentStore.js';
-import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import {formatDate, getDateNow} from '@/utils/DateFormatter.js';
+import {useCommentStore} from '@/components/comment/commentStore.js';
+import {storeToRefs} from 'pinia';
+
 const commentStore = useCommentStore();
 
 // 定义组件属性

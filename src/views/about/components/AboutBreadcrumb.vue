@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { IconHome } from '@arco-design/web-vue/es/icon';
+import {IconHome} from '@arco-design/web-vue/es/icon';
 
 defineProps({
   breadcrumbs: {

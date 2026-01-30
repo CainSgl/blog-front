@@ -37,12 +37,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue';
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import MarkdownPreview from './MarkdownPreview.vue';
 import TableOfContents from '../navigation/toc/TableOfContents.vue';
 import ScrollProgress from '../base/ScrollProgress.vue';
-import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon';
 import CommentDrawer from '@/components/comment/CommentDrawer.vue';
+
 const props = defineProps({
   content: {
     type: String,

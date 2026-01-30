@@ -21,11 +21,7 @@
 </template>
 
 <script setup>
-import {
-  IconFileImage,
-  IconFilePdf,
-  IconDriveFile
-} from '@arco-design/web-vue/es/icon';
+import {IconDriveFile, IconFileImage, IconFilePdf} from '@arco-design/web-vue/es/icon';
 
 // 定义组件属性
 const props = defineProps({

@@ -46,17 +46,17 @@
 </template>
 
 <script setup>
-import { ref, computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/store/auth';
-import { IconClose } from '@arco-design/web-vue/es/icon';
+import {computed, defineAsyncComponent, onMounted, onUnmounted, ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {useAuthStore} from '@/store/auth';
+import {IconClose} from '@arco-design/web-vue/es/icon';
+import PasswordLogin from './children/PasswordLogin.vue';
+import CodeLogin from './children/CodeLogin.vue';
+import ThirdPartyLogin from './children/ThirdPartyLogin.vue';
 // 懒加载 GradientBackground，延迟加载 three.js
 const GradientBackground = defineAsyncComponent(() =>
   import('./children/GradientBackground.vue')
 );
-import PasswordLogin from './children/PasswordLogin.vue';
-import CodeLogin from './children/CodeLogin.vue';
-import ThirdPartyLogin from './children/ThirdPartyLogin.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();

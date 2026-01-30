@@ -29,11 +29,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
-import { storeToRefs } from 'pinia';
-import { IconMessage, IconHeart, IconEmail, IconExclamationCircle } from '@arco-design/web-vue/es/icon';
+import {computed, onMounted} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {useUserStore} from '@/store/user.js';
+import {storeToRefs} from 'pinia';
+import {IconEmail, IconExclamationCircle, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
 import Header from '../../components/layout/Header.vue';
 import api from '@/api';
 

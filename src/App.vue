@@ -4,8 +4,8 @@
 </template>
 
 <script setup>
-import { defineAsyncComponent } from 'vue';
-import { useAuthStore } from '@/store/auth';
+import {defineAsyncComponent} from 'vue';
+import {useAuthStore} from '@/store/auth';
 
 const authStore = useAuthStore();
 

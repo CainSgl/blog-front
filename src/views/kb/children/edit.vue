@@ -13,13 +13,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, h, onBeforeUnmount } from 'vue';
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
-import { Message, Modal } from '@arco-design/web-vue';
+import {computed, h, onBeforeUnmount, onMounted, ref, watch} from 'vue';
+import {onBeforeRouteLeave, useRoute, useRouter} from 'vue-router';
+import {Message, Modal} from '@arco-design/web-vue';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
 import KBCardHeader from '@/components/kb/KBCardHeader.vue';
 import api from '@/api/index.js';
-import { useKbStore } from '../kbStore.js';
+import {useKbStore} from '../kbStore.js';
+
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();

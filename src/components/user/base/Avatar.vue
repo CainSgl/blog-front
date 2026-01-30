@@ -22,11 +22,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { 
-  IconUser,
-} from '@arco-design/web-vue/es/icon';
-import { API_BASE_URL } from '@/config/index.js';
+import {computed} from 'vue';
+import {IconUser,} from '@arco-design/web-vue/es/icon';
+import {API_BASE_URL} from '@/config/index.js';
 
 // 定义组件的 props，与 a-avatar 组件保持一致
 const props = defineProps({

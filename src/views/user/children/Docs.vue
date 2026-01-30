@@ -128,17 +128,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { IconFile, IconBook, IconDelete, IconSettings, IconLink, IconPlus } from '@arco-design/web-vue/es/icon';
-import { Message, Modal, Upload } from '@arco-design/web-vue';
+import {computed, nextTick, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {IconBook, IconDelete, IconFile, IconLink, IconPlus, IconSettings} from '@arco-design/web-vue/es/icon';
+import {Message, Modal, Upload} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import PostCard from '@/components/post/PostCard.vue';
 import UserPageHeader from './common/UserPageHeader.vue';
 import ContentArea from './common/ContentArea.vue';
 import CImg from '@/components/base/cImg.vue';
 import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
-import { useUserStore } from '@/store/user.js';
+import {useUserStore} from '@/store/user.js';
 import KnowledgeBaseSelector from '@/components/user/favorite/showFavorite/KnowledgeBaseSelector.vue';
 
 // 定义排序选项

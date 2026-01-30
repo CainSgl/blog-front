@@ -32,9 +32,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
+import {onMounted, onUnmounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {useUserStore} from '@/store/user.js';
 import PostCard from '@/components/post/PostCardWrapper.vue';
 import TopPostSelector from '@/components/user/home/index/TopPostSelector.vue';
 import api from '@/api/index.js';

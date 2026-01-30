@@ -44,8 +44,8 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed } from 'vue';
-import { useAuthStore } from '@/store/auth';
+import {computed, reactive, ref} from 'vue';
+import {useAuthStore} from '@/store/auth';
 
 const authStore = useAuthStore();
 

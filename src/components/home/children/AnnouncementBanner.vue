@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import {onMounted, ref} from 'vue';
 import cImg from '@/components/base/cImg.vue';
 import api from '@/api/index';
 

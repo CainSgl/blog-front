@@ -211,10 +211,32 @@
 </template>
 
 <script setup>
-import { onMounted, ref, shallowRef, watch, computed, nextTick, useAttrs } from 'vue';
+import {computed, nextTick, onMounted, ref, shallowRef, watch} from 'vue';
 import api from '@/api/index.js';
-import { Message } from '@arco-design/web-vue';
-import { IconArrowLeft, IconBold, IconItalic, IconImage, IconMoreVertical, IconHighlight, IconStrikethrough, IconUnderline, IconFontColors, IconUnorderedList, IconOrderedList, IconCheckCircle, IconLink, IconUpload, IconUndo, IconRedo, IconFaceSmileFill, IconQuote, IconDown, IconH1, IconH2, IconH3, IconH4 } from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
+import {
+  IconArrowLeft,
+  IconBold,
+  IconCheckCircle,
+  IconDown,
+  IconFaceSmileFill,
+  IconFontColors,
+  IconH1,
+  IconH2,
+  IconH3,
+  IconH4,
+  IconHighlight,
+  IconImage,
+  IconItalic,
+  IconLink,
+  IconOrderedList,
+  IconQuote,
+  IconRedo,
+  IconStrikethrough,
+  IconUnderline,
+  IconUndo,
+  IconUnorderedList
+} from '@arco-design/web-vue/es/icon';
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';

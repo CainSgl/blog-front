@@ -33,11 +33,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { Message, Modal } from '@arco-design/web-vue'
+import {ref, watch} from 'vue'
+import {Message, Modal} from '@arco-design/web-vue'
 import api from '@/api'
-import { useAuthStore } from '@/store/auth'
-import { useUserStore } from '@/store/user'
+import {useAuthStore} from '@/store/auth'
+import {useUserStore} from '@/store/user'
 
 const authStore = useAuthStore()
 const userStore = useUserStore()

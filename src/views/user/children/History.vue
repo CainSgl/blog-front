@@ -62,13 +62,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
+import {useRouter} from 'vue-router';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import api from '@/api/index.js';
-import { Message, Modal } from '@arco-design/web-vue';
-import { IconEdit, IconDelete } from '@arco-design/web-vue/es/icon';
-import { formatDate } from '@/utils/DateFormatter.js';
+import {Message, Modal} from '@arco-design/web-vue';
+import {IconDelete, IconEdit} from '@arco-design/web-vue/es/icon';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 const router = useRouter();
 

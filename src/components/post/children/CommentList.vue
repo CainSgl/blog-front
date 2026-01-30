@@ -22,13 +22,12 @@
 </template>
 
 <script setup>
-import { defineProps, ref, onMounted, watch, onUnmounted, nextTick } from 'vue';
+import {defineProps, onMounted, onUnmounted, ref, watch} from 'vue';
 import Comment from '@/components/comment/Comment.vue';
 import ReplyInput from '@/components/comment/ReplyInput.vue';
 import api from '@/api/index.js';
-import { Message } from '@arco-design/web-vue';
-import {getDateNow} from '@/utils/DateFormatter.js';
-import { useUserStore } from '@/store/user.js';
+import {Message} from '@arco-design/web-vue';
+import {useUserStore} from '@/store/user.js';
 
 const props = defineProps({
   postId: {

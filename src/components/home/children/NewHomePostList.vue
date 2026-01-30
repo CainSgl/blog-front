@@ -16,11 +16,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeMount } from 'vue';
+import {onBeforeMount, onMounted, ref} from 'vue';
 import HomePostList from '@/components/home/HomePostList.vue';
 import NewKBList from '@/components/home/children/NewKBList.vue';
 import api from '@/api/index.js';
-import { useUserStore } from '@/store/user.js';
+import {useUserStore} from '@/store/user.js';
 
 const emit = defineEmits(['noData']);
 const STORAGE_KEY = 'blog_last_position';

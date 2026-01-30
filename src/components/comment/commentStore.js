@@ -1,7 +1,8 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import {defineStore} from 'pinia';
+import {ref} from 'vue';
 import api from '@/api/index.js';
-export const useCommentStore = defineStore('comment', () => 
+
+export const useCommentStore = defineStore('comment', () =>
 {
   // 抽屉显示状态
   const drawerVisible = ref(false);

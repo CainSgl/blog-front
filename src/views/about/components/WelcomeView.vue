@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import {onMounted, ref} from 'vue';
 import MarkdownPreview from '@/components/md/MarkdownPreview.vue';
 import ScrollProgressTrigger from '@/components/about/ScrollProgressTrigger.vue';
 import api from '@/api';

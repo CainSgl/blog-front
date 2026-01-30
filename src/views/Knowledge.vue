@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import Header from '@/components/layout/Header.vue';
 import NewKBList from '@/components/home/children/NewKBList.vue';
 

@@ -28,9 +28,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { IconLock } from '@arco-design/web-vue/es/icon'
+import {ref} from 'vue'
+import {IconLock} from '@arco-design/web-vue/es/icon'
 import api from '@/api'
+
 const props = defineProps({
   password: {
     type: String,

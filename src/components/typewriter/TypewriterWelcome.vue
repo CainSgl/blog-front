@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import {nextTick, onMounted, ref} from 'vue';
 import TypeIt from 'typeit';
 
 const typewriterRef = ref(null);

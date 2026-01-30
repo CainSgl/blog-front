@@ -8,8 +8,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useKbPaginationStore } from './kbPaginationStore.js';
+import {useKbPaginationStore} from './kbPaginationStore.js';
 
 import KBList from '@/components/home/KBList.vue';
 import api from '@/api/index.js';

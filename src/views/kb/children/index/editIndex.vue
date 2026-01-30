@@ -85,21 +85,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed, toRef } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { Message, Upload } from '@arco-design/web-vue';
-import {
-  IconPlus,
-  IconDelete,
-  IconArrowLeft,
-  IconSave
-} from '@arco-design/web-vue/lib/icon';
+import {computed, nextTick, onMounted, ref, toRef} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {Message, Upload} from '@arco-design/web-vue';
+import {IconArrowLeft, IconPlus, IconSave} from '@arco-design/web-vue/lib/icon';
 import api from '@/api/index.js';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
 import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
-import CImg from '../../../../components/base/cImg.vue';
 import KbCard from '../../../../components/kb/KbCard.vue';
-import { useKbStore } from '../../kbStore.js';
+import {useKbStore} from '../../kbStore.js';
 
 const route = useRoute();
 const router = useRouter();

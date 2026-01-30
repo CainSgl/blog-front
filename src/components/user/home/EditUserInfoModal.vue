@@ -95,9 +95,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick, watch } from 'vue';
-import { Message } from '@arco-design/web-vue';
-import { useUserStore } from '@/store/user.js';
+import {computed, nextTick, reactive, ref, watch} from 'vue';
+import {Message} from '@arco-design/web-vue';
+import {useUserStore} from '@/store/user.js';
 
 const userStore = useUserStore();
 

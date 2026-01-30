@@ -139,13 +139,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { IconPlus, IconHome, IconDelete, IconSettings } from '@arco-design/web-vue/es/icon';
-import { Message, Modal, Upload } from '@arco-design/web-vue';
+import {computed, nextTick, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {IconDelete, IconHome, IconPlus, IconSettings} from '@arco-design/web-vue/es/icon';
+import {Message, Upload} from '@arco-design/web-vue';
 import KbCard from '@/components/kb/KbCard.vue';
 import api from '@/api/index.js';
-import { useUserStore } from '@/store/user.js';
+import {useUserStore} from '@/store/user.js';
 import UserPageHeader from './common/UserPageHeader.vue';
 import ContentArea from './common/ContentArea.vue';
 import CImg from '@/components/base/cImg.vue';

@@ -23,9 +23,9 @@
 
 <script setup>
 import Header from '@/components/layout/Header.vue';
-import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
+import {computed, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {useUserStore} from '@/store/user.js';
 import UserSidebar from '@/components/layout/UserSidebar.vue';
 
 const isSiderCollapsed = ref(false);

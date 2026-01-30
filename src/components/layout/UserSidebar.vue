@@ -81,16 +81,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import {
-  IconHome,
-  IconBook,
-  IconFile,
-  IconCloud,
-  IconStar,
-  IconHistory
-} from '@arco-design/web-vue/es/icon';
+import {ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {IconBook, IconCloud, IconFile, IconHistory, IconHome, IconStar} from '@arco-design/web-vue/es/icon';
+
 const menuBackgroundColors = {
   UserHomeIndex: '#A8C7FA',
   UserFavorite: '#FFB683',

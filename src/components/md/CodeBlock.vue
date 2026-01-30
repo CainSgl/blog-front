@@ -41,10 +41,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import {computed, ref} from 'vue';
 import hljs from 'highlight.js';
-import { Message } from '@arco-design/web-vue';
-import { IconCopy, IconDown, IconUp } from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
+import {IconCopy, IconDown, IconUp} from '@arco-design/web-vue/es/icon';
 
 const props = defineProps({
   code: {

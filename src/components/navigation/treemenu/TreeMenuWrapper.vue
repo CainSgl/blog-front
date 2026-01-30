@@ -32,9 +32,8 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, nextTick } from 'vue';
+import {computed, nextTick, onMounted, ref} from 'vue';
 import TreeMenuNew from './TreeMenuNew.vue';
-import { SkeletonLine } from '@arco-design/web-vue/es/skeleton';
 
 // 启用属性继承
 defineOptions({

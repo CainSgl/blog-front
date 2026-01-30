@@ -20,8 +20,8 @@
 </template>
 
 <script setup>
-import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon';
-import { ref } from 'vue';
+import {IconArrowFall, IconArrowRise} from '@arco-design/web-vue/es/icon';
+import {ref} from 'vue';
 
 const props = defineProps({
   currentScrollPercent: {

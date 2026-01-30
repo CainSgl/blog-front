@@ -88,9 +88,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { Message } from '@arco-design/web-vue';
-import { compressImage, getImageInfo, formatFileSize } from '@/utils/imageCompressor';
+import {computed, ref, watch} from 'vue';
+import {Message} from '@arco-design/web-vue';
+import {compressImage, formatFileSize, getImageInfo} from '@/utils/imageCompressor';
 
 const props = defineProps({
   modelValue: {

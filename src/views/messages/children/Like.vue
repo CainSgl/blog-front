@@ -56,12 +56,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { IconHeart, IconEye, IconMessage } from '@arco-design/web-vue/es/icon';
+import {onMounted, onUnmounted, ref} from 'vue';
+import {IconEye, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
 import MessageItem from '@/components/user/base/MessageItem.vue';
 import CImg from '@/components/base/cImg.vue';
 import api from '@/api/index';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
 
 const router = useRouter();
 const loading = ref(false);

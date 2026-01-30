@@ -36,14 +36,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import {onMounted, ref} from 'vue';
+import {useRoute} from 'vue-router';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
-import { useCommentStore } from '@/components/comment/commentStore.js';
+import {useCommentStore} from '@/components/comment/commentStore.js';
 import api from '@/api/index';
 import Header from '@/components/layout/Header.vue';
-import { formatDate, getDateNow } from '@/utils/DateFormatter.js';
+import {formatDate} from '@/utils/DateFormatter.js';
+
 const route = useRoute();
 const commentStore = useCommentStore();
 const announcement = ref(null);

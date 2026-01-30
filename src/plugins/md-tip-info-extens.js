@@ -1,4 +1,5 @@
-import { marked } from 'marked';
+import {marked} from 'marked';
+
 const containerExtension = {
   name: 'container',
   level: 'block',

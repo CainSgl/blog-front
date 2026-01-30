@@ -58,11 +58,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Modal, Message } from '@arco-design/web-vue';
-import { IconHeart, IconHeartFill, IconStar, IconStarFill, IconMessage, IconExclamationCircle, IconDoubleRight, IconDoubleLeft } from '@arco-design/web-vue/es/icon';
+import {ref} from 'vue';
+import {Message, Modal} from '@arco-design/web-vue';
+import {
+  IconDoubleLeft,
+  IconDoubleRight,
+  IconExclamationCircle,
+  IconHeart,
+  IconHeartFill,
+  IconMessage,
+  IconStar,
+  IconStarFill
+} from '@arco-design/web-vue/es/icon';
 import AddToFavoriteModal from '@/components/user/favorite/AddToFavoriteModal.vue';
 import api from '@/api/index'
+
 const props = defineProps({
     postId: {
         type: [String, Number],

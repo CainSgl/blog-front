@@ -28,9 +28,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from '@/store/auth'
+import {computed, onUnmounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {useAuthStore} from '@/store/auth'
 import GradientBackground from '@/components/loginModal/children/GradientBackground.vue'
 import StepUsername from './children/StepUsername.vue'
 import StepEmail from './children/StepEmail.vue'
@@ -38,8 +38,9 @@ import StepPassword from './children/StepPassword.vue'
 import StepConfirm from './children/StepConfirm.vue'
 import StepNickname from './children/StepNickname.vue'
 import api from '@/api'
-import { Message } from '@arco-design/web-vue'
-import { useUserStore } from '@/store/user'
+import {Message} from '@arco-design/web-vue'
+import {useUserStore} from '@/store/user'
+
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()

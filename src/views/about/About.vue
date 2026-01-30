@@ -31,8 +31,8 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import {computed, onMounted, ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 import AboutSidebar from './components/AboutSidebar.vue';
 import AboutBreadcrumb from './components/AboutBreadcrumb.vue';
 import ArticleView from './components/ArticleView.vue';
@@ -40,6 +40,7 @@ import WelcomeView from './components/WelcomeView.vue';
 import DirView from './components/DirView.vue';
 import api from '@/api/index'
 import Header from '@/components/layout/Header.vue';
+
 const route = useRoute();
 const router = useRouter();
 

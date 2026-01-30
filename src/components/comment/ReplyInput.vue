@@ -15,9 +15,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import { Message } from '@arco-design/web-vue';
-import { useUserStore } from '@/store/user.js';
+import {nextTick, onMounted, ref} from 'vue';
+import {Message} from '@arco-design/web-vue';
+import {useUserStore} from '@/store/user.js';
 import Avatar from '@/components/user/base/Avatar.vue';
 
 const userStore = useUserStore();

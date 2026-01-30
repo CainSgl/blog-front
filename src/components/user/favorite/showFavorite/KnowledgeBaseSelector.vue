@@ -42,9 +42,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { IconBook, IconCheckCircleFill } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import {ref, watch} from 'vue';
+import {IconBook, IconCheckCircleFill} from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import CImg from '@/components/base/cImg.vue';
 

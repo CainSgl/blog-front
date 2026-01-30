@@ -64,8 +64,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
+import {Message} from '@arco-design/web-vue';
 
 const props = defineProps({
   modelValue: {

@@ -24,10 +24,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 import api from '@/api/index'
-import { IconHeart } from '@arco-design/web-vue/es/icon';
+import {IconHeart} from '@arco-design/web-vue/es/icon';
 import MessageItem from '@/components/user/base/MessageItem.vue';
+
 const loading = ref(false);
 const messages = ref([]);
 const after = ref(null);

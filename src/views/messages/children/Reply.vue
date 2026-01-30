@@ -72,13 +72,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { IconHeartFill, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import {onMounted, onUnmounted, ref} from 'vue';
+import {IconHeart, IconHeartFill, IconMessage} from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
 import MessageItem from '@/components/user/base/MessageItem.vue';
 import ReplyInput from '@/components/comment/ReplyInput.vue';
 import api from '@/api/index';
-
 
 
 const loading = ref(false);

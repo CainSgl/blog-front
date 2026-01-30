@@ -107,10 +107,10 @@
 </template>
 
 <script setup>
-import { IconEye, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
-import { computed } from 'vue';
+import {IconEye, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
+import {computed} from 'vue';
 import CImg from '../base/cImg.vue';
-import { formatDate } from '@/utils/DateFormatter.js';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 const emit = defineEmits(['clickCard']);
 const props = defineProps({

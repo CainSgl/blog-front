@@ -79,18 +79,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import {
-  IconMan,
-  IconWoman
-} from '@arco-design/web-vue/es/icon';
-import { useUserStore } from '@/store/user.js';
-import api from '@/api/index.js';
+import {computed, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
+import {useUserStore} from '@/store/user.js';
 import AvatarSection from '@/components/user/home/AvatarSection.vue';
 import FollowButton from '@/components/user/home/follow/FollowButton.vue';
 import EditUserInfoModal from '@/components/user/home/EditUserInfoModal.vue';
 import UserLevel from '@/components/user/base/UserLevel.vue';
+
 const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();

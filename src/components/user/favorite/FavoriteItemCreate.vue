@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { IconFolder } from '@arco-design/web-vue/es/icon';
+import {IconFolder} from '@arco-design/web-vue/es/icon';
 
 const emit = defineEmits(['create']);
 

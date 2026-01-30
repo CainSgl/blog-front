@@ -18,8 +18,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import {nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import PostCard from '@/components/post/PostCard.vue';
 
 const props = defineProps({

@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import {defineStore} from 'pinia';
+import {ref} from 'vue';
 import api from '@/api/index.js';
-import { Message } from '@arco-design/web-vue';
+import {Message} from '@arco-design/web-vue';
 
 const youKe = { id: -1 };
 const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10分钟

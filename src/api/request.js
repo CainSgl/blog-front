@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { Message, Notification } from '@arco-design/web-vue';
-import { useUserStore } from '@/store/user.js';
-import { showLoginModal } from '@/services/authService';
-import { API_BASE_URL } from '@/config';
+import {Message, Notification} from '@arco-design/web-vue';
+import {useUserStore} from '@/store/user.js';
+import {showLoginModal} from '@/services/authService';
+import {API_BASE_URL} from '@/config';
 
 // 创建消息ID映射表，用于跟踪当前显示的消息
 const messageMap = new Map();

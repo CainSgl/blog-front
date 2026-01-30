@@ -35,8 +35,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import {computed, ref, watch} from 'vue';
+import {Message} from '@arco-design/web-vue';
 import api from '@/api';
 
 const props = defineProps({

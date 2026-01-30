@@ -15,8 +15,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
+import {useRouter} from 'vue-router';
 import KbCard from '@/components/kb/KbCard.vue';
 
 const props = defineProps({

@@ -23,13 +23,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { 
-  IconUser,
-  IconMan,
-  IconWoman
-} from '@arco-design/web-vue/es/icon';
-import { useRouter } from 'vue-router';
+import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
+import {useRouter} from 'vue-router';
 import FollowButton from '@/components/user/home/follow/FollowButton.vue';
 import Avatar from '@/components/user/base/Avatar.vue';
 

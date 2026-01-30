@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 
 // 接收父组件的 props
 const props = defineProps({

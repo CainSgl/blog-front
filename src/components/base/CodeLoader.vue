@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 
 const FUNCTIONS = [
   { func: ' unloadPage()', code: '{卸载当前页面}' },

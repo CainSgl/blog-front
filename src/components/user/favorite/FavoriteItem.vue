@@ -48,9 +48,9 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import { IconFolder, IconMoreVertical } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import {reactive, ref} from 'vue';
+import {IconFolder, IconMoreVertical} from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 
 const props = defineProps({

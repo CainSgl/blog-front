@@ -35,9 +35,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import api from '@/api/index.js';
+
 const posts = ref([]);
 const loading = ref(false);
 const hasMore = ref(true);

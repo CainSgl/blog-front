@@ -80,22 +80,23 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { IconEye, IconFullscreen, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import {onMounted, ref} from 'vue';
+import {useRoute} from 'vue-router';
+import {IconEye, IconFullscreen, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
+import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
-import { useUserStore } from '@/store/user.js';
+import {useUserStore} from '@/store/user.js';
 import PostHistroy from '@/components/post/PostHistroy.vue';
 import PostRecommend from '@/components/post/PostRecommend.vue';
-import { useCommentStore } from '@/components/comment/commentStore.js';
+import {useCommentStore} from '@/components/comment/commentStore.js';
 import CodeLoader from '@/components/base/CodeLoader.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
 import PostActions from '@/components/post/PostActions.vue';
 import Header from '../../components/layout/Header.vue';
-import { storeToRefs } from 'pinia';
+import {storeToRefs} from 'pinia';
+
 const userStore = useUserStore();
 const commentStore = useCommentStore();
 

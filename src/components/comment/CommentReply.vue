@@ -43,13 +43,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useUserStore } from '@/store/user.js';
-import {
-  IconHeart,
-  IconHeartFill,
-} from '@arco-design/web-vue/es/icon';
-import { Comment as AComment, Link as ALink } from '@arco-design/web-vue';
+import {ref, watch} from 'vue';
+import {useUserStore} from '@/store/user.js';
+import {IconHeart, IconHeartFill,} from '@arco-design/web-vue/es/icon';
+import {Comment as AComment, Link as ALink} from '@arco-design/web-vue';
 import AvatarWithInfo from '@/components/user/base/AvatarWithInfo.vue';
 import UserLevel from '@/components/user/base/UserLevel.vue';
 
