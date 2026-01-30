@@ -189,47 +189,45 @@ const updateScreenSize = () => {
 
 <style scoped lang="less">
 .home-page {
-  background-color: #f7f8fa;
+  background-color: @color-fill-1;
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
-:deep(::root)
-{
+
+:deep(::root) {
   scrollbar-width: none;
+  
   &::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
   }
 }
+
 .container {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 20px;
-  padding: 20px;
+  gap: @size-5;
+  padding: @size-5;
   box-sizing: border-box;
   margin: 0 auto;
   max-width: 100%;
   width: 100%;
 }
 
-
-
-// 中间区域包装器：包含主内容和公告
 .center-wrapper {
   flex: 1;
   display: flex;
-  gap: 20px;
+  gap: @size-5;
   max-width: 1600px;
   margin: 0 auto;
   min-width: 0;
   box-sizing: border-box;
 }
 
-// 中间主内容区域
 .main-content {
   flex: 1;
   max-width: 1280px;
@@ -238,7 +236,6 @@ const updateScreenSize = () => {
   box-sizing: border-box;
 }
 
-// 右侧公告栏
 .right-sidebar {
   width: 280px;
   flex-shrink: 0;
@@ -251,34 +248,33 @@ const updateScreenSize = () => {
 
 .top-section {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: @size-5;
 }
 
 .banner-section {
   width: 100%;
   height: 300px;
-  border-radius: 8px;
+  border-radius: @border-radius-medium;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px fade(#000, 10%);
 }
 
 .content-section {
   width: 100%;
 }
 
-// 平板模式：只隐藏左侧目录
 @media (max-width: 1200px) {
   .container {
-    padding: 12px;
-    gap: 16px;
+    padding: @size-3;
+    gap: @size-4;
   }
 
   .left-sidebar {
-    display: none; // 平板模式隐藏左侧目录
+    display: none;
   }
 
   .center-wrapper {
-    gap: 16px;
+    gap: @size-4;
   }
 
   .right-sidebar {
@@ -290,11 +286,10 @@ const updateScreenSize = () => {
   }
 }
 
-// 手机模式：隐藏左侧目录和公告
 @media (max-width: 768px) {
   .container {
-    padding: 8px;
-    gap: 12px;
+    padding: @size-2;
+    gap: @size-3;
   }
 
   .center-wrapper {
@@ -302,7 +297,7 @@ const updateScreenSize = () => {
   }
 
   .right-sidebar {
-    display: none; // 手机模式隐藏公告
+    display: none;
   }
 
   .main-content {

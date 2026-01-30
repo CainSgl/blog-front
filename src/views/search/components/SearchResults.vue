@@ -31,7 +31,7 @@
     <div v-else-if="!loading && searchQuery" class="empty-state">
         <a-empty description="未找到相关结果">
             <template #image>
-                <icon-search :style="{ fontSize: '64px', color: '#c9cdd4' }" />
+                <icon-search class="empty-icon" />
             </template>
         </a-empty>
     </div>
@@ -39,7 +39,7 @@
     <!-- 初始状态 -->
     <div v-else class="initial-state">
         <div class="initial-content">
-            <icon-search :style="{ fontSize: '80px', color: '#e5e6eb' }" />
+            <icon-search class="initial-icon" />
             <p class="initial-text">输入关键词开始搜索</p>
         </div>
     </div>
@@ -260,14 +260,14 @@ onUnmounted(() => {
 
 .load-more-hint,
 .no-more-hint {
-    color: #86909c;
+    color: @color-text-4;
     font-size: 14px;
     text-align: center;
 }
 
 .no-more-hint {
     padding: 16px 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 1px solid @color-border-1;
 }
 
 .empty-state,
@@ -282,9 +282,19 @@ onUnmounted(() => {
     text-align: center;
 }
 
+.empty-icon {
+    font-size: 64px;
+    color: @color-fill-4;
+}
+
+.initial-icon {
+    font-size: 80px;
+    color: @color-fill-3;
+}
+
 .initial-text {
     margin-top: 16px;
-    color: #86909c;
+    color: @color-text-4;
     font-size: 16px;
 }
 

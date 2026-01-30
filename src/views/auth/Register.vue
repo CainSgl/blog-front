@@ -170,7 +170,6 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-/* 渐变背景 */
 :deep(.character-flow-background) {
   position: absolute;
   top: 0;
@@ -185,42 +184,41 @@ onUnmounted(() => {
   max-width: 600px;
   position: relative;
   z-index: 2;
-  padding: 20px;
+  padding: @size-5;
 }
 
 .register-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
+  background: fade(@color-bg-white, 95%);
+  border-radius: @size-5;
   padding: 60px 80px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px fade(#000, 30%);
   backdrop-filter: blur(10px);
   min-height: 500px;
   display: flex;
   flex-direction: column;
 }
 
-/* 步骤指示器 */
 .step-indicator {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: @size-3;
   margin-bottom: 48px;
 
   .step-dot {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    border-radius: @border-radius-circle;
     background: @color-fill-3;
     transition: all 0.3s ease;
 
     &.active {
       width: 32px;
       border-radius: 5px;
-      background: rgb(var(--primary-6));
+      background: @primary-6;
     }
 
     &.completed {
-      background: rgb(var(--primary-6));
+      background: @primary-6;
     }
   }
 }
@@ -229,15 +227,14 @@ onUnmounted(() => {
   text-align: center;
   margin-top: auto;
   padding-top: 32px;
-  font-size: 14px;
+  font-size: @font-size-body-3;
   color: @color-text-2;
 
   span {
-    margin-right: 8px;
+    margin-right: @size-2;
   }
 }
 
-/* 步骤切换动画 */
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }

@@ -97,6 +97,8 @@ const handleLoginSuccess = () => {
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .login-modal {
   height: 100%;
   display: flex;
@@ -107,8 +109,8 @@ const handleLoginSuccess = () => {
 /* 关闭按钮 - 定位在右上角 */
 .close-button {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: @size-5;
+  right: @size-5;
   z-index: 10;
 }
 
@@ -153,10 +155,7 @@ const handleLoginSuccess = () => {
 }
 
 /* 修复输入框焦点导致的布局跳动问题 */
-:deep(.arco-input-wrapper) {
-  transition: none;
-}
-
+:deep(.arco-input-wrapper),
 :deep(.arco-input) {
   transition: none;
 }
@@ -169,7 +168,6 @@ const handleLoginSuccess = () => {
 
 :deep(.arco-tabs-content) {
   min-height: 200px;
-  /* 设置最小高度防止内容变化时跳动 */
 }
 
 /* 标签页样式 */
@@ -199,8 +197,7 @@ const handleLoginSuccess = () => {
   /* 背景占满整个屏幕 */
   :deep(.character-flow-background) {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     max-width: 100%;
@@ -211,25 +208,21 @@ const handleLoginSuccess = () => {
   /* 登录区域叠加在背景上 */
   .login-right {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: transparent;
     z-index: 2;
   }
 
   .login-content {
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    margin: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: @size-5;
+    background: fade(@color-bg-white, 95%);
+    border-radius: @size-4;
+    margin: @size-5;
+    box-shadow: 0 8px 32px fade(@color-text-1, 10%);
     backdrop-filter: blur(10px);
   }
 
   .login-title {
-
     color: @color-text-1;
   }
 

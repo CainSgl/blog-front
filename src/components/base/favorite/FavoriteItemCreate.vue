@@ -16,51 +16,53 @@ const handleCreate = () => {
 </script>
 
 <style lang="less" scoped>
+@import '@/assets/style/global.less';
+
 .favorite-item {
     height: 24px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: #fff;
-    border: 1px solid #e5e6eb;
-    border-radius: 8px;
+    gap: @size-3;
+    padding: @size-3 @size-4;
+    background: @color-bg-white;
+    border: @border-1 solid @color-fill-3;
+    border-radius: @border-radius-medium;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        border-color: #00aeec;
-        background: #f0f9ff;
+        border-color: @primary-6;
+        background: @primary-1;
     }
 
     .item-icon {
         font-size: 18px;
-        color: #4e5969;
+        color: @color-text-3;
         flex-shrink: 0;
     }
 
     .item-name {
-        font-size: 14px;
-        color: #1d2129;
-        font-weight: 400;
+        font-size: @font-size-body-3;
+        color: @color-text-1;
+        font-weight: @font-weight-400;
         flex: 1;
     }
 
     &.create-item {
         border-style: dashed;
-        border-color: #c9ccd0;
+        border-color: @color-fill-4;
 
         .item-icon {
-            color: #00aeec;
+            color: @primary-6;
         }
 
         .item-name {
-            color: #00aeec;
-            font-weight: 500;
+            color: @primary-6;
+            font-weight: @font-weight-500;
         }
 
         &:hover {
-            border-color: #00aeec;
+            border-color: @primary-6;
         }
     }
 }

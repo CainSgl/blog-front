@@ -68,7 +68,7 @@ const handleSubmit = async () => {
   margin-bottom: 40px;
 
   p {
-    font-size: 16px;
+    font-size: @font-size-title-1;
     color: @color-text-3;
   }
 }

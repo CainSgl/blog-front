@@ -116,11 +116,13 @@ watch(visible, (newVal) => {
 </script>
 
 <style lang="less" scoped>
+@import '@/assets/style/global.less';
+
 .add-to-favorite-modal {
     width: calc(60vw - 40px);
     max-width: 800px;
     min-width: 500px;
-    padding: 8px 0;
+    padding: @size-2 0;
 
     .favorite-list {
         width: 100%;
@@ -128,7 +130,7 @@ watch(visible, (newVal) => {
         overflow-y: auto;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 12px;
+        gap: @size-3;
     }
 }
 

@@ -126,41 +126,40 @@ watch(() => props.node, (newNode) => {
 
 .article-header {
   padding: 32px 24px 24px;
-  border-bottom: 1px solid var(--color-border-2);
+  border-bottom: @border-1 solid @color-border-2;
   margin-bottom: 24px;
-
 }
 
 .article-title {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: @font-weight-700;
   line-height: 1.4;
-  margin: 0 0 16px 0;
-  color: var(--color-text-1);
+  margin: 0 0 @size-4 0;
+  color: @color-text-1;
   letter-spacing: -0.5px;
 }
 
 .article-summary {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 16px 20px;
-  background: var(--color-fill-2);
-  border-left: 4px solid rgb(var(--primary-6));
-  border-radius: 4px;
-  margin-top: 16px;
+  gap: @size-3;
+  padding: @size-4 @size-5;
+  background: @color-fill-2;
+  border-left: 4px solid @primary-6;
+  border-radius: @border-radius-small;
+  margin-top: @size-4;
   transition: all 0.3s ease;
 
   &:hover {
-    background: var(--color-fill-3);
-    border-left-color: rgb(var(--primary-5));
+    background: @color-fill-3;
+    border-left-color: @primary-5;
   }
 }
 
 .summary-icon {
   flex-shrink: 0;
   font-size: 18px;
-  color: rgb(var(--primary-6));
+  color: @primary-6;
   margin-top: 2px;
 }
 
@@ -168,13 +167,13 @@ watch(() => props.node, (newNode) => {
   flex: 1;
   font-size: 15px;
   line-height: 1.6;
-  color: var(--color-text-2);
-  font-weight: 400;
+  color: @color-text-2;
+  font-weight: @font-weight-400;
 }
 
 .comment-affix-button {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: @size-5;
+  bottom: @size-5;
 }
 </style>

@@ -35,7 +35,7 @@ onMounted(() =>
 });
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .floating-text-container {
   display: flex;
   justify-content: center;
@@ -56,11 +56,8 @@ onMounted(() =>
   transform: translateY(1.2em);
   animation: floatUp 0.4s forwards;
   animation-timing-function: ease-out;
-  /* 最简化文本效果 */
   text-shadow: none;
-  /* 确保清晰渲染 */
   will-change: transform, opacity;
-  /* 确保文本不会被截断 */
   line-height: 1.2;
 }
 

@@ -107,31 +107,8 @@ const loadPostInfo = async (msgs) => {
 
 // 处理点赞评论 (type === 2)
 const loadCommentInfo = async (msgs) => {
-  // const commentIds = msgs
-  //   .filter(msg => msg.type === 2)
-  //   .map(msg => msg.targetId)
-  //   .filter(id => !commentInfoCache.has(id));
+  // TODO
 
-  // if (commentIds.length === 0) return;
-
-  // try {
-  //   const ids = commentIds.join(',');
-  //   const { data } = await api.get('/comment/batch', { ids });
-
-  //   // 更新缓存
-  //   data.forEach(comment => {
-  //     commentInfoCache.set(comment.id, comment);
-  //   });
-
-  //   // 更新消息中的 commentInfo
-  //   msgs.forEach(msg => {
-  //     if (msg.type === 2 && commentInfoCache.has(msg.targetId)) {
-  //       msg.commentInfo = commentInfoCache.get(msg.targetId);
-  //     }
-  //   });
-  // } catch (error) {
-  //   console.error('加载评论详情失败:', error);
-  // }
 };
 
 const loadMessages = async () => {

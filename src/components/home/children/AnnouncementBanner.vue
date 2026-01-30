@@ -30,6 +30,7 @@
 import {onMounted, ref} from 'vue';
 import cImg from '@/components/base/image/cImg.vue';
 import api from '@/api/index';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 const announcements = ref([]);
 
@@ -39,39 +40,7 @@ onMounted(async () =>
   announcements.value=data;
 });
 
-const formatDate = (dateString) =>
-{
-  const now = new Date();
-  const targetDate = new Date(dateString);
-  const diffMs = now - targetDate;
-  const diffSeconds = Math.floor(diffMs / 1000);
 
-  if (diffSeconds > 604800)
-  {
-    return targetDate.toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
-  }
-
-  if (diffSeconds < 60)
-  {
-    return `${diffSeconds}秒前`;
-  }
-  else if (diffSeconds < 3600)
-  {
-    return `${Math.floor(diffSeconds / 60)}分钟前`;
-  }
-  else if (diffSeconds < 86400)
-  {
-    return `${Math.floor(diffSeconds / 3600)}小时前`;
-  }
-  else
-  {
-    return `${Math.floor(diffSeconds / 86400)}天前`;
-  }
-};
 </script>
 
 <style lang="less" scoped>

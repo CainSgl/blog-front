@@ -1,187 +1,212 @@
 <template>
-    <a-link :hoverable="false" :href="kbInfo.id&&useLink?`/kb?kb=${kbInfo.id}`:undefined" class="kb-card" target="_ablank">
-        <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }" 
-            v-if="kbInfo.name||kbInfo.id">
+    <a-link 
+        :hoverable="false" 
+        :href="cardLink" 
+        class="kb-card" 
+        target="_blank"
+    >
+        <a-card 
+            v-if="isLoaded" 
+            class="kb-card-container" 
+            :bordered="false" 
+            :body-style="{ padding: 0 }"
+        >
             <!-- 封面图片 -->
             <div class="kb-cover">
-                <c-img v-if="kbInfo.coverUrl" :src="kbInfo.coverUrl" :alt="kbInfo.name" width="180px" height="180px"
-                    fit="cover" :preview="false" lazy-load />
+                <c-img 
+                    v-if="kbInfo.coverUrl" 
+                    :src="kbInfo.coverUrl" 
+                    :alt="kbInfo.name" 
+                    width="180px" 
+                    height="180px"
+                    fit="cover" 
+                    :preview="false" 
+                    lazy-load 
+                />
                 <div v-else class="kb-cover-empty">
-                    <a-empty description="无封面" :image-style="{ height: '100%', width: '100%' }" />
+                    <a-empty description="无封面" />
                 </div>
             </div>
 
             <!-- 内容区域 -->
             <div class="kb-content">
-                <!-- 知识库名称 -->
                 <div class="kb-name">{{ kbInfo.name }}</div>
 
-                <!-- 底部信息栏 -->
                 <div class="kb-footer">
                     <div class="kb-stats">
-                        <!-- <icon-heart :style="{ marginRight: '16px' }"  /> {{ kbInfo.likeCount }} -->
-                        <icon-book :style="{  marginRight: '4px' }" /> {{ kbInfo.postCount }}
+                        <icon-book class="icon" />
+                        <span>{{ kbInfo.postCount }}</span>
                     </div>
                     <div class="kb-date">{{ formatDate(kbInfo.createdAt) }}</div>
                 </div>
             </div>
         
             <!-- 状态标签 -->
-            <div v-if="showStatus && kbInfo.status"    class="kb-status-tag">
-                <a-tag v-if="kbInfo.status === '仅粉丝'" :color="primary4Color">粉丝专属</a-tag>
-                <a-tag v-if="kbInfo.status === '已发布'&&!onlyFans" color="green">公开</a-tag>
-                <a-tag v-if="kbInfo.status === '草稿' && !onlyFans" color="gray">私密</a-tag>
+            <div v-if="showStatusTag" class="kb-status-tag">
+                <a-tag v-if="statusTagConfig.show" :color="statusTagConfig.color">
+                    {{ statusTagConfig.text }}
+                </a-tag>
             </div>
-
         </a-card>
-        <div class="kb-card-loading" v-else>
+
+        <!-- 加载骨架屏 -->
+        <div v-else class="kb-card-loading">
             <a-skeleton :animation="true">
-               <a-skeleton-shape :style="{ height: `260px`, width: `180px` }"/>
+                <a-skeleton-shape :style="skeletonStyle" />
             </a-skeleton>
         </div>
     </a-link>
 </template>
 
 <script setup>
-import {IconBook} from '@arco-design/web-vue/es/icon';
+import { computed } from 'vue';
+import { IconBook } from '@arco-design/web-vue/es/icon';
 import CImg from '../base/image/cImg.vue';
-import {useRouter} from 'vue-router';
-import {formatDate} from '@/utils/DateFormatter.js';
-
-const router = useRouter();
+import { formatDate } from '@/utils/DateFormatter.js';
 
 const props = defineProps({
   kbInfo: {
     type: Object,
     required: true,
-    default: () => ({
-      id: '',
-      userId: '',
-      name: '',
-      createdAt: '',
-      status: '草稿',
-      likeCount: 0,
-      coverUrl: '',
-      postCount: 0
-    })
+    default: () => ({})
   },
-  useLink:{
-    type:Boolean,
-    default:true
+  useLink: {
+    type: Boolean,
+    default: true
   },
   showStatus: {
     type: Boolean,
     default: true
   },
-  onlyFans:{
-    type:Boolean,
+  onlyFans: {
+    type: Boolean,
     default: false
   }
 });
 
+// 常量
+const SKELETON_STYLE = { height: '260px', width: '180px' };
 
-const primary4Color = '#ff6699'; 
+// 计算属性
+const isLoaded = computed(() => props.kbInfo.name || props.kbInfo.id);
 
+const cardLink = computed(() => {
+  return props.kbInfo.id && props.useLink 
+    ? `/kb?kb=${props.kbInfo.id}` 
+    : undefined;
+});
 
+const showStatusTag = computed(() => props.showStatus && props.kbInfo.status);
 
+const statusTagConfig = computed(() => {
+  const { status } = props.kbInfo;
+  const { onlyFans } = props;
+
+  const configs = {
+    '仅粉丝': { show: true, color: 'rgb(var(--primary-4))', text: '粉丝专属' },
+    '已发布': { show: !onlyFans, color: 'green', text: '公开' },
+    '草稿': { show: !onlyFans, color: 'gray', text: '私密' }
+  };
+
+  return configs[status] || { show: false };
+});
+
+const skeletonStyle = computed(() => SKELETON_STYLE);
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .kb-card {
     width: 180px;
     position: relative;
+}
 
-    .kb-card-container {
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        height: 100%;
-        border: 1px solid #e5e8ef;
-        /* 添加外边框 */
+.kb-card-container,
+.kb-card-loading {
+    border-radius: @size-3;
+    overflow: hidden;
+    cursor: pointer;
+    height: 100%;
+    border: @border-1 solid @color-border-1;
+    transition: all 0.3s ease;
+}
 
-        &:hover {
-            border-color: #4080ff;
-            /* 类似于 PostCard 的 hover 效果 */
-            box-shadow: 0 4px 12px 0 rgba(0, 174, 236, 0.15);
-            /* 减轻 hover 阴影 */
-        }
-    }
+.kb-card-container:hover {
+    border-color: @primary-6;
+    box-shadow: 0 4px 12px 0 fade(@primary-6, 15%);
 
-    .kb-card-loading {
-         border-radius: 12px;
-        overflow: hidden;
-        cursor: pointer;
-        height: 100%;
-        border: 1px solid #e5e8ef;
-    }
-
-    .kb-cover {
-        width: 100%;
-        height: 180px;
-        overflow: hidden;
-
-        .arco-image {
-            transition: transform 0.3s ease;
-        }
-    }
-
-    .kb-card-container:hover .kb-cover .arco-image {
+    .kb-cover .arco-image {
         transform: scale(1.05);
     }
 
-    .kb-card-container:hover .kb-cover-empty {
-        background-color: #f0f3f8;
-    }
-
     .kb-cover-empty {
-        width: 100%;
-        height: 180px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f7f8fa;
+        background-color: @color-fill-2;
     }
+}
 
-    .kb-content {
-        padding: 16px;
+.kb-cover {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
 
-        .kb-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: #1d2129;
-            margin-bottom: 12px;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.4;
-        }
-
-        .kb-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #86909c;
-
-            .kb-stats {
-                display: flex;
-                align-items: center;
-            }
-
-            .kb-date {
-                margin-left: auto;
-            }
-        }
+    .arco-image {
+        transition: transform 0.3s ease;
     }
+}
 
-    .kb-status-tag {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        z-index: 1;
+.kb-cover-empty {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: @color-fill-1;
+    transition: background-color 0.3s ease;
+}
+
+.kb-content {
+    padding: @size-4;
+}
+
+.kb-name {
+    font-size: @font-size-title-1;
+    font-weight: @font-weight-500;
+    color: @color-text-1;
+    margin-bottom: @size-3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+.kb-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: @font-size-body-1;
+    color: @color-text-4;
+}
+
+.kb-stats {
+    display: flex;
+    align-items: center;
+    gap: @size-1;
+
+    .icon {
+        font-size: @font-size-body-3;
     }
+}
+
+.kb-date {
+    margin-left: auto;
+}
+
+.kb-status-tag {
+    position: absolute;
+    top: @size-2;
+    right: @size-2;
+    z-index: 1;
 }
 </style>

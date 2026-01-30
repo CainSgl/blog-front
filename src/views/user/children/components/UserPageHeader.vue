@@ -237,7 +237,7 @@ const handleBack = () => {
   .option-loading-icon {
     margin-left: 8px;
     font-size: 12px;
-    color: #c0c4cc;
+    color: @color-text-4;
   }
 }
 
@@ -245,8 +245,8 @@ const handleBack = () => {
 .search-footer-loading,
 .search-footer-empty {
   padding: 12px;
-  border-top: 1px solid #f0f0f0;
-  background-color: #fafafa;
+  border-top: 1px solid @color-border-1;
+  background-color: @color-fill-1;
 }
 
 .loading-container,
@@ -263,7 +263,7 @@ const handleBack = () => {
 .empty-text {
   margin-left: 8px;
   font-size: 13px;
-  color: #666;
+  color: @color-text-3;
 }
 
 // 搜索框样式优化
@@ -272,17 +272,17 @@ const handleBack = () => {
     transition: all 0.3s ease;
 
     &:hover {
-      box-shadow: 0 0 0 1px var(--color-primary-light-3);
+      box-shadow: 0 0 0 1px fade(@primary-6, 30%);
     }
 
     &:focus {
-      box-shadow: 0 0 0 2px var(--color-primary-light-3);
+      box-shadow: 0 0 0 2px fade(@primary-6, 30%);
     }
   }
 
   .arco-auto-complete-dropdown {
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: @border-radius-medium;
+    box-shadow: 0 4px 12px fade(#000, 10%);
   }
 }
 </style>

@@ -1,137 +1,75 @@
 <template>
   <a-layout-header>
     <transition name="header-slide">
-      <div class="header-container" v-show="showHeader" :class="{ 
+      <div class="header-container" v-show="showHeader" :class="{
         'transparent-background': transparentBackground,
-        'header-fixed': isHeaderFixed&&showHeader
+        'header-fixed': isHeaderFixed && showHeader
       }">
-      <div class="header-content" :class="{ 'with-padding': padding }"
-        :style="{ borderBottom: showBorder ? `1px solid ${borderColor}` : 'none' }">
-        <div>
-          <a-link :href="`/`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">首页</span>
-          </a-link>
-          <a-link :href="`/blog`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/blog') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">博客</span>
-          </a-link>
-          <a-link :href="`/knowledge`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/knowledge') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">知识库</span>
-          </a-link>
-          <a-link :href="`/about`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/about') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">关于</span>
-          </a-link>
-        </div>
+        <div class="header-content" :class="{ 'with-padding': padding }"
+          :style="{ borderBottom: showBorder ? `1px solid ${borderColor}` : 'none' }">
+          <div>
+            <a-link v-for="nav in navLinks" :key="nav.path" :href="nav.path" class="nav-option"
+              :class="{ 'nav-option-active': isActiveRoute(nav.path) }" :hoverable="hoverable">
+              <span :style="{ color: textColor }">{{ nav.label }}</span>
+            </a-link>
+          </div>
 
-        <div class="search-section" v-if="showSearch">
-          <SearchBox :alwaysShowFilter="false" :mini="true" />
-        </div>
+          <div class="search-section" v-if="showSearch">
+            <SearchBox :alwaysShowFilter="false" :mini="true" />
+          </div>
 
+          <div class="right-section">
+            <!-- 头像部分 -->
+            <div>
+              <HeaderIcon />
+            </div>
+            <!-- 登录后显示的功能入口 -->
+            <div class="user-actions" v-if="userInfo?.id != '-1'">
+              <a-dropdown trigger="hover">
+                <div class="action-item">
+                  <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
+                    <a-badge :count="msgCount" :max-count="99" :offset="['5px', '0px', '0px', '15px']">
+                      <icon-notification :size="20" />
+                    </a-badge>
+                  </a-tooltip>
+                  <span class="action-text">消息</span>
+                </div>
+                <template #content>
+                  <a-doption v-for="msg in messageOptions" :key="msg.path" @click="openInNewTab(msg.path)">
+                    <template #icon>
+                      <component :is="msg.icon" />
+                    </template>
+                    <div class="dropdown-option-content">
+                      <span>{{ msg.label }}</span>
+                      <a-badge :count="userInfo?.[msg.countKey] || 0" :max-count="99" />
+                    </div>
+                  </a-doption>
+                </template>
+              </a-dropdown>
 
-        <div class="right-section">
-          
-          <!-- 头像部分 -->
-           <div>
-            
-          <HeaderIcon />
-           </div>
-          <!-- 登录后显示的功能入口 -->
-          <div class="user-actions" v-if="userInfo?.id != '-1'">
-            <a-dropdown trigger="hover" >
-              <div class="action-item">
-                <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
-                  <a-badge :count="msgCount" :max-count="99" :offset="['5px','0px','0px','15px']">
-                    <icon-notification :size="20" />
-                  </a-badge>
+              <div v-for="action in userActions" :key="action.path" class="action-item"
+                @click="openInNewTab(`/space/${userInfo?.id}/${action.path}`)">
+                <a-tooltip :content="action.tooltip" :popup-visible="isSmallScreen ? undefined : false">
+                  <component :is="action.icon" :size="20" />
                 </a-tooltip>
-                <span class="action-text">消息</span>
+                <span class="action-text">{{ action.label }}</span>
               </div>
-              <template #content>
-                <a-doption @click="openInNewTab('/messages/reply')">
-                  <template #icon>
-                    <icon-message />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>回复我的</span>
-                    <a-badge :count="userInfo?.msgReplyCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/like')">
-                  <template #icon>
-                    <icon-heart />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>收到的赞</span>
-                    <a-badge :count="userInfo?.msgLikeCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/message')">
-                  <template #icon>
-                    <icon-email />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>消息</span>
-                    <a-badge :count="userInfo?.msgMessageCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/report')">
-                  <template #icon>
-                    <icon-exclamation-circle />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>举报消息</span>
-                    <a-badge :count="userInfo?.msgReportCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-              </template>
-            </a-dropdown>
-
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/favorites`)">
-              <a-tooltip content="收藏" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-star :size="20" />
-              </a-tooltip>
-              <span class="action-text">收藏</span>
             </div>
 
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/history`)">
-              <a-tooltip content="历史" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-history :size="20" />
-              </a-tooltip>
-              <span class="action-text">历史</span>
-            </div>
-
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
-              <a-tooltip content="我的知识库" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-book :size="20" />
-              </a-tooltip>
-              <span class="action-text">知识库</span>
-            </div>
-
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/docs`)">
-              <a-tooltip content="我的文档" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-file :size="20" />
-              </a-tooltip>
-              <span class="action-text">文档</span>
-            </div>
           </div>
 
         </div>
-
       </div>
-    </div>
     </transition>
   </a-layout-header>
 </template>
 
 <script setup>
-import {useUserStore} from '@/store/user.js';
-import {storeToRefs} from 'pinia';
+import { useUserStore } from '@/store/user.js';
+import { storeToRefs } from 'pinia';
 import SearchBox from '@/components/base/SearchBox.vue';
 import HeaderIcon from './common/HeaderIcon.vue';
-import {computed, onMounted, onUnmounted, ref} from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   IconBook,
   IconEmail,
@@ -143,8 +81,32 @@ import {
   IconNotification,
   IconStar
 } from '@arco-design/web-vue/es/icon';
-import {useRoute, useRouter} from 'vue-router';
-import {showLoginModal} from '@/services/authService';
+import { useRoute, useRouter } from 'vue-router';
+import { showLoginModal } from '@/services/authService';
+
+// 导航链接配置
+const navLinks = [
+  { path: '/', label: '首页' },
+  { path: '/blog', label: '博客' },
+  { path: '/knowledge', label: '知识库' },
+  { path: '/about', label: '关于' }
+];
+
+// 消息下拉菜单配置
+const messageOptions = [
+  { path: '/messages/reply', label: '回复我的', icon: IconMessage, countKey: 'msgReplyCount' },
+  { path: '/messages/like', label: '收到的赞', icon: IconHeart, countKey: 'msgLikeCount' },
+  { path: '/messages/message', label: '消息', icon: IconEmail, countKey: 'msgMessageCount' },
+  { path: '/messages/report', label: '举报消息', icon: IconExclamationCircle, countKey: 'msgReportCount' }
+];
+
+// 用户操作项配置
+const userActions = [
+  { path: 'favorites', label: '收藏', tooltip: '收藏', icon: IconStar },
+  { path: 'history', label: '历史', tooltip: '历史', icon: IconHistory },
+  { path: 'knowledge', label: '知识库', tooltip: '我的知识库', icon: IconBook },
+  { path: 'docs', label: '文档', tooltip: '我的文档', icon: IconFile }
+];
 
 // 滚动相关状态
 const showHeader = ref(true); // 控制 header 是否显示
@@ -155,12 +117,12 @@ const scrollDelta = 5; // 滚动方向判断的最小差值，避免抖动
 // 将 scrollThreshold 转换为像素值
 const getScrollThresholdInPixels = () => {
   const threshold = props.scrollThreshold;
-  
+
   // 如果是数字，直接返回
   if (typeof threshold === 'number') {
     return threshold;
   }
-  
+
   // 如果是字符串
   if (typeof threshold === 'string') {
     // 处理 vh 单位
@@ -171,7 +133,7 @@ const getScrollThresholdInPixels = () => {
     // 处理 px 单位或纯数字字符串
     return parseFloat(threshold);
   }
-  
+
   // 默认值
   return 400;
 };
@@ -217,8 +179,8 @@ const router = useRouter();
 const route = useRoute();
 // 使用 storeToRefs 创建响应式引用
 const { userInfo } = storeToRefs(userStore);
-const msgCount=computed(()=>{
-  return userInfo.value?.msgReplyCount || 0+userInfo.value?.msgLikeCount || 0+userInfo.value?.msgMessageCount || 0+userInfo.value?.msgReportCount || 0
+const msgCount = computed(() => {
+  return userInfo.value?.msgReplyCount || 0 + userInfo.value?.msgLikeCount || 0 + userInfo.value?.msgMessageCount || 0 + userInfo.value?.msgReportCount || 0
 })
 // 响应式屏幕尺寸检测
 const isSmallScreen = ref(window.innerWidth < 768);
@@ -232,7 +194,7 @@ const handleScroll = () => {
   const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const threshold = getScrollThresholdInPixels();
   const scrollDiff = currentScrollTop - lastScrollTop;
-  
+
   // 滚动位置低于阈值时，使用原来的定位，始终显示
   if (currentScrollTop <= threshold) {
     isHeaderFixed.value = false;
@@ -240,7 +202,7 @@ const handleScroll = () => {
   } else {
     // 滚动位置超过阈值时，切换为 fixed 定位
     isHeaderFixed.value = true;
-    
+
     // 根据滚动方向控制显示/隐藏
     if (scrollDiff > scrollDelta) {
       // 向下滚动 - 隐藏 header
@@ -251,7 +213,7 @@ const handleScroll = () => {
     }
     // 如果滚动差值在 [-scrollDelta, scrollDelta] 之间，保持当前状态不变
   }
-  
+
   lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
 };
 
@@ -286,14 +248,7 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
-.header {
-  width: 100%;
-  height: @header-height;
-}
-
 @header-height: 64px;
-@logo-height: 40px;
-@avatar-size: 40px;
 
 .header-container {
   background-color: @color-bg-1;
@@ -302,38 +257,32 @@ onMounted(async () => {
   top: 0;
   left: 0;
   right: 0;
-  width: 100%;
-  max-width: 100vw;
-  box-sizing: border-box;
   border-bottom: 1px solid @color-border-1;
   transition: transform 0.3s ease;
 
   &.header-fixed {
     position: fixed;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px fade(@color-text-1, 10%);
   }
 
   &.transparent-background {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: fade(@color-bg-white, 90%);
     border-bottom: none !important;
 
-    .search-input {
-      :deep(.arco-input) {
-        background-color: rgba(255, 255, 255, 0.5) !important;
+    :deep(.arco-input) {
+      background-color: fade(@color-bg-white, 50%) !important;
+
+      &:hover {
+        background-color: fade(@color-bg-white, 70%);
       }
 
-      :deep(.arco-input-hover) {
-        background-color: rgba(255, 255, 255, 0.7);
-      }
-
-      :deep(.arco-input-focused) {
-        background-color: rgba(255, 255, 255, 0.8);
+      &:focus {
+        background-color: fade(@color-bg-white, 80%);
       }
     }
   }
 }
 
-// Header 滑动动画
 .header-slide-enter-active,
 .header-slide-leave-active {
   transition: transform 0.3s ease;
@@ -344,11 +293,6 @@ onMounted(async () => {
   transform: translateY(-110%);
 }
 
-.header-slide-enter-to,
-.header-slide-leave-from {
-  transform: translateY(0);
-}
-
 .header-content {
   display: flex;
   align-items: center;
@@ -356,8 +300,6 @@ onMounted(async () => {
   padding: 0 20px;
   height: @header-height;
   transition: all 0.3s ease;
-  max-width: 100%;
-  box-sizing: border-box;
 
   &.with-padding {
     max-width: 1400px;
@@ -366,13 +308,9 @@ onMounted(async () => {
   }
 
   .search-section {
-    flex: 1 1 auto;
+    flex: 1;
     margin: 0 20px;
     min-width: 0;
-
-    .search-input {
-      width: 100%;
-    }
   }
 
   .right-section {
@@ -391,7 +329,6 @@ onMounted(async () => {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 4px;
       padding: 8px;
       border-radius: 4px;
@@ -409,31 +346,8 @@ onMounted(async () => {
         white-space: nowrap;
       }
     }
-
-    // 在宽度小于900px时隐藏知识库和文档
-    @media (max-width: 899px) and (min-width: 769px) {
-      .action-item:nth-child(4),
-      .action-item:nth-child(5) {
-        display: none;
-      }
-    }
-
-    // 在宽度小于820px时隐藏收藏
-    @media (max-width: 819px) and (min-width: 769px) {
-      .action-item:nth-child(2) {
-        display: none;
-      }
-    }
-
-    // 在768px以下，显示所有操作项
-    @media (max-width: 768px) {
-      .action-item {
-        display: flex !important;
-      }
-    }
   }
 
-  // 平板端 (768px - 1024px)
   @media (max-width: 1024px) {
     padding: 0 16px;
 
@@ -454,7 +368,7 @@ onMounted(async () => {
 
       .action-item {
         padding: 6px;
-        
+
         .action-text {
           display: none;
         }
@@ -462,7 +376,20 @@ onMounted(async () => {
     }
   }
 
-  // 手机端 (小于 768px)
+  @media (max-width: 899px) and (min-width: 769px) {
+
+    .user-actions .action-item:nth-child(4),
+    .user-actions .action-item:nth-child(5) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 819px) and (min-width: 769px) {
+    .user-actions .action-item:nth-child(2) {
+      display: none;
+    }
+  }
+
   @media (max-width: 768px) {
     padding: 0 12px;
 
@@ -470,7 +397,6 @@ onMounted(async () => {
       padding: 0 16px;
     }
 
-    // 完全隐藏搜索框
     .search-section {
       display: none;
     }
@@ -484,15 +410,10 @@ onMounted(async () => {
 
       .action-item {
         padding: 4px;
-        
-        .action-text {
-          display: none;
-        }
       }
     }
   }
 
-  // 小手机端 (小于 480px)
   @media (max-width: 480px) {
     padding: 0 8px;
 
@@ -507,19 +428,13 @@ onMounted(async () => {
     .user-actions {
       gap: 2px;
 
-      // 只显示部分重要功能
-      .action-item {
-        padding: 4px;
-
-        &:nth-child(n+3) {
-          display: none;
-        }
+      .action-item:nth-child(n+3) {
+        display: none;
       }
     }
   }
 }
 
-// 下拉菜单选项样式
 .dropdown-option-content {
   margin: 5px;
 }
@@ -529,51 +444,39 @@ onMounted(async () => {
   font-size: 16px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   padding: 8px 16px;
   border-radius: 4px;
   transition: opacity 0.2s;
   color: @color-text-1;
-
-  &:hover {
+  &:hover{
     color: @color-text-1;
   }
-
-  // 在宽度小于1240px时隐藏博客和知识库
   @media (max-width: 1239px) and (min-width: 769px) {
+
     &:nth-child(2),
     &:nth-child(3) {
       display: none;
     }
   }
 
-  // 在宽度小于820px时隐藏关于
-  @media (max-width: 819px) and (min-width: 769px) {
-    &:nth-child(4) {
-      display: none;
-    }
-  }
-
-  // 在768px以下，显示所有导航项
-  @media (max-width: 768px) {
-    display: inline-flex !important;
-  }
-
-  // 平板端优化
   @media (max-width: 1024px) {
     margin: 0 8px;
     padding: 8px 12px;
     font-size: 15px;
   }
 
-  // 手机端优化
+  @media (max-width: 819px) and (min-width: 769px) {
+    &:nth-child(4) {
+      display: none;
+    }
+  }
+
   @media (max-width: 768px) {
     margin: 0 4px;
     padding: 6px 8px;
     font-size: 14px;
   }
 
-  // 小手机端优化
   @media (max-width: 480px) {
     margin: 0 2px;
     padding: 4px 6px;
@@ -583,16 +486,5 @@ onMounted(async () => {
 
 .nav-option-active {
   color: @primary-4 !important;
-}
-
-.github-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-
-  .github-icon {
-    display: flex;
-    align-items: center;
-  }
 }
 </style>

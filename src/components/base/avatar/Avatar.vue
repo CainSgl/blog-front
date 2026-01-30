@@ -24,7 +24,7 @@
 <script setup>
 import {computed} from 'vue';
 import {IconUser,} from '@arco-design/web-vue/es/icon';
-import {API_BASE_URL} from '@/config/index.js';
+import {computeResourceUrl} from '@/utils/urlHelper.js';
 
 // 定义组件的 props，与 a-avatar 组件保持一致
 const props = defineProps({
@@ -65,22 +65,7 @@ const props = defineProps({
 });
 
 // 计算完整的头像 URL
-const computedAvatarUrl = computed(() => 
-{
-  if (!props.src) 
-  {
-    return '';
-  }
-  console.log(typeof props.src)
-  // 如果已经是完整的 URL，则直接返回
-  if (props.src.startsWith('http')) 
-  {
-    return props.src;
-  }
-  
-  // 否则拼接 API_BASE_URL
-  return `${API_BASE_URL}/file?f=${props.src}`;
-});
+const computedAvatarUrl = computed(() => computeResourceUrl(props.src));
 
 // 传递点击事件
 const emit = defineEmits(['click']);

@@ -120,6 +120,8 @@ const getRainDropStyle = (drop) =>
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .home-container {
   position: relative;
   margin: 0 auto;
@@ -140,8 +142,7 @@ const getRainDropStyle = (drop) =>
 
 .background-container {
   position: absolute;
-  top: 0;
-  left: 50%;
+  inset: 0 auto auto 50%;
   transform: translateX(-50%);
   width: 100vw;
   height: 100%;
@@ -153,46 +154,41 @@ const getRainDropStyle = (drop) =>
 
 .background-img {
   position: absolute;
-  left: 0;
-  top: 0;
+  inset: 0;
   width: 100%;
   height: 100dvh;
   object-fit: contain;
   z-index: 1;
-  pointer-events: none; /* 防止拖动图片 */
-  user-select: none; /* 防止选中图片 */
+  pointer-events: none;
+  user-select: none;
 }
 
 .overlay-mask {
   position: absolute;
-  left: 0;
-  top: 0;
+  inset: 0;
   width: 100%;
   height: 100dvh;
-  background-color: color-mix(in oklab,@color-bg-white 60%,transparent);
-  z-index: 2; /* 在图片上方，雨滴下方 */
-  pointer-events: none; /* 不阻挡交互 */
+  background-color: color-mix(in oklab, @color-bg-white 60%, transparent);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .rain-container {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3; /* 在遮罩层上方 */
+  inset: 0;
+  z-index: 3;
   pointer-events: none;
 }
 
 .raindrop {
   position: absolute;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 30%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0.8) 70%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(to bottom, fade(@color-bg-white, 0%) 0%, fade(@color-bg-white, 80%) 30%, @color-bg-white 50%, fade(@color-bg-white, 80%) 70%, fade(@color-bg-white, 0%) 100%);
   width: 1px;
   height: 10px;
   border-radius: 50%;
-  box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 2px fade(@color-bg-white, 80%);
   animation: fall linear infinite;
-  transform: rotate(15deg); /* 让雨滴倾斜，模拟下雨效果 */
+  transform: rotate(15deg);
 }
 
 @keyframes fall {
@@ -200,10 +196,7 @@ const getRainDropStyle = (drop) =>
     transform: translateX(-10px) translateY(-10vh) rotate(15deg);
     opacity: 0;
   }
-  10% {
-    opacity: 0.7;
-  }
-  90% {
+  10%, 90% {
     opacity: 0.7;
   }
   100% {
@@ -221,52 +214,48 @@ const getRainDropStyle = (drop) =>
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: @size-2;
   animation: fadeInOut 4s ease-in-out infinite;
   cursor: pointer;
   transition: all 0.3s ease;
-}
 
-.scroll-hint.reverse {
-  flex-direction: column-reverse;
+  &.reverse {
+    flex-direction: column-reverse;
+  }
 }
 
 .scroll-hint-text {
-  font-size: 14px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: @font-size-body-3;
+  text-shadow: 0 2px 4px fade(@color-text-1, 30%);
   letter-spacing: 1px;
   transition: all 0.3s ease;
 }
 
 .scroll-hint-icon {
   font-size: 24px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 2px 4px fade(@color-text-1, 30%));
   animation: arrowBounce 4s ease-in-out infinite;
   transition: all 0.3s ease;
 }
 
-.scroll-hint.dark-text .scroll-hint-text {
-  color: rgba(0, 0, 0, 0.8);
-  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
-}
+.scroll-hint.dark-text {
+  .scroll-hint-text {
+    color: fade(@color-text-1, 80%);
+    text-shadow: 0 2px 4px fade(@color-bg-white, 30%);
+  }
 
-.scroll-hint.dark-text .scroll-hint-icon {
-  color: rgba(0, 0, 0, 0.8);
-  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
+  .scroll-hint-icon {
+    color: fade(@color-text-1, 80%);
+    filter: drop-shadow(0 2px 4px fade(@color-bg-white, 30%));
+  }
 }
 
 @keyframes fadeInOut {
-  0% {
+  0%, 100% {
     opacity: 0;
   }
-  20% {
+  20%, 80% {
     opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
   }
 }
 
@@ -303,5 +292,4 @@ const getRainDropStyle = (drop) =>
     opacity: 0;
   }
 }
-
 </style>

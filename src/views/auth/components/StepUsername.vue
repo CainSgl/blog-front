@@ -94,7 +94,7 @@ const handleNext = async () => {
 }
 
 .error-msg {
-  color: rgb(var(--danger-6));
+  color:@danger-6;
   font-size: 14px;
   margin-top: 8px;
 }

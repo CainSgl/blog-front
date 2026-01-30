@@ -645,7 +645,7 @@ defineExpose({
     padding: 16px;
     line-height: 1.6;
     font-size: 16px;
-    color: #333;
+    color: @color-text-2;
 
     & .cainsgl-custom-container {
       margin: 20px 0;
@@ -678,54 +678,54 @@ defineExpose({
       }
 
       &.cainsgl-container-info {
-        background-color: #eff6ff;
+        background-color: @link-1;
 
         & .cainsgl-container-title {
-          background-color: #dbeafe;
-          color: #1d4ed8;
+          background-color: @link-2;
+          color: @link-7;
 
         }
       }
 
       &.cainsgl-container-tip {
-        background-color: #ecfdf5;
+        background-color: @success-1;
 
         & .cainsgl-container-title {
-          background-color: #d1fae5;
-          color: #047857;
+          background-color: @success-2;
+          color: @success-7;
 
 
         }
       }
 
       &.cainsgl-container-warning {
-        background-color: #fffbeb;
+        background-color: @warning-1;
 
         & .cainsgl-container-title {
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: @warning-2;
+          color: @warning-7;
 
         }
       }
 
       &.cainsgl-container-danger {
-        background-color: #fef2f2;
+        background-color: @danger-1;
 
         & .cainsgl-container-title {
-          background-color: #fecaca;
-          color: #b91c1c;
+          background-color: @danger-2;
+          color: @danger-7;
 
 
         }
       }
 
       &.cainsgl-container-details {
-        border: 1px solid #e5e7eb;
-        background-color: #f9fafb;
+        border: 1px solid @color-border-1;
+        background-color: @color-fill-1;
 
         & .cainsgl-container-title {
-          background-color: #f3f4f6;
-          color: #374151;
+          background-color: @color-fill-2;
+          color: @color-text-2;
 
 
         }
@@ -736,10 +736,10 @@ defineExpose({
     & .cainsgl-markdown-code {
       font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
       font-size: 0.9em;
-      background-color: #f3f4f6;
+      background-color: @color-fill-2;
       padding: 2px 6px;
       border-radius: 4px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid @color-border-1;
     }
 
     & .code-block-container {
@@ -750,8 +750,8 @@ defineExpose({
       margin: 16px 0;
       padding: 12px 16px;
       border-left: 4px solid @primary-4;
-      background-color: #f9fafb;
-      color: #4b5563;
+      background-color: @color-fill-1;
+      color: @color-text-3;
       border-radius: 0 4px 4px 0;
       position: relative;
     }
@@ -762,7 +762,7 @@ defineExpose({
       margin: 16px 0;
       font-size: 0.9em;
       font-family: inherit;
-      background-color: #fff;
+      background-color: @color-bg-white;
 
       border-radius: 6px;
 
@@ -771,19 +771,19 @@ defineExpose({
       td {
         padding: 8px 12px;
         text-align: left;
-        border: 1px solid #d1d5db;
+        border: 1px solid @color-border-2;
         word-wrap: break-word;
         white-space: normal;
       }
 
       th {
-        background-color: #f3f4f6;
+        background-color: @color-fill-2;
         font-weight: 600;
-        color: #374151;
+        color: @color-text-2;
       }
 
       tr:nth-child(even) {
-        background-color: #f9fafb;
+        background-color: @color-fill-1;
       }
 
 
@@ -794,11 +794,11 @@ defineExpose({
       height: auto;
       border-radius: 6px;
       margin: 16px 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: @shadow2-center;
       transition: box-shadow 0.3s ease;
 
       &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: @shadow3-center;
       }
     }
 
@@ -822,7 +822,7 @@ defineExpose({
             display: inline-block;
             width: 14px; // 减小宽度
             height: 14px; // 减小高度
-            border: 1px solid #d1d5db;
+            border: 1px solid @color-border-2;
             border-radius: 3px;
             position: relative;
             cursor: default; // 使用默认光标
@@ -843,8 +843,8 @@ defineExpose({
           }
 
           &:checked+.cainsgl-task-list-checkmark {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
+            background-color: @link-5;
+            border-color: @link-5;
 
             &:after {
               display: block;
@@ -868,7 +868,7 @@ defineExpose({
 
       & input[type="checkbox"]:checked+.cainsgl-task-list-checkmark+.cainsgl-task-list-content {
         text-decoration: line-through;
-        color: #9ca3af;
+        color: @color-text-4;
       }
     }
 
@@ -885,11 +885,11 @@ defineExpose({
   }
 
   25% {
-    background-color: rgba(255, 255, 0, 0.5);
+    background-color: fade(yellow, 50%);
   }
 
   50% {
-    background-color: rgba(255, 255, 0, 0.5);
+    background-color: fade(yellow, 50%);
   }
 
   100% {

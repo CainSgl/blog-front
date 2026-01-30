@@ -226,15 +226,16 @@ const handleItemClick = (item) =>
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .kb-list {
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 .kb-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: @size-5;
   justify-content: flex-start;
 }
 
@@ -244,11 +245,22 @@ const handleItemClick = (item) =>
   flex: 0 0 180px;
 }
 
+.no-more-tips {
+  text-align: center;
+  padding: @size-5;
+  font-size: @font-size-title-1;
+  color: @color-text-4;
+  width: 100%;
+  margin-top: @size-5;
+  word-wrap: break-word;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
 /* 手机屏幕下调整 */
 @media (max-width: 768px) {
   .kb-list {
     width: 100%;
-    max-width: 100%;
   }
 
   .kb-grid {
@@ -257,19 +269,7 @@ const handleItemClick = (item) =>
   }
 
   .no-more-tips {
-    width: calc(100vw - 20px);
+    width: calc(100vw - @size-5);
   }
-}
-
-.no-more-tips {
-  text-align: center;
-  padding: 20px;
-  font-size: 16px;
-  color: #999;
-  width: 100%;
-  margin-top: 20px;
-  word-wrap: break-word;
-  word-break: normal;
-  overflow-wrap: break-word;
 }
 </style>

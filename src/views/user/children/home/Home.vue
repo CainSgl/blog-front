@@ -12,9 +12,9 @@
             <a-tag v-if="userInfo?.status == 'banned'" color="red" size="small" style="margin-left: 8px;">已封禁</a-tag>
             <UserLevel :level="userInfo?.level" v-if="currentUserInfo.id != userId" />
             <icon-man v-if="userInfo?.gender === '男'"
-              :style="{ color: '#55acee', fontSize: '16px', marginLeft: '2px' }" />
+              :style="{ color: '@{link-5}', fontSize: '16px', marginLeft: '2px' }" />
             <icon-woman v-else-if="userInfo?.gender === '女'"
-              :style="{ color: '#e85695', fontSize: '16px', marginLeft: '2px' }" />
+              :style="{ color: '@{primary-4}', fontSize: '16px', marginLeft: '2px' }" />
           </div>
           <div class="user-profile-actions" v-if="currentUserInfo.id != userId">
             <FollowButton :user-id="userId" @follow-changed="handleFollowChange" />
@@ -258,14 +258,14 @@ onMounted(async () => {
 
           .stat-label {
             font-size: 14px;
-            color: #666;
+            color: @color-text-3;
             margin-bottom: 4px;
           }
 
           .stat-value {
             font-size: 18px;
             font-weight: bold;
-            color: #333;
+            color: @color-text-1;
           }
         }
       }
@@ -275,17 +275,17 @@ onMounted(async () => {
   .user-registration {
     text-align: center;
     font-size: 14px;
-    color: #666;
+    color: @color-text-3;
     margin: 16px 0;
     padding: 0 24px;
 
     .registration-label {
-      color: #333;
+      color: @color-text-1;
       font-weight: 500;
     }
 
     .registration-value {
-      color: #555;
+      color: @color-text-2;
     }
   }
 
@@ -296,7 +296,7 @@ onMounted(async () => {
     border-radius: 6px;
     border-left: 4px solid @primary-5;
     font-size: 14px;
-    color: #555;
+    color: @color-text-2;
     line-height: 1.6;
     text-align: center;
     word-wrap: break-word;
@@ -375,7 +375,7 @@ onMounted(async () => {
       margin-top: 8px;
       text-align: center;
       font-size: 12px;
-      color: #888;
+      color: @color-text-4;
     }
   }
 

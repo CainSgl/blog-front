@@ -826,7 +826,9 @@ defineExpose({
 });
 </script>
 
-<style scoped>
+<style scoped lang="less">
+@import '@/assets/style/global.less';
+
 .image-cropper-container {
   display: flex;
   flex-direction: column;
@@ -835,7 +837,7 @@ defineExpose({
 
 .cropper-content {
   display: flex;
-  gap: 20px;
+  gap: @size-5;
 }
 
 .cropper-left, .cropper-right {
@@ -843,35 +845,37 @@ defineExpose({
 }
 
 .cropper-left {
-  max-width: calc(75vw - 40px); /* 最大宽度为屏幕的75% */
+  max-width: calc(75vw - 40px);
   flex: 0 1 auto;
 }
 
 .cropper-right {
   flex: 0 1 auto;
   min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .canvas-container {
   position: relative;
   display: inline-block;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: @border-1 solid @color-border-2;
+  border-radius: @border-radius-small;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: @size-2;
   max-width: 100%;
 }
 
 .cropper-canvas {
-  background-color: white;
+  background-color: @color-bg-white;
   display: block;
 }
 
 .crop-area {
-
   position: absolute;
-  outline: 2px dashed #165dfe;
-  background-color: rgba(22, 93, 254, 0.1);
+  outline: @border-2 dashed @primary-6;
+  background-color: fade(@primary-6, 10%);
   box-sizing: border-box;
   width: 100%;
   height: 100%;
@@ -888,89 +892,77 @@ defineExpose({
 
 .resize-handle {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  background: #165dfe;
-  border: 1px solid white;
-  border-radius: 50%;
+  width: @size-2;
+  height: @size-2;
+  background: @primary-6;
+  border: @border-1 solid @color-bg-white;
+  border-radius: @border-radius-circle;
   pointer-events: all;
 }
 
 .resize-top-left {
-  top: -4px;
-  left: -4px;
+  top: -@size-1;
+  left: -@size-1;
   cursor: nw-resize;
 }
 
 .resize-top {
-  top: -4px;
+  top: -@size-1;
   left: 50%;
   transform: translateX(-50%);
   cursor: n-resize;
 }
 
 .resize-top-right {
-  top: -4px;
-  right: -4px;
+  top: -@size-1;
+  right: -@size-1;
   cursor: ne-resize;
 }
 
 .resize-left {
   top: 50%;
-  left: -4px;
+  left: -@size-1;
   transform: translateY(-50%);
   cursor: w-resize;
 }
 
 .resize-right {
   top: 50%;
-  right: -4px;
+  right: -@size-1;
   transform: translateY(-50%);
   cursor: e-resize;
 }
 
 .resize-bottom-left {
-  bottom: -4px;
-  left: -4px;
+  bottom: -@size-1;
+  left: -@size-1;
   cursor: sw-resize;
 }
 
 .resize-bottom {
-  bottom: -4px;
+  bottom: -@size-1;
   left: 50%;
   transform: translateX(-50%);
   cursor: s-resize;
 }
 
 .resize-bottom-right {
-  bottom: -4px;
-  right: -4px;
+  bottom: -@size-1;
+  right: -@size-1;
   cursor: se-resize;
 }
 
-.controls {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.cropper-right {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .preview-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-size: @font-size-title-1;
+  font-weight: @font-weight-700;
+  margin-bottom: @size-2;
 }
 
 .preview-container {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 5px;
-  margin-bottom: 10px;
+  border: @border-1 solid @color-border-2;
+  border-radius: @border-radius-small;
+  padding: @size-1;
+  margin-bottom: @size-2;
 }
 
 .preview-canvas {
@@ -982,13 +974,13 @@ defineExpose({
 
 .preview-size {
   margin-bottom: 15px;
-  font-size: 14px;
-  color: #666;
+  font-size: @font-size-body-3;
+  color: @color-text-3;
 }
 
 .file-name-input {
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: @size-2;
 }
 
 .confirm-btn {

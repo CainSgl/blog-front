@@ -1,7 +1,8 @@
 <template>
   <div class="content-area" style="margin-top: 20px;">
     <a-card :bordered="false">
-      <a-spin :loading="loading" :tip="loadingTip">
+      <!-- 突然发现不用spin更好看 -->
+      <div :loading="loading" :tip="loadingTip">
         <div class="list-container">
           <div class="list">
             <slot :pageSize="pageSize" :containerWidth="containerWidth" :containerHeight="containerHeight"></slot>
@@ -11,7 +12,7 @@
           </div>
           <div v-else-if="listData.length === 0 && loading" :style="{ height: emptyHeight, width: emptyWidth }"></div>
         </div>
-      </a-spin>
+      </div>
     </a-card>
   </div>
 </template>

@@ -9,10 +9,8 @@
             {{ follower.nickname }}
           </span>
           <a-tag color="arcoblue" size="small" style="margin-left: 8px;">LV.{{ follower.level }}</a-tag>
-          <icon-man v-if="follower.gender === '男'"
-            :style="{ color: '#55acee', fontSize: '16px', marginLeft: '8px' }" />
-          <icon-woman v-else-if="follower.gender === '女'"
-            :style="{ color: '#e85695', fontSize: '16px', marginLeft: '8px' }" />
+          <icon-man v-if="follower.gender === '男'" class="gender-icon gender-male" />
+          <icon-woman v-else-if="follower.gender === '女'" class="gender-icon gender-female" />
         </div>
         <div class="follow-user-actions">
           <FollowButton :user-id="follower.id" />
@@ -113,5 +111,18 @@ const goToUserSpace = () =>
       }
     }
   }
+}
+
+.gender-icon {
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+.gender-male {
+  color: @link-6;
+}
+
+.gender-female {
+  color: @primary-4;
 }
 </style>

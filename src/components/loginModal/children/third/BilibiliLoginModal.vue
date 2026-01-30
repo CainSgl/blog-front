@@ -137,28 +137,30 @@ const handleOk = async () => {
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .bilibili-login-content {
-  padding: 20px 0;
+  padding: @size-5 0;
 
   .token-section,
   .uid-section {
     margin-bottom: 24px;
 
     .label {
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.85);
-      margin-bottom: 8px;
-      font-weight: 500;
+      font-size: @font-size-body-3;
+      color: fade(@color-text-1, 85%);
+      margin-bottom: @size-2;
+      font-weight: @font-weight-500;
     }
   }
 
   .token-display {
-    background: #f5f5f5;
-    padding: 12px 16px;
-    border-radius: 4px;
+    background: @color-fill-1;
+    padding: @size-3 @size-4;
+    border-radius: @border-radius-small;
     font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: #333;
+    font-size: @font-size-body-2;
+    color: @color-text-2;
     word-break: break-all;
     margin-bottom: 0;
 
@@ -170,17 +172,17 @@ const handleOk = async () => {
   .error-message {
     color: @danger-6;
     font-size: @font-size-body-3;
-    margin-top: 12px;
-    padding: 8px 12px;
+    margin-top: @size-3;
+    padding: @size-2 @size-3;
     background-color: @danger-1;
     border-radius: @border-radius-small;
-    border: 1px solid @danger-2;
+    border: @border-1 solid @danger-2;
   }
 }
 
 .modal-footer {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0 0;
+  padding: @size-3 0 0;
 }
 </style>

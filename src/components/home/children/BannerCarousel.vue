@@ -65,12 +65,14 @@ onMounted(async () => {
 
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .banner-carousel {
   width: 100%;
-  max-width: 100%;
   position: relative;
   height: 100%;
   overflow: hidden;
+  
   &:before {
     content: '';
     display: block;
@@ -80,35 +82,28 @@ onMounted(async () => {
 
 .carousel-wrapper {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
+  inset: 0;
+  border-radius: @size-3;
   overflow: hidden;
 }
 
-.carousel-item {
+.carousel-item,
+.banner-item {
   width: 100%;
   height: 100%;
 }
 
 .banner-item {
   position: relative;
-  width: 100%;
-  height: 100%;
   cursor: pointer;
-  &:hover {
-    .banner-image {
-      transform: scale(1.05);
-    }
-
+  
+  &:hover .banner-image {
+    transform: scale(1.05);
   }
 }
 
 .banner-image {
   width: 100%;
-  max-width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.6s cubic-bezier(0.34, 0.69, 0.1, 1);
@@ -116,42 +111,40 @@ onMounted(async () => {
 
 .banner-overlay {
   position: absolute;
-  bottom: 20px;
-
+  bottom: @size-5;
   left: 30px;
   right: 30px;
   pointer-events: none;
 }
 
 .banner-info {
-  border-radius: 12px;
-  padding: 20px 24px;
+  border-radius: @size-3;
+  padding: @size-5 24px;
   pointer-events: auto;
 }
 
 .banner-title {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
+  font-size: @font-size-title-4;
+  font-weight: @font-weight-600;
+  margin: 0 0 @size-2 0;
   line-height: 1.3;
 }
 
 .banner-description {
-  font-size: 16px;
+  font-size: @font-size-title-1;
   margin: 0;
   line-height: 1.5;
 }
 
-
-// 响应式设计 - 平板
+// 响应式设计
 @media (max-width: 768px) {
   .banner-overlay {
-    left: 20px;
-    right: 20px;
+    left: @size-5;
+    right: @size-5;
   }
 
   .banner-info {
-    padding: 16px 20px;
+    padding: @size-4 @size-5;
   }
 
   .banner-title {
@@ -160,14 +153,13 @@ onMounted(async () => {
   }
 
   .banner-description {
-    font-size: 14px;
+    font-size: @font-size-body-3;
   }
 }
 
-// 响应式设计 - 手机
 @media (max-width: 480px) {
   .carousel-wrapper {
-    border-radius: 8px;
+    border-radius: @border-radius-medium;
   }
 
   .banner-overlay {
@@ -182,11 +174,11 @@ onMounted(async () => {
 
   .banner-title {
     font-size: 18px;
-    margin-bottom: 4px;
+    margin-bottom: @size-1;
   }
 
   .banner-description {
-    font-size: 13px;
+    font-size: @font-size-body-2;
     line-height: 1.4;
   }
 }

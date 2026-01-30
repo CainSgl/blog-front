@@ -36,7 +36,6 @@ const props = defineProps({
     type: [Number, String],
     default: 'auto'
   },
-  // 额外的样式属性
   style: {
     type: Object,
     default: () => ({})
@@ -49,123 +48,84 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  showBottom:{
-    type:Boolean,
-    default:true,
+  showBottom: {
+    type: Boolean,
+    default: true
   },
-  inHtlm:{
-    type:Boolean,
-    default:false,
+  inHtlm: {
+    type: Boolean,
+    default: false
   }
 });
-
-const handleClickCard = (post) =>
-{
-  emit('clickCard', post);
-};
 
 const wrapperRef = ref(null);
 const computedWidth = ref(0);
 const computedHeight = ref(0);
 
-// 合并wrapper的样式
-const wrapperStyle = computed(() =>
-{
+// 常量
+const MIN_WIDTH = 200;
+const MIN_HEIGHT = 150;
+const PADDING_OFFSET = 8;
+
+// 样式计算
+const wrapperStyle = computed(() => {
   const styleObj = { ...props.style };
 
-  // 处理宽度
-  if (typeof props.width === 'number')
-  {
+  if (typeof props.width === 'number') {
     styleObj.width = `${props.width}px`;
-  }
-  else if (props.width)
-  {
+  } else if (props.width) {
     styleObj.width = props.width;
   }
 
-  // 处理高度
-  if (typeof props.height === 'number')
-  {
+  if (typeof props.height === 'number') {
     styleObj.height = `${props.height}px`;
-  }
-  else if (props.height)
-  {
+  } else if (props.height) {
     styleObj.height = props.height;
   }
 
   return styleObj;
 });
 
-// 计算实际可用的宽高
-const calculateDimensions = async () =>
-{
-  await nextTick(); // 确保DOM已更新
+// 尺寸计算
+const calculateDimensions = async () => {
+  await nextTick();
 
-  if (wrapperRef.value)
-  {
-    // 使用getBoundingClientRect获取精确尺寸
-    const rect = wrapperRef.value.getBoundingClientRect();
-    // 使用clientWidth和clientHeight以排除边框和滚动条
-    const actualWidth = wrapperRef.value.clientWidth || rect.width;
-    const actualHeight = wrapperRef.value.clientHeight || rect.height;
+  if (!wrapperRef.value) return;
 
-    // 设置计算后的尺寸，减去一些内边距以适应PostCard的样式
-    // 根据PostCard的响应式逻辑，保留一些空间用于内边距
-    computedWidth.value = Math.max(actualWidth - 8, 200); // 最小宽度200px
-    computedHeight.value = Math.max(actualHeight - 8, 150); // 最小高度150px
-  }
+  const rect = wrapperRef.value.getBoundingClientRect();
+  const actualWidth = wrapperRef.value.clientWidth || rect.width;
+  const actualHeight = wrapperRef.value.clientHeight || rect.height;
+
+  computedWidth.value = Math.max(actualWidth - PADDING_OFFSET, MIN_WIDTH);
+  computedHeight.value = Math.max(actualHeight - PADDING_OFFSET, MIN_HEIGHT);
 };
 
-// 处理窗口大小变化
-const handleResize = () =>
-{
-  calculateDimensions();
+// 事件处理
+const handleClickCard = (post) => {
+  emit('clickCard', post);
 };
 
-// 监听窗口大小变化
-onMounted(() =>
-{
+// 生命周期
+let resizeObserver = null;
+
+onMounted(() => {
   calculateDimensions();
+  window.addEventListener('resize', calculateDimensions);
 
-  // 添加窗口大小变化监听器
-  window.addEventListener('resize', handleResize);
-
-  // 尝试监听容器大小变化
-  if (wrapperRef.value)
-  {
-    // 使用 ResizeObserver 监听容器大小变化
-    if (window.ResizeObserver)
-    {
-      const resizeObserver = new ResizeObserver(() =>
-      {
-        calculateDimensions();
-      });
-      resizeObserver.observe(wrapperRef.value);
-
-      // 保存引用以便在卸载时清理
-      wrapperRef.value._resizeObserver = resizeObserver;
-    }
+  if (wrapperRef.value && window.ResizeObserver) {
+    resizeObserver = new ResizeObserver(calculateDimensions);
+    resizeObserver.observe(wrapperRef.value);
   }
 });
 
-// 监听props的width和height变化
-watch(() => [props.width, props.height], () =>
-{
-  // 延迟执行以确保DOM更新
-  nextTick(() =>
-  {
-    calculateDimensions();
-  });
+watch(() => [props.width, props.height], () => {
+  nextTick(calculateDimensions);
 });
 
-// 卸载时清理事件监听器
-onUnmounted(() =>
-{
-  window.removeEventListener('resize', handleResize);
-
-  if (wrapperRef.value && wrapperRef.value._resizeObserver)
-  {
-    wrapperRef.value._resizeObserver.disconnect();
+onUnmounted(() => {
+  window.removeEventListener('resize', calculateDimensions);
+  if (resizeObserver) {
+    resizeObserver.disconnect();
   }
 });
 </script>

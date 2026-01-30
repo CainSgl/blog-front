@@ -142,56 +142,58 @@ const handleCancel = () => {
 </script>
 
 <style lang="less" scoped>
+@import '@/assets/style/global.less';
+
 .favorite-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: #fff;
-    border: 1px solid #e5e6eb;
-    border-radius: 8px;
+    gap: @size-3;
+    padding: @size-3 @size-4;
+    background: @color-bg-white;
+    border: @border-1 solid @color-fill-3;
+    border-radius: @border-radius-medium;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        border-color: #00aeec;
-        background: #f0f9ff;
+        border-color: @primary-6;
+        background: @primary-1;
     }
 
     .item-icon {
         font-size: 18px;
-        color: #4e5969;
+        color: @color-text-3;
         flex-shrink: 0;
     }
 
     .item-name {
-        font-size: 14px;
-        color: #1d2129;
-        font-weight: 400;
+        font-size: @font-size-body-3;
+        color: @color-text-1;
+        font-weight: @font-weight-400;
         flex: 1;
     }
 
     .item-count {
-        font-size: 13px;
-        color: #86909c;
-        background: #f2f3f5;
+        font-size: @font-size-body-2;
+        color: @color-text-4;
+        background: @color-fill-2;
         padding: 2px 10px;
         border-radius: 10px;
-        font-weight: 500;
+        font-weight: @font-weight-500;
         flex-shrink: 0;
     }
 
     .item-more {
         font-size: 18px;
-        color: #86909c;
+        color: @color-text-4;
         flex-shrink: 0;
         padding: 2px;
-        border-radius: 4px;
+        border-radius: @border-radius-small;
         transition: all 0.08s;
 
         &:hover {
-            background: #e8f3ff;
-            color: #00aeec;
+            background: @primary-8;
+            color: @primary-6;
         }
     }
 }
@@ -215,7 +217,7 @@ const handleCancel = () => {
 
     .modal-footer-right {
         display: flex;
-        gap: 12px;
+        gap: @size-3;
     }
 }
 </style>

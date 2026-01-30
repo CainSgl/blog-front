@@ -269,12 +269,14 @@ const handleSearch = () => {
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .search-container {
   width: 100%;
   max-width: 100%;
   display: flex;
   justify-content: center;
-  padding: 0 20px;
+  padding: 0 @size-5;
   box-sizing: border-box;
 }
 
@@ -293,41 +295,41 @@ const handleSearch = () => {
   width: 100%;
   min-width: 0; /* 允许 flex 子元素收缩 */
   height: 48px;
-  background: rgba(255, 255, 255, 0.95);
+  background: fade(@color-bg-white, 95%);
   backdrop-filter: blur(10px);
   border-radius: 24px;
-  padding: 0 8px 0 4px;
-  border: 1px solid transparent;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0 @size-2 0 @size-1;
+  border: @border-1 solid transparent;
+  box-shadow: @shadow2-center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px fade(@color-text-1, 15%);
   }
 
   &.focused {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    background: rgba(255, 255, 255, 1);
-    border-color: #333;
+    box-shadow: 0 4px 20px fade(@color-text-1, 20%);
+    background: @color-bg-white;
+    border-color: @color-text-1;
   }
 }
 
 /* Mini 模式下的搜索框样式 */
 .search-container:has(.search-mode-dropdown.mini) .search-box {
   height: 36px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  background: rgba(255, 255, 255, 0.98);
+  border-radius: @border-radius-medium;
+  border: @border-1 solid fade(@color-text-1, 12%);
+  box-shadow: 0 1px 2px fade(@color-text-1, 5%);
+  background: fade(@color-bg-white, 98%);
 
   &:hover {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    border-color: rgba(0, 0, 0, 0.18);
+    box-shadow: 0 2px 6px fade(@color-text-1, 10%);
+    border-color: fade(@color-text-1, 18%);
   }
 
   &.focused {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    border-color: rgba(0, 0, 0, 0.18);
+    box-shadow: 0 2px 6px fade(@color-text-1, 10%);
+    border-color: fade(@color-text-1, 18%);
   }
 }
 
@@ -336,45 +338,45 @@ const handleSearch = () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
-  margin-left: 4px;
+  padding: @size-2 @size-3;
+  margin-left: @size-1;
   border-radius: 20px;
   cursor: pointer;
   user-select: none;
   transition: all 0.2s ease;
-  background: rgba(0, 0, 0, 0.03);
+  background: fade(@color-text-1, 3%);
   flex-shrink: 0; /* 防止被压缩 */
 
   &:hover {
-    background: rgba(0, 0, 0, 0.06);
+    background: fade(@color-text-1, 6%);
   }
 
   .mode-text {
-    font-size: 14px;
-    color: #5f6368;
-    font-weight: 500;
+    font-size: @font-size-body-3;
+    color: @color-text-3;
+    font-weight: @font-weight-500;
     white-space: nowrap;
   }
 
   .dropdown-icon {
-    color: #5f6368;
-    font-size: 12px;
+    color: @color-text-3;
+    font-size: @font-size-body-1;
     transition: transform 0.2s ease;
   }
 
   /* Mini 模式样式 */
   &.mini {
-    padding: 4px 8px;
+    padding: @size-1 @size-2;
     gap: 3px;
     border-radius: 6px;
-    background: rgba(0, 0, 0, 0.02);
+    background: fade(@color-text-1, 2%);
 
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: fade(@color-text-1, 5%);
     }
 
     .mode-text {
-      font-size: 12px;
+      font-size: @font-size-body-1;
     }
 
     .dropdown-icon {
@@ -386,60 +388,60 @@ const handleSearch = () => {
 /* 下拉菜单 */
 .mode-dropdown-menu {
   min-width: 200px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  padding: 8px;
+  background: @color-bg-white;
+  border-radius: @size-3;
+  box-shadow: 0 4px 16px fade(@color-text-1, 15%);
+  padding: @size-2;
 }
 
 .mode-option {
   display: flex;
   flex-direction: column;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px @size-3;
+  border-radius: @border-radius-medium;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: fade(@color-text-1, 4%);
   }
 
   &.active {
-    background: rgba(66, 133, 244, 0.1);
+    background: fade(@primary-6, 10%);
 
     .mode-label {
-      color: #1a73e8;
-      font-weight: 600;
+      color: @primary-6;
+      font-weight: @font-weight-600;
     }
   }
 
   .mode-label {
-    font-size: 14px;
-    color: #202124;
-    font-weight: 500;
+    font-size: @font-size-body-3;
+    color: @color-text-1;
+    font-weight: @font-weight-500;
     margin-bottom: 2px;
   }
 
   .mode-desc {
-    font-size: 12px;
-    color: #5f6368;
+    font-size: @font-size-body-1;
+    color: @color-text-3;
   }
 }
 
 /* 分隔线 */
 .divider {
-  width: 1px;
+  width: @border-1;
   height: 28px;
-  background: rgba(0, 0, 0, 0.1);
-  margin: 0 8px;
+  background: fade(@color-text-1, 10%);
+  margin: 0 @size-2;
   flex-shrink: 0; /* 防止被压缩 */
 }
 
 /* 搜索图标 */
 .search-icon {
   flex-shrink: 0;
-  color: #9aa0a6;
-  margin-left: 8px;
+  color: @color-text-4;
+  margin-left: @size-2;
   font-size: 18px;
 }
 
@@ -451,21 +453,21 @@ const handleSearch = () => {
   border: none;
   outline: none;
   background: transparent;
-  font-size: 16px;
-  color: #202124;
-  padding: 0 12px;
+  font-size: @font-size-title-1;
+  color: @color-text-1;
+  padding: 0 @size-3;
   font-family: inherit;
 
   &::placeholder {
-    color: #9aa0a6;
+    color: @color-text-4;
   }
 
   &:disabled {
     cursor: not-allowed;
-    color: #c9cdd4;
+    color: @color-fill-4;
     
     &::placeholder {
-      color: #c9cdd4;
+      color: @color-fill-4;
     }
   }
 }
@@ -473,13 +475,13 @@ const handleSearch = () => {
 /* 清除按钮 - 使用 Arco Button */
 .clear-btn {
   flex-shrink: 0;
-  margin-right: 4px;
+  margin-right: @size-1;
   
   :deep(.arco-btn) {
-    color: #5f6368;
+    color: @color-text-3;
     
     &:hover {
-      background: rgba(0, 0, 0, 0.06);
+      background: fade(@color-text-1, 6%);
     }
   }
 }
@@ -490,7 +492,7 @@ const handleSearch = () => {
   height: 40px;
   min-width: 60px; /* 确保最小宽度 */
   border-radius: 20px;
-  font-weight: 500;
+  font-weight: @font-weight-500;
 }
 
 /* Mini 模式下的搜索按钮 */
@@ -498,8 +500,8 @@ const handleSearch = () => {
   height: 30px;
   min-width: 56px;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: @font-size-body-2;
+  font-weight: @font-weight-500;
   padding: 0 14px;
 }
 
@@ -511,13 +513,13 @@ const handleSearch = () => {
 
 /* Mini 模式下的搜索图标 */
 .search-container:has(.search-mode-dropdown.mini) .search-icon {
-  font-size: 16px;
+  font-size: @font-size-title-1;
   margin-left: 6px;
 }
 
 /* Mini 模式下的输入框 */
 .search-container:has(.search-mode-dropdown.mini) .search-input {
-  font-size: 14px;
+  font-size: @font-size-body-3;
   padding: 0 10px;
 }
 
@@ -525,8 +527,8 @@ const handleSearch = () => {
 .search-filters {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
+  gap: @size-3;
+  margin-top: @size-5;
   flex-wrap: wrap;
 }
 
@@ -534,39 +536,39 @@ const handleSearch = () => {
   backdrop-filter: blur(10px);
   
   &:deep(.arco-btn-outline) {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(0, 0, 0, 0.12);
-    color: #5f6368;
+    background: fade(@color-bg-white, 90%);
+    border-color: fade(@color-text-1, 12%);
+    color: @color-text-3;
     
     &:hover {
-      background: rgba(255, 255, 255, 1);
-      border-color: rgba(0, 0, 0, 0.2);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      background: @color-bg-white;
+      border-color: fade(@color-text-1, 20%);
+      box-shadow: 0 2px 8px fade(@color-text-1, 8%);
     }
   }
   
   &:deep(.arco-btn-primary) {
-    box-shadow: 0 2px 8px rgba(var(--primary-6), 0.3);
+    box-shadow: 0 2px 8px fade(@primary-6, 30%);
   }
   
   /* 子标签样式 - 稍微淡一点 */
   &.child-tag {
     &:deep(.arco-btn-outline) {
-      background: rgba(255, 255, 255, 0.7);
-      border-color: rgba(0, 0, 0, 0.08);
-      color: #8a8f99;
-      font-size: 13px;
+      background: fade(@color-bg-white, 70%);
+      border-color: fade(@color-text-1, 8%);
+      color: @color-text-4;
+      font-size: @font-size-body-2;
       
       &:hover {
-        background: rgba(255, 255, 255, 0.85);
-        border-color: rgba(0, 0, 0, 0.15);
-        color: #5f6368;
+        background: fade(@color-bg-white, 85%);
+        border-color: fade(@color-text-1, 15%);
+        color: @color-text-3;
       }
     }
     
     &:deep(.arco-btn-primary) {
       opacity: 0.85;
-      box-shadow: 0 2px 6px rgba(var(--primary-6), 0.2);
+      box-shadow: 0 2px 6px fade(@primary-6, 20%);
     }
   }
 }
@@ -584,10 +586,10 @@ const handleSearch = () => {
   }
 
   .search-mode-dropdown {
-    padding: 6px 8px;
+    padding: 6px @size-2;
 
     .mode-text {
-      font-size: 13px;
+      font-size: @font-size-body-2;
     }
   }
 
@@ -597,7 +599,7 @@ const handleSearch = () => {
 
   .search-input {
     font-size: 15px;
-    padding: 0 8px;
+    padding: 0 @size-2;
   }
 
   .search-btn {
@@ -606,41 +608,41 @@ const handleSearch = () => {
     
     :deep(.arco-btn) {
       height: 36px;
-      font-size: 13px;
+      font-size: @font-size-body-2;
     }
   }
 }
 
 @media (max-width: 480px) {
   .search-container {
-    padding: 0 12px;
+    padding: 0 @size-3;
   }
 
   .search-box {
     height: 42px;
-    padding: 0 6px 0 4px;
+    padding: 0 6px 0 @size-1;
   }
 
   .search-mode-dropdown {
-    padding: 6px 8px;
+    padding: 6px @size-2;
     margin-left: 2px;
 
     .mode-text {
-      font-size: 12px;
+      font-size: @font-size-body-1;
     }
   }
 
   .divider {
-    margin: 0 4px;
+    margin: 0 @size-1;
   }
 
   .search-icon {
-    margin-left: 4px;
-    font-size: 16px;
+    margin-left: @size-1;
+    font-size: @font-size-title-1;
   }
 
   .search-input {
-    font-size: 14px;
+    font-size: @font-size-body-3;
     padding: 0 6px;
   }
 
@@ -654,8 +656,8 @@ const handleSearch = () => {
     
     :deep(.arco-btn) {
       height: 34px;
-      font-size: 12px;
-      padding: 0 12px;
+      font-size: @font-size-body-1;
+      padding: 0 @size-3;
     }
   }
 }

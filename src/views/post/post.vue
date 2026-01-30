@@ -96,6 +96,7 @@ import CommentList from '@/components/post/children/CommentList.vue';
 import PostActions from '@/components/post/common/PostActions.vue';
 import Header from '../../components/layout/Header.vue';
 import {storeToRefs} from 'pinia';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 const userStore = useUserStore();
 const commentStore = useCommentStore();
@@ -199,17 +200,7 @@ async function handleHistoryClick(item) {
 
 }
 
-// 格式化日期
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+
 
 // 节流函数，减少事件触发频率
 const throttle = (func, delay) => {
@@ -484,7 +475,7 @@ onMounted(() => {
   margin: 0 0 12px 0;
   font-size: 30px;
   font-weight: bold;
-  color: #1d2129;
+  color: @color-text-1;
   line-height: 1.3;
 }
 
@@ -494,7 +485,7 @@ onMounted(() => {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  color: #86909c;
+  color: @color-text-4;
   font-size: 14px;
 }
 
@@ -518,10 +509,10 @@ onMounted(() => {
 
 .changelog-sidebar {
   width: 200px;
-  background-color: #f7f8fa;
+  background-color: @color-fill-1;
   padding: 16px;
   border-radius: 8px;
-  border: 1px solid #e5e8ef;
+  border: 1px solid @color-border-1;
   height: fit-content;
 }
 
@@ -550,10 +541,10 @@ onMounted(() => {
   height: 28px;
 
   border-radius: 14px;
-  background-color: #f7f8fa;
-  color: #86909c;
+  background-color: @color-fill-1;
+  color: @color-text-4;
   font-size: 14px;
   font-weight: 500;
-  border: 1px solid #e5e8ef;
+  border: 1px solid @color-border-1;
 }
 </style>

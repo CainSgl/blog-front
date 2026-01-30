@@ -28,9 +28,6 @@
       没有更多内容了
     </div>
 
-    <div v-if="!loading && posts.length === 0 && displayItems.length === 0" class="empty-container">
-      <a-empty description="暂无文章" />
-    </div>
   </div>
 </template>
 
@@ -155,6 +152,8 @@ onUnmounted(() =>
 </script>
 
 <style lang="less" scoped>
+@import "@/assets/style/global.less";
+
 .post-list-container {
   width: 100%;
   padding: 24px 0;
@@ -163,7 +162,7 @@ onUnmounted(() =>
 .post-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  gap: @size-5;
   width: 100%;
 }
 
@@ -173,15 +172,15 @@ onUnmounted(() =>
   transition: transform 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-@size-1);
   }
 }
 
 .loading-item {
-  background: #fff;
-  border-radius: 8px;
+  background: @color-bg-white;
+  border-radius: @border-radius-medium;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px fade(@color-text-1, 8%);
 
   .skeleton-image {
     width: 100%;
@@ -206,8 +205,8 @@ onUnmounted(() =>
 .no-more-text {
   text-align: center;
   padding: 40px 0;
-  color: #86909c;
-  font-size: 14px;
+  color: @color-text-4;
+  font-size: @font-size-body-3;
 }
 
 .empty-container {
@@ -221,14 +220,14 @@ onUnmounted(() =>
 @media (max-width: 1280px) {
   .post-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
+    gap: @size-4;
   }
 }
 
 @media (max-width: 768px) {
   .post-grid {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
+    gap: @size-3;
   }
 
   .post-grid-item {
@@ -238,12 +237,12 @@ onUnmounted(() =>
 
 @media (max-width: 480px) {
   .post-list-container {
-    padding: 16px 0;
+    padding: @size-4 0;
   }
 
   .post-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: @size-3;
   }
 
   .post-grid-item {

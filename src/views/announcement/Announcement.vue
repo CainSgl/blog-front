@@ -86,16 +86,16 @@ const fetchAnnouncement = async () => {
 .announcement-page {
   width: 100%;
   min-height: 100vh;
-  background: #f5f5f5;
-  padding: 20px;
+  background: @color-fill-1;
+  padding: @size-5;
 }
 
 .announcement-container {
   max-width: 1200px;
   margin: 0 auto;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: @color-bg-white;
+  border-radius: @size-3;
+  box-shadow: 0 2px 12px fade(#000, 8%);
   overflow: hidden;
 }
 
@@ -113,32 +113,32 @@ const fetchAnnouncement = async () => {
 .announcement-header {
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #e4e7ed;
+  border-bottom: @border-1 solid @color-border-2;
 }
 
 .announcement-title {
   font-size: 32px;
-  font-weight: 700;
-  color: #1d2129;
-  margin: 0 0 16px 0;
+  font-weight: @font-weight-700;
+  color: @color-text-1;
+  margin: 0 0 @size-4 0;
   line-height: 1.4;
 }
 
 .announcement-meta {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: @size-4;
   flex-wrap: wrap;
 }
 
 .announcement-date {
-  font-size: 14px;
-  color: #86909c;
+  font-size: @font-size-body-3;
+  color: @color-text-4;
 }
 
 .announcement-tags {
   display: flex;
-  gap: 8px;
+  gap: @size-2;
   flex-wrap: wrap;
 }
 
@@ -148,11 +148,11 @@ const fetchAnnouncement = async () => {
 
 @media (max-width: 768px) {
   .announcement-page {
-    padding: 12px;
+    padding: @size-3;
   }
 
   .announcement-detail {
-    padding: 20px;
+    padding: @size-5;
   }
 
   .announcement-title {

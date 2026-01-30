@@ -144,6 +144,11 @@ const leave = (el, done) =>
 </script>
 
 <style scoped lang="less">
+@import '@/assets/style/global.less';
+
+
+
+
 .code-loader {
   position: fixed;
   top: 0;
@@ -161,8 +166,8 @@ const leave = (el, done) =>
 .terminal {
   width: 600px;
   height: 300px;
-  background-color: #1e1e1e;
-  border-radius: 8px;
+  background-color: @terminal-bg;
+  border-radius: @border-radius-medium;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   position: relative;
@@ -170,42 +175,42 @@ const leave = (el, done) =>
 }
 
 .terminal-header {
-  background-color: #2d2d2d;
-  padding: 12px 16px;
+  background-color: @terminal-header-bg;
+  padding: @size-3 @size-4;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #444;
+  border-bottom: @border-1 solid @terminal-border;
 
   .dot {
     display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
+    width: @size-3;
+    height: @size-3;
+    border-radius: @border-radius-circle;
+    margin-right: @size-2;
   }
 
   .red {
-    background-color: #ff5f56;
+    background-color: @danger-6;
   }
 
   .yellow {
-    background-color: #ffbd2e;
+    background-color: @warning-6;
   }
 
   .green {
-    background-color: #27c93f;
+    background-color: @success-6;
   }
 
   .title {
-    color: #aaa;
-    font-size: 14px;
+    color: @color-text-4;
+    font-size: @font-size-body-3;
     margin-left: auto;
-    font-weight: bold;
+    font-weight: @font-weight-700;
   }
 }
 
 .terminal-content {
-  padding: 20px;
+  padding: @size-5;
   height: calc(100% - 50px);
   overflow: hidden;
   position: relative;
@@ -218,8 +223,8 @@ const leave = (el, done) =>
 
 .function-call-wrapper {
   position: absolute;
-  left: 20px;
-  right: 20px;
+  left: @size-5;
+  right: @size-5;
   height: 40px;
   display: flex;
   align-items: center;
@@ -228,32 +233,32 @@ const leave = (el, done) =>
 .function-call {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: @font-size-body-3;
   line-height: 1.5;
-  color: #ddd;
+  color: @terminal-text;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
 
   .keyword {
-    color: #569cd6;
-    margin-right: 4px;
+    color: @code-keyword;
+    margin-right: @size-1;
   }
 
   .function-keyword {
-    color: #c586c0;
-    margin: 0 4px;
+    color: @code-function;
+    margin: 0 @size-1;
   }
 
   .function-name {
-    color: #dcdcaa;
-    margin: 0 4px;
+    color: @code-function-name;
+    margin: 0 @size-1;
   }
 
   .comment {
-    color: #6a9955;
-    margin-left: 8px;
+    color: @code-comment;
+    margin-left: @size-2;
   }
 }
 </style>

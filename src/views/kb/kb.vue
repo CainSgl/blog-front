@@ -289,21 +289,19 @@ onUnmounted(() => {
 .sidebar {
   min-width: 290px;
   width: 16%;
-  padding: 20px;
+  padding: @size-5;
   height: 100vh;
   box-sizing: border-box;
-  border-right: 1px solid #e5e6eb;
+  border-right: @border-1 solid @color-border-2;
   position: relative;
   transition: width 0.3s ease;
 
   &.collapsed {
     width: 0;
     min-width: 0;
-    padding: 20px 0;
+    padding: @size-5 0;
   }
 }
-
-
 
 .sidebar.collapsed .tree-menu,
 .sidebar.collapsed {
@@ -321,8 +319,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: @size-2;
+  margin-bottom: @size-3;
 
   h3 {
     flex: 1;
@@ -335,34 +333,32 @@ onUnmounted(() => {
   .favorite-button {
     flex-shrink: 0;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
+    padding: @size-1;
+    border-radius: @border-radius-small;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: #f0f0f0;
+      background-color: @color-fill-2;
     }
 
     .star-icon {
-      font-size: 20px;
-      color: var(--color-text-3);
+      font-size: @size-5;
+      color: @color-text-3;
       transition: color 0.2s ease;
 
       &.active {
-        color: rgb(var(--warning-6));
+        color: @warning-6;
       }
 
       &:hover {
-        color: rgb(var(--warning-6));
+        color: @warning-6;
       }
     }
   }
 }
-
-
 
 .content {
   flex: 1;
@@ -372,37 +368,37 @@ onUnmounted(() => {
 }
 
 .home-node {
-  padding: 4px 12px;
+  padding: @size-1 @size-3;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: @border-radius-small;
   margin: 2px 0;
   transition: all 0.2s ease;
   position: relative;
-  border: 2px solid transparent;
+  border: @border-2 solid transparent;
   min-height: 24px;
-  background-color: #f7f7f7;
+  background-color: @color-fill-1;
 
   &:hover {
-    background-color: #e4e3e3;
+    background-color: @color-fill-2;
   }
 
   .node-content {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: @size-2;
     height: 100%;
     min-height: 24px;
 
     .node-name {
       flex: 1;
-      font-size: 14px;
-      color: #333;
+      font-size: @font-size-body-3;
+      color: @color-text-1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: @size-2;
       line-height: 1;
     }
   }
@@ -413,7 +409,7 @@ onUnmounted(() => {
   height: 18px;
   cursor: pointer;
   padding: 2px;
-  border-radius: 4px;
+  border-radius: @border-radius-small;
   transition: all 0.2s ease;
   flex-shrink: 0;
   align-self: center;
@@ -422,18 +418,15 @@ onUnmounted(() => {
 .collapse-button-fixed {
   position: fixed;
   top: 25%;
-  left: 0px;
-
+  left: 0;
   user-select: none;
-  top: 25%;
-  right: -16px;
   transform: translateY(-25%);
   width: 14px;
   height: 60px;
-  background: #ffffff;
-  border: 1px solid #e5e6eb;
-  border-radius: 0 12px 12px 0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  background: @color-bg-white;
+  border: @border-1 solid @color-border-2;
+  border-radius: 0 @size-3 @size-3 0;
+  box-shadow: 2px 0 8px fade(#000, 10%);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -442,20 +435,19 @@ onUnmounted(() => {
   transition: all 0.3s ease;
   
   &:hover {
-    background: #f7f7f7;
+    background: @color-fill-1;
   }
 
   .collapse-icon {
-    color: #666;
-    font-size: 16px;
+    color: @color-text-3;
+    font-size: @font-size-title-1;
     transition: all 0.3s ease;
 
     &:hover {
-      color: #333;
+      color: @color-text-1;
     }
   }
 
-  // 在触摸设备上始终显示（没有 hover 能力的设备）
   @media (hover: none) {
     display: flex !important;
   }
@@ -469,10 +461,10 @@ onUnmounted(() => {
   transform: translateY(-25%);
   width: 14px;
   height: 60px;
-  background: #ffffff;
-  border: 1px solid #e5e6eb;
-  border-radius: 0 12px 12px 0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  background: @color-bg-white;
+  border: @border-1 solid @color-border-2;
+  border-radius: 0 @size-3 @size-3 0;
+  box-shadow: 2px 0 8px fade(#000, 10%);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -480,20 +472,19 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 
   &:hover {
-    background: #f7f7f7;
+    background: @color-fill-1;
   }
 
   .collapse-icon {
-    color: #666;
-    font-size: 16px;
+    color: @color-text-3;
+    font-size: @font-size-title-1;
     transition: all 0.3s ease;
 
     &:hover {
-      color: #333;
+      color: @color-text-1;
     }
   }
 
-  // 在触摸设备上始终显示（没有 hover 能力的设备）
   @media (hover: none) {
     display: flex !important;
   }
@@ -501,6 +492,6 @@ onUnmounted(() => {
 
 .sidebar.collapsed .collapse-button {
   right: -24px;
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 @size-3 @size-3 0;
 }
 </style>

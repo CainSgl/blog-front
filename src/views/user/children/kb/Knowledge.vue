@@ -111,7 +111,7 @@
 
     <!-- 删除知识库确认弹窗 -->
     <a-modal v-model:visible="deleteModalVisible" :title="`是否删除 ${deleteKbInfo.name}？`" @cancel="handleCancelDelete"
-      :footer="true" width="500px" >
+      :footer="true" width="500px">
       <a-form :model="deleteForm" layout="vertical">
         <a-form-item>
           <a-alert type="warning" style="margin-bottom: 16px;">
@@ -123,12 +123,13 @@
         </a-form-item>
       </a-form>
       <template #footer>
-        
+
         <div style="display: flex; justify-content: flex-end; gap: 12px;">
-          <a-button type="primary" @click="handleConfirmDelete(false)" >
+          <a-button type="primary" @click="handleConfirmDelete(false)">
             删除但移动到回收站
           </a-button>
-          <a-button  type="primary" status="danger" @click="handleConfirmDelete(true)" :disabled="deleteForm.confirmName !== deleteKbInfo.name">
+          <a-button type="primary" status="danger" @click="handleConfirmDelete(true)"
+            :disabled="deleteForm.confirmName !== deleteKbInfo.name">
             删除且不保留文档
           </a-button>
         </div>
@@ -139,13 +140,13 @@
 </template>
 
 <script setup>
-import {computed, nextTick, onMounted, ref} from 'vue';
-import {useRoute, useRouter} from 'vue-router';
-import {IconDelete, IconHome, IconPlus, IconSettings} from '@arco-design/web-vue/es/icon';
-import {Message, Upload} from '@arco-design/web-vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { IconDelete, IconHome, IconPlus, IconSettings } from '@arco-design/web-vue/es/icon';
+import { Message, Upload } from '@arco-design/web-vue';
 import KbCard from '@/components/kb/KbCard.vue';
 import api from '@/api/index.js';
-import {useUserStore} from '@/store/user.js';
+import { useUserStore } from '@/store/user.js';
 import UserPageHeader from '../components/UserPageHeader.vue';
 import ContentArea from '../components/ContentArea.vue';
 import CImg from '@/components/base/image/cImg.vue';
@@ -202,6 +203,7 @@ const searchValue = ref('');
 const loadKnowledgeBases = async (page = 1) => {
   loading.value = true;
   try {
+    Message.loading({ id: 'loadKnowledgeBases', content: '加载中' })
     // 构建请求参数
     const params = {
       page: page,
@@ -231,6 +233,7 @@ const loadKnowledgeBases = async (page = 1) => {
       total.value = data.total;
     }
     currentPage.value = page;
+    Message.success({ id: 'loadKnowledgeBases', content: '加载完毕' })
   }
   catch (error) {
     console.error('加载知识库列表失败:', error);
@@ -678,7 +681,7 @@ const handlePageSizeChange = (newPageSize) => {
   // 状态筛选区域样式
   .status-filter-area {
     padding: 16px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid @color-border-1;
 
     .status-filter-container {
       display: flex;
@@ -701,11 +704,11 @@ const handlePageSizeChange = (newPageSize) => {
       transition: all 0.3s ease;
       cursor: pointer;
       height: 100%;
-      border: 1px dashed #d9d9d9;
+      border: 1px dashed @color-border-2;
 
       &:hover {
-        border-color: #4080ff;
-        box-shadow: 0 4px 12px 0 rgba(0, 174, 236, 0.15);
+        border-color: @link-6;
+        box-shadow: 0 4px 12px 0 fade(@primary-6, 15%);
       }
     }
 
@@ -716,17 +719,17 @@ const handlePageSizeChange = (newPageSize) => {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-color: #fafafa;
+      background-color: @color-fill-1;
       transition: all 0.3s ease;
 
       &:hover {
-        background-color: #f0f3f8;
+        background-color: @color-fill-2;
       }
     }
 
     .create-icon {
       font-size: 48px;
-      color: #86909c;
+      color: @color-text-4;
       margin-bottom: 8px;
       transition: all 0.3s ease;
       display: flex;
@@ -738,7 +741,7 @@ const handlePageSizeChange = (newPageSize) => {
 
     .create-text {
       font-size: 14px;
-      color: #86909c;
+      color: @color-text-4;
       transition: all 0.3s ease;
       margin-top: 0;
       line-height: 1.4;
@@ -750,7 +753,7 @@ const handlePageSizeChange = (newPageSize) => {
 
       .create-icon,
       .create-text {
-        color: #4080ff;
+        color: @link-6;
       }
     }
   }

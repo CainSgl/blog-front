@@ -120,46 +120,46 @@ watch(() => props.node, () => {
 .dir-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: @size-3;
 }
 
 .dir-item {
   display: flex;
   align-items: center;
-  padding: 16px;
-  background: var(--color-bg-2);
-  border-radius: 8px;
+  padding: @size-4;
+  background: @color-bg-2;
+  border-radius: @border-radius-medium;
   cursor: pointer;
   transition: all 0.2s;
-  border: 2px solid transparent;
+  border: @border-2 solid transparent;
 
   &:hover {
-    background: var(--color-bg-3);
-    border-color: var(--color-border-3);
+    background: @color-bg-3;
+    border-color: @color-border-3;
     transform: translateX(4px);
   }
 
   &.is-article {
     .item-icon {
-      color: rgb(var(--primary-6));
+      color: @primary-6;
     }
   }
 
   &.is-folder {
     .item-icon {
-      color: rgb(var(--warning-6));
+      color: @warning-6;
     }
   }
 
   &.first-item-highlight {
-    background-color: var(--color-primary-light-1);
-    border-color: rgb(var(--primary-6));
+    background-color: @primary-1;
+    border-color: @primary-6;
   }
 }
 
 .item-icon {
   font-size: 24px;
-  margin-right: 12px;
+  margin-right: @size-3;
   flex-shrink: 0;
 }
 
@@ -169,18 +169,18 @@ watch(() => props.node, () => {
 }
 
 .item-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-text-1);
-  margin-bottom: 4px;
+  font-size: @font-size-title-1;
+  font-weight: @font-weight-500;
+  color: @color-text-1;
+  margin-bottom: @size-1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .item-path {
-  font-size: 12px;
-  color: var(--color-text-3);
+  font-size: @font-size-body-1;
+  color: @color-text-3;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -41,7 +41,7 @@
                 </div>
                 <div v-else class="user-registration">
                     <strong>注册时间：</strong>
-                    <span>{{ new Date(user.createdAt).toLocaleString('zh-CN') }}</span>
+                    <span>{{ formatDate(user.createdAt) }}</span>
                 </div>
                 <div v-if="user.bio" class="user-info-item bio-section">
                     <span class="bio-text">{{ user.bio }}</span>
@@ -56,6 +56,7 @@
 import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
 import Avatar from '@/components/base/avatar/Avatar.vue';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 const props = defineProps({
   user: {
@@ -89,13 +90,15 @@ const goToUserSpace = () =>
 </script>
 
 <style scoped lang="less">
+@import '@/assets/style/global.less';
+
 .user-avatar {
-    margin-right: 12px;
+    margin-right: @size-3;
     cursor: pointer;
 }
 
 .user-info-popover {
-    padding: 12px;
+    padding: @size-3;
     user-select: none;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -104,7 +107,7 @@ const goToUserSpace = () =>
 .user-header {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: @size-2;
 }
 
 .user-basic-info {
@@ -116,15 +119,15 @@ const goToUserSpace = () =>
 .user-name-row {
     display: flex;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: @size-1;
 
     .user-nickname {
-        font-size: 16px;
-        font-weight: bold;
+        font-size: @font-size-title-1;
+        font-weight: @font-weight-700;
     }
 
     >.arco-tag {
-        margin-left: 8px;
+        margin-left: @size-2;
     }
 
     >[class*="icon"] {
@@ -135,8 +138,8 @@ const goToUserSpace = () =>
 
 .user-stats {
     display: flex;
-    font-size: 12px;
-    color: #666;
+    font-size: @font-size-body-1;
+    color: @color-text-3;
     margin: 6px 0;
 
     .stat-item {
@@ -145,24 +148,24 @@ const goToUserSpace = () =>
         align-items: center;
 
         strong {
-            font-size: 14px;
-            color: #333;
+            font-size: @font-size-body-3;
+            color: @color-text-2;
             margin-bottom: 2px;
         }
     }
 }
 
 .user-registration {
-    font-size: 12px;
-    color: #666;
+    font-size: @font-size-body-1;
+    color: @color-text-3;
 
     strong {
-        color: #333;
+        color: @color-text-2;
     }
 }
 
 .user-info-item {
-    margin-bottom: 8px;
+    margin-bottom: @size-2;
 
     &:last-child {
         margin-bottom: 0;
@@ -170,28 +173,29 @@ const goToUserSpace = () =>
 
     strong {
         display: inline-block;
-        margin-bottom: 4px;
-        color: #333;
+        margin-bottom: @size-1;
+        color: @color-text-2;
     }
 }
 
 .banned-info {
-    color: red;
-    font-weight: bold;
-    border-top: 1px solid #eee;
-    padding-top: 8px;
-    margin-top: 8px;
+    color: @danger-6;
+    font-weight: @font-weight-700;
+    border-top: @border-1 solid @color-fill-3;
+    padding-top: @size-2;
+    margin-top: @size-2;
 }
 
 .bio-section {
-    margin-top: 16px;
+    margin-top: @size-4;
 }
 
 .bio-text {
-    color: #464646;
-    font-size: 13px;
+    color: @color-text-2;
+    font-size: @font-size-body-2;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;

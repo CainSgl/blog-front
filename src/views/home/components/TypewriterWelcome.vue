@@ -34,38 +34,33 @@ onMounted(async () =>
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px 0;
+  padding: @size-5 0;
   width: 100%;
 }
 
 .typewriter-text {
   font-size: 3rem;
-  font-weight: 600;
+  font-weight: @font-weight-600;
   text-align: center;
-  color: @primary-1; /* 使用项目中定义的颜色 */
+  color: @primary-1;
   line-height: 1.6; 
   text-shadow: 
-    1px 1px 2px rgba(0, 0, 0, 0.5),
-    2px 2px 4px rgba(0, 0, 0, 0.4),
-    0 0 15px rgba(255, 255, 255, 0.3);
+    1px 1px 2px fade(#000, 50%),
+    2px 2px 4px fade(#000, 40%),
+    0 0 15px fade(@color-bg-white, 30%);
   position: relative;
-  /* 添加文字描边效果 */
-  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.2);
+  -webkit-text-stroke: 1px fade(#000, 20%);
 }
 
-
-
-/* 添加文字描边效果 */
 .typewriter-text::selection {
-  background: rgba(120, 120, 120, 0.3);
+  background: fade(#787878, 30%);
 }
 
-:deep(.ti-cursor)
-{
-  font-size: 3rem; /* 使光标大小与文字大小一致 */
-  color: @primary-4; /* 保持与文字相同的颜色 */
+:deep(.ti-cursor) {
+  font-size: 3rem;
+  color: @primary-4;
   opacity: 0.9;
-  margin-left: 4px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* 为光标也添加更明显的阴影 */
+  margin-left: @size-1;
+  text-shadow: 1px 1px 2px fade(#000, 70%);
 }
 </style>

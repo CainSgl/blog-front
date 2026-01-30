@@ -379,7 +379,7 @@ const handleNodeClick = (node) =>
 
 .empty-toc {
   padding: 10px;
-  color: var(--color-text-4);
+  color: @color-text-4;
   font-style: italic;
   text-align: center;
 }
@@ -413,13 +413,13 @@ const handleNodeClick = (node) =>
 }
 
 :deep(.arco-tree-node-title:hover) {
-  background-color: var(--color-fill-2);
+  background-color: @color-fill-2;
 }
 
 /* 选中节点的样式 */
 :deep(.arco-tree-node-selected .arco-tree-node-title) {
   background-color: @primary-8 !important;
-  color: var(--color-text-1) !important;
+  color: @color-text-1 !important;
   font-weight: 500;
 }
 

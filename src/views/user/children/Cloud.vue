@@ -123,6 +123,7 @@ import {showLoginModal} from '@/services/authService';
 import FileCard from './components/FileCard.vue';
 import api from '@/api/index.js';
 import {API_BASE_URL} from '@/config';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 const viewMode = ref('list');
 const route = useRoute();
@@ -544,11 +545,7 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-// 格式化日期
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('zh-CN');
-};
+
 
 const handleFileClick = (file) => {
   console.log('点击文件卡片:', file);

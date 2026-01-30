@@ -31,15 +31,15 @@ defineEmits(['clear-selection', 'breadcrumb-click']);
 
 <style scoped lang="less">
 .breadcrumb-container {
-  padding: 16px 24px;
-  background: var(--color-bg-2);
-  border-bottom: 1px solid var(--color-border-2);
+  padding: @size-4 24px;
+  background: @color-bg-2;
+  border-bottom: @border-1 solid @color-border-2;
   
   :deep(.arco-breadcrumb-item) {
     cursor: pointer;
     
     &:hover {
-      color: rgb(var(--primary-6));
+      color: @primary-6;
     }
   }
 }

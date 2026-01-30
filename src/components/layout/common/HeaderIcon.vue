@@ -17,17 +17,13 @@
                 <a-tag color="arcoblue" size="small" style="margin-left: 8px;">LV.{{ userInfo?.level }}</a-tag>
               </div>
               <div class="user-stats">
-                <div class="stat-item">
-                  <span class="stat-label">粉丝</span>
-                  <span class="stat-value">{{ userInfo?.followerCount || 0 }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">关注</span>
-                  <span class="stat-value">{{ userInfo?.followingCount || 0 }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">获赞</span>
-                  <span class="stat-value">{{ userInfo?.likeCount || 0 }}</span>
+                <div 
+                  v-for="stat in userStats" 
+                  :key="stat.label"
+                  class="stat-item"
+                >
+                  <span class="stat-label">{{ stat.label }}</span>
+                  <span class="stat-value">{{ stat.value }}</span>
                 </div>
               </div>
             </div>
@@ -44,25 +40,14 @@
           </div>
           <!-- 用户选项菜单 -->
           <div class="user-options">
-            <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}`)">
-              <icon-user />
-              <span>我的空间</span>
-            </div>
-            <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
-              <icon-book />
-              <span>我的知识库</span>
-            </div>
-            <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/docs`)">
-              <icon-file />
-              <span>我的文档</span>
-            </div>
-            <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/cloud`)">
-              <icon-cloud />
-              <span>云空间</span>
-            </div>
-            <div class="option-item" @click="logout">
-              <icon-export />
-              <span>退出登录</span>
+            <div 
+              v-for="option in menuOptions" 
+              :key="option.label"
+              class="option-item" 
+              @click="option.action"
+            >
+              <component :is="option.icon" />
+              <span>{{ option.label }}</span>
             </div>
           </div>
               
@@ -93,6 +78,7 @@
 </template>
 
 <script setup>
+import {computed} from 'vue';
 import {useUserStore} from '@/store/user.js';
 import {storeToRefs} from 'pinia';
 import Avatar from '@/components/base/avatar/Avatar.vue';
@@ -134,6 +120,42 @@ const logout = async () => {
   loginService.logout();
   await router.push({ name: 'Home' });
 };
+
+// 用户统计数据
+const userStats = computed(() => [
+  { label: '粉丝', value: userInfo.value?.followerCount || 0 },
+  { label: '关注', value: userInfo.value?.followingCount || 0 },
+  { label: '获赞', value: userInfo.value?.likeCount || 0 }
+]);
+
+// 菜单选项配置
+const menuOptions = computed(() => [
+  {
+    label: '我的空间',
+    icon: IconUser,
+    action: () => openInNewTab(`/space/${userInfo.value?.id}`)
+  },
+  {
+    label: '我的知识库',
+    icon: IconBook,
+    action: () => openInNewTab(`/space/${userInfo.value?.id}/knowledge`)
+  },
+  {
+    label: '我的文档',
+    icon: IconFile,
+    action: () => openInNewTab(`/space/${userInfo.value?.id}/docs`)
+  },
+  {
+    label: '云空间',
+    icon: IconCloud,
+    action: () => openInNewTab(`/space/${userInfo.value?.id}/cloud`)
+  },
+  {
+    label: '退出登录',
+    icon: IconExport,
+    action: logout
+  }
+]);
 </script>
 
 <style scoped lang="less">
@@ -144,7 +166,6 @@ const logout = async () => {
     cursor: pointer;
   }
 
-  // 小手机端优化
   @media (max-width: 480px) {
     :deep(.avatar-trigger) {
       width: 32px !important;
@@ -237,23 +258,23 @@ const logout = async () => {
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
 
-  .option-item {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: @font-size-body-3;
+    .option-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: @font-size-body-3;
 
-    &:hover {
-      background-color: #f5f5f5;
-    }
+      &:hover {
+        background-color: #f5f5f5;
+      }
 
-    > *:first-child {
-      margin-right: @size-2;
+      > *:first-child {
+        margin-right: @size-2;
+      }
     }
   }
 }

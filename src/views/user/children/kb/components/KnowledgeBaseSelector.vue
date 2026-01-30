@@ -156,20 +156,20 @@ const handleCancel = () => {
       display: flex;
       align-items: center;
       padding: 12px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid @color-border-1;
       border-radius: 8px;
       margin-bottom: 8px;
       cursor: pointer;
       transition: all 0.3s;
 
       &:hover {
-        border-color: #4080ff;
-        background-color: #f5f8ff;
+        border-color: @primary-6;
+        background-color: fade(@primary-6, 8%);
       }
 
       &.selected {
-        border-color: #4080ff;
-        background-color: #f5f8ff;
+        border-color: @primary-6;
+        background-color: fade(@primary-6, 8%);
       }
 
       .kb-cover {
@@ -192,9 +192,9 @@ const handleCancel = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #f5f5f5;
+          background-color: @color-fill-2;
           font-size: 24px;
-          color: #999;
+          color: @color-text-4;
         }
       }
 
@@ -205,7 +205,7 @@ const handleCancel = () => {
         .kb-name {
           font-size: 14px;
           font-weight: 500;
-          color: #1d2129;
+          color: @color-text-1;
           margin-bottom: 4px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -217,12 +217,12 @@ const handleCancel = () => {
           align-items: center;
           gap: 12px;
           font-size: 12px;
-          color: #86909c;
+          color: @color-text-4;
 
           .kb-status {
             padding: 2px 8px;
-            background-color: #e8f3ff;
-            color: #4080ff;
+            background-color: fade(@primary-6, 10%);
+            color: @primary-6;
             border-radius: 4px;
           }
         }
@@ -230,7 +230,7 @@ const handleCancel = () => {
 
       .kb-check {
         font-size: 20px;
-        color: #4080ff;
+        color: @primary-6;
         margin-left: 12px;
       }
     }

@@ -230,10 +230,10 @@ defineExpose({
 <style scoped lang="less">
 .scroll-progress-bar {
   margin-top: 24px;
-  padding: 20px 24px;
-  background: var(--color-bg-2);
-  border: 1px solid var(--color-border-2);
-  border-radius: 8px;
+  padding: @size-5 24px;
+  background: @color-bg-2;
+  border: @border-1 solid @color-border-2;
+  border-radius: @border-radius-medium;
   overflow: hidden;
 
   &.fixed-bottom {
@@ -244,8 +244,8 @@ defineExpose({
     margin-top: 0;
     border-radius: 0;
     border: none;
-    border-top: 1px solid var(--color-border-2);
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+    border-top: @border-1 solid @color-border-2;
+    box-shadow: 0 -2px 8px fade(#000, 8%);
     z-index: 100;
   }
 
@@ -257,13 +257,12 @@ defineExpose({
     margin-top: 0;
     border-radius: 0;
     border: none;
-    border-bottom: 1px solid var(--color-border-2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-bottom: @border-1 solid @color-border-2;
+    box-shadow: 0 2px 8px fade(#000, 8%);
     z-index: 100;
   }
 }
 
-// Transition 动画
 .progress-slide-enter-active,
 .progress-slide-leave-active {
   transition: all 0.3s ease;
@@ -281,16 +280,16 @@ defineExpose({
   opacity: 1;
   max-height: 200px;
   margin-top: 24px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: @size-5;
+  padding-bottom: @size-5;
 }
 
 .progress-slide-leave-from {
   opacity: 1;
   max-height: 200px;
   margin-top: 24px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: @size-5;
+  padding-bottom: @size-5;
 }
 
 .progress-slide-leave-to {
@@ -301,7 +300,6 @@ defineExpose({
   padding-bottom: 0;
 }
 
-// fixed 位置的特殊处理
 .scroll-progress-bar.fixed-bottom,
 .scroll-progress-bar.fixed-top {
   .progress-slide-enter-from,
@@ -321,10 +319,10 @@ defineExpose({
 }
 
 .progress-tip {
-  margin-top: 8px;
+  margin-top: @size-2;
   text-align: center;
-  font-size: 13px;
-  color: var(--color-text-2);
-  font-weight: 500;
+  font-size: @font-size-body-2;
+  color: @color-text-2;
+  font-weight: @font-weight-500;
 }
 </style>

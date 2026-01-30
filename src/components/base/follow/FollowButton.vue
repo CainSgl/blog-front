@@ -97,7 +97,7 @@ onMounted(() =>
   fetchFollowStatus();
 });
 
-// 监听 userId 变化，当 userId 改变时重新获取关注状态
+
 watch(() => props.userId, (newUserId) => 
 {
   if (newUserId) 
@@ -106,12 +106,11 @@ watch(() => props.userId, (newUserId) =>
   }
   else 
   {
-    // 当 userId 为 null 或空时，重置状态
     isFollowing.value = false;
   }
 });
 </script>
 
 <style scoped>
-/* 关注按钮样式将继承父组件的样式 */
+
 </style>

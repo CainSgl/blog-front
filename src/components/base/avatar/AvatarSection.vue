@@ -21,6 +21,7 @@ import {nextTick, onMounted, ref, watch} from 'vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import api from '@/api/index.js';
 import {Message} from '@arco-design/web-vue';
+import {getDateNow} from '@/utils/DateFormatter.js';
 
 const props = defineProps({
   userInfo: {
@@ -45,16 +46,7 @@ watch([() => props.userInfo, currentUserInfo], ([newUserInfo, currentUser]) =>
 {
   trigger.value = currentUser && newUserInfo?.id === currentUser.id ? 'mask' : null;
 }, { immediate: true });
-function getFormattedDate() 
-{
-  const now = new Date();
-  const year = now.getFullYear();
-  // 月份补零
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  // 日期补零（两种补零方式均可，这里用 padStart 更简洁）
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
-}
+
 // 处理头像点击事件
 const handleAvatarClick = () => 
 {
@@ -106,7 +98,7 @@ const handleCroppedImage = async (croppedFile) =>
 
     // 生成新的文件名：用户ID_时间戳.原扩展名
     const fileExtension = croppedFile.name.split('.').pop() || 'jpg';
-    const newFileName = `${userStore.userInfo?.id || 'user'}的头像图片_${getFormattedDate()}.${fileExtension}`;
+    const newFileName = `${userStore.userInfo?.id || 'user'}的头像图片_${getDateNow()}.${fileExtension}`;
     const renamedFile = new File([croppedFile], newFileName, { type: croppedFile.type });
 
     // 创建FormData对象 
@@ -148,7 +140,9 @@ const handleCroppedImage = async (croppedFile) =>
 </script>
 
 <style lang="less" scoped>
+@import '@/assets/style/global.less';
+
 .user-avatar-wrapper {
-  margin-bottom: 16px;
+  margin-bottom: @size-4;
 }
 </style>

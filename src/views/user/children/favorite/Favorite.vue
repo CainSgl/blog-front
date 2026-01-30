@@ -205,19 +205,19 @@ onMounted(async () => {
             align-items: center;
             gap: 8px;
             padding: 10px 12px;
-            background: #f7f8fa;
+            background: @color-fill-1;
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
             user-select: none;
 
             &:hover {
-                background: #e8f3ff;
+                background: fade(@primary-6, 10%);
             }
 
             .expand-icon {
                 font-size: 12px;
-                color: #86909c;
+                color: @color-text-4;
                 transition: transform 0.2s;
 
                 &.expanded {
@@ -237,14 +237,14 @@ onMounted(async () => {
             .group-title {
                 font-size: 15px;
                 font-weight: 600;
-                color: #1d2129;
+                color: @color-text-1;
                 flex: 1;
             }
 
             .group-count {
                 font-size: 13px;
-                color: #86909c;
-                background: #fff;
+                color: @color-text-4;
+                background: @color-bg-white;
                 padding: 2px 8px;
                 border-radius: 10px;
             }

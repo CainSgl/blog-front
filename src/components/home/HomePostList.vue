@@ -303,43 +303,41 @@ const handleScroll = () =>
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .home-post-list {
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 .post-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-
+  gap: @size-5;
 }
 
-/* 手机屏幕下 gap 为 5px */
+.no-more-tips {
+  text-align: center;
+  padding: @size-5;
+  font-size: @font-size-title-1;
+  color: @color-text-4;
+  width: 100%;
+  margin-top: @size-5;
+  word-wrap: break-word;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
 @media (max-width: 768px) {
   .home-post-list {
     width: 100%;
-    max-width: 100%
   }
 
   .no-more-tips {
-    width: calc(80vw-20px);
+    width: calc(80vw - @size-5);
   }
 
   .post-grid {
     gap: 5px;
   }
-}
-
-.no-more-tips {
-  text-align: center;
-  padding: 20px;
-  font-size: 16px;
-  color: #999;
-  width: 100%;
-  margin-top: 20px;
-  word-wrap: break-word;
-  word-break: normal;
-  overflow-wrap: break-word;
 }
 </style>

@@ -21,7 +21,7 @@
           </a-tooltip>
 
           <span v-if="postInfo.updatedAt" style="color: #666; margin-left: 10px; font-size: 15px">
-            上次更新时间：{{ formatUpdateTime(postInfo.updatedAt) }}
+            上次更新时间：{{ formatDate(postInfo.updatedAt) }}
           </span>
         </div>
       </template>
@@ -34,6 +34,7 @@ import {computed, ref, watch} from 'vue';
 import {useRouter} from 'vue-router';
 import {IconFilePdf, IconUserGroup, IconWifi} from '@arco-design/web-vue/es/icon';
 import {useUserStore} from '@/store/user.js';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 const router = useRouter();
 
@@ -165,38 +166,7 @@ const getStatusTooltip = () => {
   return statusMap[props.postInfo.status] || props.postInfo.status;
 };
 
-// 格式化更新时间
-const formatUpdateTime = (time) => {
-  if (!time) return '';
 
-  // 假设time是时间戳或可被Date解析的字符串
-  const date = new Date(time);
-  const now = new Date();
-
-  // 如果是今天，显示时:分
-  if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  // 如果是今年，显示月-日 时:分
-  if (date.getFullYear() === now.getFullYear()) {
-    return date.toLocaleDateString('zh-CN', {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  // 其他情况显示年-月-日 时:分
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 
 // 处理返回事件
 const handleBack = () => {

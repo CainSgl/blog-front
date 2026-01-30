@@ -8,7 +8,7 @@
 
 <script setup>
 import {computed, useAttrs} from 'vue';
-import {API_BASE_URL} from '@/config/index.js';
+import {computeResourceUrl} from '@/utils/urlHelper.js';
 
 // 定义组件的 props
 const props = defineProps({
@@ -30,33 +30,7 @@ const filteredAttrs = computed(() =>
 });
 
 // 计算完整的图片 URL
-const computedUrl = computed(() => 
-{
-  if (!props.src) 
-  {
-    return '';
-  }
-  // 如果已经是完整的 URL，则直接返回
-  if (props.src.startsWith('http')) 
-  {
-    return props.src;
-  }
-  if(props.src.startsWith('file'))
-  {
-    return props.src;
-  }
-  if(props.src.startsWith('blob'))
-  {
-    return props.src;
-  }
-  if(props.src.startsWith('/'))
-  {
-    return`${API_BASE_URL}${props.src}`;
-  }
-
-  // 否则拼接 API_BASE_URL
-  return `${API_BASE_URL}/file?f=${props.src}`;
-});
+const computedUrl = computed(() => computeResourceUrl(props.src));
 
 defineOptions({
   inheritAttrs: false

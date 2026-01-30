@@ -31,7 +31,6 @@ const emit = defineEmits(['enter-directory']);
 
 const content = ref('');
 const loading = ref(false);
-const progressTriggerRef = ref(null);
 
 const fetchContent = async () => {
   loading.value = true;

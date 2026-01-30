@@ -102,10 +102,10 @@ parseRouteParams();
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.95);
+  background: fade(@color-bg-white, 95%);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid @color-border-1;
+  box-shadow: @shadow2-center;
 }
 
 .search-header-container {
@@ -117,7 +117,7 @@ parseRouteParams();
 .search-page {
   padding-top: 10dvh;
   min-height: calc(100vh - 80px);
-  background: linear-gradient(to bottom, #f5f7fa 0%, #ffffff 300px);
+  background: linear-gradient(to bottom, @color-fill-1 0%, @color-bg-white 300px);
   max-width: 100vw;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -134,9 +134,9 @@ parseRouteParams();
 .search-info {
   margin-bottom: 24px;
   padding: 16px 20px;
-  background: white;
+  background: @color-bg-white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: @shadow2-center;
 }
 
 .search-meta {
@@ -152,11 +152,11 @@ parseRouteParams();
 .search-query {
   font-size: 18px;
   font-weight: 600;
-  color: #1d2129;
+  color: @color-text-1;
 }
 
 .search-count {
-  color: #86909c;
+  color: @color-text-4;
   font-size: 14px;
 }
 
@@ -168,7 +168,7 @@ parseRouteParams();
 }
 
 .filter-label {
-  color: #86909c;
+  color: @color-text-4;
   font-size: 14px;
 }
 

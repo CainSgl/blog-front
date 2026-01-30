@@ -334,10 +334,10 @@ onUnmounted(() => {
         }
 
         &.liked {
-          color: rgb(var(--danger-6));
+          color: @danger-6;
 
           &:hover {
-            color: rgb(var(--danger-7));
+            color: @danger-7;
           }
         }
       }

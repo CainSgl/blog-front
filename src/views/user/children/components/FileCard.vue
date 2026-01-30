@@ -12,7 +12,7 @@
       }" style="margin: 0; font-size: 12px;">
         {{ file.name }}
       </a-typography-paragraph>
-      <div style="font-size: 12px; color: var(--color-text-3); margin-top: 4px;">
+      <div class="file-info">
         <span v-if="file.fileSize">{{ formatFileSize(file.fileSize) }}</span>
         <span v-else>未知</span>
       </div>
@@ -75,13 +75,19 @@ const handleFileClick = () =>
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px fade(#000, 10%);
   }
+}
+
+.file-info {
+  font-size: @font-size-body-1;
+  color: @color-text-3;
+  margin-top: @size-1;
 }
 
 @media (max-width: 1380px) {
   :deep(.arco-page-header .arco-page-header-extra) {
-    margin-top: 16px;
+    margin-top: @size-4;
   }
 }
 </style>

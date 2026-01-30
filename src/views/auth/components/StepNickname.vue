@@ -132,9 +132,9 @@ onMounted(async ()=>{
   margin-bottom: 32px;
 
   p {
-    font-size: 16px;
+    font-size: @font-size-title-1;
     color: @color-text-3;
-    margin-bottom: 8px;
+    margin-bottom: @size-2;
   }
 }
 
@@ -148,11 +148,11 @@ onMounted(async ()=>{
   width: 100%;
 
   :deep(.arco-form-item) {
-    margin-bottom: 20px;
+    margin-bottom: @size-5;
   }
 
   :deep(.arco-form-item-label) {
-    font-size: 14px;
+    font-size: @font-size-body-3;
     color: @color-text-2;
   }
 
@@ -163,8 +163,8 @@ onMounted(async ()=>{
 }
 
 .error-msg {
-  color: rgb(var(--danger-6));
-  font-size: 14px;
-  margin-top: 8px;
+  color: @danger-6;
+  font-size: @font-size-body-3;
+  margin-top: @size-2;
 }
 </style>

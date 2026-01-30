@@ -26,7 +26,7 @@
               </div>
               <!-- 状态 -->
               <div v-if="showStatus">
-                <a-tag v-if="post.status === '仅粉丝'" :color="primary4Color">{{ post.status }}</a-tag>
+                <a-tag v-if="post.status === '仅粉丝'" color="pink">{{ post.status }}</a-tag>
                 <a-tag v-else-if="post.status === '已发布' && !onlyFans" color="green">{{ post.status }}</a-tag>
                 <a-tag v-else-if="!onlyFans" color="gray">{{ post.status }}</a-tag>
               </div>
@@ -144,53 +144,45 @@ const props = defineProps({
   }
 });
 
-const primary4Color = '#ff6699';
+// 常量定义
+const LAYOUT_BREAKPOINT = 400;
+const LINE_HEIGHT = 20;
+const TITLE_HEIGHT = 36;
+const FOOTER_HEIGHT = 70;
+const TAGS_HEIGHT_WITH_TAGS = 50;
+const TAGS_HEIGHT_WITHOUT_TAGS = 10;
 
-// 布局模式：宽度小于等于 400 时为垂直布局
-const isVerticalLayout = computed(() => props.width <= 400);
+// 布局模式
+const isVerticalLayout = computed(() => props.width <= LAYOUT_BREAKPOINT);
 
-// 图片高度（用于垂直布局时计算摘要空间）
+// 图片尺寸计算
 const imageHeight = computed(() => {
-  if (!props.post.img) return 0;
-
-  if (isVerticalLayout.value) {
-    const width = props.width - 40;
-    return Math.min(width / 1.5, props.height / 2);
-  }
-
-  return 0;
+  if (!props.post.img || !isVerticalLayout.value) return 0;
+  const width = props.width - 40;
+  return Math.min(width / 1.5, props.height / 2);
 });
 
-// 图片样式
 const imageStyle = computed(() => {
   if (!props.post.img) return {};
 
   if (isVerticalLayout.value) {
-    return {
-      height: `${imageHeight.value}px`
-    };
-  } else {
-    let height = props.height - 50;
-    if (!props.showBottom) {
-      height += 20;
-    }
-    return {
-      height: `${height}px`,
-      width: `${Math.min(props.width / 2, height * 1.5)}px`
-    };
+    return { height: `${imageHeight.value}px` };
   }
+
+  let height = props.height - 50;
+  if (!props.showBottom) height += 20;
+  
+  return {
+    height: `${height}px`,
+    width: `${Math.min(props.width / 2, height * 1.5)}px`
+  };
 });
 
-// 摘要配置（高度、行数、是否显示）
+// 摘要配置
 const summaryConfig = computed(() => {
-  const lineHeight = 20;
-  const titleHeight = 36;
-  const footerHeight = 70;
-  const tagsHeight = (props.post.tags?.length > 0) ? 50 : 10;
+  const tagsHeight = props.post.tags?.length > 0 ? TAGS_HEIGHT_WITH_TAGS : TAGS_HEIGHT_WITHOUT_TAGS;
+  let availableHeight = props.height - TITLE_HEIGHT - FOOTER_HEIGHT - tagsHeight;
 
-  let availableHeight = props.height - titleHeight - footerHeight - tagsHeight;
-
-  // 垂直布局时需要减去图片高度
   if (props.post.img && isVerticalLayout.value) {
     availableHeight -= imageHeight.value;
   }
@@ -199,7 +191,7 @@ const summaryConfig = computed(() => {
     availableHeight += 10;
   }
 
-  const lines = Math.floor(availableHeight / lineHeight);
+  const lines = Math.floor(availableHeight / LINE_HEIGHT);
 
   return {
     height: availableHeight,
@@ -208,17 +200,7 @@ const summaryConfig = computed(() => {
   };
 });
 
-// 判断是否已点赞
-const isLiked = computed(() => {
-  return props.post.operate?.includes('点赞');
-});
-
-// 判断是否已讨厌
-const isDisliked = computed(() => {
-  return props.post.operate?.includes('讨厌');
-});
-
-// 获取标签显示名称（去掉分数部分）
+// 标签处理
 const getTagDisplayName = (tag) => {
   if (typeof tag === 'string' && tag.includes(':')) {
     return tag.split(':')[0];
@@ -226,7 +208,6 @@ const getTagDisplayName = (tag) => {
   return tag;
 };
 
-// 获取标签分数（如果存在）
 const getTagScore = (tag) => {
   if (typeof tag === 'string' && tag.includes(':')) {
     const parts = tag.split(':');
@@ -237,7 +218,7 @@ const getTagScore = (tag) => {
   return null;
 };
 
-// 处理卡片点击事件
+// 事件处理
 const handleCardClick = () => {
   if (props.post.id) {
     emit('clickCard', props.post);
@@ -252,9 +233,9 @@ const handleCardClick = () => {
   height: 100%;
 
   .post-card-container {
-    border-radius: 8px;
-    border: 1px solid #e5e8ef;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+    border-radius: @border-radius-medium;
+    border: @border-1 solid @color-border-2;
+    box-shadow: 0 1px 3px 0 fade(#000, 8%);
     transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
     overflow: hidden;
     cursor: pointer;
@@ -262,7 +243,7 @@ const handleCardClick = () => {
 
     &:hover {
       border-color: @primary-6;
-      box-shadow: 0 4px 12px 0 rgba(0, 174, 236, 0.15);
+      box-shadow: 0 4px 12px 0 fade(@primary-6, 15%);
 
       .arco-image {
         transform: scale(1.05);
@@ -271,9 +252,9 @@ const handleCardClick = () => {
   }
 
   .post-card-loading {
-    border-radius: 8px;
-    border: 1px solid #e5e8ef;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+    border-radius: @border-radius-medium;
+    border: @border-1 solid @color-border-2;
+    box-shadow: 0 1px 3px 0 fade(#000, 8%);
     transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
     overflow: hidden;
     height: 100%;
@@ -288,16 +269,15 @@ const handleCardClick = () => {
       flex-direction: row;
 
       .post-image {
-
         height: auto;
         max-height: 100%;
-        border-radius: 8px;
+        border-radius: @border-radius-medium;
       }
 
       .post-content {
-        margin-left: 20px;
+        margin-left: @size-5;
         flex: 1;
-        min-width: 0; // 允许内容区域收缩
+        min-width: 0;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -305,19 +285,18 @@ const handleCardClick = () => {
     }
 
     &.no-image.horizontal-layout .post-content {
-      margin-left: 0; // 没有图片时，内容区域不需要左边距
+      margin-left: 0;
     }
-
   }
 
   .post-image {
     position: relative;
     width: 100%;
-    min-height: 100px; // 设置最小高度以确保在小容器中也能显示
-    border-radius: 8px;
+    min-height: 100px;
+    border-radius: @border-radius-medium;
     overflow: hidden;
-    margin-bottom: 16px;
-    flex: 0 0 auto; // 防止图片区域被压缩
+    margin-bottom: @size-4;
+    flex: 0 0 auto;
 
     .arco-image {
       display: block;
@@ -337,37 +316,35 @@ const handleCardClick = () => {
     min-width: 0;
     display: flex;
     flex-direction: column;
-
   }
 
   .post-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: @size-3;
 
     .post-title-section {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: @size-2;
       flex: 1;
       min-width: 0;
-      /* 允许flex子项收缩 */
     }
 
     .top-tag {
-      background-color: #ff7d00;
-      color: white;
-      font-size: 12px;
+      background-color: @warning-6;
+      color: @color-bg-white;
+      font-size: @font-size-body-1;
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: @border-radius-small;
       flex-shrink: 0;
     }
 
     .post-title {
-      font-size: 16px;
-      font-weight: 500;
-      color: #1d2129;
+      font-size: @font-size-title-1;
+      font-weight: @font-weight-500;
+      color: @color-text-1;
       line-height: 1.4;
       flex: 1;
       word-break: break-word;
@@ -380,10 +357,10 @@ const handleCardClick = () => {
   }
 
   .post-summary {
-    color: #4e5969;
-    font-size: 14px;
+    color: @color-text-2;
+    font-size: @font-size-body-3;
     line-height: 1.5;
-    margin-bottom: 16px;
+    margin-bottom: @size-4;
     display: -webkit-box;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -392,27 +369,26 @@ const handleCardClick = () => {
 
   .post-tags {
     margin-top: 10px;
-    margin-bottom: 8px;
+    margin-bottom: @size-2;
   }
 
   .post-stats-footer-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 12px;
+    padding-top: @size-3;
     position: relative;
-  }
 
-  .post-stats-footer-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background-color: #f6f8fa;
-    z-index: -1;
-    /* 确保伪元素在内容下方 */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: @border-1;
+      background-color: @color-fill-2;
+      z-index: -1;
+    }
   }
 
   .post-stats {
@@ -421,10 +397,10 @@ const handleCardClick = () => {
     .stat-item {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      color: #86909c;
-      font-size: 14px;
-      margin-right: 16px;
+      gap: @size-1;
+      color: @color-text-4;
+      font-size: @font-size-body-3;
+      margin-right: @size-4;
 
       &:last-child {
         margin-right: 0;
@@ -434,8 +410,8 @@ const handleCardClick = () => {
 
   .post-footer {
     .post-date {
-      color: #86909c;
-      font-size: 12px;
+      color: @color-text-4;
+      font-size: @font-size-body-1;
     }
   }
 
@@ -444,17 +420,16 @@ const handleCardClick = () => {
     bottom: 5px;
     left: 0;
     right: 0;
-    padding: 0 20px; // 与卡片内边距一致
+    padding: 0 @size-5;
   }
 
-  // 重写 em 标签样式，用于高亮搜索关键词
   :deep(em) {
     color: @primary-4;
     font-style: normal;
-    font-weight: 600;
+    font-weight: @font-weight-600;
     background-color: fade(@primary-4, 10%);
     padding: 2px 4px;
-    border-radius: 2px;
+    border-radius: @border-radius-none;
   }
 }
 </style>

@@ -21,7 +21,7 @@
         </div>
 
         <div>
-          <span class="arco-comment-datetime">{{ formatTime(commentData.createdAt) }}</span>
+          <span class="arco-comment-datetime">{{ formatDate(commentData.createdAt) }}</span>
           <span class="action arco-comment-actions arco-comment-actions-align-left" key="heart" @click="onLikeChange">
             <span v-if="like">
               <IconHeartFill :style="{ color: '#f53f3f' }" />
@@ -49,6 +49,7 @@ import {IconHeart, IconHeartFill,} from '@arco-design/web-vue/es/icon';
 import {Comment as AComment, Link as ALink} from '@arco-design/web-vue';
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import UserLevel from '@/components/base/UserLevel.vue';
+import {formatDate} from '@/utils/DateFormatter.js';
 
 // 定义组件属性
 const props = defineProps({
@@ -103,25 +104,7 @@ const onLikeChange = async () => {
   }
 };
 
-// 格式化时间
-const formatTime = (time) => {
-  if (!time) return '';
-  const date = new Date(time);
-  const now = new Date();
-  const diff = now - date;
 
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return '刚刚';
-  if (minutes < 60) return `${minutes}分钟前`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}小时前`;
-
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}天前`;
-
-  return date.toLocaleDateString('zh-CN');
-};
 
 
 // 回复处理函数

@@ -5,39 +5,21 @@
         </div>
 
         <div v-show="isExpanded" class="post-actions-panel">
-            <div class="action-item" @click="handleLike">
-                <a-tooltip content="点赞" position="right">
-                    <div class="action-button like-button" :class="{ 'liked': isLiked }">
-                        <icon-heart-fill v-if="isLiked" :style="{ fontSize: '24px' }" />
-                        <icon-heart v-else :style="{ fontSize: '24px' }" />
-                        <span class="action-count">{{ formatCount(likeCount) }}</span>
-                    </div>
-                </a-tooltip>
-            </div>
-
-            <div class="action-item" @click="handleFavorite">
-                <a-tooltip content="收藏" position="right">
-                    <div class="action-button favorite-button" :class="{ 'favorited': isFavorited }">
-                        <icon-star-fill v-if="isFavorited" :style="{ fontSize: '24px' }" />
-                        <icon-star v-else :style="{ fontSize: '24px' }" />
-                          <span class="action-count" >{{ formatCount(starCount) }}</span>
-                    </div>
-                </a-tooltip>
-            </div>
-
-            <div class="action-item" @click="handleComment">
-                <a-tooltip content="评论" position="right">
-                    <div class="action-button comment-button">
-                        <icon-message :style="{ fontSize: '24px' }" />
-                        <span class="action-count" >{{ formatCount(commentCount) }}</span>
-                    </div>
-                </a-tooltip>
-            </div>
-
-            <div class="action-item" @click="handleReport">
-                <a-tooltip content="举报" position="right">
-                    <div class="action-button report-button">
-                        <icon-exclamation-circle :style="{ fontSize: '24px' }" />
+            <div 
+                v-for="action in actionItems" 
+                :key="action.key"
+                class="action-item" 
+                @click="action.handler">
+                <a-tooltip :content="action.tooltip" position="right">
+                    <div 
+                        class="action-button" 
+                        :class="[action.className, { [action.activeClass]: action.isActive }]">
+                        <component 
+                            :is="action.isActive ? action.activeIcon : action.icon" 
+                            :style="{ fontSize: action.iconSize || '24px' }" />
+                        <span v-if="action.count !== undefined" class="action-count">
+                            {{ formatCount(action.count) }}
+                        </span>
                     </div>
                 </a-tooltip>
             </div>
@@ -58,7 +40,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {ref, computed} from 'vue';
 import {Message, Modal} from '@arco-design/web-vue';
 import {
   IconDoubleLeft,
@@ -123,6 +105,53 @@ const formatCount = (count) => {
     }
     return count;
 };
+
+// 操作项配置数组
+const actionItems = computed(() => [
+    {
+        key: 'like',
+        tooltip: '点赞',
+        icon: IconHeart,
+        activeIcon: IconHeartFill,
+        className: 'like-button',
+        activeClass: 'liked',
+        isActive: props.isLiked,
+        count: props.likeCount,
+        handler: handleLike
+    },
+    {
+        key: 'favorite',
+        tooltip: '收藏',
+        icon: IconStar,
+        activeIcon: IconStarFill,
+        className: 'favorite-button',
+        activeClass: 'favorited',
+        isActive: props.isFavorited,
+        count: props.starCount,
+        handler: handleFavorite
+    },
+    {
+        key: 'comment',
+        tooltip: '评论',
+        icon: IconMessage,
+        activeIcon: IconMessage,
+        className: 'comment-button',
+        activeClass: '',
+        isActive: false,
+        count: props.commentCount,
+        handler: handleComment
+    },
+    {
+        key: 'report',
+        tooltip: '举报',
+        icon: IconExclamationCircle,
+        activeIcon: IconExclamationCircle,
+        className: 'report-button',
+        activeClass: '',
+        isActive: false,
+        handler: handleReport
+    }
+]);
 
 // 点赞
 const handleLike = async () => {
@@ -209,19 +238,19 @@ const handleReport = () => {
 .action-trigger {
     width: 20px;
     height: 48px;
-    background-color: var(--color-bg-2);
+    background-color: @color-bg-2;
     border-radius: 0 6px 6px 0;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 2px 0 8px fade(#000, 8%);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--color-text-2);
+    color: @color-text-2;
     transition: all 0.3s ease;
 
     &:hover {
-        background-color: var(--color-bg-3);
-        color: rgb(var(--primary-6));
+        background-color: @color-bg-3;
+        color: @primary-6;
         width: 24px;
     }
 }
@@ -230,10 +259,10 @@ const handleReport = () => {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    background-color: var(--color-bg-2);
+    background-color: @color-bg-2;
     padding: 16px 14px;
     border-radius: 0 12px 12px 0;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 2px 0 12px fade(#000, 8%);
 }
 
 .action-item {
@@ -251,23 +280,23 @@ const handleReport = () => {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    color: var(--color-text-2);
+    color: @color-text-2;
     transition: color 0.3s ease;
 
     &.like-button:hover {
-        color: rgb(var(--primary-4));
+        color: @primary-4;
     }
 
     &.favorite-button:hover {
-        color: rgb(var(--warning-6));
+        color: @warning-6;
     }
 
     &.liked {
-        color: rgb(var(--primary-4));
+        color: @primary-4;
     }
 
     &.favorited {
-        color: rgb(var(--warning-6));
+        color: @warning-6;
     }
 
     &.collapse-button {
@@ -287,7 +316,7 @@ const handleReport = () => {
 
 .action-divider {
     height: 1px;
-    background-color: var(--color-border-2);
+    background-color: @color-border-2;
     margin: 4px 0;
 }
 </style>

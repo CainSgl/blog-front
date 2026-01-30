@@ -37,7 +37,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup >
 import {ref} from 'vue';
 import {Message} from '@arco-design/web-vue';
 import {IconDelete, IconPlus} from '@arco-design/web-vue/es/icon';
@@ -167,7 +167,9 @@ defineExpose({
 });
 </script>
 
-<style scoped>
+<style scoped lang="less">
+@import '@/assets/style/global.less';
+
 .image-upload-with-compress {
   width: 100%;
 }
@@ -175,46 +177,50 @@ defineExpose({
 .upload-trigger {
   width: 100px;
   height: 100px;
-  border: 1px dashed #d9d9d9;
-  border-radius: 4px;
+  border: @border-1 dashed @color-border-2;
+  border-radius: @border-radius-small;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s;
-}
 
-.upload-trigger:hover {
-  border-color: #165dfe;
-  color: #165dfe;
+  &:hover {
+    border-color: @primary-6;
+    color: @primary-6;
+  }
 }
 
 .upload-text {
-  margin-top: 8px;
-  font-size: 14px;
+  margin-top: @size-2;
+  font-size: @font-size-body-3;
 }
 
 .image-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+  gap: @size-2;
+  margin-top: @size-2;
 }
 
 .image-item {
   position: relative;
   width: 100px;
   height: 100px;
-  border-radius: 4px;
+  border-radius: @border-radius-small;
   overflow: hidden;
-  border: 1px solid #e5e6eb;
-}
+  border: @border-1 solid @color-fill-3;
 
-.image-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover .image-actions {
+    opacity: 1;
+  }
 }
 
 .image-actions {
@@ -230,14 +236,10 @@ defineExpose({
   opacity: 0;
   transition: opacity 0.3s;
   cursor: pointer;
-}
 
-.image-item:hover .image-actions {
-  opacity: 1;
-}
-
-.image-actions svg {
-  color: white;
-  font-size: 20px;
+  svg {
+    color: @color-bg-white;
+    font-size: @size-5;
+  }
 }
 </style>

@@ -35,6 +35,8 @@ const handleBilibiliClick = () => {
 </script>
 
 <style scoped lang="less">
+@import "@/assets/style/global.less";
+
 .third-party-login {
   user-select: none;
   margin-top: 24px;
@@ -42,15 +44,16 @@ const handleBilibiliClick = () => {
   .divider {
     position: relative;
     text-align: center;
-    margin-bottom: 16px;
+    margin-bottom: @size-4;
+    
     &::before,
     &::after {
       content: '';
       position: absolute;
       top: 50%;
       width: 40%;
-      height: 1px;
-      background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
+      height: @border-1;
+      background: linear-gradient(to right, transparent, fade(@color-text-1, 10%), transparent);
     }
     
     &::before {
@@ -63,10 +66,10 @@ const handleBilibiliClick = () => {
     
     span {
       display: inline-block;
-      padding: 0 16px;
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.45);
-      background: #fff;
+      padding: 0 @size-4;
+      font-size: @font-size-body-2;
+      color: fade(@color-text-1, 45%);
+      background: @color-bg-white;
       position: relative;
       z-index: 1;
     }
@@ -83,9 +86,9 @@ const handleBilibiliClick = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      background: #fff;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: @border-radius-circle;
+      background: @color-bg-white;
+      border: @border-1 solid fade(@color-text-1, 8%);
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -95,7 +98,7 @@ const handleBilibiliClick = () => {
         content: '';
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at center, rgba(240, 129, 152, 0.1), transparent);
+        background: radial-gradient(circle at center, fade(@primary-4, 10%), transparent);
         opacity: 0;
         transition: opacity 0.3s ease;
       }
@@ -109,8 +112,8 @@ const handleBilibiliClick = () => {
       }
       
       &:hover {
-        border-color: #F08198;
-        box-shadow: 0 4px 12px rgba(240, 129, 152, 0.2);
+        border-color: @primary-4;
+        box-shadow: 0 4px 12px fade(@primary-4, 20%);
         
         &::before {
           opacity: 1;
@@ -123,7 +126,7 @@ const handleBilibiliClick = () => {
       
       &:active {
         transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(240, 129, 152, 0.15);
+        box-shadow: 0 2px 6px fade(@primary-4, 15%);
       }
     }
   }
