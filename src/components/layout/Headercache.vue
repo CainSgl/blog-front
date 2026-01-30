@@ -34,7 +34,7 @@
         <div class="right-section">
            <div class="avatar-section">
             <a-popover trigger="hover" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }">
-              <Avatar :size="avatarSize" :src="userInfo?.avatarUrl" class="avatar-trigger"
+              <Avatar :size="40" :src="userInfo?.avatarUrl" class="avatar-trigger"
                 @click="openInNewTab(`/space/${userInfo?.id}`)" />
               <template #content>
                 <div class="user-info-popover" v-if="userInfo?.id != '-1'">
@@ -98,7 +98,7 @@
                       <span>退出登录</span>
                     </div>
                   </div>
-                      
+
                 </div>
                 <div class="login-prompt" v-else>
                   <div class="login-message">
@@ -126,54 +126,14 @@
           </div>
           <!-- 登录后显示的功能入口 -->
           <div class="user-actions" v-if="userInfo?.id != '-1'">
-            <a-dropdown trigger="hover" >
-              <div class="action-item">
-                <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
-                  <a-badge :count="msgCount" :max-count="99" :offset="['5px','0px','0px','15px']">
-                    <icon-notification :size="20" />
-                  </a-badge>
-                </a-tooltip>
-                <span class="action-text">消息</span>
-              </div>
-              <template #content>
-                <a-doption @click="openInNewTab('/messages/reply')">
-                  <template #icon>
-                    <icon-message />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>回复我的</span>
-                    <a-badge :count="userInfo?.msgReplyCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/like')">
-                  <template #icon>
-                    <icon-heart />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>收到的赞</span>
-                    <a-badge :count="userInfo?.msgLikeCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/message')">
-                  <template #icon>
-                    <icon-email />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>消息</span>
-                    <a-badge :count="userInfo?.msgMessageCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/report')">
-                  <template #icon>
-                    <icon-exclamation-circle />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>举报消息</span>
-                    <a-badge :count="userInfo?.msgReportCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-              </template>
-            </a-dropdown>
+            <div class="action-item" @click="openInNewTab('/messages')">
+              <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
+                <a-badge :count="0" :dot-style="{width: '8px', height: '8px'}">
+                  <icon-notification :size="20" />
+                </a-badge>
+              </a-tooltip>
+              <span class="action-text">消息</span>
+            </div>
 
             <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/favorites`)">
               <a-tooltip content="收藏" :popup-visible="isSmallScreen ? undefined : false">
@@ -218,8 +178,8 @@ import { useUserStore } from '@/store/user.js';
 import { storeToRefs } from 'pinia';
 import Avatar from '@/components/user/base/Avatar.vue';
 import SearchBox from '@/components/base/SearchBox.vue';
-import { onMounted, ref, onUnmounted, computed } from 'vue';
-import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory, IconMessage, IconHeart, IconEmail, IconExclamationCircle } from '@arco-design/web-vue/es/icon';
+import { onMounted, ref, onUnmounted } from 'vue';
+import { IconMan, IconWoman, IconUser, IconBook, IconFile, IconCloud, IconExport, IconLock, IconNotification, IconStar, IconHistory } from '@arco-design/web-vue/es/icon';
 import { useRouter, useRoute } from 'vue-router';
 import { getLoginService, showLoginModal } from '@/services/authService';
 
@@ -294,16 +254,12 @@ const router = useRouter();
 const route = useRoute();
 // 使用 storeToRefs 创建响应式引用
 const { userInfo } = storeToRefs(userStore);
-const msgCount=computed(()=>{
-  return userInfo.value?.msgReplyCount || 0+userInfo.value?.msgLikeCount || 0+userInfo.value?.msgMessageCount || 0+userInfo.value?.msgReportCount || 0
-})
+
 // 响应式屏幕尺寸检测
 const isSmallScreen = ref(window.innerWidth < 768);
-const avatarSize = ref(window.innerWidth < 480 ? 32 : 40);
 
 const handleResize = () => {
   isSmallScreen.value = window.innerWidth < 768;
-  avatarSize.value = window.innerWidth < 480 ? 32 : 40;
 };
 
 // 处理滚动事件
@@ -352,8 +308,8 @@ const isActiveRoute = (path) => {
 const logout = async () => {
   const loginService = getLoginService();
   loginService.logout();
-  // 退出登录后刷新当前页面
-  window.location.reload();
+  // 退出登录后重定向到首页
+  await router.push({ name: 'Home' });
 };
 
 // 在新标签页中打开指定路径
@@ -371,8 +327,6 @@ const openInNewTab = (path) => {
 const showLogin = () => {
   showLoginModal();
 };
-
-
 
 onMounted(async () => {
   userInfo.value = await userStore.getUserInfo();
@@ -618,12 +572,14 @@ onMounted(async () => {
         }
       }
     }
-  }
-}
 
-// 下拉菜单选项样式
-.dropdown-option-content {
-  margin:5px;
+    .avatar-section {
+      :deep(.avatar-trigger) {
+        width: 32px !important;
+        height: 32px !important;
+      }
+    }
+  }
 }
 
 .user-info-popover {
