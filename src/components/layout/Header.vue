@@ -2,7 +2,9 @@
   <a-layout-header>
     <transition name="header-slide">
       <div class="header-container" v-show="showHeader" :class="{ 
+      <div class="header-container" v-show="showHeader" :class="{ 
         'transparent-background': transparentBackground,
+        'header-fixed': isHeaderFixed&&showHeader
         'header-fixed': isHeaderFixed&&showHeader
       }">
       <div class="header-content" :class="{ 'with-padding': padding }"
@@ -24,6 +26,30 @@
             :hoverable="hoverable">
             <span :style="{ color: textColor }">关于</span>
           </a-link>
+        </div>
+      <div class="header-content" :class="{ 'with-padding': padding }"
+        :style="{ borderBottom: showBorder ? `1px solid ${borderColor}` : 'none' }">
+        <div>
+          <a-link :href="`/`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/') }"
+            :hoverable="hoverable">
+            <span :style="{ color: textColor }">首页</span>
+          </a-link>
+          <a-link :href="`/blog`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/blog') }"
+            :hoverable="hoverable">
+            <span :style="{ color: textColor }">博客</span>
+          </a-link>
+          <a-link :href="`/knowledge`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/knowledge') }"
+            :hoverable="hoverable">
+            <span :style="{ color: textColor }">知识库</span>
+          </a-link>
+          <a-link :href="`/about`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/about') }"
+            :hoverable="hoverable">
+            <span :style="{ color: textColor }">关于</span>
+          </a-link>
+        </div>
+
+        <div class="search-section" v-if="showSearch">
+          <SearchBox :alwaysShowFilter="false" :mini="true" />
         </div>
 
         <div class="search-section" v-if="showSearch">
@@ -95,6 +121,12 @@
               </a-tooltip>
               <span class="action-text">收藏</span>
             </div>
+            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/favorites`)">
+              <a-tooltip content="收藏" :popup-visible="isSmallScreen ? undefined : false">
+                <icon-star :size="20" />
+              </a-tooltip>
+              <span class="action-text">收藏</span>
+            </div>
 
             <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/history`)">
               <a-tooltip content="历史" :popup-visible="isSmallScreen ? undefined : false">
@@ -102,7 +134,19 @@
               </a-tooltip>
               <span class="action-text">历史</span>
             </div>
+            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/history`)">
+              <a-tooltip content="历史" :popup-visible="isSmallScreen ? undefined : false">
+                <icon-history :size="20" />
+              </a-tooltip>
+              <span class="action-text">历史</span>
+            </div>
 
+            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
+              <a-tooltip content="我的知识库" :popup-visible="isSmallScreen ? undefined : false">
+                <icon-book :size="20" />
+              </a-tooltip>
+              <span class="action-text">知识库</span>
+            </div>
             <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
               <a-tooltip content="我的知识库" :popup-visible="isSmallScreen ? undefined : false">
                 <icon-book :size="20" />
@@ -117,9 +161,18 @@
               <span class="action-text">文档</span>
             </div>
           </div>
+            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/docs`)">
+              <a-tooltip content="我的文档" :popup-visible="isSmallScreen ? undefined : false">
+                <icon-file :size="20" />
+              </a-tooltip>
+              <span class="action-text">文档</span>
+            </div>
+          </div>
 
         </div>
 
+      </div>
+    </div>
       </div>
     </div>
     </transition>
@@ -212,9 +265,11 @@ const msgCount=computed(()=>{
 })
 // 响应式屏幕尺寸检测
 const isSmallScreen = ref(window.innerWidth < 768);
+const avatarSize = ref(window.innerWidth < 480 ? 32 : 40);
 
 const handleResize = () => {
   isSmallScreen.value = window.innerWidth < 768;
+  avatarSize.value = window.innerWidth < 480 ? 32 : 40;
 };
 
 // 处理滚动事件
@@ -231,6 +286,7 @@ const handleScroll = () => {
     // 滚动位置超过阈值时，切换为 fixed 定位
     isHeaderFixed.value = true;
     
+    
     // 根据滚动方向控制显示/隐藏
     if (scrollDiff > scrollDelta) {
       // 向下滚动 - 隐藏 header
@@ -241,6 +297,7 @@ const handleScroll = () => {
     }
     // 如果滚动差值在 [-scrollDelta, scrollDelta] 之间，保持当前状态不变
   }
+  
   
   lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
 };
