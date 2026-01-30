@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import api from '@/api/index.js';
 import PostCardWrapper from './PostCardWrapper.vue';
 const props = defineProps({

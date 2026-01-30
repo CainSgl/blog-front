@@ -20,7 +20,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import PostCard from './PostCard.vue';
-import { defineEmits } from 'vue';
 
 const emit = defineEmits(['clickCard']);
 

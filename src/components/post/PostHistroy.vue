@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { formatDate } from '@/utils/DateFormatter.js';
 import api from '@/api/index.js';
 

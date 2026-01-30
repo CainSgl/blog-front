@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useUserStore } from '@/store/user.js';
 import {
   IconHeart,

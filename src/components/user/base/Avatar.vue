@@ -9,6 +9,7 @@
     :loading="loading"
     :type="type"
     @click="handleClick"
+    :auto-fix-font-size="false"
     :image-url="computedAvatarUrl"
   >
     <slot>
@@ -72,6 +73,7 @@ const computedAvatarUrl = computed(() =>
   {
     return '';
   }
+  console.log(typeof props.src)
   // 如果已经是完整的 URL，则直接返回
   if (props.src.startsWith('http')) 
   {
