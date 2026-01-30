@@ -55,7 +55,7 @@ const isProgressUpActive = ref(false);
 
 
 
-// 直接使用当前节点的 children 数组
+// 直接使用当前节点的 components 数组
 const items = computed(() => {
   if (!props.node || !props.node.children) return [];
   return props.node.children;

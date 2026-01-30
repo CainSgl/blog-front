@@ -3,9 +3,9 @@
   <div class="article-view-container">
     <!-- 向上滑动进度条 -->
 
-    <a-spin :loading="!node.content" style="width: 100%;display: block;height: 100%;" tip="正在加载文章">
+    <a-spin :loading="!node?.content" style="width: 100%;display: block;height: 100%;" tip="正在加载文章">
 
-      <div v-if="node.content">
+      <div v-if="node?.content">
         <!-- 文章头部信息 -->
         <div class="article-header">
           <h1 class="article-title">{{ node.content.title }}</h1>
@@ -17,34 +17,28 @@
           </div>
         </div>
         <ScrollProgressTrigger ref="progressTriggerUpRef" container-selector=".article-view-container"
-          :enabled="node.content" progress-tip="向上滑动返回上一级" direction="up"
+          :enabled="!!node.content" progress-tip="向上滑动返回上一级" direction="up"
           @progress-complete="handleProgressCompleteUp" />
         <!-- 文章内容 -->
         <div style="margin-right: 20px;">
-          <MarkdownPreviewWrapper :tocDefaultShow="false" :content="node.content?.content || ''" :showComment="true"
+          <MarkdownPreviewWrapper :tocDefaultShow="false" :content="node?.content?.content || ''" :showComment="true"
             :showToc="true" :useWindowScroll="false" />
         </div>
       </div>
       <div v-if="!node.content" style="width: 100%;height: 100%;"></div>
-      <a-empty v-if="node.content && !node.content.content" style="width: 100%;height: 100%;">
+      <a-empty v-if="node?.content && !node?.content.content" style="width: 100%;height: 100%;">
         <template #image>
           <icon-exclamation-circle-fill />
         </template>
         这篇文章什么都没写！肯定是小编偷懒了。
       </a-empty>
       <ScrollProgressTrigger ref="progressTriggerRef" container-selector=".article-view-container"
-        progress-tip="向下滑动跳转到下一级" direction="down" @progress-complete="handleProgressComplete"
-        @progress-change="handleProgressChangeDown" />
+        progress-tip="向下滑动跳转到下一级" direction="down" @progress-complete="handleProgressComplete" />
     </a-spin>
 
 
   </div>
   <!-- 向下滑动进度条 -->
-
-
-
-
-
 
   <!-- 固钉评论按钮 -->
   <a-affix :offset-bottom="20">

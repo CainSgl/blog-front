@@ -146,8 +146,8 @@ import {Message, Upload} from '@arco-design/web-vue';
 import KbCard from '@/components/kb/KbCard.vue';
 import api from '@/api/index.js';
 import {useUserStore} from '@/store/user.js';
-import UserPageHeader from './common/UserPageHeader.vue';
-import ContentArea from './common/ContentArea.vue';
+import UserPageHeader from './components/UserPageHeader.vue';
+import ContentArea from './components/ContentArea.vue';
 import CImg from '@/components/base/cImg.vue';
 import ImageCropperModal from '@/components/base/ImageCropperModal.vue';
 
