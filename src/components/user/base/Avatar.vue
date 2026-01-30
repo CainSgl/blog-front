@@ -9,9 +9,8 @@
     :loading="loading"
     :type="type"
     @click="handleClick"
-    :imageUrl="computedAvatarUrl"
+    :image-url="computedAvatarUrl"
   >
- 
     <slot>
       <icon-user :size="typeof size === 'number' ? size * 0.6 : 24" v-if="!computedAvatarUrl" />
     </slot>

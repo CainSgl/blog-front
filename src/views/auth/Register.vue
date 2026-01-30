@@ -104,6 +104,7 @@ const handleStepNext = (data, reset) => {
     formData.value.password = data.password || ''
     formData.value.confirmPassword = data.confirmPassword || ''
   } else if (currentStep.value == 3) {
+     token.value = null;
     userStore.setToken(data.token)
   } else if (currentStep.value === 4 && data) {
     token.value = null;

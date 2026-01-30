@@ -42,10 +42,10 @@ onMounted(async () =>
   currentUserInfo.value = await userStore.getUserInfo();
 });
 
-// 监听 props.userInfo 的变化，更新 trigger 值
-watch(() => props.userInfo, (newUserInfo) => 
+// 监听 props.userInfo 和 currentUserInfo 的变化，更新 trigger 值
+watch([() => props.userInfo, currentUserInfo], ([newUserInfo, currentUser]) => 
 {
-  trigger.value = currentUserInfo.value && newUserInfo?.id === currentUserInfo.value.id ? 'mask' : null;
+  trigger.value = currentUser && newUserInfo?.id === currentUser.id ? 'mask' : null;
 }, { immediate: true });
 function getFormattedDate() 
 {

@@ -1,214 +1,216 @@
 <template>
   <a-layout-header>
     <transition name="header-slide">
-      <div class="header-container" v-show="showHeader" :class="{ 
+      <div class="header-container" v-show="showHeader" :class="{
         'transparent-background': transparentBackground,
-        'header-fixed': isHeaderFixed&&showHeader
+        'header-fixed': isHeaderFixed && showHeader
       }">
-      <div class="header-content" :class="{ 'with-padding': padding }"
-        :style="{ borderBottom: showBorder ? `1px solid ${borderColor}` : 'none' }">
-        <div>
-          <a-link :href="`/`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">首页</span>
-          </a-link>
-          <a-link :href="`/blog`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/blog') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">博客</span>
-          </a-link>
-          <a-link :href="`/knowledge`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/knowledge') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">知识库</span>
-          </a-link>
-          <a-link :href="`/about`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/about') }"
-            :hoverable="hoverable">
-            <span :style="{ color: textColor }">关于</span>
-          </a-link>
-        </div>
-
-        <div class="search-section" v-if="showSearch">
-          <SearchBox :alwaysShowFilter="false" :mini="true" />
-        </div>
-
-
-        <div class="right-section">
-           <div class="avatar-section">
-            <a-popover trigger="hover" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }">
-              <Avatar :size="40" :src="userInfo?.avatarUrl" class="avatar-trigger"
-                @click="openInNewTab(`/space/${userInfo?.id}`)" />
-              <template #content>
-                <div class="user-info-popover" v-if="userInfo?.id != '-1'">
-                  <div class="user-header">
-                    <Avatar :size="60" class="user-avatar" :src="userInfo?.avatarUrl" />
-                    <div class="user-basic-info">
-                      <div class="user-name-row">
-                        <span class="user-nickname">{{ userInfo?.nickname || userInfo?.username || '-' }}</span>
-                        <icon-man v-if="userInfo?.gender === '男'"
-                          :style="{ color: '#55acee', fontSize: '16px', marginLeft: '2px' }" />
-                        <icon-woman v-else-if="userInfo?.gender === '女'"
-                          :style="{ color: '#e85695', fontSize: '16px', marginLeft: '2px' }" />
-                        <a-tag color="arcoblue" size="small" style="margin-left: 8px;">LV.{{ userInfo?.level }}</a-tag>
-                      </div>
-                      <div class="user-stats">
-                        <div class="stat-item">
-                          <span class="stat-label">粉丝</span>
-                          <span class="stat-value">{{ userInfo?.followerCount || 0 }}</span>
-                        </div>
-                        <div class="stat-item">
-                          <span class="stat-label">关注</span>
-                          <span class="stat-value">{{ userInfo?.followingCount || 0 }}</span>
-                        </div>
-                        <div class="stat-item">
-                          <span class="stat-label">获赞</span>
-                          <span class="stat-value">{{ userInfo?.likeCount || 0 }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 用户经验条 -->
-                  <div class="user-experience" v-if="userInfo">
-                    <div class="exp-container">
-                      <span class="level-text">LV.{{ userInfo?.level }}</span>
-                      <a-progress :percent="userInfo?.experience / userInfo?.nextLevelTotalExp" :show-text="false"
-                        class="exp-progress" size="small" />
-                      <span class="level-text">LV.{{ userInfo?.level + 1 }}</span>
-                    </div>
-                  </div>
-                  <!-- 用户选项菜单 -->
-                  <div class="user-options">
-                    <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}`)">
-                      <icon-user />
-                      <span>我的空间</span>
-                    </div>
-                    <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
-                      <icon-book />
-                      <span>我的知识库</span>
-                    </div>
-                    <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/docs`)">
-                      <icon-file />
-                      <span>我的文档</span>
-                    </div>
-                    <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/cloud`)">
-                      <icon-cloud />
-                      <span>云空间</span>
-                    </div>
-                    <div class="option-item" @click="logout">
-                      <icon-export />
-                      <span>退出登录</span>
-                    </div>
-                  </div>
-                      
-                </div>
-                <div class="login-prompt" v-else>
-                  <div class="login-message">
-                    <icon-lock class="lock-icon" />
-                    <p class="login-title">请先登录</p>
-                    <p class="login-subtitle">登录后体验更多功能</p>
-                  </div>
-                  <a-button type="primary" size="large" long @click="showLogin" class="login-button">
-                    立即登录
-                  </a-button>
-                  <div class="login-features">
-                    <p class="features-title">登录后可享受：</p>
-                    <ul class="features-list">
-                      <li>个人空间管理</li>
-                      <li>知识库功能</li>
-                      <li>文档云存储</li>
-                      <li>历史记录</li>
-                      <li>个性化设置</li>
-                    </ul>
-                  </div>
-                </div>
-              </template>
-
-            </a-popover>
+        <div class="header-content" :class="{ 'with-padding': padding }"
+          :style="{ borderBottom: showBorder ? `1px solid ${borderColor}` : 'none' }">
+          <div>
+            <a-link :href="`/`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/') }"
+              :hoverable="hoverable">
+              <span :style="{ color: textColor }">首页</span>
+            </a-link>
+            <a-link :href="`/blog`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/blog') }"
+              :hoverable="hoverable">
+              <span :style="{ color: textColor }">博客</span>
+            </a-link>
+            <a-link :href="`/knowledge`" class="nav-option"
+              :class="{ 'nav-option-active': isActiveRoute('/knowledge') }" :hoverable="hoverable">
+              <span :style="{ color: textColor }">知识库</span>
+            </a-link>
+            <a-link :href="`/about`" class="nav-option" :class="{ 'nav-option-active': isActiveRoute('/about') }"
+              :hoverable="hoverable">
+              <span :style="{ color: textColor }">关于</span>
+            </a-link>
           </div>
-          <!-- 登录后显示的功能入口 -->
-          <div class="user-actions" v-if="userInfo?.id != '-1'">
-            <a-dropdown trigger="hover" >
-              <div class="action-item">
-                <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
-                  <a-badge :count="msgCount" :max-count="99" :offset="['5px','0px','0px','15px']">
-                    <icon-notification :size="20" />
-                  </a-badge>
+
+          <div class="search-section" v-if="showSearch">
+            <SearchBox :alwaysShowFilter="false" :mini="true" />
+          </div>
+          
+
+          <div class="right-section">
+            
+            <div class="avatar-section">
+              <a-popover trigger="hover" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }">
+                <Avatar  :src="userInfo?.avatarUrl" class="avatar-trigger"
+                  @click="openInNewTab(`/space/${userInfo?.id}`)" />
+                <template #content>
+                  <div class="user-info-popover" v-if="userInfo?.id != '-1'">
+                    <div class="user-header">
+                      <Avatar :size="60" class="user-avatar" :src="userInfo?.avatarUrl" />
+                      <div class="user-basic-info">
+                        <div class="user-name-row">
+                          <span class="user-nickname">{{ userInfo?.nickname || userInfo?.username || '-' }}</span>
+                          <icon-man v-if="userInfo?.gender === '男'"
+                            :style="{ color: '#55acee', fontSize: '16px', marginLeft: '2px' }" />
+                          <icon-woman v-else-if="userInfo?.gender === '女'"
+                            :style="{ color: '#e85695', fontSize: '16px', marginLeft: '2px' }" />
+                          <a-tag color="arcoblue" size="small" style="margin-left: 8px;">LV.{{ userInfo?.level
+                            }}</a-tag>
+                        </div>
+                        <div class="user-stats">
+                          <div class="stat-item">
+                            <span class="stat-label">粉丝</span>
+                            <span class="stat-value">{{ userInfo?.followerCount || 0 }}</span>
+                          </div>
+                          <div class="stat-item">
+                            <span class="stat-label">关注</span>
+                            <span class="stat-value">{{ userInfo?.followingCount || 0 }}</span>
+                          </div>
+                          <div class="stat-item">
+                            <span class="stat-label">获赞</span>
+                            <span class="stat-value">{{ userInfo?.likeCount || 0 }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 用户经验条 -->
+                    <div class="user-experience" v-if="userInfo">
+                      <div class="exp-container">
+                        <span class="level-text">LV.{{ userInfo?.level }}</span>
+                        <a-progress :percent="userInfo?.experience / userInfo?.nextLevelTotalExp" :show-text="false"
+                          class="exp-progress" size="small" />
+                        <span class="level-text">LV.{{ userInfo?.level + 1 }}</span>
+                      </div>
+                    </div>
+                    <!-- 用户选项菜单 -->
+                    <div class="user-options">
+                      <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}`)">
+                        <icon-user />
+                        <span>我的空间</span>
+                      </div>
+                      <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
+                        <icon-book />
+                        <span>我的知识库</span>
+                      </div>
+                      <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/docs`)">
+                        <icon-file />
+                        <span>我的文档</span>
+                      </div>
+                      <div class="option-item" @click="openInNewTab(`/space/${userInfo?.id}/cloud`)">
+                        <icon-cloud />
+                        <span>云空间</span>
+                      </div>
+                      <div class="option-item" @click="logout">
+                        <icon-export />
+                        <span>退出登录</span>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="login-prompt" v-else>
+                    <div class="login-message">
+                      <icon-lock class="lock-icon" />
+                      <p class="login-title">请先登录</p>
+                      <p class="login-subtitle">登录后体验更多功能</p>
+                    </div>
+                    <a-button type="primary" size="large" long @click="showLogin" class="login-button">
+                      立即登录
+                    </a-button>
+                    <div class="login-features">
+                      <p class="features-title">登录后可享受：</p>
+                      <ul class="features-list">
+                        <li>个人空间管理</li>
+                        <li>知识库功能</li>
+                        <li>文档云存储</li>
+                        <li>历史记录</li>
+                        <li>个性化设置</li>
+                      </ul>
+                    </div>
+                  </div>
+                </template>
+
+              </a-popover>
+            </div>
+            <!-- 登录后显示的功能入口 -->
+            <div class="user-actions" v-if="userInfo?.id != '-1'">
+              <a-dropdown trigger="hover">
+                <div class="action-item">
+                  <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
+                    <a-badge :count="msgCount" :max-count="99" :offset="['5px', '0px', '0px', '15px']">
+                      <icon-notification :size="20" />
+                    </a-badge>
+                  </a-tooltip>
+                  <span class="action-text">消息</span>
+                </div>
+                <template #content>
+                  <a-doption @click="openInNewTab('/messages/reply')">
+                    <template #icon>
+                      <icon-message />
+                    </template>
+                    <div class="dropdown-option-content">
+                      <span>回复我的</span>
+                      <a-badge :count="userInfo?.msgReplyCount || 0" :max-count="99" />
+                    </div>
+                  </a-doption>
+                  <a-doption @click="openInNewTab('/messages/like')">
+                    <template #icon>
+                      <icon-heart />
+                    </template>
+                    <div class="dropdown-option-content">
+                      <span>收到的赞</span>
+                      <a-badge :count="userInfo?.msgLikeCount || 0" :max-count="99" />
+                    </div>
+                  </a-doption>
+                  <a-doption @click="openInNewTab('/messages/message')">
+                    <template #icon>
+                      <icon-email />
+                    </template>
+                    <div class="dropdown-option-content">
+                      <span>消息</span>
+                      <a-badge :count="userInfo?.msgMessageCount || 0" :max-count="99" />
+                    </div>
+                  </a-doption>
+                  <a-doption @click="openInNewTab('/messages/report')">
+                    <template #icon>
+                      <icon-exclamation-circle />
+                    </template>
+                    <div class="dropdown-option-content">
+                      <span>举报消息</span>
+                      <a-badge :count="userInfo?.msgReportCount || 0" :max-count="99" />
+                    </div>
+                  </a-doption>
+                </template>
+              </a-dropdown>
+
+              <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/favorites`)">
+                <a-tooltip content="收藏" :popup-visible="isSmallScreen ? undefined : false">
+                  <icon-star :size="20" />
                 </a-tooltip>
-                <span class="action-text">消息</span>
+                <span class="action-text">收藏</span>
               </div>
-              <template #content>
-                <a-doption @click="openInNewTab('/messages/reply')">
-                  <template #icon>
-                    <icon-message />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>回复我的</span>
-                    <a-badge :count="userInfo?.msgReplyCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/like')">
-                  <template #icon>
-                    <icon-heart />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>收到的赞</span>
-                    <a-badge :count="userInfo?.msgLikeCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/message')">
-                  <template #icon>
-                    <icon-email />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>消息</span>
-                    <a-badge :count="userInfo?.msgMessageCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-                <a-doption @click="openInNewTab('/messages/report')">
-                  <template #icon>
-                    <icon-exclamation-circle />
-                  </template>
-                  <div class="dropdown-option-content">
-                    <span>举报消息</span>
-                    <a-badge :count="userInfo?.msgReportCount || 0" :max-count="99" />
-                  </div>
-                </a-doption>
-              </template>
-            </a-dropdown>
 
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/favorites`)">
-              <a-tooltip content="收藏" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-star :size="20" />
-              </a-tooltip>
-              <span class="action-text">收藏</span>
+              <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/history`)">
+                <a-tooltip content="历史" :popup-visible="isSmallScreen ? undefined : false">
+                  <icon-history :size="20" />
+                </a-tooltip>
+                <span class="action-text">历史</span>
+              </div>
+
+              <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
+                <a-tooltip content="我的知识库" :popup-visible="isSmallScreen ? undefined : false">
+                  <icon-book :size="20" />
+                </a-tooltip>
+                <span class="action-text">知识库</span>
+              </div>
+
+              <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/docs`)">
+                <a-tooltip content="我的文档" :popup-visible="isSmallScreen ? undefined : false">
+                  <icon-file :size="20" />
+                </a-tooltip>
+                <span class="action-text">文档</span>
+              </div>
             </div>
 
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/history`)">
-              <a-tooltip content="历史" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-history :size="20" />
-              </a-tooltip>
-              <span class="action-text">历史</span>
-            </div>
 
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/knowledge`)">
-              <a-tooltip content="我的知识库" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-book :size="20" />
-              </a-tooltip>
-              <span class="action-text">知识库</span>
-            </div>
-
-            <div class="action-item" @click="openInNewTab(`/space/${userInfo?.id}/docs`)">
-              <a-tooltip content="我的文档" :popup-visible="isSmallScreen ? undefined : false">
-                <icon-file :size="20" />
-              </a-tooltip>
-              <span class="action-text">文档</span>
-            </div>
           </div>
 
-         
         </div>
-
       </div>
-    </div>
     </transition>
   </a-layout-header>
 </template>
@@ -232,12 +234,12 @@ const scrollDelta = 5; // 滚动方向判断的最小差值，避免抖动
 // 将 scrollThreshold 转换为像素值
 const getScrollThresholdInPixels = () => {
   const threshold = props.scrollThreshold;
-  
+
   // 如果是数字，直接返回
   if (typeof threshold === 'number') {
     return threshold;
   }
-  
+
   // 如果是字符串
   if (typeof threshold === 'string') {
     // 处理 vh 单位
@@ -248,7 +250,7 @@ const getScrollThresholdInPixels = () => {
     // 处理 px 单位或纯数字字符串
     return parseFloat(threshold);
   }
-  
+
   // 默认值
   return 400;
 };
@@ -294,8 +296,8 @@ const router = useRouter();
 const route = useRoute();
 // 使用 storeToRefs 创建响应式引用
 const { userInfo } = storeToRefs(userStore);
-const msgCount=computed(()=>{
-  return userInfo.value?.msgReplyCount || 0+userInfo.value?.msgLikeCount || 0+userInfo.value?.msgMessageCount || 0+userInfo.value?.msgReportCount || 0
+const msgCount = computed(() => {
+  return userInfo.value?.msgReplyCount || 0 + userInfo.value?.msgLikeCount || 0 + userInfo.value?.msgMessageCount || 0 + userInfo.value?.msgReportCount || 0
 })
 // 响应式屏幕尺寸检测
 const isSmallScreen = ref(window.innerWidth < 768);
@@ -309,7 +311,7 @@ const handleScroll = () => {
   const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const threshold = getScrollThresholdInPixels();
   const scrollDiff = currentScrollTop - lastScrollTop;
-  
+
   // 滚动位置低于阈值时，使用原来的定位，始终显示
   if (currentScrollTop <= threshold) {
     isHeaderFixed.value = false;
@@ -317,7 +319,7 @@ const handleScroll = () => {
   } else {
     // 滚动位置超过阈值时，切换为 fixed 定位
     isHeaderFixed.value = true;
-    
+
     // 根据滚动方向控制显示/隐藏
     if (scrollDiff > scrollDelta) {
       // 向下滚动 - 隐藏 header
@@ -328,7 +330,7 @@ const handleScroll = () => {
     }
     // 如果滚动差值在 [-scrollDelta, scrollDelta] 之间，保持当前状态不变
   }
-  
+
   lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
 };
 
@@ -384,8 +386,7 @@ onMounted(async () => {
 }
 
 @header-height: 64px;
-@logo-height: 40px;
-@avatar-size: 40px;
+
 
 .header-container {
   background-color: @color-bg-1;
@@ -504,6 +505,7 @@ onMounted(async () => {
 
     // 在宽度小于900px时隐藏知识库和文档
     @media (max-width: 899px) and (min-width: 769px) {
+
       .action-item:nth-child(4),
       .action-item:nth-child(5) {
         display: none;
@@ -527,6 +529,8 @@ onMounted(async () => {
 
   .avatar-section {
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
 
     .avatar-trigger {
       cursor: pointer;
@@ -554,7 +558,7 @@ onMounted(async () => {
 
       .action-item {
         padding: 6px;
-        
+
         .action-text {
           display: none;
         }
@@ -584,7 +588,7 @@ onMounted(async () => {
 
       .action-item {
         padding: 4px;
-        
+
         .action-text {
           display: none;
         }
@@ -616,19 +620,12 @@ onMounted(async () => {
         }
       }
     }
-
-    .avatar-section {
-      :deep(.avatar-trigger) {
-        width: 32px !important;
-        height: 32px !important;
-      }
-    }
   }
 }
 
 // 下拉菜单选项样式
 .dropdown-option-content {
-  margin:5px;
+  margin: 5px;
 }
 
 .user-info-popover {
@@ -754,6 +751,7 @@ onMounted(async () => {
 
   // 在宽度小于1240px时隐藏博客和知识库
   @media (max-width: 1239px) and (min-width: 769px) {
+
     &:nth-child(2),
     &:nth-child(3) {
       display: none;
