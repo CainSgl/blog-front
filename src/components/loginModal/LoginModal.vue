@@ -5,7 +5,7 @@
     :body-style="{ padding: 0, margin: 0, overflow: 'hidden' }">
     <div class="login-modal" v-if="authStore.showLoginModal">
       <!-- 渐变背景组件 - 仅在模态框显示时渲染 -->
-      <GradientBackground v-if="authStore.showLoginModal" />
+      <GradientBackground v-if="authStore.showLoginModal" :has-border-radius="!isMobile" />
 
       <!-- 关闭按钮 - 移动到右上角 -->
       <div v-if="authStore.allowClose" class="close-button">
@@ -30,6 +30,12 @@
               <CodeLogin :is-loading="authStore.isLoading" @login-success="handleLoginSuccess" />
             </a-tab-pane>
           </a-tabs>
+          <a-link>
+            用户协议
+          </a-link>
+          <a-link :href="registerUrl">
+            立即注册
+          </a-link>
           <div>
             <ThirdPartyLogin></ThirdPartyLogin>
           </div>
@@ -40,20 +46,45 @@
 </template>
 
 <script setup>
-import { ref, defineAsyncComponent } from 'vue';
+import { ref, computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { IconClose } from '@arco-design/web-vue/es/icon';
 // 懒加载 GradientBackground，延迟加载 three.js
-const GradientBackground = defineAsyncComponent(() => 
+const GradientBackground = defineAsyncComponent(() =>
   import('./children/GradientBackground.vue')
 );
 import PasswordLogin from './children/PasswordLogin.vue';
 import CodeLogin from './children/CodeLogin.vue';
 import ThirdPartyLogin from './children/ThirdPartyLogin.vue';
+
+const router = useRouter();
 const authStore = useAuthStore();
 
 // 标签页控制
 const activeTab = ref('password');
+
+// 检测是否为移动端
+const isMobile = ref(window.innerWidth <= 768);
+
+// 监听窗口大小变化
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+
+// 生成注册链接，带上当前页面URL作为returnUrl
+const registerUrl = computed(() => {
+  const currentUrl = encodeURIComponent(window.location.href);
+  return `/register?returnUrl=${currentUrl}`;
+});
 
 // 处理登录成功
 const handleLoginSuccess = () => {
@@ -61,6 +92,8 @@ const handleLoginSuccess = () => {
   console.log('登录成功');
   window.location.reload();
 };
+
+
 </script>
 
 <style scoped lang="less">
@@ -107,10 +140,10 @@ const handleLoginSuccess = () => {
 }
 
 .login-title {
-  
   font-weight: @font-weight-600;
   color: @color-text-1;
   margin-bottom: 24px;
+  font-size: 24px;
   text-align: center;
 }
 

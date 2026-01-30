@@ -27,7 +27,6 @@
                         v-if="showMoreInfo">创建于：{{
                           formatDate(post?.createdAt)
                         }}</span></span>
-
                     <span class="post-stats">
                       <span class="stat-item">
                         <icon-eye /> {{ post?.viewCount || 0 }} 浏览
@@ -64,7 +63,7 @@
         </div>
         <div class="comment-section" :style="{ marginLeft: showMoreInfo ? '10vw' : '0px' }">
           <a-divider dashed ref="commentDividerRef" />
-          <CommentList  :version="version" :postId="post?.id" :postCount="post?.commentCount" />
+          <CommentList :version="version" :postId="post?.id" :postCount="post?.commentCount" />
         </div>
       </div>
 
@@ -310,14 +309,14 @@ const handleReport = () => {
 };
 
 
-const { targetDataId, parCommentId,targetParVersion,targetReplyId,postCommentId } = storeToRefs(commentStore);
+const { targetDataId, parCommentId, targetParVersion, targetReplyId, postCommentId } = storeToRefs(commentStore);
 async function processParCommentId(parCommentId2) {
   try {
     const { data } = await api.get('/comment/locate', { id: parCommentId2 });
     console.log("需要定位到段评", parCommentId2, "返回数据:", data);
     if (data && data.version) {
       targetVersion.value = data.version;
-      targetParVersion.value=data.version
+      targetParVersion.value = data.version
     }
     if (data && data.dataId) {
       // 直接赋值给 store 的属性
@@ -331,7 +330,7 @@ async function processParCommentId(parCommentId2) {
 }
 
 async function processPostCommentId(p) {
-  postCommentId.value=p
+  postCommentId.value = p
 }
 
 // 组件挂载时的逻辑
@@ -342,14 +341,13 @@ onMounted(() => {
   // 获取 URL 参数
   const parCommentId = route.query.par;
   const postCommentId = route.query.comment;
-  const replyId=route.query.reply
+  const replyId = route.query.reply
   // 处理参数（如果需要的话）
   if (parCommentId) {
     processParCommentId(parCommentId)
   }
-  if(replyId)
-  {
-    targetReplyId.value=replyId
+  if (replyId) {
+    targetReplyId.value = replyId
   }
   if (postCommentId) {
     processPostCommentId(postCommentId)

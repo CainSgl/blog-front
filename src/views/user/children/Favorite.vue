@@ -120,11 +120,18 @@ const handleCreateFavorite = (type) => {
 };
 
 const handleCreateSuccess = (data) => {
+    console.log('创建成功，返回数据:', data);
+    console.log('当前类型:', currentType.value);
+    console.log('当前 groupData:', groupData.value);
+    
     if (groupData.value[currentType.value]) {
         groupData.value[currentType.value].push(data);
     } else {
         groupData.value[currentType.value] = [data];
     }
+    
+    // 强制触发响应式更新
+    groupData.value = { ...groupData.value };
 };
 
 const handleDeleteFavorite = (id) => {

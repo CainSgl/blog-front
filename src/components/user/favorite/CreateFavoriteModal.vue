@@ -89,7 +89,7 @@ const handleConfirm = async () => {
             description: form.value.description.trim(),
             publish: form.value.publish
         });
-        
+        console.log(data)
         visible.value = false;
         Message.success({ id: loadingId, content: '创建成功' });
         emit('success', data);

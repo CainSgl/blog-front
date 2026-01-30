@@ -1,4 +1,6 @@
 <template>
+  <Header></Header>
+  <div class="header-container"></div>
   <div class="knowledge-base" @mousemove="handleMouseMove">
     <div v-if="!hasError" class="sidebar" :class="{ collapsed: isCollapsed }">
       <div v-show="!isCollapsed">
@@ -18,23 +20,25 @@
               </span>
             </div>
           </div>
-          <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId" :height="treeMenuHeight"  />
-          
+          <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId"
+            :height="treeMenuHeight" />
+
         </div>
       </div>
-
-      <div class="collapse-button" v-show="showCollapseButton" @click="toggleCollapse">
-        <IconDoubleRight v-if="isCollapsed" class="collapse-icon" size="large"></IconDoubleRight>
-        <IconDoubleLeft v-else class="collapse-icon" size="large"> </IconDoubleLeft>
+      <div class="collapse-button" v-show="!isCollapsed && showCollapseButton" @click="toggleCollapse">
+        <IconDoubleLeft class="collapse-icon" size="large"> </IconDoubleLeft>
       </div>
+
     </div>
 
 
 
     <div class="content">
       <router-view />
+      <div class="collapse-button-fixed" v-if="isCollapsed" v-show="isCollapsed && showCollapseButton" @click="toggleCollapse">
+        <IconDoubleRight class="collapse-icon" size="large"></IconDoubleRight>
+      </div>
     </div>
-
     <!-- 收藏弹窗 -->
     <AddToFavoriteModal v-model="showFavoriteModal" :targetId="kbId" :isIn="kbStore.hasStar" type="知识库"
       @success="handleFavoriteSuccess" />
@@ -52,6 +56,7 @@ import { useKbStore } from './kbStore.js';
 import { useUserStore } from '@/store/user';
 import { messageManager } from '@/api/request.js';
 import { Message, Modal } from '@arco-design/web-vue';
+import Header from '@/components/layout/Header.vue';
 import api from '@/api/index';
 const hasError = ref(false);
 
@@ -65,7 +70,6 @@ const kbInfo = ref({
 });
 const edit = ref(false);
 const kbStore = useKbStore();
-
 // 收藏相关状态
 const showFavoriteModal = ref(false);
 
@@ -74,41 +78,34 @@ const showCollapseButton = ref(window.innerWidth >= 800);  // 默认根据屏幕
 const hideTimer = ref(null);
 
 // 检查屏幕宽度的函数
-function checkScreenSize() 
-{
+function checkScreenSize() {
   return window.innerWidth >= 800;
 }
 
 // 收藏功能
-const handleFavorite = async () => 
-{
-  if (!kbStore.hasStar) 
-  {
+const handleFavorite = async () => {
+  if (!kbStore.hasStar) {
     showFavoriteModal.value = true;
   }
-  else 
-  {
+  else {
     // 显示确认弹窗
     Modal.confirm({
       title: '取消收藏',
       content: '确定要取消收藏这个知识库吗？',
       okText: '确定',
       cancelText: '取消',
-      onBeforeOk: async (done) => 
-      {
-        try 
-        {
+      onBeforeOk: async (done) => {
+        try {
           const id = 'unStar' + kbId.value;
           await Promise.all([
-            api.get('/post/op/star', { id: kbId.value, type:"收藏知识库",add: false }),
+            api.get('/post/op/star', { id: kbId.value, type: "收藏知识库", add: false }),
             api.delete('/user/collect', { id: kbId.value, type: '知识库' })
           ]);
           Message.success({ id: id, content: '已取消收藏' });
           kbStore.hasStar = false;
           done(true);
         }
-        catch (error) 
-        {
+        catch (error) {
           console.error('取消收藏失败:', error);
           Message.error('取消收藏失败，请重试');
           done(false);
@@ -119,46 +116,36 @@ const handleFavorite = async () =>
 };
 
 // 收藏成功回调
-const handleFavoriteSuccess = () => 
-{
+const handleFavoriteSuccess = () => {
   kbStore.hasStar = true;
 };
-onMounted(async () => 
-{
+onMounted(async () => {
   const kbParam = route.query.kb;
-  if (kbParam) 
-  {
-    try 
-    {
+  if (kbParam) {
+    try {
       const kbData = await kbStore.getKbInfo(kbParam);
       //如果是无权限操作，说明
-      if (kbData) 
-      {
+      if (kbData) {
         kbId.value = kbData.id;
         kbInfo.value = kbData;
         const userInfo = await useUserStore().getUserInfo();
-        if (kbData.userId == userInfo.id) 
-        {
+        if (kbData.userId == userInfo.id) {
           edit.value = true;
         }
         // 如果当前路由是KB父路由（没有子路由匹配），则跳转到KBIndex
-        if (route.name === 'KB') 
-        {
+        if (route.name === 'KB') {
           router.push({ name: 'KBIndex', query: { kb: kbId.value } });
         }
       }
-      else 
-      {
+      else {
         // 获取知识库信息失败，重定向到404页面
         router.push({ name: 'NoKb' });
         noKb.value = true;
       }
     }
-    catch (error) 
-    {
+    catch (error) {
       hasError.value = true;
-      if (messageManager.hasMessage('由于私密性设置无法访问该知识库')) 
-      {
+      if (messageManager.hasMessage('由于私密性设置无法访问该知识库')) {
         router.push({ name: 'NoPermission', query: { kb: kbParam, require: 'kb' } });
         Message.warning({
           id: '由于私密性设置无法访问该知识库',
@@ -167,13 +154,10 @@ onMounted(async () =>
         });
         return;
       }
-      if (error.data.code == '40000' && error.data.msg) 
-      {
-        if (messageManager.hasMessage(error.data.msg)) 
-        {
+      if (error.data.code == '40000' && error.data.msg) {
+        if (messageManager.hasMessage(error.data.msg)) {
           let returnUrl = route.query.returnUrl;
-          if (!returnUrl) 
-          {
+          if (!returnUrl) {
             // 构造当前URL作为returnUrl参数
             const currentUrl = window.location.href;
             returnUrl = encodeURIComponent(currentUrl);
@@ -198,16 +182,14 @@ onMounted(async () =>
 
     }
   }
-  else 
-  {
+  else {
     console.log('没有');
     //重定向到404页面
     router.push({ name: 'NotFound' });
   }
 
   // 初始化时检查屏幕尺寸
-  if (!checkScreenSize()) 
-  {
+  if (!checkScreenSize()) {
     showCollapseButton.value = false;
   }
 
@@ -216,15 +198,12 @@ onMounted(async () =>
 });
 
 // 窗口大小变化处理函数
-function handleResize() 
-{
-  if (!checkScreenSize()) 
-  {
+function handleResize() {
+  if (!checkScreenSize()) {
     showCollapseButton.value = false;
     isCollapsed.value = true;  // 在小屏幕上默认折叠侧边栏
   }
-  else 
-  {
+  else {
     // 在大屏幕上恢复显示按钮
     showCollapseButton.value = true;
   }
@@ -233,38 +212,29 @@ function handleResize()
 const kbId = ref('-1');
 const treeMenuHeight = ref('calc(100vh - 220px)'); // 默认高度计算
 
-function handleClickPost(node) 
-{
+function handleClickPost(node) {
   const pageName = route.name;
   //是的话跳转到查看页面，否则不改变页面
   console.log(pageName);
-  if (pageName === 'KBEdit') 
-  {
+  if (pageName === 'KBEdit') {
     router.push({ name: pageName, query: { kb: kbId.value, p: node.postId } });
   }
-  else 
-  {
+  else {
     router.push({ name: 'KBView', query: { kb: kbId.value, p: node.postId } });
   }
 }
 const treeData = computed(() => kbStore.treeData);
 
-function goToHome() 
-{
+function goToHome() {
   router.push({ name: 'KBIndex', query: { kb: kbId.value } });
 }
 
-function toggleCollapse() 
-{
+function toggleCollapse() {
   isCollapsed.value = !isCollapsed.value;
 }
 
-// collapse-button 精细控制方法
-function handleMouseMove(event) 
-{
-  // 如果屏幕宽度小于800px，不显示收起按钮
-  if (!checkScreenSize()) 
-  {
+function handleMouseMove(event) {
+  if (!checkScreenSize()) {
     showCollapseButton.value = false;
     return;
   }
@@ -273,39 +243,32 @@ function handleMouseMove(event)
   const mouseX = event.clientX;
   const threshold = isCollapsed.value ? screenWidth * 0.1 : screenWidth * 0.2 + 80;
 
-  if (mouseX <= threshold) 
-  {
+  if (mouseX <= threshold) {
     showCollapseButton.value = true;
     handleMouseLeave();
   }
-  else 
-  {
+  else {
     clearHideTimer();
     showCollapseButton.value = false;
   }
 }
 
-function handleMouseLeave() 
-{
+function handleMouseLeave() {
   clearHideTimer();
-  hideTimer.value = setTimeout(() => 
-  {
+  hideTimer.value = setTimeout(() => {
     showCollapseButton.value = false;
   }, 500);
 }
 
-function clearHideTimer() 
-{
-  if (hideTimer.value) 
-  {
+function clearHideTimer() {
+  if (hideTimer.value) {
     clearTimeout(hideTimer.value);
     hideTimer.value = null;
   }
 }
 
 // 组件卸载时清理定时器
-onUnmounted(() => 
-{
+onUnmounted(() => {
   clearHideTimer();
   // 移除窗口大小变化监听器
   window.removeEventListener('resize', handleResize);
@@ -455,6 +418,48 @@ onUnmounted(() =>
   align-self: center;
 }
 
+.collapse-button-fixed {
+  position: fixed;
+  top: 25%;
+  left: 0px;
+
+  user-select: none;
+  top: 25%;
+  right: -16px;
+  transform: translateY(-25%);
+  width: 14px;
+  height: 60px;
+  background: #ffffff;
+  border: 1px solid #e5e6eb;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #f7f7f7;
+  }
+
+  .collapse-icon {
+    color: #666;
+    font-size: 16px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #333;
+    }
+  }
+
+  // 在触摸设备上始终显示（没有 hover 能力的设备）
+  @media (hover: none) {
+    display: flex !important;
+  }
+}
+
 .collapse-button {
   user-select: none;
   position: absolute;
@@ -471,7 +476,6 @@ onUnmounted(() =>
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1;
   transition: all 0.3s ease;
 
   &:hover {
@@ -480,16 +484,22 @@ onUnmounted(() =>
 
   .collapse-icon {
     color: #666;
-    transition: transform 0.3s ease;
-
+    font-size: 16px;
+    transition: all 0.3s ease;
 
     &:hover {
       color: #333;
     }
   }
+
+  // 在触摸设备上始终显示（没有 hover 能力的设备）
+  @media (hover: none) {
+    display: flex !important;
+  }
 }
 
 .sidebar.collapsed .collapse-button {
-  right: -17px;
+  right: -24px;
+  border-radius: 0 12px 12px 0;
 }
 </style>

@@ -3,7 +3,7 @@
     :alt="post.summary ? post.summary : post.title">
 
     <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick"
-      v-if="post.id">
+      v-if="post.id||post.title">
       <!-- 图片和内容容器，用于响应式布局 -->
       <div class="post-content-wrapper"
         :class="{ 'horizontal-layout': props.width > 400, 'vertical-layout': props.width <= 400, 'no-image': !post.img }">

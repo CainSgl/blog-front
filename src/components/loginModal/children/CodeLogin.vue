@@ -1,5 +1,6 @@
 <template>
   <a-form :model="codeLoginForm" @submit="handleCodeLogin">
+    抱歉，该功能目前还未实现！
     <a-form-item field="phone" label="手机号">
       <a-input
         v-model="codeLoginForm.phone"

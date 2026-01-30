@@ -25,9 +25,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { IconNotification } from '@arco-design/web-vue/es/icon';
 import api from '@/api/index'
-
+import { IconHeart } from '@arco-design/web-vue/es/icon';
+import MessageItem from '@/components/user/base/MessageItem.vue';
 const loading = ref(false);
 const messages = ref([]);
 const after = ref(null);
@@ -36,16 +36,13 @@ const hasMore = ref(true);
 const loadMoreTrigger = ref(null);
 let observer = null;
 
-const formatTime = (time) => {
-  return time;
-};
 
 const loadMessages = async () => {
   if (loading.value || !hasMore.value) return;
 
   loading.value = true;
   try {
-    const { data } = await api.get('/user/notice', { type: "消息", size: size.value, after: after.value })
+    const { data } = await api.get('/user/notice', { type: ["消息"], size: size.value, after: after.value })
     console.log("data", data)
     const newMessages = data.records;
     messages.value.push(...newMessages);

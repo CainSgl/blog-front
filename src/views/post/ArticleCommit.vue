@@ -549,11 +549,8 @@ onMounted(() =>
       Message.warning('未找到文章内容，请返回编辑页面');
       return;
     }
-    // 如果 commitData 中没有状态，则设置默认状态为"已发布"
-    if (!commitData.status) 
-    {
-      commitData.status = '已发布';
-    }
+    // 如果 commitData 中没有状态，则设置默认状态为"已发布
+    commitData.status = '已发布';
     articleForm.value = commitData;
   }
   catch (error) 

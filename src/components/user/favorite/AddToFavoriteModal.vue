@@ -99,8 +99,8 @@ const showCreateModal = () => {
 };
 
 // 创建成功回调
-const handleCreateSuccess = async () => {
-    await loadFavoriteList();
+const handleCreateSuccess = async (data) => {
+    favoriteList.value = { ...favoriteList.value,data };
 };
 
 const handleClose = () => {

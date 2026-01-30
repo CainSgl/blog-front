@@ -27,7 +27,7 @@
             <!-- 预览 -->
             <div class="preview-section">
               <h3>预览</h3>
-              <div class="kb-card-preview">
+              <div class="kb-card-preview" style="width: 180px;">
                 <KbCard :kbInfo="kbInfo" />
               </div>
             </div>

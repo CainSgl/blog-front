@@ -61,7 +61,7 @@
         </div>
       </template>
       <template #empty>
-        <a-empty style="padding: 40px 0;" description="暂无知识库" />
+        <a-empty style="padding: 40px 0;" v-if="!isCurrentUser" description="该用户未上传任何知识库" />
       </template>
     </ContentArea>
     <div class="pagination-wrapper" v-if="knowledgeBases.length > 0">

@@ -1,7 +1,7 @@
 <template>
     <a-link :hoverable="false" :href="kbInfo.id&&useLink?`/kb?kb=${kbInfo.id}`:undefined" class="kb-card" target="_ablank">
         <a-card class="kb-card-container" :bordered="false" :body-style="{ padding: 0 }" 
-            v-if="kbInfo.id">
+            v-if="kbInfo.name||kbInfo.id">
             <!-- 封面图片 -->
             <div class="kb-cover">
                 <c-img v-if="kbInfo.coverUrl" :src="kbInfo.coverUrl" :alt="kbInfo.name" width="180px" height="180px"

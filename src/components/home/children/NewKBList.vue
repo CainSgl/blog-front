@@ -41,4 +41,8 @@ const loadKbs = async (pageSize) =>
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.container{
+  padding-left: 20px;
+}
+</style>

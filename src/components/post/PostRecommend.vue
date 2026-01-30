@@ -5,11 +5,11 @@
       <div v-for="(post, index) in recommendList">
         <a-link :href="`/p/${post.id}`" :hoverable="false">
           <div style="width: 100%;;height: 17vw;max-height: 300px; min-height: 200px;" v-if="index <= 6">
-            <PostCardWrapper :key="post.id" :post="post" :height="'100%'"   :width="'100%'"/>
+            <PostCardWrapper :only-fans="true" :key="post.id" :post="post" :height="'100%'"   :width="'100%'"/>
           </div>
           <a-affix :offset-top="80 + (index- 7)*300"  v-else>
             <div style="width: 100%;height: 17vw;max-height: 300px; min-height: 200px;">
-              <PostCardWrapper :key="post.id" :post="post" :height="'100%'" :width="'100%'" />
+              <PostCardWrapper  :only-fans="true" :key="post.id" :post="post" :height="'100%'" :width="'100%'" />
             </div>
           </a-affix>
         </a-link>

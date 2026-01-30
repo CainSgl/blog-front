@@ -4,8 +4,7 @@
     <div class="messages-list" v-if="messages.length > 0">
       <MessageItem v-for="message in messages" :key="message.id" :message="message" @click="handleMessageClick">
         <template #action>
-          <icon-heart :style="{ color: '#f53f3f', marginRight: '4px' }" />
-          点赞了你的文章
+         
         </template>
       </MessageItem>
 
@@ -27,7 +26,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { IconExclamationCircle } from '@arco-design/web-vue/es/icon';
 import api from '@/api/index'
-
+import MessageItem from '@/components/user/base/MessageItem.vue';
 const loading = ref(false);
 const messages = ref([]);
 const after = ref(null);
@@ -45,7 +44,7 @@ const loadMessages = async () => {
 
   loading.value = true;
   try {
-    const { data } = await api.get('/user/notice', { type: "举报", size: size.value, after: after.value })
+    const { data } = await api.get('/user/notice', { type: ["举报"], size: size.value, after: after.value })
     const newMessages = data.records;
     messages.value.push(...newMessages);
     hasMore.value = data.hasMore;

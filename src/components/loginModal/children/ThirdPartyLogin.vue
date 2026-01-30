@@ -42,8 +42,7 @@ const handleBilibiliClick = () => {
   .divider {
     position: relative;
     text-align: center;
-    margin: 20px 0 30px;
-    
+    margin-bottom: 16px;
     &::before,
     &::after {
       content: '';

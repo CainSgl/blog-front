@@ -1,7 +1,7 @@
 <template>
-  <div class="character-flow-background">
+  <div class="character-flow-background" :class="{ 'has-border-radius': hasBorderRadius }">
     <canvas ref="canvas" class="flow-canvas"></canvas>
-    <div class="welcome-overlay">
+    <div v-if="showText" class="welcome-overlay">
       <FloatingText text="欢迎来到Cainsgl的博客" class="welcome-title" />
       <FloatingText text="登录享受更多的服务" class="welcome-subtitle" />
     </div>
@@ -12,6 +12,17 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import * as THREE from 'three';
 import FloatingText from './FloatingText.vue';
+
+const props = defineProps({
+  showText: {
+    type: Boolean,
+    default: true
+  },
+  hasBorderRadius: {
+    type: Boolean,
+    default: true
+  }
+});
 
 const canvas = ref(null);
 
@@ -489,7 +500,6 @@ function resetCharacterAndCreateParticles(char)
 function handleKeyDown(event) 
 {
   // 获取按下的键值并转换为大写
-
   const keyPressed = event.key.toUpperCase();
   
   // 检查是否为字母键或数字键
@@ -584,6 +594,9 @@ onUnmounted(() =>
   height: 100%;
   background: linear-gradient(135deg, #ff6b9d 0%, #ff8e53 50%, #ff6b9d 100%);
   overflow: hidden;
+}
+
+.character-flow-background.has-border-radius {
   /* 添加向内边框效果，创造凸起的视觉层次 */
   box-shadow: inset 0 0 0 10px rgba(255, 255, 255, 0.3),
               inset 0 0 20px rgba(0, 0, 0, 0.1);

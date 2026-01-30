@@ -94,7 +94,7 @@ const loadMessages = async () => {
 
   loading.value = true;
   try {
-    const { data } = await api.get('/user/notice', { type: "回复", size: size.value, after: after.value });
+    const { data } = await api.get('/user/notice', { type: ["回复"], size: size.value, after: after.value });
     const newMessages = data.records;
 
     // 先把消息加入列表，立即显示

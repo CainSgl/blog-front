@@ -2,10 +2,17 @@
   <a-spin :loading="loading" tip="正在加载文章内容..." style="display: block;">
     <div>
       <div style="padding:10px 0px;">
-        <KBCardHeader :post-info="postInfo" :kb-id="kbId" :tree-data="treeData" :kb-info="kbInfo" :on-back="goBack" />
+        <KBCardHeader :post-info="postInfo" :kb-id="kbId" :tree-data="treeData" :kb-info="kbInfo" :on-back="goBack" :show-go-post="true" />
       </div>
-      <div style="height: 100%;padding-left:16px;margin-right: 10px;" :style="{'height': previewHeight}">
-        <MarkdownPreviewWrapper :content="textContent" :useWindowScroll="true" />
+      <div style="height: 100%;padding-left:16px;margin-right: 10px;position: relative;" :style="{'height': previewHeight}">
+        <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="textContent" :useWindowScroll="true" />
+        <!-- <div v-show="notBestReading" class="full-screen-tip">
+          <a-tooltip content="点我可滑动到底部获取最佳阅读体验哦">
+            <a-button type="primary" shape="circle" @click="handleFullScreenClick">
+              <icon-fullscreen />
+            </a-button>
+          </a-tooltip>
+        </div> -->
       </div>
     </div>
   </a-spin>
@@ -15,6 +22,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
+import { IconFullscreen } from '@arco-design/web-vue/es/icon';
 
 import KBCardHeader from '@/components/kb/KBCardHeader.vue';
 import api from '@/api/index.js';
@@ -30,6 +38,8 @@ const kbStore = useKbStore();
 const textContent = ref('');
 const previewHeight = ref('calc(100vh - 124px)');
 const loading = ref(false); // 控制文章加载时的旋转动画
+const notBestReading = ref(false); // 是否不在最佳阅读位置
+const lastScrollTop = ref(0); // 上次滚动位置
 
 // 从store中获取treeData
 const treeData = computed(() => kbStore.treeData);
@@ -88,7 +98,67 @@ const loadPostContent = async (postId) =>
     loading.value = false;
   }
 };
+// 获取最佳阅读位置（页面底部）
+const getBestReadingTop = () => {
+  // 返回文档的最大滚动高度
+  return document.documentElement.scrollHeight - window.innerHeight;
+};
 
+// 点击按钮滚动到底部
+const handleFullScreenClick = () => {
+  notBestReading.value = false;
+  window.scrollTo({
+    top: getBestReadingTop(),
+    behavior: 'smooth'
+  });
+};
+
+// 节流函数
+const throttle = (func, delay) => {
+  let timer = null;
+  return function (...args) {
+    if (!timer) {
+      timer = setTimeout(() => {
+        func.apply(this, args);
+        timer = null;
+      }, delay);
+    }
+  };
+};
+
+// 处理内容滚动事件
+const handleContentScroll = throttle((event) => {
+  if (loading.value) {
+    return;
+  }
+
+  const currentBestReadingTop = getBestReadingTop();
+  // 判断是否在底部（允许5px的误差）
+  if (window.scrollY >= currentBestReadingTop - 5) {
+    notBestReading.value = false;
+  }
+  else {
+    notBestReading.value = true;
+  }
+  
+  const contentElement = event.target;
+  const scrollTop = contentElement.scrollTop;
+  
+  // 判断滚动方向
+  const isScrollingDown = scrollTop > lastScrollTop.value;
+  
+  // 如果是向下滚动且还没到最佳阅读位置
+  if (isScrollingDown) {
+    if (window.scrollY < currentBestReadingTop - 5) {
+      window.scrollTo({
+        top: currentBestReadingTop,
+        behavior: 'smooth'
+      });
+    }
+  }
+  
+  lastScrollTop.value = scrollTop;
+}, 50);
 // 监听路由参数变化
 watch(
   () => route.query.p,
@@ -119,3 +189,12 @@ onMounted(() =>
   }
 });
 </script>
+
+<style lang="less" scoped>
+.full-screen-tip {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+}
+</style>

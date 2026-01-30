@@ -213,6 +213,11 @@ const routes = [
     ],
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/auth/Register.vue'),
+  },
+  {
     path: '/redirect',
     name: 'Redirect',
     component: () => import('@/views/misc/RedirectPage.vue'),
