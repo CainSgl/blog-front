@@ -425,7 +425,7 @@ const onLikeChange = async () => {
     console.log(`点赞状态已更新: ${props.commentData.id}, 点赞: ${like.value}`);
     let url;
     if (props.postComment) {
-      url = "/post/comment/like"
+      url = "/comment/post/like"
     } else {
       url = "/comment/like"
     }

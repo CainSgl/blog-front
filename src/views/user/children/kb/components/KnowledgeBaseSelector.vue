@@ -103,7 +103,7 @@ const loadKnowledgeBases = async (page = 1) => {
       params.keyword = searchKeyword.value.trim();
     }
 
-    const { data } = await api.post('/kb/list', params);
+    const { data } = await api.post('/post/kb/list', params);
 
     knowledgeBases.value = data.records;
     if (data.total) {

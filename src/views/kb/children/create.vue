@@ -197,7 +197,7 @@ const createKb = async () =>
     });
 
     // 创建知识库
-    const { data } = await api.post('/kb', requestData);
+    const { data } = await api.post('/post/kb', requestData);
 
     Message.success({
       id: 'create-kb',

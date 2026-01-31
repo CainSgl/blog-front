@@ -32,7 +32,7 @@ export const useCommentStore = defineStore('comment', () =>
     }
     postId.value = postIdCache;
     version.value = versionCache;
-    const { data } = await api.get('/paragraph/comment', {
+    const { data } = await api.get('/comment/paragraph/comment', {
       id: postId.value,
       version: version.value,
     });

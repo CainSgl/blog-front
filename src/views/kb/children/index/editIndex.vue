@@ -140,7 +140,7 @@ const loadCurrentContent = async () =>
   loading.value = true;
   try 
   {
-    const { data } = await api.get('/kb/index', { id: kbId });
+    const { data } = await api.get('/post/kb/index', { id: kbId });
     content.value = data.index || '';
     originalContent.value = data.index || ''; // 保存原始内容用于比较
   }
@@ -215,7 +215,7 @@ const saveContent = async () =>
       duration: 15000
     });
     // 保存知识库信息（标题、封面、状态等，以及可能的内容）
-    await api.put('/kb', requestData);
+    await api.put('/post/kb', requestData);
     Message.success({
       id: 'save-index',
       content: '保存成功',

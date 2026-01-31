@@ -151,7 +151,7 @@ const loadKbIndexContent = async () =>
     loading.value = true;
     try 
     {
-      const { data } = await api.get('/kb/index', { id: kbIdreq });
+      const { data } = await api.get('/post/kb/index', { id: kbIdreq });
       content.value = data.index || '';
     }
     catch (error) 
@@ -249,7 +249,7 @@ const confirmRename = async () =>
       duration: 15000
     });
     // 调用API更新知识库名称
-    await api.put('/kb', {
+    await api.put('/post/kb', {
       id: kbInfo.value.id,
       name: newName.value
     });

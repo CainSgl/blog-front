@@ -80,7 +80,7 @@ export const useKbStore = defineStore('kb', () => {
     }
 
     // 否则创建一个新的请求 Promise
-    kbInfoPromise = api.get('/kb', { id: kbIdToUse })
+    kbInfoPromise = api.get('/post/kb', { id: kbIdToUse })
       .then(response => {
         // 更新 store 中的信息
         if (response.data && response.data.first) {

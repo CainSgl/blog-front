@@ -57,7 +57,7 @@ export const useFollowStore = defineStore('follow', () =>
   {
     try 
     {
-      const {data} = await api.get('/follow', { id: userId });
+      const {data} = await api.get('/user/follow', { id: userId });
       return data;
     }
     catch (err) 
@@ -84,12 +84,12 @@ export const useFollowStore = defineStore('follow', () =>
       if (newStatus) 
       {
         // 关注
-        const {data} =  await api.post('/follow', { id: userId });
+        const {data} =  await api.post('/user/follow', { id: userId });
       }
       else 
       {
         // 取消关注
-        const {data} =  await api.delete('/follow', { id: userId });
+        const {data} =  await api.delete('/user/follow', { id: userId });
       }
 
       // 成功后更新缓存
@@ -118,7 +118,7 @@ export const useFollowStore = defineStore('follow', () =>
 
     try 
     {
-      const {data} =   await api.post('/follow', { id: userId });
+      const {data} =   await api.post('/user/follow', { id: userId });
       followStatusMap.value.set(userId, true);
       return true;
     }
@@ -144,7 +144,7 @@ export const useFollowStore = defineStore('follow', () =>
 
     try 
     {
-      const {data} = await api.delete('/follow', { id: userId });
+      const {data} = await api.delete('/user/follow', { id: userId });
        
       followStatusMap.value.set(userId, false);
       return true;

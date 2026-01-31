@@ -80,7 +80,7 @@ const fetchCommentData = async (loadMore = false) => {
       params.lastLikeCount = lastLikeCount;
       params.lastId = lastId;
     }
-    const { data } = await api.get('/post/comment', params);
+    const { data } = await api.get('/comment/post', params);
     if (data && data.length > 0) {
       if (loadMore) {
         commentList.value = [...commentList.value, ...data];
@@ -122,7 +122,7 @@ const handleSubmitComment = async (content) => {
   const msgid = 'comment:' + content
   try {
     Message.loading({ id: msgid, content: '发布评论中...' });
-    const { data } = await api.post('/post/comment', {
+    const { data } = await api.post('/comment/post', {
       postId: props.postId,
       version: props.version,
       content: content

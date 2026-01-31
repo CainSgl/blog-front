@@ -213,7 +213,7 @@ async function handleClickReply(message) {
       window.open(route, '_blank')
     } else {
       //跳转到对应的文章
-      const { data } = await api.get('/post/comment/locate', { id: message.postCommentId })
+      const { data } = await api.get('/comment/post/locate', { id: message.postCommentId })
       const route = `/p/${data.postId}?comment=${message.postCommentId}&reply=${message.id}`
       window.open(route, '_blank')
     }

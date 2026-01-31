@@ -30,7 +30,7 @@ const loadKbs = async (pageSize) =>
     return [];
   }
   pageSize = Math.min(100, pageSize);
-  const { data } = await api.post('/kb/cursor', kbPaginationStore.buildRequestParams(pageSize));
+  const { data } = await api.post('/post/kb/cursor', kbPaginationStore.buildRequestParams(pageSize));
   if (data && data.length > 0) 
   {
     const lastItem = data[data.length - 1];

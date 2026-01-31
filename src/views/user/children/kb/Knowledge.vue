@@ -226,7 +226,7 @@ const loadKnowledgeBases = async (page = 1) => {
       params.keyword = searchValue.value.trim();
     }
 
-    const { data } = await api.post('/kb/list', params);
+    const { data } = await api.post('/post/kb/list', params);
     knowledgeBases.value = data.records;
     if (total.value <= 0) {
       total.value = data.total;
@@ -391,7 +391,7 @@ const handleConfirmDelete = async (deleteDocuments = false) => {
         if (deleteDocuments) {
           params.removePost = true;
         }
-        const { data } = await api.delete('/kb', params);
+        const { data } = await api.delete('/post/kb', params);
 
         if (deleteDocuments) {
           Message.success(`删除成功，已删除知识库及其下的 ${data} 个文档`);
@@ -427,7 +427,7 @@ const handleConfirmDelete = async (deleteDocuments = false) => {
           }
 
           try {
-            const { data } = await api.post('/kb/list', params);
+            const { data } = await api.post('/post/kb/list', params);
             // 只取最后一条新数据补充到列表末尾
             if (data.records && data.records.length > knowledgeBases.value.length) {
               const newItem = data.records[data.records.length - 1];
@@ -539,7 +539,7 @@ const handleUpdateKb = async () => {
       });
     }
 
-    await api.put('/kb', requestData);
+    await api.put('/post/kb', requestData);
     Message.success('更新成功');
     editModalVisible.value = false;
 

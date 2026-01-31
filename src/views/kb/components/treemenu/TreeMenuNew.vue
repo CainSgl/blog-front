@@ -309,7 +309,7 @@ async function finishRename(node) {
     Message.loading({ id: id, content: '重命名' + node.name + '中' });
     node.name = newName;
     node.isEditing = false;
-    await api.put('/dir', {
+    await api.put('/post/dir', {
       id: node.id,
       kbId: props.kbId,
       name: newName,
@@ -373,7 +373,7 @@ const actionHandlers = {
       const parentId = node?.id || null;
       const dirName = node ? `${node.depth + 1}级目录` : '根目录';
 
-      const { data } = await api.post('/dir', {
+      const { data } = await api.post('/post/dir', {
         name: dirName,
         kbId: props.kbId,
         parentId,
@@ -462,7 +462,7 @@ const actionHandlers = {
   'delete': async (node) => {
     loading.value += 1;
     try {
-      const { data } = await api.delete('/dir', {
+      const { data } = await api.delete('/post/dir', {
         kbId: props.kbId,
         dirId: node.id
       });
@@ -1118,7 +1118,7 @@ let moveDirItem = null;
 
 function resourtDir(id, lastId) {
   willMoveDirs.push({
-    url: '/dir/resort',
+    url: '/post/dir/resort',
     id,
     lastId,
     kbId: props.kbId
@@ -1128,7 +1128,7 @@ function resourtDir(id, lastId) {
 
 function moveDir(id, lastId, parentId) {
   willMoveDirs.push({
-    url: '/dir/move',
+    url: '/post/dir/move',
     id,
     lastId,
     parentId,

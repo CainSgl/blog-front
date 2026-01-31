@@ -76,7 +76,7 @@ const fetchList = async (id, lastIdValue = '0') =>
   try 
   {
     // 根据类型选择不同的API端点
-    const endpoint = props.type === 'followers' ? '/follow/er/list' : '/follow/ee/list';
+    const endpoint = props.type === 'followers' ? '/user/follow/er/list' : '/user/follow/ee/list';
     const { data } = await api.post(endpoint, { 
       id: id,
       lastId: lastIdValue
