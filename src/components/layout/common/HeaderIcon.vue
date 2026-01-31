@@ -1,8 +1,7 @@
 <template>
   <div class="avatar-section">
     <a-popover trigger="hover" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }">
-      <Avatar :src="userInfo?.avatarUrl" class="avatar-trigger"
-        @click="openInNewTab(`/space/${userInfo?.id}`)" />
+      <Avatar :src="userInfo?.avatarUrl" class="avatar-trigger" @click="openInNewTab(`/space/${userInfo?.id}`)" />
       <template #content>
         <div class="user-info-popover" v-if="userInfo?.id != '-1'">
           <div class="user-header">
@@ -17,11 +16,7 @@
                 <a-tag color="arcoblue" size="small" style="margin-left: 8px;">LV.{{ userInfo?.level }}</a-tag>
               </div>
               <div class="user-stats">
-                <div 
-                  v-for="stat in userStats" 
-                  :key="stat.label"
-                  class="stat-item"
-                >
+                <div v-for="stat in userStats" :key="stat.label" class="stat-item">
                   <span class="stat-label">{{ stat.label }}</span>
                   <span class="stat-value">{{ stat.value }}</span>
                 </div>
@@ -40,17 +35,17 @@
           </div>
           <!-- 用户选项菜单 -->
           <div class="user-options">
-            <div 
-              v-for="option in menuOptions" 
-              :key="option.label"
-              class="option-item" 
-              @click="option.action"
-            >
-              <component :is="option.icon" />
-              <span>{{ option.label }}</span>
-            </div>
+            <template v-for="option in menuOptions" :key="option.label">
+
+              <div class="option-item" @click="option.action">
+                <component :is="option.icon" />
+                <span>{{ option.label }}</span>
+              </div>
+            </template>
+            <a-divider :margin="0" />
+            <ThemeSwitcher />
           </div>
-              
+
         </div>
         <div class="login-prompt" v-else>
           <div class="login-message">
@@ -71,6 +66,8 @@
               <li>个性化设置</li>
             </ul>
           </div>
+          <a-divider :margin="0" />
+          <ThemeSwitcher />
         </div>
       </template>
     </a-popover>
@@ -78,10 +75,11 @@
 </template>
 
 <script setup>
-import {computed} from 'vue';
-import {useUserStore} from '@/store/user.js';
-import {storeToRefs} from 'pinia';
+import { computed } from 'vue';
+import { useUserStore } from '@/store/user.js';
+import { storeToRefs } from 'pinia';
 import Avatar from '@/components/base/avatar/Avatar.vue';
+import ThemeSwitcher from '@/components/base/ThemeSwitcher.vue';
 import {
   IconBook,
   IconCloud,
@@ -92,8 +90,8 @@ import {
   IconUser,
   IconWoman
 } from '@arco-design/web-vue/es/icon';
-import {useRouter} from 'vue-router';
-import {getLoginService, showLoginModal} from '@/services/authService.js';
+import { useRouter } from 'vue-router';
+import { getLoginService, showLoginModal } from '@/services/authService.js';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -153,7 +151,7 @@ const menuOptions = computed(() => [
   {
     label: '退出登录',
     icon: IconExport,
-    action: logout
+    action: logout,
   }
 ]);
 </script>
@@ -269,10 +267,10 @@ const menuOptions = computed(() => [
       font-size: @font-size-body-3;
 
       &:hover {
-        background-color: #f5f5f5;
+        background-color: @color-fill-2;
       }
 
-      > *:first-child {
+      >*:first-child {
         margin-right: @size-2;
       }
     }

@@ -249,9 +249,8 @@ onMounted(async () => {
 
 <style scoped lang="less">
 @header-height: 64px;
-
 .header-container {
-  background-color: @color-bg-1;
+  background-color: var(--color-bg-5);
   z-index: 100;
   position: absolute;
   top: 0;
@@ -262,22 +261,23 @@ onMounted(async () => {
 
   &.header-fixed {
     position: fixed;
-    box-shadow: 0 2px 8px fade(@color-text-1, 10%);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--color-text-1) 10%, transparent);
   }
 
   &.transparent-background {
-    background-color: fade(@color-bg-white, 90%);
+    background-color: color-mix(in srgb, var(--color-bg-5) 95%, transparent);
+    backdrop-filter: blur(10px);
     border-bottom: none !important;
 
     :deep(.arco-input) {
-      background-color: fade(@color-bg-white, 50%) !important;
+      background-color: color-mix(in srgb, var(--color-bg-5) 70%, transparent) !important;
 
       &:hover {
-        background-color: fade(@color-bg-white, 70%);
+        background-color: color-mix(in srgb, var(--color-bg-5) 85%, transparent);
       }
 
       &:focus {
-        background-color: fade(@color-bg-white, 80%);
+        background-color: color-mix(in srgb, var(--color-bg-5) 90%, transparent);
       }
     }
   }
