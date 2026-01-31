@@ -8,10 +8,7 @@
     "build": "vite build",
     "build:prod": "vite build --mode production",
     "preview": "vite preview",
-    "analyze": "vite build --mode production && npx vite-bundle-visualizer",
-    "format:allman": "node format-allman.js",
-    "format:full": "node full-format.js",
-    "f": "node full-format.js"
+    "analyze": "vite build --mode production && npx vite-bundle-visualizer"
   },
   "dependencies": {
     "@kangc/v-md-editor": "^2.3.18",

@@ -407,7 +407,7 @@ onMounted(() => {
   align-items: flex-end;
 
   @media screen and (max-width: 1400px) {
-    margin-left: 20px;
+    margin-left: 50px;
     padding: 0px 10px;
     width: 180px;
   }
@@ -501,8 +501,7 @@ onMounted(() => {
 }
 
 .post-content {
-  padding: 20px 0;
-  height: 98vh;
+  height: 98dvh;
   display: flex;
   gap: 20px;
 }

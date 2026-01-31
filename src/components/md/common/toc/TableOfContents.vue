@@ -350,7 +350,7 @@ const handleNodeClick = (node) =>
 <style scoped lang="less">
 .table-of-contents {
   scrollbar-width: none;
-
+  width: 100%;
   &::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
@@ -358,7 +358,6 @@ const handleNodeClick = (node) =>
   }
 
   padding: 10px 5px;
-  width: 100%;
   overflow-x:hidden;
   overflow-y:auto;
 }

@@ -12,22 +12,7 @@ export default defineConfig([
     },
     extends: ['js/recommended'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
-    rules: {
-      // Allman style: braces on new line
-      'brace-style': ['error', 'allman', { allowSingleLine: false }],
-
-      // Additional formatting rules that complement Allman style
-      indent: ['error', 2],
-      quotes: ['error', 'single'],
-      semi: ['error', 'always'],
-    },
-  },
-  {
-    files: ['format-allman.js', 'full-format.js'],
-    languageOptions: { globals: globals.node },
-    rules: {
-      'no-unused-vars': 'off',
-    },
+    rules: {},
   },
   pluginVue.configs['flat/essential'],
 ]);
