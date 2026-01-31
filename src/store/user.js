@@ -1,7 +1,8 @@
-import {defineStore} from 'pinia';
-import {ref} from 'vue';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 import api from '@/api/index.js';
-import {Message} from '@arco-design/web-vue';
+import { Message } from '@arco-design/web-vue';
+import { likeCache } from '@/utils/likeCache.js';
 
 const youKe = { id: -1 };
 const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10分钟
@@ -9,17 +10,17 @@ const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10分钟
 export const useUserStore = defineStore('user', () => {
   const userInfo = ref(null);
   const token = ref(null);
-  
+
   // 其他用户信息缓存
   const userInfoCache = new Map();
   const userInfoPromises = new Map();
-  
+
   // 当前用户请求Promise（防止重复请求）
   let currentUserPromise = null;
 
   // 缓存工具函数
   const isCacheExpired = (timestamp) => Date.now() - timestamp > CACHE_EXPIRY_MS;
-  
+
   const saveUserCache = (data) => {
     const cacheData = { data, timestamp: Date.now() };
     localStorage.setItem('userInfo', JSON.stringify(cacheData));
@@ -29,7 +30,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const cached = localStorage.getItem('userInfo');
       if (!cached) return null;
-      
+
       const parsed = JSON.parse(cached);
       if (!parsed.timestamp || isCacheExpired(parsed.timestamp)) {
         localStorage.removeItem('userInfo');
@@ -97,9 +98,17 @@ export const useUserStore = defineStore('user', () => {
     userInfo.value = null;
     token.value = null;
     localStorage.removeItem('authToken');
+    clearCache();
+  };
+
+  const clearCache = () => {
     localStorage.removeItem('userInfo');
     localStorage.removeItem('userHotCounter');
-  };
+    // 清除点赞缓存
+    likeCache.clearAll();
+    // 清除签到缓存
+    localStorage.removeItem('checkInCache');
+  }
 
   // 获取token
   const getToken = () => {
@@ -156,14 +165,14 @@ export const useUserStore = defineStore('user', () => {
     const cached = getUserCache();
     if (cached) {
       userInfo.value = cached.data;
-      
+
       // 尝试更新 hotInfo（计数器机制）
       const counter = incrementHotCounter();
       if (counter >= 3) {
         // 异步更新，不阻塞返回
         updateHotInfo(cached.data);
       }
-      
+
       return cached.data;
     }
 
@@ -222,5 +231,6 @@ export const useUserStore = defineStore('user', () => {
     getToken,
     isUserLoggedIn,
     updateUserInfo,
+    clearCache
   };
 });

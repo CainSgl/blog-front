@@ -59,6 +59,9 @@ import {Comment as AComment, Link as ALink, Typography as ATypography} from '@ar
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import UserLevel from '@/components/base/UserLevel.vue';
 import {formatDate} from '@/utils/DateFormatter.js';
+import { likeCache } from '@/utils/likeCache.js'; // 引入点赞缓存工具
+import api from '@/api/index.js';
+import { Message } from '@arco-design/web-vue';
 
 // 定义组件属性
 const props = defineProps({
@@ -72,8 +75,8 @@ const props = defineProps({
 // 定义emit事件
 const emit = defineEmits(['reply', 'replyToClick']);
 
-// 点赞状态
-const like = ref(false);
+// 点赞状态 - 从缓存中初始化
+const like = ref(likeCache.getLike(props.commentData.id));
 
 // 用户信息
 const userStore = useUserStore();
@@ -97,19 +100,21 @@ watch(
 
 // 点赞处理函数
 const onLikeChange = async () => {
-  // 临时更新本地状态
+  // 先更新本地状态和缓存
   like.value = !like.value;
+  likeCache.setLike(props.commentData.id, like.value);
 
-  // 这里可以调用API更新点赞状态
   try {
-    // 示例API调用，实际项目中需要替换为真实的API
-    // await api.likeComment(props.commentData.id, like.value);
     console.log(`点赞状态已更新: ${props.commentData.id}, 点赞: ${like.value}`);
+    // 调用API更新点赞状态
+    await api.get('/comment/reply/like', { id: props.commentData.id, add: like.value });
   }
   catch (error) {
-    // 如果API调用失败，回滚状态
+    // 如果API调用失败，回滚状态和缓存
     like.value = !like.value;
+    likeCache.setLike(props.commentData.id, like.value);
     console.error('点赞操作失败:', error);
+    Message.error('操作失败，请重试');
   }
 };
 

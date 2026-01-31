@@ -40,9 +40,11 @@
               <div class="option-item" @click="option.action">
                 <component :is="option.icon" />
                 <span>{{ option.label }}</span>
+
               </div>
+              <a-divider :margin="0" v-if="option.divider" />
             </template>
-            <a-divider :margin="0" />
+
             <ThemeSwitcher />
           </div>
 
@@ -71,15 +73,22 @@
         </div>
       </template>
     </a-popover>
+
+    <!-- 升级弹窗 -->
+    <LevelUpModal ref="levelUpModalRef" />
+    <!-- 签到记录弹窗 -->
+    <CheckInModal ref="checkInModalRef" />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useUserStore } from '@/store/user.js';
 import { storeToRefs } from 'pinia';
 import Avatar from '@/components/base/avatar/Avatar.vue';
 import ThemeSwitcher from '@/components/base/ThemeSwitcher.vue';
+import LevelUpModal from '@/components/base/checkin/LevelUpModal.vue';
+import CheckInModal from '@/components/base/checkin/CheckInModal.vue';
 import {
   IconBook,
   IconCloud,
@@ -88,14 +97,67 @@ import {
   IconLock,
   IconMan,
   IconUser,
-  IconWoman
+  IconWoman,
+  IconEraser,
+  IconCalendar
 } from '@arco-design/web-vue/es/icon';
 import { useRouter } from 'vue-router';
 import { getLoginService, showLoginModal } from '@/services/authService.js';
+import { Message } from '@arco-design/web-vue';
+import api from '@/api/index.js';
+import { performCheckIn, isCacheValid, getCheckInCache } from '@/services/checkInService.js';
 
 const userStore = useUserStore();
 const router = useRouter();
 const { userInfo } = storeToRefs(userStore);
+const levelUpModalRef = ref(null);
+const checkInModalRef = ref(null);
+
+// 自动签到
+onMounted(() => {
+  autoCheckIn();
+});
+
+// 自动签到逻辑
+const autoCheckIn = async () => {
+  if (!userStore.isUserLoggedIn() || !userInfo.value || userInfo.value.id === -1) {
+    return;
+  }
+
+  // 检查缓存
+  const cache = getCheckInCache();
+
+  // 如果缓存有效（userId和date匹配），说明今天已签到
+  if (isCacheValid(cache, userInfo.value.id)) {
+    return;
+  }
+
+  // 没签到，执行签到
+  try {
+    const result = await performCheckIn(userInfo.value.id);
+    
+    if (result.success) {
+      Message.success(`签到成功！获得 ${result.expGained} 经验`);
+
+      // 重新获取用户信息
+      const oldLevel = userInfo.value.level;
+      const currentUserResponse = await api.get('/user/current');
+      await userStore.updateUserInfo(currentUserResponse.data);
+
+      // 检查是否升级
+      const newLevel = currentUserResponse.data.level;
+      if (newLevel > oldLevel) {
+        levelUpModalRef.value?.open(oldLevel, newLevel);
+      }
+    }
+  } catch (error) {
+    console.error('自动签到失败:', error);
+  }
+};
+
+
+
+
 
 // 在新标签页中打开指定路径
 const openInNewTab = (path) => {
@@ -119,6 +181,15 @@ const logout = async () => {
   await router.push({ name: 'Home' });
 };
 
+// 打开签到记录
+const openCheckIn = () => {
+  if (!userStore.isUserLoggedIn()) {
+    showLogin();
+    return;
+  }
+  checkInModalRef.value?.open(userInfo.value);
+};
+
 // 用户统计数据
 const userStats = computed(() => [
   { label: '粉丝', value: userInfo.value?.followerCount || 0 },
@@ -134,24 +205,24 @@ const menuOptions = computed(() => [
     action: () => openInNewTab(`/space/${userInfo.value?.id}`)
   },
   {
-    label: '我的知识库',
-    icon: IconBook,
-    action: () => openInNewTab(`/space/${userInfo.value?.id}/knowledge`)
-  },
-  {
-    label: '我的文档',
-    icon: IconFile,
-    action: () => openInNewTab(`/space/${userInfo.value?.id}/docs`)
-  },
-  {
-    label: '云空间',
-    icon: IconCloud,
-    action: () => openInNewTab(`/space/${userInfo.value?.id}/cloud`)
+    label: '查看签到',
+    icon: IconCalendar,
+    action: openCheckIn,
+    divider: true
   },
   {
     label: '退出登录',
     icon: IconExport,
     action: logout,
+    divider: true,
+  },
+  {
+    label:'清除缓存',
+    icon:IconEraser,
+    action:()=>{
+      userStore.clearCache();
+      window.location.reload();
+    },
   }
 ]);
 </script>
@@ -283,6 +354,7 @@ const menuOptions = computed(() => [
 
 .login-prompt {
   padding: @size-3;
+
   .login-message {
     display: flex;
     flex-direction: column;

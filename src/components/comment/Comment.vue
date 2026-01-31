@@ -89,6 +89,7 @@ import api from '@/api/index.js';
 import { formatDate, getDateNow } from '@/utils/DateFormatter.js';
 import { useCommentStore } from '@/components/comment/commentStore.js';
 import { storeToRefs } from 'pinia';
+import { likeCache } from '@/utils/likeCache.js'; // 引入点赞缓存工具
 
 const commentStore = useCommentStore();
 
@@ -127,8 +128,8 @@ const props = defineProps({
   }
 });
 
-// 点赞状态
-const like = ref(false);
+// 点赞状态 - 从缓存中初始化
+const like = ref(likeCache.getLike(props.commentData.id));
 
 // 回复相关状态
 const showReplies = ref(false);
@@ -416,14 +417,26 @@ const scrollToReply = (replyId) => {
 
 // 点赞处理函数
 const onLikeChange = async () => {
+  // 先更新本地状态和缓存
   like.value = !like.value;
+  likeCache.setLike(props.commentData.id, like.value);
+
   try {
     console.log(`点赞状态已更新: ${props.commentData.id}, 点赞: ${like.value}`);
+    let url;
+    if (props.postComment) {
+      url = "/post/comment/like"
+    } else {
+      url = "/comment/like"
+    }
+    await api.get(url, { id: props.commentData.id, add: like.value });
   }
   catch (error) {
-    // 如果API调用失败，回滚状态
+    // 如果API调用失败，回滚状态和缓存
     like.value = !like.value;
+    likeCache.setLike(props.commentData.id, like.value);
     console.error('点赞操作失败:', error);
+    Message.error('操作失败，请重试');
   }
 };
 async function getReply() {
@@ -487,9 +500,11 @@ const emit = defineEmits(['reply']);
     background: @color-fill-3;
   }
 }
-.comment-gray-color{
-  color:var(--color-neutral-6);
+
+.comment-gray-color {
+  color: var(--color-neutral-6);
 }
+
 :deep(.arco-comment-avatar) {
   cursor: default;
 }
