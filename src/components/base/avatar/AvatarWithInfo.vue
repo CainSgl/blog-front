@@ -139,7 +139,7 @@ const goToUserSpace = () =>
 .user-stats {
     display: flex;
     font-size: @font-size-body-1;
-    color: @color-text-3;
+    color: var(--color-neutral-6);
     margin: 6px 0;
 
     .stat-item {
@@ -149,7 +149,7 @@ const goToUserSpace = () =>
 
         strong {
             font-size: @font-size-body-3;
-            color: @color-text-2;
+            color: var(--color-neutral-8);
             margin-bottom: 2px;
         }
     }
@@ -157,10 +157,10 @@ const goToUserSpace = () =>
 
 .user-registration {
     font-size: @font-size-body-1;
-    color: @color-text-3;
+    color: var(--color-neutral-6);
 
     strong {
-        color: @color-text-2;
+        color: var(--color-neutral-8);
     }
 }
 
@@ -174,7 +174,7 @@ const goToUserSpace = () =>
     strong {
         display: inline-block;
         margin-bottom: @size-1;
-        color: @color-text-2;
+        color: var(--color-neutral-8);
     }
 }
 
@@ -191,7 +191,7 @@ const goToUserSpace = () =>
 }
 
 .bio-text {
-    color: @color-text-2;
+    color: var(--color-neutral-8);
     font-size: @font-size-body-2;
     display: -webkit-box;
     -webkit-line-clamp: 2;

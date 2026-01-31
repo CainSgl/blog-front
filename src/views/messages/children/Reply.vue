@@ -237,8 +237,6 @@ onUnmounted(() => {
 
 <style scoped lang="less">
 .reply-messages {
-
-
   .messages-list {
     display: flex;
     flex-direction: column;
@@ -252,7 +250,7 @@ onUnmounted(() => {
     align-items: center;
 
     .no-more {
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       font-size: 14px;
       width: 100%;
       display: flex;
@@ -267,8 +265,6 @@ onUnmounted(() => {
     gap: 8px;
     min-width: 0;
 
-
-
     .reply-text {
       cursor: pointer;
       display: flex;
@@ -277,7 +273,7 @@ onUnmounted(() => {
 
       .reply-label {
         font-size: 13px;
-        color: @color-text-3;
+        color: var(--color-neutral-6);
         font-weight: 500;
       }
 
@@ -287,7 +283,7 @@ onUnmounted(() => {
         .reply-content-text {
           margin-bottom: 0;
           font-size: 14px;
-          color: @color-text-1;
+          color: var(--color-neutral-10);
           line-height: 1.8;
           word-break: break-word;
           font-weight: 500;
@@ -296,11 +292,11 @@ onUnmounted(() => {
 
       .reply-message {
         font-size: 13px;
-        color: @color-text-3;
+        color: var(--color-neutral-6);
         line-height: 1.6;
         word-break: break-word;
         padding: 8px 12px;
-        background-color: @color-fill-1;
+        background-color: var(--color-fill-1);
         border-radius: 6px;
       }
     }
@@ -310,11 +306,10 @@ onUnmounted(() => {
       align-items: center;
       gap: 16px;
       font-size: 13px;
-      color: @color-text-3;
-
+      color: var(--color-neutral-6);
 
       .reply-time {
-        color: @color-text-3;
+        color: var(--color-neutral-6);
       }
     }
 
@@ -325,19 +320,19 @@ onUnmounted(() => {
       margin-top: 4px;
 
       .arco-btn-text {
-        color: @color-text-3;
+        color: var(--color-neutral-6);
         font-size: 13px;
 
         &:hover {
-          color: @color-primary-6;
-          background-color: @color-fill-2;
+          color: rgb(var(--primary-6));
+          background-color: var(--color-fill-2);
         }
 
         &.liked {
-          color: @danger-6;
+          color: rgb(var(--danger-6));
 
           &:hover {
-            color: @danger-7;
+            color: rgb(var(--danger-7));
           }
         }
       }
@@ -345,7 +340,7 @@ onUnmounted(() => {
 
     .reply-input-container {
       margin-top: 12px;
-      border-top: 1px solid @color-border-2;
+      border-top: 1px solid var(--color-border-2);
       padding-top: 12px;
     }
   }

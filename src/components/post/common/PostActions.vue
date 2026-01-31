@@ -238,19 +238,19 @@ const handleReport = () => {
 .action-trigger {
     width: 20px;
     height: 48px;
-    background-color: @color-bg-2;
+    background-color: var(--color-bg-2);
     border-radius: 0 6px 6px 0;
-    box-shadow: 2px 0 8px fade(#000, 8%);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: @color-text-2;
+    color: var(--color-text-2);
     transition: all 0.3s ease;
 
     &:hover {
-        background-color: @color-bg-3;
-        color: @primary-6;
+        background-color: var(--color-bg-3);
+        color: rgb(var(--primary-6));
         width: 24px;
     }
 }
@@ -259,10 +259,10 @@ const handleReport = () => {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    background-color: @color-bg-2;
+    background-color: var(--color-bg-2);
     padding: 16px 14px;
     border-radius: 0 12px 12px 0;
-    box-shadow: 2px 0 12px fade(#000, 8%);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
 }
 
 .action-item {
@@ -280,23 +280,23 @@ const handleReport = () => {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    color: @color-text-2;
+    color: var(--color-text-2);
     transition: color 0.3s ease;
 
     &.like-button:hover {
-        color: @primary-4;
+        color: rgb(var(--primary-4));
     }
 
     &.favorite-button:hover {
-        color: @warning-6;
+        color: rgb(var(--warning-6));
     }
 
     &.liked {
-        color: @primary-4;
+        color: rgb(var(--primary-4));
     }
 
     &.favorited {
-        color: @warning-6;
+        color: rgb(var(--warning-6));
     }
 
     &.collapse-button {
@@ -316,7 +316,7 @@ const handleReport = () => {
 
 .action-divider {
     height: 1px;
-    background-color: @color-border-2;
+    background-color: var(--color-border-2);
     margin: 4px 0;
 }
 </style>

@@ -4,6 +4,7 @@
 @primary-1: #eff5fc; 
 @primary-2: #999999; 
 @primary-3: #d0d0d0; 
+@dark-primary-3: #d0d0d0;
 @primary-4: #ff6699; 
 @dark-primary-4: #ff6699;
 @primary-5: #00b8f6;
@@ -11,9 +12,9 @@
 @primary-6: #00aeec;
 @dark-primary-6: #00aeec;
 @primary-7: #00b1ec;
-@dark-primary-6: #00b1ec;
+@dark-primary-7: #00b1ec;
 @primary-8: #d6e8fc;
-
+@dark-primary-8: #d6e8fc;
 @danger-6: #ff0000;
 @warning-6: #ffa500;
 
@@ -115,4 +116,8 @@ body {
   &:hover {
     background-color: fade(@danger-6, 10%) !important;
   }
+}
+:deep(.arco-spin-mask)
+{
+  background-color:transparent;
 }

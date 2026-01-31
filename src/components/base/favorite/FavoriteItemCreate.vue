@@ -22,47 +22,47 @@ const handleCreate = () => {
     height: 24px;
     display: flex;
     align-items: center;
-    gap: @size-3;
-    padding: @size-3 @size-4;
-    background: @color-bg-white;
-    border: @border-1 solid @color-fill-3;
-    border-radius: @border-radius-medium;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-fill-3);
+    border-radius: var(--border-radius-medium);
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        border-color: @primary-6;
-        background: @primary-1;
+        border-color: var(--color-primary-6);
+        background: var(--color-primary-light-1);
     }
 
     .item-icon {
         font-size: 18px;
-        color: @color-text-3;
+        color: var(--color-neutral-6);
         flex-shrink: 0;
     }
 
     .item-name {
-        font-size: @font-size-body-3;
-        color: @color-text-1;
-        font-weight: @font-weight-400;
+        font-size: 14px;
+        color: var(--color-neutral-10);
+        font-weight: 400;
         flex: 1;
     }
 
     &.create-item {
         border-style: dashed;
-        border-color: @color-fill-4;
+        border-color: var(--color-fill-4);
 
         .item-icon {
-            color: @primary-6;
+            color: var(--color-primary-6);
         }
 
         .item-name {
-            color: @primary-6;
-            font-weight: @font-weight-500;
+            color: var(--color-primary-6);
+            font-weight: 500;
         }
 
         &:hover {
-            border-color: @primary-6;
+            border-color: var(--color-primary-6);
         }
     }
 }

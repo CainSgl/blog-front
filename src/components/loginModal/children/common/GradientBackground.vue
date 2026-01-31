@@ -588,20 +588,20 @@ onUnmounted(() =>
 </script>
 
 <style scoped lang="less">
-@import "@/assets/style/global.less";
+
 
 .character-flow-background {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, @primary-4 0%, #ff8e53 50%, @primary-4 100%);
+  background: linear-gradient(135deg, rgb(var(--primary-4)) 0%, #ff8e53 50%, rgb(var(--primary-4)) 100%);
   overflow: hidden;
 }
 
 .character-flow-background.has-border-radius {
   /* 添加向内边框效果，创造凸起的视觉层次 */
-  box-shadow: inset 0 0 0 10px fade(@color-bg-white, 30%),
-              inset 0 0 20px fade(@color-text-1, 10%);
+  box-shadow: inset 0 0 0 10px color-mix(in srgb, var(--color-bg-2) 30%, transparent),
+              inset 0 0 20px color-mix(in srgb, var(--color-neutral-10) 10%, transparent);
   border-radius: 0% 5% 5% 0%;
   /* 添加裁剪效果，隐藏背景外的内容 */
   clip-path: inset(0 0 0 0 round 0% 5% 5% 0%);
@@ -619,7 +619,7 @@ onUnmounted(() =>
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: @color-bg-white;
+  color: var(--color-bg-2);
   z-index: 10;
   pointer-events: none;
 }
@@ -630,7 +630,7 @@ onUnmounted(() =>
   margin: 0 0 @size-4 0;
   line-height: 1.2;
   text-shadow: none;
-  color: @color-bg-white;
+  color: var(--color-bg-2);
   /* 最简化背景效果 */
   padding: 5px 10px;
 }
@@ -641,7 +641,7 @@ onUnmounted(() =>
   margin: 0;
   font-weight: @font-weight-300;
   text-shadow: none;
-  color: @color-bg-white;
+  color: var(--color-bg-2);
   /* 最简化背景效果 */
   padding: 5px 10px;
 }

@@ -226,210 +226,209 @@ const handleCardClick = () => {
 };
 </script>
 
-<style scoped lang="less">
+<style scoped>
 .post-card {
   container-type: inline-size;
   container-name: post-card;
   height: 100%;
+}
 
-  .post-card-container {
-    border-radius: @border-radius-large;
-    border: @border-1 solid @color-border-2;
-    box-shadow: 0 1px 3px 0 fade(#000, 8%);
-    transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
-    overflow: hidden;
-    cursor: pointer;
-    height: 100%;
+.post-card-container {
+  border-radius: var(--border-radius-large);
+  border: 1px solid var(--color-border-2);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
+  overflow: hidden;
+  cursor: pointer;
+  height: 100%;
+}
 
-    &:hover {
-      border-color: @primary-6;
-      box-shadow: 0 4px 12px 0 fade(@primary-6, 15%);
+.post-card-container:hover {
+  border-color: rgb(var(--primary-6));
+  box-shadow: 0 4px 12px 0 rgba(var(--primary-6), 0.15);
+}
 
-      .arco-image {
-        transform: scale(1.05);
-      }
-    }
-  }
+.post-card-container:hover .arco-image {
+  transform: scale(1.05);
+}
 
-  .post-card-loading {
-    border-radius: @border-radius-large;
-    border: @border-1 solid @color-border-2;
-    box-shadow: 0 1px 3px 0 fade(#000, 8%);
-    transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
-    overflow: hidden;
-    height: 100%;
-  }
+.post-card-loading {
+  background-color: var(--color-bg-1);
+  border-radius: var(--border-radius-large);
+  border: 1px solid var(--color-border-2);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
+  overflow: hidden;
+  height: 100%;
+}
 
-  .post-content-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+.post-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
-    &.horizontal-layout {
-      flex-direction: row;
+.post-content-wrapper.horizontal-layout {
+  flex-direction: row;
+}
 
-      .post-image {
-        height: auto;
-        max-height: 100%;
-        border-radius: @border-radius-large;
-      }
+.post-content-wrapper.horizontal-layout .post-image {
+  height: auto;
+  max-height: 100%;
+  border-radius: var(--border-radius-large);
+}
 
-      .post-content {
-        margin-left: @size-5;
-        flex: 1;
-        min-width: 0;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-    }
+.post-content-wrapper.horizontal-layout .post-content {
+  margin-left: 20px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-    &.no-image.horizontal-layout .post-content {
-      margin-left: 0;
-    }
-  }
+.post-content-wrapper.no-image.horizontal-layout .post-content {
+  margin-left: 0;
+}
 
-  .post-image {
-    position: relative;
-    width: 100%;
-    min-height: 100px;
-    border-radius: @border-radius-medium;
-    overflow: hidden;
-    margin-bottom: @size-4;
-    flex: 0 0 auto;
+.post-image {
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+  border-radius: var(--border-radius-medium);
+  overflow: hidden;
+  margin-bottom: 16px;
+  flex: 0 0 auto;
+}
 
-    .arco-image {
-      display: block;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.3s ease;
-    }
-  }
+.post-image .arco-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
 
-  .post-content-wrapper.horizontal-layout .post-image {
-    margin-bottom: 0;
-    height: 100%;
-  }
+.post-content-wrapper.horizontal-layout .post-image {
+  margin-bottom: 0;
+  height: 100%;
+}
 
-  .post-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
+.post-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
 
-  .post-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: @size-3;
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
 
-    .post-title-section {
-      display: flex;
-      align-items: center;
-      gap: @size-2;
-      flex: 1;
-      min-width: 0;
-    }
+.post-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
 
-    .top-tag {
-      background-color: @warning-6;
-      color: @color-bg-white;
-      font-size: @font-size-body-1;
-      padding: 2px 6px;
-      border-radius: @border-radius-small;
-      flex-shrink: 0;
-    }
+.top-tag {
+  background-color: rgb(var(--warning-6));
+  color: var(--color-bg-white);
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: var(--border-radius-small);
+  flex-shrink: 0;
+}
 
-    .post-title {
-      font-size: @font-size-title-1;
-      font-weight: @font-weight-500;
-      color: @color-text-1;
-      line-height: 1.4;
-      flex: 1;
-      word-break: break-word;
-      cursor: pointer;
-      user-select: none;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
+.post-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-neutral-10);
+  line-height: 1.4;
+  flex: 1;
+  word-break: break-word;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-  .post-summary {
-    color: @color-text-2;
-    font-size: @font-size-body-3;
-    line-height: 1.5;
-    margin-bottom: @size-4;
-    display: -webkit-box;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -webkit-box-orient: vertical;
-  }
+.post-summary {
+  color: var(--color-neutral-8);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+}
 
-  .post-tags {
-    margin-top: 10px;
-    margin-bottom: @size-2;
-  }
+.post-tags {
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
 
-  .post-stats-footer-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: @size-3;
-    position: relative;
+.post-stats-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  position: relative;
+}
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: @border-1;
-      background-color: @color-fill-2;
-      z-index: -1;
-    }
-  }
+.post-stats-footer-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--color-fill-2);
+  z-index: -1;
+}
 
-  .post-stats {
-    margin-bottom: 0;
+.post-stats {
+  margin-bottom: 0;
+}
 
-    .stat-item {
-      display: inline-flex;
-      align-items: center;
-      gap: @size-1;
-      color: @color-text-4;
-      font-size: @font-size-body-3;
-      margin-right: @size-4;
+.stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-neutral-4);
+  font-size: 14px;
+  margin-right: 16px;
+}
 
-      &:last-child {
-        margin-right: 0;
-      }
-    }
-  }
+.stat-item:last-child {
+  margin-right: 0;
+}
 
-  .post-footer {
-    .post-date {
-      color: @color-text-4;
-      font-size: @font-size-body-1;
-    }
-  }
+.post-date {
+  color: var(--color-neutral-4);
+  font-size: 14px;
+}
 
-  .post-stats-footer-wrapper {
-    position: absolute;
-    bottom: 5px;
-    left: 0;
-    right: 0;
-    padding: 0 @size-5;
-  }
+.post-stats-footer-wrapper {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  padding: 0 20px;
+}
 
-  :deep(em) {
-    color: @primary-4;
-    font-style: normal;
-    font-weight: @font-weight-600;
-    background-color: fade(@primary-4, 10%);
-    padding: 2px 4px;
-    border-radius: @border-radius-none;
-  }
+.post-card :deep(em) {
+  color: rgb(var(--primary-4));
+  font-style: normal;
+  font-weight: 600;
+  background-color: rgba(var(--primary-4), 0.1);
+  padding: 2px 4px;
+  border-radius: 0;
 }
 </style>

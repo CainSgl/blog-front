@@ -142,6 +142,6 @@ onMounted(async () =>
 .comment-count {
     font-size: 13px;
     font-weight: 400;
-    color: @color-text-4;
+    color: var(--color-neutral-4);
 }
 </style>

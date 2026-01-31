@@ -158,7 +158,7 @@ const props = defineProps({
   },
   textColor: {
     type: String,
-    default: '@color-text-1'
+    default: 'var(--color-neutral-10)'
   },
   showSearch: {
     type: Boolean,
@@ -250,13 +250,13 @@ onMounted(async () => {
 <style scoped lang="less">
 @header-height: 64px;
 .header-container {
-  background-color: var(--color-bg-5);
+  background-color: var(--color-bg-2);
   z-index: 100;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  border-bottom: 1px solid @color-border-1;
+  border-bottom: 1px solid var(--color-border-1);
   transition: transform 0.3s ease;
 
   &.header-fixed {
@@ -265,7 +265,7 @@ onMounted(async () => {
   }
 
   &.transparent-background {
-    background-color: color-mix(in srgb, var(--color-bg-5) 95%, transparent);
+    background-color: color-mix(in srgb, var(--color-bg-2) 95%, transparent);
     backdrop-filter: blur(10px);
     border-bottom: none !important;
 
@@ -334,11 +334,11 @@ onMounted(async () => {
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.2s;
-      color: @color-text-2;
+      color: var(--color-neutral-8);
 
       &:hover {
-        color: @color-text-1;
-        background-color: @color-fill-2;
+        color: var(--color-neutral-10);
+        background-color: var(--color-fill-2);
       }
 
       .action-text {
@@ -447,9 +447,9 @@ onMounted(async () => {
   padding: 8px 16px;
   border-radius: 4px;
   transition: opacity 0.2s;
-  color: @color-text-1;
+  color: var(--color-neutral-10);
   &:hover{
-    color: @color-text-1;
+    color: var(--color-neutral-10);
   }
   @media (max-width: 1239px) and (min-width: 769px) {
 

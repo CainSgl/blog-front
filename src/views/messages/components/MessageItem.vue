@@ -52,21 +52,18 @@ const handleClick = () => {
 <style scoped lang="less">
 .message-item {
   display: flex;
-
   gap: 16px;
   padding: 16px;
-  background-color: @color-bg-2;
+  background-color: var(--color-bg-2);
   border-radius: 8px;
-
   transition: all 0.2s;
 
-
-
-
+  &:hover {
+    background-color: var(--color-fill-1);
+  }
 
   .user-info {
     display: flex;
-
     gap: 12px;
     flex-shrink: 0;
     cursor: pointer;
@@ -88,7 +85,7 @@ const handleClick = () => {
         .user-nickname {
           font-size: 14px;
           font-weight: 600;
-          color: @color-text-1;
+          color: var(--color-neutral-10);
         }
 
         .gender-icon {
@@ -110,7 +107,7 @@ const handleClick = () => {
 
       .action-text {
         font-size: 13px;
-        color: @color-text-2;
+        color: var(--color-neutral-8);
       }
     }
   }

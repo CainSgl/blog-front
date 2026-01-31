@@ -66,7 +66,7 @@
               <li>个性化设置</li>
             </ul>
           </div>
-          <a-divider :margin="0" />
+          <a-divider :margin="5" />
           <ThemeSwitcher />
         </div>
       </template>
@@ -178,6 +178,7 @@ const menuOptions = computed(() => [
   word-wrap: break-word;
   overflow-wrap: break-word;
 
+
   .user-header {
     display: flex;
     align-items: center;
@@ -196,13 +197,14 @@ const menuOptions = computed(() => [
         .user-nickname {
           font-size: @font-size-title-1;
           font-weight: bold;
+          color: var(--color-neutral-10);
         }
       }
 
       .user-stats {
         display: flex;
         font-size: @font-size-caption;
-        color: @color-text-2;
+        color: var(--color-neutral-8);
         margin-top: 6px;
 
         .stat-item {
@@ -217,12 +219,13 @@ const menuOptions = computed(() => [
 
           .stat-label {
             font-size: @font-size-body-2;
-            color: @color-text-4;
+            color: var(--color-neutral-6);
           }
 
           .stat-value {
             font-size: @font-size-body-3;
             font-weight: bold;
+            color: var(--color-neutral-10);
           }
         }
       }
@@ -243,7 +246,7 @@ const menuOptions = computed(() => [
 
       .level-text {
         font-size: @font-size-caption;
-        color: @color-text-4;
+        color: var(--color-neutral-6);
         white-space: nowrap;
       }
     }
@@ -252,7 +255,7 @@ const menuOptions = computed(() => [
   .user-options {
     margin-top: 24px;
     padding-top: 12px;
-    border-top: 1px solid @color-border-1;
+    border-top: 1px solid var(--color-border-2);
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -265,9 +268,10 @@ const menuOptions = computed(() => [
       cursor: pointer;
       transition: background-color 0.2s;
       font-size: @font-size-body-3;
+      color: var(--color-neutral-10);
 
       &:hover {
-        background-color: @color-fill-2;
+        background-color: var(--color-fill-2);
       }
 
       >*:first-child {
@@ -279,7 +283,6 @@ const menuOptions = computed(() => [
 
 .login-prompt {
   padding: @size-3;
-
   .login-message {
     display: flex;
     flex-direction: column;
@@ -289,7 +292,7 @@ const menuOptions = computed(() => [
 
     .lock-icon {
       font-size: 32px;
-      color: #bfbfbf;
+      color: var(--color-neutral-6);
       margin-bottom: 16px;
     }
 
@@ -297,13 +300,13 @@ const menuOptions = computed(() => [
       margin: 0 0 8px 0;
       font-size: 16px;
       font-weight: 500;
-      color: #333;
+      color: var(--color-neutral-10);
     }
 
     .login-subtitle {
       margin: 0;
       font-size: 14px;
-      color: #999;
+      color: var(--color-neutral-6);
       line-height: 1.5;
     }
   }
@@ -315,11 +318,11 @@ const menuOptions = computed(() => [
   .login-features {
     margin-top: 20px;
     padding-top: 16px;
-    border-top: 1px solid @color-border-2;
+    border-top: 1px solid var(--color-border-2);
 
     .features-title {
       font-size: 12px;
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       margin: 0 0 8px 0;
     }
 
@@ -327,7 +330,7 @@ const menuOptions = computed(() => [
       padding-left: 20px;
       margin: 0;
       font-size: 12px;
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       line-height: 1.8;
 
       li {

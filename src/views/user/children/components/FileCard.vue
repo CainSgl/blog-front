@@ -81,7 +81,7 @@ const handleFileClick = () =>
 
 .file-info {
   font-size: @font-size-body-1;
-  color: @color-text-3;
+  color: var(--color-neutral-6);
   margin-top: @size-1;
 }
 

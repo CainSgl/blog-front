@@ -143,13 +143,13 @@ const handleCodeLogin = async () =>
 
 .code-input-wrapper :deep(.arco-input-wrapper) {
   flex: 1;
-  border-color: @color-border-2;
+  border-color: var(--color-border-2);
   &:hover {
-    border-color: @primary-6;
+    border-color: rgb(var(--primary-6));
   }
   &:focus-within {
-    border-color: @primary-6;
-    box-shadow: 0 0 0 2px fade(@primary-1, 30%);
+    border-color: rgb(var(--primary-6));
+    box-shadow: 0 0 0 2px color-mix(in srgb, rgb(var(--primary-1)) 30%, transparent);
   }
 }
 
@@ -159,55 +159,55 @@ const handleCodeLogin = async () =>
 
 /* 设置输入框样式 */
 :deep(.arco-input-wrapper) {
-  border-color: @color-border-2;
+  border-color: var(--color-border-2);
   &:hover {
-    border-color: @primary-6;
+    border-color: rgb(var(--primary-6));
   }
   &:focus-within {
-    border-color: @primary-6;
-    box-shadow: 0 0 0 2px fade(@primary-1, 30%);
+    border-color: rgb(var(--primary-6));
+    box-shadow: 0 0 0 2px color-mix(in srgb, rgb(var(--primary-1)) 30%, transparent);
   }
 }
 
 /* 设置标签样式 */
 :deep(.arco-form-item-label) {
-  color: @color-text-2;
+  color: var(--color-neutral-8);
   font-size: @font-size-body-3;
   font-weight: @font-weight-500;
 }
 
 /* 设置主按钮样式 */
 :deep(.arco-btn-primary) {
-  background-color: @primary-6;
-  border-color: @primary-6;
+  background-color: rgb(var(--primary-6));
+  border-color: rgb(var(--primary-6));
   &:hover {
-    background-color: @primary-5;
-    border-color: @primary-5;
+    background-color: rgb(var(--primary-5));
+    border-color: rgb(var(--primary-5));
   }
   &:active {
-    background-color: @primary-7;
-    border-color: @primary-7;
+    background-color: rgb(var(--primary-7));
+    border-color: rgb(var(--primary-7));
   }
 }
 
 /* 设置验证码按钮样式 */
 :deep(.arco-btn-primary:not(.arco-btn-disabled)) {
-  background-color: @primary-6;
-  border-color: @primary-6;
+  background-color: rgb(var(--primary-6));
+  border-color: rgb(var(--primary-6));
   &:hover {
-    background-color: @primary-5;
-    border-color: @primary-5;
+    background-color: rgb(var(--primary-5));
+    border-color: rgb(var(--primary-5));
   }
   &:active {
-    background-color: @primary-7;
-    border-color: @primary-7;
+    background-color: rgb(var(--primary-7));
+    border-color: rgb(var(--primary-7));
   }
 }
 
 /* 设置禁用状态的验证码按钮 */
 :deep(.arco-btn-primary.arco-btn-disabled) {
-  background-color: @color-fill-2;
-  border-color: @color-border-2;
-  color: @color-text-4;
+  background-color: var(--color-fill-2);
+  border-color: var(--color-border-2);
+  color: var(--color-neutral-4);
 }
 </style>

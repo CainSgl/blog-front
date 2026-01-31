@@ -728,7 +728,7 @@ const handlePageSizeChange = (newPageSize) => {
 
     .create-icon {
       font-size: 48px;
-      color: @color-text-4;
+      color: var(--color-neutral-4);
       margin-bottom: 8px;
       transition: all 0.3s ease;
       display: flex;
@@ -740,7 +740,7 @@ const handlePageSizeChange = (newPageSize) => {
 
     .create-text {
       font-size: 14px;
-      color: @color-text-4;
+      color: var(--color-neutral-4);
       transition: all 0.3s ease;
       margin-top: 0;
       line-height: 1.4;

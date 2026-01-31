@@ -91,8 +91,6 @@ onUnmounted(() => {
 
 <style scoped lang="less">
 .system-messages {
- 
-
   .messages-list {
     display: flex;
     flex-direction: column;
@@ -103,20 +101,20 @@ onUnmounted(() => {
     display: flex;
     gap: 16px;
     padding: 16px;
-    background-color: @color-bg-2;
+    background-color: var(--color-bg-2);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-      background-color: @color-fill-2;
+      background-color: var(--color-fill-2);
     }
 
     &.unread {
-      background-color: @color-primary-light-1;
+      background-color: var(--color-primary-light-1);
 
       &:hover {
-        background-color: @color-primary-light-2;
+        background-color: var(--color-primary-light-2);
       }
     }
 
@@ -127,9 +125,9 @@ onUnmounted(() => {
       justify-content: center;
       width: 48px;
       height: 48px;
-      background-color: @color-primary-light-3;
+      background-color: var(--color-primary-light-3);
       border-radius: 50%;
-      color: @color-primary-6;
+      color: rgb(var(--primary-6));
     }
 
     .message-content {
@@ -144,17 +142,17 @@ onUnmounted(() => {
 
         .message-title {
           font-weight: 600;
-          color: @color-text-1;
+          color: var(--color-neutral-10);
         }
 
         .message-time {
           font-size: 12px;
-          color: @color-text-3;
+          color: var(--color-neutral-6);
         }
       }
 
       .message-text {
-        color: @color-text-2;
+        color: var(--color-neutral-8);
         line-height: 1.6;
       }
     }
@@ -173,7 +171,7 @@ onUnmounted(() => {
     align-items: center;
 
     .no-more {
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       font-size: 14px;
       width: 100%;
       height: 300px;

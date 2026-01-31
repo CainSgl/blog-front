@@ -8,7 +8,7 @@
           </template>
           返回
         </a-button>
-        <h2>创建知识库</h2>
+        <h2 style="color: var(--color-neutral-10);">创建知识库</h2>
         <a-button type="primary" @click="createKb" :loading="creating">
           <template #icon>
             <IconSave />
@@ -322,10 +322,10 @@ const customRequest = async (options) =>
   position: relative;
   display: flex;
   flex-direction: column;
-
+  background-color:var(--color-bg-1) ;
   .header {
-    background: #fff;
-    border-bottom: 1px solid #e5e6eb;
+    background: var(--color-bg-2);
+    border-bottom: 1px solid var(--color-border);
     padding: 5px 24px;
     display: flex;
     align-items: center;

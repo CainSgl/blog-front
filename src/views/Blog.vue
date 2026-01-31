@@ -38,6 +38,7 @@ function handleNoData()
 
 <style scoped>
 .main-container {
+  background-color: var(--color-bg-1);
   width: 100%;
   overflow-x: hidden;
   margin: 0 auto;

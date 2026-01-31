@@ -194,7 +194,7 @@ const handleCancel = () => {
           justify-content: center;
           background-color: @color-fill-2;
           font-size: 24px;
-          color: @color-text-4;
+          color: var(--color-neutral-4);
         }
       }
 
@@ -205,7 +205,7 @@ const handleCancel = () => {
         .kb-name {
           font-size: 14px;
           font-weight: 500;
-          color: @color-text-1;
+          color: var(--color-neutral-10);
           margin-bottom: 4px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -217,7 +217,7 @@ const handleCancel = () => {
           align-items: center;
           gap: 12px;
           font-size: 12px;
-          color: @color-text-4;
+          color: var(--color-neutral-4);
 
           .kb-status {
             padding: 2px 8px;

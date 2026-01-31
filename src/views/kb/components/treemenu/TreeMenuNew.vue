@@ -1264,7 +1264,7 @@ function cleanupDrag() {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       cursor: pointer;
       transition: transform 0.2s ease;
 
@@ -1286,7 +1286,7 @@ function cleanupDrag() {
     .node-name {
       flex: 1;
       font-size: 14px;
-
+      color:var(--color-neutral-10);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1319,14 +1319,14 @@ function cleanupDrag() {
     .action-icon {
       width: 16px;
       height: 16px;
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       cursor: pointer;
       padding: 2px;
       border-radius: 4px;
       transition: all 0.2s ease;
 
       &:hover {
-        background-color: @color-bg-white;
+        background-color: var(--color-bg-1);
       }
 
       svg {
@@ -1393,7 +1393,7 @@ function cleanupDrag() {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: @color-text-3;
+        color: var(--color-neutral-6);
 
         svg {
           width: 16px;
@@ -1409,7 +1409,7 @@ function cleanupDrag() {
       .node-name {
         flex: 1;
         font-size: 14px;
-        color: @color-text-2;
+        color: var(--color-neutral-8);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1425,7 +1425,7 @@ function cleanupDrag() {
   display: flex;
   align-items: center;
   gap: 8px;
-
+  
   .arco-input-wrapper {
     border-radius: 16px;
     flex: 1;
@@ -1438,7 +1438,7 @@ function cleanupDrag() {
     .action-icon {
       width: 16px;
       height: 16px;
-      color: @color-text-2;
+      color: var(--color-neutral-8);
       cursor: pointer;
       padding: 2px;
       border-radius: 4px;

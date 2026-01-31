@@ -120,7 +120,7 @@ const getRainDropStyle = (drop) =>
 </script>
 
 <style scoped lang="less">
-@import "@/assets/style/global.less";
+
 
 .home-container {
   position: relative;
@@ -168,7 +168,7 @@ const getRainDropStyle = (drop) =>
   inset: 0;
   width: 100%;
   height: 100dvh;
-  background-color: color-mix(in oklab, @color-bg-white 60%, transparent);
+  background-color: color-mix(in oklab, var(--color-bg-white) 60%, transparent);
   z-index: 2;
   pointer-events: none;
 }
@@ -182,11 +182,11 @@ const getRainDropStyle = (drop) =>
 
 .raindrop {
   position: absolute;
-  background: linear-gradient(to bottom, fade(@color-bg-white, 0%) 0%, fade(@color-bg-white, 80%) 30%, @color-bg-white 50%, fade(@color-bg-white, 80%) 70%, fade(@color-bg-white, 0%) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--color-bg-white) 0%, transparent) 0%, color-mix(in srgb, var(--color-bg-white) 80%, transparent) 30%, var(--color-bg-white) 50%, color-mix(in srgb, var(--color-bg-white) 80%, transparent) 70%, color-mix(in srgb, var(--color-bg-white) 0%, transparent) 100%);
   width: 1px;
   height: 10px;
   border-radius: 50%;
-  box-shadow: 0 0 2px fade(@color-bg-white, 80%);
+  box-shadow: 0 0 2px color-mix(in srgb, var(--color-bg-white) 80%, transparent);
   animation: fall linear infinite;
   transform: rotate(15deg);
 }
@@ -226,27 +226,27 @@ const getRainDropStyle = (drop) =>
 
 .scroll-hint-text {
   font-size: @font-size-body-3;
-  text-shadow: 0 2px 4px fade(@color-text-1, 30%);
+  text-shadow: 0 2px 4px color-mix(in srgb, var(--color-neutral-10) 30%, transparent);
   letter-spacing: 1px;
   transition: all 0.3s ease;
 }
 
 .scroll-hint-icon {
   font-size: 24px;
-  filter: drop-shadow(0 2px 4px fade(@color-text-1, 30%));
+  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--color-neutral-10) 30%, transparent));
   animation: arrowBounce 4s ease-in-out infinite;
   transition: all 0.3s ease;
 }
 
 .scroll-hint.dark-text {
   .scroll-hint-text {
-    color: fade(@color-text-1, 80%);
-    text-shadow: 0 2px 4px fade(@color-bg-white, 30%);
+    color: color-mix(in srgb, var(--color-neutral-10) 80%, transparent);
+    text-shadow: 0 2px 4px color-mix(in srgb, var(--color-bg-white) 30%, transparent);
   }
 
   .scroll-hint-icon {
-    color: fade(@color-text-1, 80%);
-    filter: drop-shadow(0 2px 4px fade(@color-bg-white, 30%));
+    color: color-mix(in srgb, var(--color-neutral-10) 80%, transparent);
+    filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--color-bg-white) 30%, transparent));
   }
 }
 

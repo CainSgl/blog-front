@@ -360,7 +360,7 @@ onMounted(() => {
   display: flex;
   flex: 1;
   width: 100%;
-
+  background-color: var(--color-bg-1);
   overflow: hidden;
 }
 
@@ -369,14 +369,14 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background-color: var(--color-bg-1);
 }
 
 .content-area {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-
-
+  background-color: var(--color-bg-1);
 }
 
 .loading-container {
@@ -385,5 +385,6 @@ onMounted(() => {
   justify-content: center;
   height: 100%;
   min-height: 400px;
+  background-color: var(--color-bg-1);
 }
 </style>

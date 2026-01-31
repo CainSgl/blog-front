@@ -171,7 +171,7 @@ onMounted(async () => {
 <style lang="less" scoped>
 .user-favorite {
     margin: 0 auto;
-  
+    background-color: var(--color-bg-1);
     max-width: 1200px;
     .content-area {
         margin-top: 20px;
@@ -179,6 +179,7 @@ onMounted(async () => {
         .favorite-card {
             min-height: 400px;
             width: 100%;
+            background-color: var(--color-bg-1);
 
             :deep(.arco-card-body) {
                 padding: 24px;
@@ -205,19 +206,19 @@ onMounted(async () => {
             align-items: center;
             gap: 8px;
             padding: 10px 12px;
-            background: @color-fill-1;
+            background: var(--color-fill-1);
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
             user-select: none;
 
             &:hover {
-                background: fade(@primary-6, 10%);
+                background: var(--color-primary-light-1);
             }
 
             .expand-icon {
                 font-size: 12px;
-                color: @color-text-4;
+                color: var(--color-neutral-4);
                 transition: transform 0.2s;
 
                 &.expanded {
@@ -237,14 +238,14 @@ onMounted(async () => {
             .group-title {
                 font-size: 15px;
                 font-weight: 600;
-                color: @color-text-1;
+                color: var(--color-neutral-10);
                 flex: 1;
             }
 
             .group-count {
                 font-size: 13px;
-                color: @color-text-4;
-                background: @color-bg-white;
+                color: var(--color-neutral-4);
+                background: var(--color-bg-1);
                 padding: 2px 8px;
                 border-radius: 10px;
             }

@@ -243,12 +243,12 @@ onUnmounted(() => {
 .history-page {
     width: 100%;
     min-height: 100vh;
-    background-color: @color-bg-1;
+    background-color: var(--color-bg-1);
 
     .page-header {
         padding: 24px 32px;
-        background-color: @color-bg-white;
-        border-bottom: 1px solid @color-border-2;
+        background-color: var(--color-bg-2);
+        border-bottom: 1px solid var(--color-border-2);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -259,7 +259,7 @@ onUnmounted(() => {
             margin: 0;
             font-size: 24px;
             font-weight: 600;
-            color: @color-text-1;
+            color: var(--color-neutral-10);
         }
 
         .header-actions {
@@ -295,12 +295,12 @@ onUnmounted(() => {
                 }
 
                 &:hover {
-                    background-color: @color-fill-1;
+                    background-color: var(--color-fill-1);
                 }
 
                 &.selected {
-                    background-color: @primary-1;
-                    border-color: @primary-6;
+                    background-color: var(--color-primary-light-1);
+                    border-color: var(--color-primary-6);
                 }
             }
 
@@ -312,15 +312,15 @@ onUnmounted(() => {
 
                 .browse-count {
                     font-size: 12px;
-                    color: @color-text-3;
-                    background-color: @color-fill-2;
+                    color: var(--color-neutral-8);
+                    background-color: var(--color-fill-2);
                     padding: 4px 12px;
                     border-radius: 4px;
                 }
 
                 .browse-time {
                     font-size: 12px;
-                    color: @color-text-4;
+                    color: var(--color-neutral-6);
                 }
             }
         }

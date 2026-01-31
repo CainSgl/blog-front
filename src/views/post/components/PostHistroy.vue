@@ -130,7 +130,7 @@ function switchOtherVersion(item)
   margin-left: 10px;
   .history-limit-hint {
     font-size: 12px;
-    color: #6e7781;
+    color: var(--color-text-3);
     font-weight: normal;
 
   }
@@ -146,25 +146,25 @@ function switchOtherVersion(item)
     align-items: center;
 
     &:hover {
-      background-color: #f6f8fa;
-      border-color: #d0d7de;
+      background-color: var(--color-fill-2);
+      border-color: var(--color-border-2);
     }
 
     &:active {
-      background-color: #eaecef;
+      background-color: var(--color-fill-3);
     }
   }
 
   .select-history-item {
-    background-color: #f6f8fa;
-    border-color: #d0d7de;
+    background-color: var(--color-fill-2);
+    border-color: var(--color-border-2);
   }
 
   .version-info {
     font-family: monospace;
     user-select: none;
     font-size: 14px;
-    color: #0969da;
+    color: rgb(var(--primary-6));
     font-weight: 500;
   }
 }

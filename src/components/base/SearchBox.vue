@@ -269,14 +269,12 @@ const handleSearch = () => {
 </script>
 
 <style scoped lang="less">
-@import "@/assets/style/global.less";
-
 .search-container {
   width: 100%;
   max-width: 100%;
   display: flex;
   justify-content: center;
-  padding: 0 @size-5;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
@@ -295,41 +293,41 @@ const handleSearch = () => {
   width: 100%;
   min-width: 0; /* 允许 flex 子元素收缩 */
   height: 48px;
-  background: fade(@color-bg-white, 95%);
+  background: color-mix(in srgb, var(--color-bg-2) 95%, transparent);
   backdrop-filter: blur(10px);
   border-radius: 24px;
-  padding: 0 @size-2 0 @size-1;
-  border: @border-1 solid transparent;
-  box-shadow: @shadow2-center;
+  padding: 0 8px 0 4px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-neutral-10) 8%, transparent);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    box-shadow: 0 4px 16px fade(@color-text-1, 15%);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-neutral-10) 15%, transparent);
   }
 
   &.focused {
-    box-shadow: 0 4px 20px fade(@color-text-1, 20%);
-    background: @color-bg-white;
-    border-color: @color-text-1;
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--color-neutral-10) 20%, transparent);
+    background: var(--color-bg-2);
+    
   }
 }
 
 /* Mini 模式下的搜索框样式 */
 .search-container:has(.search-mode-dropdown.mini) .search-box {
   height: 36px;
-  border-radius: @border-radius-medium;
-  border: @border-1 solid fade(@color-text-1, 12%);
-  box-shadow: 0 1px 2px fade(@color-text-1, 5%);
-  background: fade(@color-bg-white, 98%);
+  border-radius: var(--border-radius-medium);
+  border: 1px solid color-mix(in srgb, var(--color-neutral-10) 12%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-neutral-10) 5%, transparent);
+  background: color-mix(in srgb, var(--color-bg-2) 98%, transparent);
 
   &:hover {
-    box-shadow: 0 2px 6px fade(@color-text-1, 10%);
-    border-color: fade(@color-text-1, 18%);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--color-neutral-10) 10%, transparent);
+    border-color: color-mix(in srgb, var(--color-neutral-10) 18%, transparent);
   }
 
   &.focused {
-    box-shadow: 0 2px 6px fade(@color-text-1, 10%);
-    border-color: fade(@color-text-1, 18%);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--color-neutral-10) 10%, transparent);
+    border-color: color-mix(in srgb, var(--color-neutral-10) 18%, transparent);
   }
 }
 
@@ -338,45 +336,45 @@ const handleSearch = () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: @size-2 @size-3;
-  margin-left: @size-1;
+  padding: 8px 12px;
+  margin-left: 4px;
   border-radius: 20px;
   cursor: pointer;
   user-select: none;
   transition: all 0.2s ease;
-  background: fade(@color-text-1, 3%);
+  background: color-mix(in srgb, var(--color-neutral-10) 3%, transparent);
   flex-shrink: 0; /* 防止被压缩 */
 
   &:hover {
-    background: fade(@color-text-1, 6%);
+    background: color-mix(in srgb, var(--color-neutral-10) 6%, transparent);
   }
 
   .mode-text {
-    font-size: @font-size-body-3;
-    color: @color-text-3;
-    font-weight: @font-weight-500;
+    font-size: var(--font-size-body-3);
+    color: var(--color-neutral-6);
+    font-weight: 500;
     white-space: nowrap;
   }
 
   .dropdown-icon {
-    color: @color-text-3;
-    font-size: @font-size-body-1;
+    color: var(--color-neutral-6);
+    font-size: 12px;
     transition: transform 0.2s ease;
   }
 
   /* Mini 模式样式 */
   &.mini {
-    padding: @size-1 @size-2;
+    padding: 4px 8px;
     gap: 3px;
     border-radius: 6px;
-    background: fade(@color-text-1, 2%);
+    background: color-mix(in srgb, var(--color-neutral-10) 2%, transparent);
 
     &:hover {
-      background: fade(@color-text-1, 5%);
+      background: color-mix(in srgb, var(--color-neutral-10) 5%, transparent);
     }
 
     .mode-text {
-      font-size: @font-size-body-1;
+      font-size: 12px;
     }
 
     .dropdown-icon {
@@ -388,60 +386,60 @@ const handleSearch = () => {
 /* 下拉菜单 */
 .mode-dropdown-menu {
   min-width: 200px;
-  background: @color-bg-white;
-  border-radius: @size-3;
-  box-shadow: 0 4px 16px fade(@color-text-1, 15%);
-  padding: @size-2;
+  background: var(--color-bg-2);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-neutral-10) 15%, transparent);
+  padding: 8px;
 }
 
 .mode-option {
   display: flex;
   flex-direction: column;
-  padding: 10px @size-3;
-  border-radius: @border-radius-medium;
+  padding: 10px 12px;
+  border-radius: var(--border-radius-medium);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: fade(@color-text-1, 4%);
+    background: color-mix(in srgb, var(--color-neutral-10) 4%, transparent);
   }
 
   &.active {
-    background: fade(@primary-6, 10%);
+    background: color-mix(in srgb, rgb(var(--primary-6)) 10%, transparent);
 
     .mode-label {
-      color: @primary-6;
-      font-weight: @font-weight-600;
+      color: rgb(var(--primary-6));
+      font-weight: 600;
     }
   }
 
   .mode-label {
-    font-size: @font-size-body-3;
-    color: @color-text-1;
-    font-weight: @font-weight-500;
+    font-size: var(--font-size-body-3);
+    color: var(--color-neutral-10);
+    font-weight: 500;
     margin-bottom: 2px;
   }
 
   .mode-desc {
-    font-size: @font-size-body-1;
-    color: @color-text-3;
+    font-size: 12px;
+    color: var(--color-neutral-6);
   }
 }
 
 /* 分隔线 */
 .divider {
-  width: @border-1;
+  width: 1px;
   height: 28px;
-  background: fade(@color-text-1, 10%);
-  margin: 0 @size-2;
+  background: color-mix(in srgb, var(--color-neutral-10) 10%, transparent);
+  margin: 0 8px;
   flex-shrink: 0; /* 防止被压缩 */
 }
 
 /* 搜索图标 */
 .search-icon {
   flex-shrink: 0;
-  color: @color-text-4;
-  margin-left: @size-2;
+  color: var(--color-neutral-4);
+  margin-left: 8px;
   font-size: 18px;
 }
 
@@ -453,21 +451,21 @@ const handleSearch = () => {
   border: none;
   outline: none;
   background: transparent;
-  font-size: @font-size-title-1;
-  color: @color-text-1;
-  padding: 0 @size-3;
+  font-size: 16px;
+  color: var(--color-text-1);
+  padding: 0 12px;
   font-family: inherit;
 
   &::placeholder {
-    color: @color-text-4;
+    color: var(--color-text-4);
   }
 
   &:disabled {
     cursor: not-allowed;
-    color: @color-fill-4;
+    color: var(--color-fill-4);
     
     &::placeholder {
-      color: @color-fill-4;
+      color: var(--color-fill-4);
     }
   }
 }
@@ -475,13 +473,13 @@ const handleSearch = () => {
 /* 清除按钮 - 使用 Arco Button */
 .clear-btn {
   flex-shrink: 0;
-  margin-right: @size-1;
+  margin-right: 4px;
   
   :deep(.arco-btn) {
-    color: @color-text-3;
+    color: var(--color-neutral-6);
     
     &:hover {
-      background: fade(@color-text-1, 6%);
+      background: color-mix(in srgb, var(--color-neutral-10) 6%, transparent);
     }
   }
 }
@@ -492,7 +490,7 @@ const handleSearch = () => {
   height: 40px;
   min-width: 60px; /* 确保最小宽度 */
   border-radius: 20px;
-  font-weight: @font-weight-500;
+  font-weight: 500;
 }
 
 /* Mini 模式下的搜索按钮 */
@@ -500,8 +498,8 @@ const handleSearch = () => {
   height: 30px;
   min-width: 56px;
   border-radius: 6px;
-  font-size: @font-size-body-2;
-  font-weight: @font-weight-500;
+  font-size: 13px;
+  font-weight: 500;
   padding: 0 14px;
 }
 
@@ -513,13 +511,13 @@ const handleSearch = () => {
 
 /* Mini 模式下的搜索图标 */
 .search-container:has(.search-mode-dropdown.mini) .search-icon {
-  font-size: @font-size-title-1;
+  font-size: 16px;
   margin-left: 6px;
 }
 
 /* Mini 模式下的输入框 */
 .search-container:has(.search-mode-dropdown.mini) .search-input {
-  font-size: @font-size-body-3;
+  font-size: var(--font-size-body-3);
   padding: 0 10px;
 }
 
@@ -527,8 +525,8 @@ const handleSearch = () => {
 .search-filters {
   display: flex;
   justify-content: center;
-  gap: @size-3;
-  margin-top: @size-5;
+  gap: 12px;
+  margin-top: 20px;
   flex-wrap: wrap;
 }
 
@@ -536,39 +534,39 @@ const handleSearch = () => {
   backdrop-filter: blur(10px);
   
   &:deep(.arco-btn-outline) {
-    background: fade(@color-bg-white, 90%);
-    border-color: fade(@color-text-1, 12%);
-    color: @color-text-3;
+    background: color-mix(in srgb, var(--color-bg-2) 90%, transparent);
+    border-color: color-mix(in srgb, var(--color-neutral-10) 12%, transparent);
+    color: var(--color-neutral-6);
     
     &:hover {
-      background: @color-bg-white;
-      border-color: fade(@color-text-1, 20%);
-      box-shadow: 0 2px 8px fade(@color-text-1, 8%);
+      background: var(--color-bg-2);
+      border-color: color-mix(in srgb, var(--color-neutral-10) 20%, transparent);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--color-neutral-10) 8%, transparent);
     }
   }
   
   &:deep(.arco-btn-primary) {
-    box-shadow: 0 2px 8px fade(@primary-6, 30%);
+    box-shadow: 0 2px 8px color-mix(in srgb, rgb(var(--primary-6)) 30%, transparent);
   }
   
   /* 子标签样式 - 稍微淡一点 */
   &.child-tag {
     &:deep(.arco-btn-outline) {
-      background: fade(@color-bg-white, 70%);
-      border-color: fade(@color-text-1, 8%);
-      color: @color-text-4;
-      font-size: @font-size-body-2;
+      background: color-mix(in srgb, var(--color-bg-2) 70%, transparent);
+      border-color: color-mix(in srgb, var(--color-neutral-10) 8%, transparent);
+      color: var(--color-neutral-4);
+      font-size: 13px;
       
       &:hover {
-        background: fade(@color-bg-white, 85%);
-        border-color: fade(@color-text-1, 15%);
-        color: @color-text-3;
+        background: color-mix(in srgb, var(--color-bg-2) 85%, transparent);
+        border-color: color-mix(in srgb, var(--color-neutral-10) 15%, transparent);
+        color: var(--color-neutral-6);
       }
     }
     
     &:deep(.arco-btn-primary) {
       opacity: 0.85;
-      box-shadow: 0 2px 6px fade(@primary-6, 20%);
+      box-shadow: 0 2px 6px color-mix(in srgb, rgb(var(--primary-6)) 20%, transparent);
     }
   }
 }
@@ -586,10 +584,10 @@ const handleSearch = () => {
   }
 
   .search-mode-dropdown {
-    padding: 6px @size-2;
+    padding: 6px 8px;
 
     .mode-text {
-      font-size: @font-size-body-2;
+      font-size: 13px;
     }
   }
 
@@ -599,7 +597,7 @@ const handleSearch = () => {
 
   .search-input {
     font-size: 15px;
-    padding: 0 @size-2;
+    padding: 0 8px;
   }
 
   .search-btn {
@@ -608,41 +606,41 @@ const handleSearch = () => {
     
     :deep(.arco-btn) {
       height: 36px;
-      font-size: @font-size-body-2;
+      font-size: 13px;
     }
   }
 }
 
 @media (max-width: 480px) {
   .search-container {
-    padding: 0 @size-3;
+    padding: 0 12px;
   }
 
   .search-box {
     height: 42px;
-    padding: 0 6px 0 @size-1;
+    padding: 0 6px 0 4px;
   }
 
   .search-mode-dropdown {
-    padding: 6px @size-2;
+    padding: 6px 8px;
     margin-left: 2px;
 
     .mode-text {
-      font-size: @font-size-body-1;
+      font-size: 12px;
     }
   }
 
   .divider {
-    margin: 0 @size-1;
+    margin: 0 4px;
   }
 
   .search-icon {
-    margin-left: @size-1;
-    font-size: @font-size-title-1;
+    margin-left: 4px;
+    font-size: 16px;
   }
 
   .search-input {
-    font-size: @font-size-body-3;
+    font-size: var(--font-size-body-3);
     padding: 0 6px;
   }
 
@@ -656,8 +654,8 @@ const handleSearch = () => {
     
     :deep(.arco-btn) {
       height: 34px;
-      font-size: @font-size-body-1;
-      padding: 0 @size-3;
+      font-size: 12px;
+      padding: 0 12px;
     }
   }
 }

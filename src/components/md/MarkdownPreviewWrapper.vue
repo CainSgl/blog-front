@@ -324,7 +324,7 @@ onUnmounted(() =>
     position: absolute;
     bottom: 20px;
     right: 20px;
-    z-index: 1000; // 确保按钮在最上层
+    z-index: 10; // 确保按钮在最上层
   }
 
   .scroll-progress-container {

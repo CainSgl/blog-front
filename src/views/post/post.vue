@@ -378,6 +378,7 @@ onMounted(() => {
   max-width: 100vw;
   overflow-x: hidden;
   box-sizing: border-box;
+  background-color: var(--color-bg-1);
 }
 
 .content-wrapper {
@@ -435,6 +436,7 @@ onMounted(() => {
   flex: 1;
   min-width: 0;
   max-width: 100%;
+  border-radius: 8px;
 
   &::-webkit-scrollbar {
     display: none !important;
@@ -475,7 +477,7 @@ onMounted(() => {
   margin: 0 0 12px 0;
   font-size: 30px;
   font-weight: bold;
-  color: @color-text-1;
+  color: var(--color-neutral-10);
   line-height: 1.3;
 }
 
@@ -485,7 +487,7 @@ onMounted(() => {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  color: @color-text-4;
+  color: var(--color-neutral-8);
   font-size: 14px;
 }
 
@@ -508,10 +510,10 @@ onMounted(() => {
 
 .changelog-sidebar {
   width: 200px;
-  background-color: @color-fill-1;
+  background-color: var(--color-fill-2);
   padding: 16px;
   border-radius: 8px;
-  border: 1px solid @color-border-1;
+  border: 1px solid var(--color-border-2);
   height: fit-content;
 }
 
@@ -540,10 +542,10 @@ onMounted(() => {
   height: 28px;
 
   border-radius: 14px;
-  background-color: @color-fill-1;
-  color: @color-text-4;
+  background-color: var(--color-fill-2);
+  color: var(--color-text-2);
   font-size: 14px;
   font-weight: 500;
-  border: 1px solid @color-border-1;
+  border: 1px solid var(--color-border-2);
 }
 </style>

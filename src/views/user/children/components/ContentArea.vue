@@ -1,6 +1,6 @@
 <template>
   <div class="content-area" style="margin-top: 20px;">
-    <a-card :bordered="false">
+    <a-card :bordered="false" style="background-color:var(--color-bg-1) ;">
       <!-- 突然发现不用spin更好看 -->
       <div :loading="loading" :tip="loadingTip">
         <div class="list-container">

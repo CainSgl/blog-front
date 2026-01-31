@@ -111,12 +111,12 @@ const handleBack = () => {
 
   p {
     font-size: @font-size-title-1;
-    color: @color-text-3;
+    color: var(--color-neutral-6);
   }
 }
 
 .error-msg {
-  color: @danger-6;
+  color: rgb(var(--danger-6));
   font-size: @font-size-body-3;
   margin-top: @size-2;
 }

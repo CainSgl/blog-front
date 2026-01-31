@@ -188,10 +188,10 @@ onUnmounted(() => {
 }
 
 .register-card {
-  background: fade(@color-bg-white, 95%);
+  background: color-mix(in srgb, var(--color-bg-2) 95%, transparent);
   border-radius: @size-5;
   padding: 60px 80px;
-  box-shadow: 0 20px 60px fade(#000, 30%);
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--color-neutral-10) 30%, transparent);
   backdrop-filter: blur(10px);
   min-height: 500px;
   display: flex;
@@ -208,17 +208,17 @@ onUnmounted(() => {
     width: 10px;
     height: 10px;
     border-radius: @border-radius-circle;
-    background: @color-fill-3;
+    background: var(--color-fill-3);
     transition: all 0.3s ease;
 
     &.active {
       width: 32px;
       border-radius: 5px;
-      background: @primary-6;
+      background: rgb(var(--primary-6));
     }
 
     &.completed {
-      background: @primary-6;
+      background: rgb(var(--primary-6));
     }
   }
 }
@@ -228,7 +228,7 @@ onUnmounted(() => {
   margin-top: auto;
   padding-top: 32px;
   font-size: @font-size-body-3;
-  color: @color-text-2;
+  color: var(--color-neutral-8);
 
   span {
     margin-right: @size-2;

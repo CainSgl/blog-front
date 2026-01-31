@@ -367,10 +367,10 @@ const handleNodeClick = (node) =>
   justify-content: space-between;
   margin-bottom: 10px;
   gap: 8px;
-  background-color: @color-bg-white;
+  background-color: var(--color-bg-1);
   padding: 10px 0;
 }
-
+x
 .toc-content {
   width: 100%;
   height: 100%;
@@ -378,7 +378,7 @@ const handleNodeClick = (node) =>
 
 .empty-toc {
   padding: 10px;
-  color: @color-text-4;
+  color: var(--color-neutral-4);
   font-style: italic;
   text-align: center;
 }
@@ -412,13 +412,13 @@ const handleNodeClick = (node) =>
 }
 
 :deep(.arco-tree-node-title:hover) {
-  background-color: @color-fill-2;
+  background-color: var(--color-fill-2);
 }
 
 /* 选中节点的样式 */
 :deep(.arco-tree-node-selected .arco-tree-node-title) {
-  background-color: @primary-8 !important;
-  color: @color-text-1 !important;
+  background-color: rgb(var(--primary-6)) !important;
+  color: rgb(var(--primary-1)) !important;
   font-weight: 500;
 }
 

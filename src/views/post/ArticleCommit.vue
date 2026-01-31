@@ -1,5 +1,5 @@
 <template>
-    <div class="article-commit">
+    <div class="article-commit" >
 
         <a-affix :offset-top="0">
             <div class="header">
@@ -7,9 +7,9 @@
                     <template #icon>
                         <IconArrowLeft />
                     </template>
-                    返回编辑
+                    返回
                 </a-button>
-                <h2>文章发布</h2>
+                <h2 style="color: var(--color-neutral-10);">文章发布</h2>
                 <a-button type="primary" @click="publishArticle" :loading="publishing">
                     <template #icon>
                         <IconSend />
@@ -138,7 +138,7 @@
                                     :aspect-ratio="1.5" :original-file-name="originalFileName"
                                     @confirm="handleCroppedImage" />
                             </div>
-                            <p>内容预览</p>
+                            <p>内容预览</p
                             <MarkdownPreview :content="articleForm.newContent" height="400px"
                                 style="max-height: 400px;" />
 
@@ -543,7 +543,7 @@ onMounted(() =>
     const commitData = kbStore.getCommitData?.() || {};
     if (!commitData.id || !commitData.newContent) 
     {
-      Message.warning('未找到文章内容，请返回编辑页面');
+      Message.warning('未找到文章内容');
       return;
     }
     // 如果 commitData 中没有状态，则设置默认状态为"已发布
@@ -562,26 +562,27 @@ onMounted(() =>
 
 <style scoped lang="less">
 .article-commit {
-    height: 100vh;
-    position: relative;
+    background-color: var(--color-bg-1);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
-    background: #fff;
-    border-bottom: 1px solid #e5e6eb;
+    background: var(--color-bg-2);
+    border-bottom: 1px solid var(--color-border);
     padding: 5px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     z-index: 100;
+    flex-shrink: 0;
 }
 
 .content {
     padding: 24px;
-    margin-top: 20px;
-    position: relative;
-    z-index: 1;
-    min-height: calc(100vh - 160px);
+    flex: 1;
+    overflow-y: auto;
 }
 
 // 响应式设计
@@ -686,11 +687,11 @@ onMounted(() =>
         }
 
         .original-summary {
-            background-color: #f5f5f5;
+            background-color: var(--color-fill-2);
         }
 
         .ai-summary {
-            background-color: #e8f4ff;
+            background-color: var(--color-primary-light-1);
         }
     }
 
@@ -705,7 +706,7 @@ onMounted(() =>
     .image-upload-section {
         margin-top: 16px;
         padding-top: 16px;
-        border-top: 1px solid #f0f0f0;
+        border-top: 1px solid var(--color-border);
 
         h4 {
             margin-bottom: 12px;

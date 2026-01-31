@@ -648,7 +648,7 @@ defineExpose({
     padding: 16px;
     line-height: 1.6;
     font-size: 16px;
-    color: @color-text-2;
+    color: var(--color-neutral-10);
 
     & .cainsgl-custom-container {
       margin: 20px 0;
@@ -728,7 +728,7 @@ defineExpose({
 
         & .cainsgl-container-title {
           background-color: @color-fill-2;
-          color: @color-text-2;
+          color: var(--color-neutral-10);
 
 
         }
@@ -754,7 +754,7 @@ defineExpose({
       padding: 12px 16px;
       border-left: 4px solid @primary-4;
       background-color: @color-fill-1;
-      color: @color-text-3;
+      color: var(--color-neutral-8);
       border-radius: 0 4px 4px 0;
       position: relative;
     }
@@ -782,7 +782,7 @@ defineExpose({
       th {
         background-color: @color-fill-2;
         font-weight: 600;
-        color: @color-text-2;
+        color: var(--color-neutral-10);
       }
 
       tr:nth-child(even) {
@@ -871,7 +871,7 @@ defineExpose({
 
       & input[type="checkbox"]:checked+.cainsgl-task-list-checkmark+.cainsgl-task-list-content {
         text-decoration: line-through;
-        color: @color-text-4;
+        color: var(--color-neutral-6);
       }
     }
 

@@ -61,5 +61,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   overflow: auto;
+  background-color: var(--color-bg-1);
+  padding: 24px;
 }
 </style>

@@ -133,7 +133,7 @@ onMounted(async ()=>{
 
   p {
     font-size: @font-size-title-1;
-    color: @color-text-3;
+    color: var(--color-neutral-6);
     margin-bottom: @size-2;
   }
 }
@@ -153,7 +153,7 @@ onMounted(async ()=>{
 
   :deep(.arco-form-item-label) {
     font-size: @font-size-body-3;
-    color: @color-text-2;
+    color: var(--color-neutral-8);
   }
 
   :deep(.arco-radio-group) {
@@ -163,7 +163,7 @@ onMounted(async ()=>{
 }
 
 .error-msg {
-  color: @danger-6;
+  color: rgb(var(--danger-6));
   font-size: @font-size-body-3;
   margin-top: @size-2;
 }

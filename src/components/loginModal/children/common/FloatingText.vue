@@ -37,6 +37,7 @@ onMounted(() =>
 
 <style scoped lang="less">
 .floating-text-container {
+  
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,6 +52,7 @@ onMounted(() =>
 }
 
 .floating-char {
+  color:var(--color-bg-white);
   opacity: 0;
   display: inline-block;
   transform: translateY(1.2em);

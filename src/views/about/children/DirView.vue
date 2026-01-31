@@ -108,6 +108,8 @@ watch(() => props.node, () => {
 <style scoped lang="less">
 .dir-view {
   padding: 24px;
+  background-color: var(--color-bg-1);
+  min-height: 100%;
 }
 
 .empty {
@@ -115,51 +117,52 @@ watch(() => props.node, () => {
   align-items: center;
   justify-content: center;
   min-height: 400px;
+  background-color: var(--color-bg-1);
 }
 
 .dir-content {
   display: flex;
   flex-direction: column;
-  gap: @size-3;
+  gap: 12px;
 }
 
 .dir-item {
   display: flex;
   align-items: center;
-  padding: @size-4;
-  background: @color-bg-2;
-  border-radius: @border-radius-medium;
+  padding: 16px;
+  background: var(--color-bg-2);
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  border: @border-2 solid transparent;
+  border: 2px solid transparent;
 
   &:hover {
-    background: @color-bg-3;
-    border-color: @color-border-3;
+    background: var(--color-bg-3);
+    border-color: var(--color-border-3);
     transform: translateX(4px);
   }
 
   &.is-article {
     .item-icon {
-      color: @primary-6;
+      color: rgb(var(--primary-6));
     }
   }
 
   &.is-folder {
     .item-icon {
-      color: @warning-6;
+      color: rgb(var(--warning-6));
     }
   }
 
   &.first-item-highlight {
-    background-color: @primary-1;
-    border-color: @primary-6;
+    background-color: var(--color-primary-light-1);
+    border-color: rgb(var(--primary-6));
   }
 }
 
 .item-icon {
   font-size: 24px;
-  margin-right: @size-3;
+  margin-right: 12px;
   flex-shrink: 0;
 }
 
@@ -169,18 +172,18 @@ watch(() => props.node, () => {
 }
 
 .item-name {
-  font-size: @font-size-title-1;
-  font-weight: @font-weight-500;
-  color: @color-text-1;
-  margin-bottom: @size-1;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-1);
+  margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .item-path {
-  font-size: @font-size-body-1;
-  color: @color-text-3;
+  font-size: 14px;
+  color: var(--color-text-3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

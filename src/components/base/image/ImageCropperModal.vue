@@ -975,7 +975,7 @@ defineExpose({
 .preview-size {
   margin-bottom: 15px;
   font-size: @font-size-body-3;
-  color: @color-text-3;
+  color: var(--color-neutral-6);
 }
 
 .file-name-input {

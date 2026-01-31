@@ -474,7 +474,7 @@ const emit = defineEmits(['reply']);
   justify-content: center;
   gap: 4px;
   padding: 0 8px;
-  color: @color-text-1;
+  color: var(--color-neutral-10);
   line-height: 24px;
   height: 24px;
   background: transparent;
@@ -488,7 +488,7 @@ const emit = defineEmits(['reply']);
   }
 }
 .comment-gray-color{
-  color:@color-text-3;
+  color:var(--color-neutral-6);
 }
 :deep(.arco-comment-avatar) {
   cursor: default;

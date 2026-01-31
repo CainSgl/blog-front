@@ -198,7 +198,7 @@ const leave = (el, done) =>
   }
 
   .title {
-    color: @color-text-4;
+    color: var(--color-neutral-4);
     font-size: @font-size-body-3;
     margin-left: auto;
     font-weight: @font-weight-700;

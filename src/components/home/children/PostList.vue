@@ -152,7 +152,7 @@ onUnmounted(() =>
 </script>
 
 <style lang="less" scoped>
-@import "@/assets/style/global.less";
+
 
 .post-list-container {
   width: 100%;
@@ -177,10 +177,10 @@ onUnmounted(() =>
 }
 
 .loading-item {
-  background: @color-bg-white;
+  background-color: var(--color-bg-1);
   border-radius: @border-radius-medium;
   overflow: hidden;
-  box-shadow: 0 2px 8px fade(@color-text-1, 8%);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-neutral-10) 8%, transparent 92%);
 
   .skeleton-image {
     width: 100%;
@@ -205,7 +205,7 @@ onUnmounted(() =>
 .no-more-text {
   text-align: center;
   padding: 40px 0;
-  color: @color-text-4;
+  color: var(--color-neutral-4);
   font-size: @font-size-body-3;
 }
 

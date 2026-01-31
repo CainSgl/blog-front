@@ -48,13 +48,13 @@ const goBack = () => {
   h1 {
     font-size: 32px;
     font-weight: 600;
-    color: @color-text-1;
+    color: var(--color-neutral-10);
     margin: 0 0 16px 0;
   }
 
   p {
     font-size: 16px;
-    color: @color-text-2;
+    color: var(--color-neutral-8);
     margin: 0 0 32px 0;
   }
 
@@ -64,7 +64,7 @@ const goBack = () => {
     gap: 16px;
 
     .separator {
-      color: @color-text-3;
+      color: var(--color-neutral-6);
     }
   }
 }

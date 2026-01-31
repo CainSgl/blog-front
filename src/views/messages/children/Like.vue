@@ -188,7 +188,7 @@ onUnmounted(() => {
     align-items: center;
 
     .no-more {
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       font-size: 14px;
       width: 100%;
       display: flex;
@@ -201,11 +201,15 @@ onUnmounted(() => {
     color: inherit;
     text-decoration: none;
     margin-left: 12px;
+    background-color: var(--color-bg-1);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-2);
 
     .post-title {
       font-size: 16px;
       font-weight: 500;
-      color: #1d2129;
+      color: var(--color-neutral-10);
       line-height: 1.4;
       flex: 1;
       word-break: break-word;
@@ -217,7 +221,7 @@ onUnmounted(() => {
     }
 
     .post-summary {
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       font-size: 12px;
       margin-bottom: 8px;
       line-height: 1.5;
@@ -226,14 +230,14 @@ onUnmounted(() => {
     .post-stats {
       display: flex;
       gap: 12px;
-      color: @color-text-3;
+      color: var(--color-neutral-6);
       font-size: 12px;
 
       .stat-item {
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        color: #86909c;
+        color: var(--color-neutral-6);
         font-size: 14px;
         margin-right: 16px;
 

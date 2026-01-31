@@ -115,7 +115,7 @@ const skeletonStyle = computed(() => SKELETON_STYLE);
 </script>
 
 <style scoped lang="less">
-@import "@/assets/style/global.less";
+
 
 .kb-card {
     width: 180px;
@@ -172,7 +172,7 @@ const skeletonStyle = computed(() => SKELETON_STYLE);
 .kb-name {
     font-size: @font-size-title-1;
     font-weight: @font-weight-500;
-    color: @color-text-1;
+    color: var(--color-neutral-10);
     margin-bottom: @size-3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -186,7 +186,7 @@ const skeletonStyle = computed(() => SKELETON_STYLE);
     justify-content: space-between;
     align-items: center;
     font-size: @font-size-body-1;
-    color: @color-text-4;
+    color: var(--color-neutral-4);
 }
 
 .kb-stats {

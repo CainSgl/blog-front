@@ -6,7 +6,7 @@
       <div v-show="!isCollapsed">
         <div class="tree-menu">
           <div class="kb-header">
-            <h3>{{ kbInfo.name }}</h3>
+            <h3 style="color: var(--color-neutral-10);">{{ kbInfo.name }}</h3>
             <div class="favorite-button" @click="handleFavorite">
               <IconStarFill v-if="kbStore.hasStar" class="star-icon active" />
               <IconStar v-else class="star-icon" />
@@ -285,22 +285,23 @@ onUnmounted(() => {
   display: flex;
   height: 100vh;
   width: 100%;
+  background-color: var(--color-bg-1);
 }
 
 .sidebar {
   min-width: 290px;
   width: 16%;
-  padding: @size-5;
+  padding: 20px;
   height: 100vh;
   box-sizing: border-box;
-  border-right: @border-1 solid @color-border-2;
+  border-right: 1px solid var(--color-border-2);
   position: relative;
   transition: width 0.3s ease;
 
   &.collapsed {
     width: 0;
     min-width: 0;
-    padding: @size-5 0;
+    padding: 20px 0;
   }
 }
 
@@ -320,8 +321,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: @size-2;
-  margin-bottom: @size-3;
+  gap: 8px;
+  margin-bottom: 12px;
 
   h3 {
     flex: 1;
@@ -334,28 +335,28 @@ onUnmounted(() => {
   .favorite-button {
     flex-shrink: 0;
     cursor: pointer;
-    padding: @size-1;
-    border-radius: @border-radius-small;
+    padding: 4px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: @color-fill-2;
+      background-color: var(--color-fill-2);
     }
 
     .star-icon {
-      font-size: @size-5;
-      color: @color-text-3;
+      font-size: 20px;
+      color: var(--color-neutral-6);
       transition: color 0.2s ease;
 
       &.active {
-        color: @warning-6;
+        color: rgb(var(--warning-6));
       }
 
       &:hover {
-        color: @warning-6;
+        color: rgb(var(--warning-6));
       }
     }
   }
@@ -369,37 +370,37 @@ onUnmounted(() => {
 }
 
 .home-node {
-  padding: @size-1 @size-3;
+  padding: 4px 12px;
   cursor: pointer;
-  border-radius: @border-radius-small;
+  border-radius: 4px;
   margin: 2px 0;
   transition: all 0.2s ease;
   position: relative;
-  border: @border-2 solid transparent;
+  border: 2px solid transparent;
   min-height: 24px;
-  background-color: @color-fill-1;
+  background-color: var(--color-fill-1);
 
   &:hover {
-    background-color: @color-fill-2;
+    background-color: var(--color-fill-2);
   }
 
   .node-content {
     display: flex;
     align-items: center;
-    gap: @size-2;
+    gap: 8px;
     height: 100%;
     min-height: 24px;
 
     .node-name {
       flex: 1;
-      font-size: @font-size-body-3;
-      color: @color-text-1;
+      font-size: 14px;
+      color: var(--color-neutral-10);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: @size-2;
+      gap: 8px;
       line-height: 1;
     }
   }
@@ -410,7 +411,7 @@ onUnmounted(() => {
   height: 18px;
   cursor: pointer;
   padding: 2px;
-  border-radius: @border-radius-small;
+  border-radius: 4px;
   transition: all 0.2s ease;
   flex-shrink: 0;
   align-self: center;
@@ -424,10 +425,10 @@ onUnmounted(() => {
   transform: translateY(-25%);
   width: 14px;
   height: 60px;
-  background: @color-bg-white;
-  border: @border-1 solid @color-border-2;
-  border-radius: 0 @size-3 @size-3 0;
-  box-shadow: 2px 0 8px fade(#000, 10%);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 0 12px 12px 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -436,16 +437,16 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 
   &:hover {
-    background: @color-fill-1;
+    background: var(--color-fill-1);
   }
 
   .collapse-icon {
-    color: @color-text-3;
-    font-size: @font-size-title-1;
+    color: var(--color-neutral-6);
+    font-size: 16px;
     transition: all 0.3s ease;
 
     &:hover {
-      color: @color-text-1;
+      color: var(--color-neutral-10);
     }
   }
 
@@ -462,10 +463,10 @@ onUnmounted(() => {
   transform: translateY(-25%);
   width: 14px;
   height: 60px;
-  background: @color-bg-white;
-  border: @border-1 solid @color-border-2;
-  border-radius: 0 @size-3 @size-3 0;
-  box-shadow: 2px 0 8px fade(#000, 10%);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 0 12px 12px 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -473,16 +474,16 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 
   &:hover {
-    background: @color-fill-1;
+    background: var(--color-fill-1);
   }
 
   .collapse-icon {
-    color: @color-text-3;
-    font-size: @font-size-title-1;
+    color: var(--color-neutral-6);
+    font-size: 16px;
     transition: all 0.3s ease;
 
     &:hover {
-      color: @color-text-1;
+      color: var(--color-neutral-10);
     }
   }
 
@@ -493,6 +494,6 @@ onUnmounted(() => {
 
 .sidebar.collapsed .collapse-button {
   right: -24px;
-  border-radius: 0 @size-3 @size-3 0;
+  border-radius: 0 12px 12px 0;
 }
 </style>

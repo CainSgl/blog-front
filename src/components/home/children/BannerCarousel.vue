@@ -65,7 +65,7 @@ onMounted(async () => {
 
 
 <style scoped lang="less">
-@import "@/assets/style/global.less";
+
 
 .banner-carousel {
   width: 100%;
@@ -128,12 +128,14 @@ onMounted(async () => {
   font-weight: @font-weight-600;
   margin: 0 0 @size-2 0;
   line-height: 1.3;
+  color: var(--color-text-1);
 }
 
 .banner-description {
   font-size: @font-size-title-1;
   margin: 0;
   line-height: 1.5;
+  color: var(--color-text-2);
 }
 
 // 响应式设计

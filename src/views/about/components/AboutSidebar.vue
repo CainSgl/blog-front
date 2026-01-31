@@ -255,8 +255,8 @@ onMounted(() => {
 .sidebar {
     width: 360px;
     min-width: 360px;
-    background: @color-bg-2;
-    border-right: @border-1 solid @color-border-2;
+    background-color: var(--color-bg-2);
+    border-right: 1px solid var(--color-border-2);
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease, min-width 0.3s ease;
@@ -272,14 +272,14 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px @size-5;
-    border-bottom: @border-1 solid @color-border-2;
+    padding: 24px 16px;
+    border-bottom: 1px solid var(--color-border-2);
 
     h2 {
         margin: 0;
-        font-size: @font-size-title-2;
-        font-weight: @font-weight-600;
-        color: @color-text-1;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--color-text-1);
     }
 
     .collapse-btn {
@@ -292,7 +292,7 @@ onMounted(() => {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    padding: @size-5;
+    padding: 16px;
 }
 
 .search-input {
@@ -313,7 +313,7 @@ onMounted(() => {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: @color-border-3;
+        background: var(--color-border-3);
         border-radius: 3px;
     }
 }
@@ -326,7 +326,7 @@ onMounted(() => {
     .node-icon {
         flex-shrink: 0;
         font-size: 15px;
-        color: @color-text-3;
+        color: var(--color-text-3);
     }
 
     .node-text {
@@ -350,18 +350,18 @@ onMounted(() => {
     transition: all 0.2s;
 
     &:hover {
-        background: @color-fill-2;
+        background: var(--color-fill-2);
     }
 }
 
 :deep(.arco-tree-node-selected .arco-tree-node-title) {
-    background: @primary-1 !important;
-    color: @primary-6 !important;
-    font-weight: @font-weight-500;
+    background: var(--color-primary-light-1) !important;
+    color: rgb(var(--primary-6)) !important;
+    font-weight: 500;
 }
 
 :deep(.arco-tree-node-switcher) {
-    color: @color-text-3;
+    color: var(--color-text-3);
 }
 
 @media (max-width: 768px) {
@@ -371,7 +371,7 @@ onMounted(() => {
         top: 0;
         height: 100vh;
         z-index: 100;
-        box-shadow: 2px 0 8px fade(#000, 10%);
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 
         &.sidebar-collapsed {
             transform: translateX(-100%);

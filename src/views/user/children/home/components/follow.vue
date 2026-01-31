@@ -99,7 +99,7 @@ const goToUserSpace = () =>
         .user-link {
           font-size: 16px;
           font-weight: 500;
-          color: @color-text-1;
+          color: var(--color-neutral-10);
           text-decoration: none;
           cursor: pointer;
         }

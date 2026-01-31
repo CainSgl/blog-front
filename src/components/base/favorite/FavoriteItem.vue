@@ -147,53 +147,53 @@ const handleCancel = () => {
 .favorite-item {
     display: flex;
     align-items: center;
-    gap: @size-3;
-    padding: @size-3 @size-4;
-    background: @color-bg-white;
-    border: @border-1 solid @color-fill-3;
-    border-radius: @border-radius-medium;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-fill-3);
+    border-radius: var(--border-radius-medium);
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        border-color: @primary-6;
-        background: @primary-1;
+        border-color: var(--color-primary-6);
+        background: var(--color-primary-light-1);
     }
 
     .item-icon {
         font-size: 18px;
-        color: @color-text-3;
+        color: var(--color-neutral-6);
         flex-shrink: 0;
     }
 
     .item-name {
-        font-size: @font-size-body-3;
-        color: @color-text-1;
-        font-weight: @font-weight-400;
+        font-size: 14px;
+        color: var(--color-neutral-10);
+        font-weight: 400;
         flex: 1;
     }
 
     .item-count {
-        font-size: @font-size-body-2;
-        color: @color-text-4;
-        background: @color-fill-2;
+        font-size: 12px;
+        color: var(--color-neutral-4);
+        background: var(--color-fill-2);
         padding: 2px 10px;
         border-radius: 10px;
-        font-weight: @font-weight-500;
+        font-weight: 500;
         flex-shrink: 0;
     }
 
     .item-more {
         font-size: 18px;
-        color: @color-text-4;
+        color: var(--color-neutral-4);
         flex-shrink: 0;
         padding: 2px;
-        border-radius: @border-radius-small;
+        border-radius: var(--border-radius-small);
         transition: all 0.08s;
 
         &:hover {
-            background: @primary-8;
-            color: @primary-6;
+            background: var(--color-primary-light-4);
+            color: var(--color-primary-6);
         }
     }
 }
@@ -217,7 +217,7 @@ const handleCancel = () => {
 
     .modal-footer-right {
         display: flex;
-        gap: @size-3;
+        gap: 12px;
     }
 }
 </style>

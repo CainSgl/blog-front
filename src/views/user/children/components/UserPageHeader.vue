@@ -237,7 +237,7 @@ const handleBack = () => {
   .option-loading-icon {
     margin-left: 8px;
     font-size: 12px;
-    color: @color-text-4;
+    color: var(--color-neutral-4);
   }
 }
 
@@ -263,7 +263,7 @@ const handleBack = () => {
 .empty-text {
   margin-left: 8px;
   font-size: 13px;
-  color: @color-text-3;
+  color: var(--color-neutral-6);
 }
 
 // 搜索框样式优化

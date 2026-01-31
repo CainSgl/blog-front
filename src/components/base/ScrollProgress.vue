@@ -51,7 +51,7 @@ const handleScrollToTop = () =>
   width: clamp(100px, 10vw, 140px);
   transition: right 0.3s ease, left 0.3s ease;
   padding: @size-2 @size-3;
-  background-color: fade(@color-bg-white, 90%);
+  background-color: var(--color-bg-2);
   border-radius: @border-radius-medium;
   box-shadow: @shadow2-center;
   backdrop-filter: blur(10px);
@@ -70,6 +70,7 @@ const handleScrollToTop = () =>
     font-size: @font-size-body-1;
     min-width: 30px;
     text-align: right;
+    color: var(--color-text-1);
   }
 
   .arco-btn {
@@ -80,7 +81,6 @@ const handleScrollToTop = () =>
 
   .arco-icon {
     font-size: @font-size-title-1;
-    color: @color-bg-white;
   }
 }
 

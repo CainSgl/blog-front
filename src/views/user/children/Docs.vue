@@ -112,7 +112,7 @@
 <script setup>
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IconBook, IconDelete, IconFile, IconLink, IconPlus, IconSettings } from '@arco-design/web-vue/es/icon';
+import { IconBook, IconDelete, IconFile, IconLink, IconPlus, IconSend, IconSettings } from '@arco-design/web-vue/es/icon';
 import { Message, Modal, Upload } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import PostCard from '@/components/post/PostCard.vue';
@@ -122,6 +122,7 @@ import CImg from '@/components/base/image/cImg.vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import { useUserStore } from '@/store/user.js';
 import KnowledgeBaseSelector from '@/views/user/children/kb/components/KnowledgeBaseSelector.vue';
+import { useKbStore } from '@/views/kb/kbStore.js';
 
 // 定义排序选项
 const sortOptions = [
@@ -147,6 +148,7 @@ const sortBy = ref('updated_at'); // 默认按最新发布排序
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+const kbStore = useKbStore();
 
 // 从路由参数获取用户ID
 const userId = ref(route.params.id);
@@ -322,6 +324,13 @@ const getContextMenuOptions = (post) => {
       handler: (p) => openInKb(p.id, p.kbId)
     },
     {
+      key: 'publishPost',
+      label: '发布',
+      icon: IconSend,
+      show: isCurrentUser.value && post.status === '草稿',
+      handler: (p) => handlePublishPost(p)
+    },
+    {
       key: 'mountToKb',
       label: '挂载到知识库',
       icon: IconLink,
@@ -343,6 +352,52 @@ const getContextMenuOptions = (post) => {
       handler: (p) => handleDeletePost(p.id)
     }
   ];
+};
+
+// 发布文章处理
+const handlePublishPost = async (post) => {
+  try {
+    Message.loading({
+      id: 'load-post-content',
+      content: '正在加载文章内容...',
+    });
+
+    // 获取文章完整内容
+    const { data } = await api.get('/post/last', { id: post.id });
+    
+    // 设置提交数据到 kbStore
+    kbStore.setCommitInfo({
+      id: post.id,
+      title: post.title,
+      summary: post.summary || '',
+      content: data.content,
+      status: post.status,
+      top: post.isTop || false,
+      tags: post.tags || [],
+      img: post.img || '',
+      viewCount: post.viewCount || 0,
+      likeCount: post.likeCount || 0,
+      commentCount: post.commentCount || 0,
+      userId: post.userId,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      kbId: post.kbId || ''
+    }, data.content);
+
+    Message.success({
+      id: 'load-post-content',
+      content: '加载成功，正在跳转...'
+    });
+
+    // 跳转到发布页面
+    router.push({ name: 'ArticleCommit' });
+  } catch (error) {
+    console.error('加载文章内容失败:', error);
+    Message.error({
+      id: 'load-post-content',
+      content: '加载文章内容失败，请稍后重试'
+    });
+  }
 };
 
 // 知识库选择相关
@@ -727,7 +782,7 @@ const handlePageSizeChange = (newPageSize) => {
 
       .create-tip {
         font-size: @font-size-body-3;
-        color: @color-text-4;
+        color: var(--color-neutral-4);
       }
     }
   }

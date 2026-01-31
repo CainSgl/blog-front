@@ -117,11 +117,8 @@ onMounted(async () => {
 <style scoped lang="less">
 .messages-container {
   min-height: 100vh;
-  background-color: @color-bg-2;
-
+  background-color: var(--color-bg-1);
 }
-
-
 
 .messages-content {
   max-width: 1200px;
@@ -130,7 +127,7 @@ onMounted(async () => {
 }
 
 .messages-tabs {
-  background-color: @color-bg-1;
+  background-color: var(--color-bg-2);
   border-radius: 8px;
   padding: 16px 24px 0;
   margin-bottom: 16px;
@@ -158,6 +155,7 @@ onMounted(async () => {
 }
 
 .messages-body {
+  background-color: var(--color-bg-2);
   border-radius: 8px;
   padding: 0px 24px;
   min-height: 400px;

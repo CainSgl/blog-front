@@ -152,11 +152,11 @@ parseRouteParams();
 .search-query {
   font-size: 18px;
   font-weight: 600;
-  color: @color-text-1;
+  color: var(--color-neutral-10);
 }
 
 .search-count {
-  color: @color-text-4;
+  color: var(--color-neutral-4);
   font-size: 14px;
 }
 
@@ -168,7 +168,7 @@ parseRouteParams();
 }
 
 .filter-label {
-  color: @color-text-4;
+  color: var(--color-neutral-4);
   font-size: 14px;
 }
 

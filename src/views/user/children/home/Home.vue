@@ -199,6 +199,7 @@ onMounted(async () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  background-color: var(--color-bg-1);
 
   :deep(.arco-statistic) {
     display: inline-block;
@@ -211,8 +212,7 @@ onMounted(async () => {
 
   .user-profile-card {
     border: none;
-    /* 移除边框 */
-
+    background-color: var(--color-bg-1);
     .user-profile-header {
       padding: 24px 0;
 
@@ -258,14 +258,14 @@ onMounted(async () => {
 
           .stat-label {
             font-size: 14px;
-            color: @color-text-3;
+            color: var(--color-neutral-6);
             margin-bottom: 4px;
           }
 
           .stat-value {
             font-size: 18px;
             font-weight: bold;
-            color: @color-text-1;
+            color: var(--color-neutral-10);
           }
         }
       }
@@ -275,28 +275,28 @@ onMounted(async () => {
   .user-registration {
     text-align: center;
     font-size: 14px;
-    color: @color-text-3;
+    color: var(--color-neutral-6);
     margin: 16px 0;
     padding: 0 24px;
 
     .registration-label {
-      color: @color-text-1;
+      color: var(--color-neutral-10);
       font-weight: 500;
     }
 
     .registration-value {
-      color: @color-text-2;
+      color: var(--color-neutral-8);
     }
   }
 
   .user-bio {
     padding: 16px 24px;
     margin: 16px 0;
-    background-color: @color-bg-1;
+    background-color: var(--color-bg-1);
     border-radius: 6px;
     border-left: 4px solid @primary-5;
     font-size: 14px;
-    color: @color-text-2;
+    color: var(--color-neutral-8);
     line-height: 1.6;
     text-align: center;
     word-wrap: break-word;
@@ -375,7 +375,7 @@ onMounted(async () => {
       margin-top: 8px;
       text-align: center;
       font-size: 12px;
-      color: @color-text-4;
+      color: var(--color-neutral-6);
     }
   }
 

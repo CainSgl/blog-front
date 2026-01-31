@@ -119,7 +119,7 @@ const fetchAnnouncement = async () => {
 .announcement-title {
   font-size: 32px;
   font-weight: @font-weight-700;
-  color: @color-text-1;
+  color: var(--color-neutral-10);
   margin: 0 0 @size-4 0;
   line-height: 1.4;
 }
@@ -133,7 +133,7 @@ const fetchAnnouncement = async () => {
 
 .announcement-date {
   font-size: @font-size-body-3;
-  color: @color-text-4;
+  color: var(--color-neutral-4);
 }
 
 .announcement-tags {

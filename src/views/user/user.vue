@@ -6,11 +6,11 @@
         @collapse="handleCollapseChange">
         <UserSidebar :is-collapsed="isSiderCollapsed" :is-me="isMe" />
       </a-layout-sider>
-      <a-layout class="layout-content" :class="{ collapsed: isSiderCollapsed }">
+      <a-layout class="layout-content"  :class="{ collapsed: isSiderCollapsed }" >
         <a-layout-content>
           <div class="content-wrapper">
             <div class="header-container"></div>
-            <div style="max-height: calc(100dvh - 120px); overflow-y: auto;" id="router-page-container">
+            <div  id="router-page-container" style="max-height: calc(100dvh - 75px); overflow-y: auto;">
               <router-view />
             </div>
 
@@ -55,15 +55,29 @@ onMounted(async () => {
 
 <style lang="less" scoped>
 .user-layout {
+ 
+  :deep(.arco-layout) {
+    background-color: var(--color-bg-1);
+  }
+
+  :deep(.arco-layout-sider) {
+    background-color: var(--color-bg-2);
+  }
+
   .layout-content {
-    .ant-layout {
+    background-color: var(--color-bg-1);
+
+    .ant-layout { 
       background-color: transparent;
+    }
+
+    :deep(.arco-layout-content) {
+      background-color: var(--color-bg-1);
     }
   }
 
   .content-wrapper {
-
-    max-height: calc(100vh - 48px-64px); // 减去上下padding，确保刚好占满屏幕
+    background-color: var(--color-bg-1);
   }
 
   .error-message {

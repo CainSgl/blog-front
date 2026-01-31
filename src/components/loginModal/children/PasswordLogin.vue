@@ -170,7 +170,7 @@ div {
   display: flex !important;
   align-items: center;
   justify-content: center;
-  color: @color-text-2;
+  color: var(--color-neutral-8);
 }
 
 :deep(.arco-input-password-icon:hover) {
@@ -205,7 +205,7 @@ div {
 
 /* 设置标签样式 */
 :deep(.arco-form-item-label) {
-  color: @color-text-2;
+  color: var(--color-neutral-8);
   font-size: @font-size-body-3;
   font-weight: @font-weight-500;
 }

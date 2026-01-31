@@ -1,6 +1,6 @@
 <template>
   <div :style="{ background: 'var(--color-fill-2)' }">
-    <a-page-header :style="{ background: 'var(--color-bg-2)' }" :title="postInfo.title"
+    <a-page-header :style="{ background: 'var(--color-bg-1)' }" :title="postInfo.title"
       :subtitle="postInfo.version ? '版本：' + postInfo.version : undefined" :show-back="true" @back="handleBack">
       <template #breadcrumb>
         <a-breadcrumb>
@@ -17,10 +17,10 @@
           </a-link>
 
           <a-tooltip v-if="postInfo.status&&isCurrentUser" :content="getStatusTooltip()">
-            <component :is="getStatusIcon()" style="cursor: pointer; font-size: 20px" size="large" />
+            <component :is="getStatusIcon()" style="cursor: pointer; font-size: 20px;color:var(--color-neutral-10)" size="large" />
           </a-tooltip>
 
-          <span v-if="postInfo.updatedAt" style="color: #666; margin-left: 10px; font-size: 15px">
+          <span v-if="postInfo.updatedAt" style="color: var(--color-neutral-6); margin-left: 10px; font-size: 15px">
             上次更新时间：{{ formatDate(postInfo.updatedAt) }}
           </span>
         </div>
@@ -232,6 +232,6 @@ watch(
 <style scoped>
 .last-item {
   font-weight: bold;
-  color: #165DFF;
+  color: rgb(var(--primary-6));
 }
 </style>

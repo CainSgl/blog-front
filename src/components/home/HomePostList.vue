@@ -303,7 +303,7 @@ const handleScroll = () =>
 </script>
 
 <style scoped lang="less">
-@import "@/assets/style/global.less";
+
 
 .home-post-list {
   overflow: hidden;
@@ -319,7 +319,7 @@ const handleScroll = () =>
   text-align: center;
   padding: @size-5;
   font-size: @font-size-title-1;
-  color: @color-text-4;
+  color: var(--color-neutral-4);
   width: 100%;
   margin-top: @size-5;
   word-wrap: break-word;

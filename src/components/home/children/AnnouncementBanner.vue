@@ -43,46 +43,46 @@ onMounted(async () =>
 
 </script>
 
-<style lang="less" scoped>
+<style scoped>
 .announcement-banner {
   width: 100%;
   max-height: 60dvh;
   overflow-y: auto;
   background: transparent;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--color-border-2);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+.announcement-banner::-webkit-scrollbar {
+  width: 6px;
+}
 
-  &::-webkit-scrollbar-track {
-    background: #f5f5f5;
-    border-radius: 3px;
-  }
+.announcement-banner::-webkit-scrollbar-track {
+  background: var(--color-fill-2);
+  border-radius: 3px;
+}
 
-  &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
+.announcement-banner::-webkit-scrollbar-thumb {
+  background: var(--color-fill-4);
+  border-radius: 3px;
+}
 
-    &:hover {
-      background: #a8a8a8;
-    }
-  }
+.announcement-banner::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fill-3);
 }
 
 .announcement-header {
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #e4e7ed;
+  border-bottom: 2px solid var(--color-border-2);
+}
 
-  .arco-typography {
-    margin: 0;
-    font-weight: 600;
-    color: #1d2129;
-  }
+.announcement-header .arco-typography {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text-1);
 }
 
 .announcement-link {
@@ -95,18 +95,16 @@ onMounted(async () =>
   padding: 16px 0;
   cursor: pointer;
   transition: all 0.3s ease;
+}
 
-  &:hover {
-    .announcement-title {
-      color: @primary-4;
-    }
-  }
+.announcement-item:hover .announcement-title {
+  color: rgb(var(--primary-4));
 }
 
 .announcement-date {
   margin-bottom: 8px;
   font-size: 12px;
-  color: #86909c;
+  color: var(--color-text-3);
 }
 
 .announcement-content {
@@ -138,7 +136,7 @@ onMounted(async () =>
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1D2129;
+  color: var(--color-text-1);
   line-height: 1.4;
   transition: color 0.3s ease;
 }
@@ -151,7 +149,7 @@ onMounted(async () =>
 
 .announcement-summary {
   font-size: 12px;
-  color: #4E5969;
+  color: var(--color-text-2);
   line-height: 1.5;
 }
 

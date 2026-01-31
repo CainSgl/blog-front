@@ -46,10 +46,10 @@
 </template>
 
 <script setup>
-import {computed, defineAsyncComponent, onMounted, onUnmounted, ref} from 'vue';
-import {useRouter} from 'vue-router';
-import {useAuthStore} from '@/store/auth';
-import {IconClose} from '@arco-design/web-vue/es/icon';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/store/auth';
+import { IconClose } from '@arco-design/web-vue/es/icon';
 import PasswordLogin from './children/PasswordLogin.vue';
 import CodeLogin from './children/CodeLogin.vue';
 import ThirdPartyLogin from './children/third/ThirdPartyLogin.vue';
@@ -97,9 +97,8 @@ const handleLoginSuccess = () => {
 </script>
 
 <style scoped lang="less">
-@import "@/assets/style/global.less";
-
 .login-modal {
+    background-color: var(--color-bg-1);
   height: 100%;
   display: flex;
   position: relative;
@@ -124,7 +123,7 @@ const handleLoginSuccess = () => {
 /* 右侧登录区域 */
 .login-right {
   flex: 1;
-  background: @color-bg-white;
+  background-color: var(--color-bg-1);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -132,6 +131,7 @@ const handleLoginSuccess = () => {
 }
 
 .login-content {
+  background-color: var(--color-bg-1);
   flex: 1;
   padding: 32px;
   overflow-y: auto;
@@ -143,7 +143,7 @@ const handleLoginSuccess = () => {
 
 .login-title {
   font-weight: @font-weight-600;
-  color: @color-text-1;
+  color: var(--color-neutral-10);
   margin-bottom: 24px;
   font-size: 24px;
   text-align: center;
@@ -172,20 +172,20 @@ const handleLoginSuccess = () => {
 
 /* 标签页样式 */
 :deep(.arco-tabs-tab) {
-  color: @color-text-2;
+  color: var(--color-neutral-8);
   font-size: @font-size-body-3;
 
   &:hover {
-    color: @primary-6;
+    color: rgb(var(--primary-6));
   }
 }
 
 :deep(.arco-tabs-tab-active) {
-  color: @primary-6;
+  color: rgb(var(--primary-6));
 }
 
 :deep(.arco-tabs-ink-bar) {
-  background-color: @primary-6;
+  background-color: rgb(var(--primary-6));
 }
 
 /* 移动端适配 */
@@ -215,23 +215,23 @@ const handleLoginSuccess = () => {
 
   .login-content {
     padding: @size-5;
-    background: fade(@color-bg-white, 95%);
+    background: color-mix(in srgb, var(--color-bg-2) 95%, transparent);
     border-radius: @size-4;
     margin: @size-5;
-    box-shadow: 0 8px 32px fade(@color-text-1, 10%);
+    box-shadow: 0 8px 32px color-mix(in srgb, var(--color-neutral-10) 10%, transparent);
     backdrop-filter: blur(10px);
   }
 
   .login-title {
-    color: @color-text-1;
+    color: var(--color-neutral-10);
   }
 
   :deep(.arco-tabs-tab) {
-    color: @color-text-2;
+    color: var(--color-neutral-8);
   }
 
   :deep(.arco-tabs-tab-active) {
-    color: @primary-6;
+    color: rgb(var(--primary-6));
   }
 }
 </style>

@@ -7,7 +7,7 @@
       <div>
         <div style="display: flex;align-items: center;">
           <a-link class="author-with-level" :loading="!userDetail?.nickname" :href="`/space/${userDetail?.id}`"
-            :hoverable="false" style="color: black;">
+            :hoverable="false" style="color: var(--color-text-1);">
             {{ userDetail?.nickname || '加载中' }}
           </a-link>
           <UserLevel style=" display: flex;align-items: center;height: 100%;margin-left: 15px;"
@@ -17,14 +17,23 @@
           <a-link class="reply-to" v-if="replyUserInfo&&commentData.replyCommentId" @click="handleReplyToClick" >
            @{{ replyUserInfo?.nickname }}
           </a-link>
-          <span class="content"> {{ commentData.content }}</span>
+          <a-typography-paragraph 
+            class="content" 
+            :ellipsis="{
+              suffix: '',
+              rows: 3,
+              expandable: true,
+            }"
+            style="display: inline; margin: 0;">
+            {{ commentData.content }}
+          </a-typography-paragraph>
         </div>
 
         <div>
           <span class="arco-comment-datetime">{{ formatDate(commentData.createdAt) }}</span>
           <span class="action arco-comment-actions arco-comment-actions-align-left" key="heart" @click="onLikeChange">
             <span v-if="like">
-              <IconHeartFill :style="{ color: '#f53f3f' }" />
+              <IconHeartFill :style="{ color: 'rgb(var(--danger-6))' }" />
             </span>
             <span v-else>
               <IconHeart />
@@ -46,7 +55,7 @@
 import {ref, watch} from 'vue';
 import {useUserStore} from '@/store/user.js';
 import {IconHeart, IconHeartFill,} from '@arco-design/web-vue/es/icon';
-import {Comment as AComment, Link as ALink} from '@arco-design/web-vue';
+import {Comment as AComment, Link as ALink, Typography as ATypography} from '@arco-design/web-vue';
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import UserLevel from '@/components/base/UserLevel.vue';
 import {formatDate} from '@/utils/DateFormatter.js';
@@ -126,6 +135,8 @@ const handleReplyToClick = () => {
 .content {
   margin-left: 5px;
   font-size: 15px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .view-replies {
@@ -133,7 +144,7 @@ const handleReplyToClick = () => {
   cursor: pointer;
 
   &:hover {
-    color: @primary-5;
+    color: rgb(var(--primary-5));
   }
 }
 

@@ -204,20 +204,18 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped lang="less">
+<style scoped>
 .cainsgl-commentable-paragraph {
   position: relative;
-
 }
 
 .paragraph-text {
-  user-select: text; // 确保文本可以选择
+  user-select: text;
+
 }
 
-.no-comments {
-  &:hover {
-    background-color: rgba(128, 128, 128, 0.048);
-  }
+.no-comments:hover {
+  background-color: var(--color-fill-1);
 }
 
 .comment-button {
@@ -226,15 +224,16 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   padding: 6px 12px;
-  background-color: @primary-4;
-  color: white;
+  background-color: rgb(var(--primary-4));
+  color: var(--color-white);
   border-radius: 18px;
   cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px var(--color-shadow-light);
   user-select: none;
   transition: all 0.2s ease;
 }
+
+
 
 .comment-icon {
   margin-right: 4px;
@@ -254,11 +253,17 @@ onUnmounted(() => {
   width: 18px;
   height: 18px;
   padding: 2px;
-  background-color: #E5E6EB;
-  color: #86909C;
+  background-color: var(--color-fill-2);
+  color: var(--color-neutral-10);
   border-radius: 50%;
   font-size: 12px;
   text-align: center;
+  transition: all 0.2s ease;
+}
+
+.comment-badge:hover {
+  background-color: var(--color-fill-3);
+  color: var(--color-neutral-10);
 }
 
 .comment-count {

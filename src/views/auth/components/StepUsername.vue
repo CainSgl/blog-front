@@ -89,12 +89,12 @@ const handleNext = async () => {
 
   p {
     font-size: 16px;
-    color: @color-text-3;
+    color: var(--color-neutral-6);
   }
 }
 
 .error-msg {
-  color:@danger-6;
+  color: rgb(var(--danger-6));
   font-size: 14px;
   margin-top: 8px;
 }

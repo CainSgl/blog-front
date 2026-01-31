@@ -230,10 +230,10 @@ defineExpose({
 <style scoped lang="less">
 .scroll-progress-bar {
   margin-top: 24px;
-  padding: @size-5 24px;
-  background: @color-bg-2;
-  border: @border-1 solid @color-border-2;
-  border-radius: @border-radius-medium;
+  padding: 20px 24px;
+  background-color: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
   overflow: hidden;
 
   &.fixed-bottom {
@@ -244,9 +244,10 @@ defineExpose({
     margin-top: 0;
     border-radius: 0;
     border: none;
-    border-top: @border-1 solid @color-border-2;
-    box-shadow: 0 -2px 8px fade(#000, 8%);
+    border-top: 1px solid var(--color-border-2);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
     z-index: 100;
+    background-color: var(--color-bg-2);
   }
 
   &.fixed-top {
@@ -257,9 +258,10 @@ defineExpose({
     margin-top: 0;
     border-radius: 0;
     border: none;
-    border-bottom: @border-1 solid @color-border-2;
-    box-shadow: 0 2px 8px fade(#000, 8%);
+    border-bottom: 1px solid var(--color-border-2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     z-index: 100;
+    background-color: var(--color-bg-2);
   }
 }
 
@@ -280,16 +282,16 @@ defineExpose({
   opacity: 1;
   max-height: 200px;
   margin-top: 24px;
-  padding-top: @size-5;
-  padding-bottom: @size-5;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .progress-slide-leave-from {
   opacity: 1;
   max-height: 200px;
   margin-top: 24px;
-  padding-top: @size-5;
-  padding-bottom: @size-5;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .progress-slide-leave-to {
@@ -319,10 +321,10 @@ defineExpose({
 }
 
 .progress-tip {
-  margin-top: @size-2;
+  margin-top: 8px;
   text-align: center;
-  font-size: @font-size-body-2;
-  color: @color-text-2;
-  font-weight: @font-weight-500;
+  font-size: 13px;
+  color: var(--color-text-2);
+  font-weight: 500;
 }
 </style>
