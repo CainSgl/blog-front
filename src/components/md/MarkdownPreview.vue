@@ -81,6 +81,9 @@ const props = defineProps({
 const previewContentRef = ref(null);
 const previewContainerRef = ref(null);
 
+// 标记是否正在程序触发的滚动
+let isScrollingToElement = false;
+
 // 使用toc store
 const tocStore = useTocStore();
 const { currentTocItem,toHashItem } = storeToRefs(tocStore);

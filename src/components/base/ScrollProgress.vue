@@ -81,7 +81,7 @@ const handleScrollToTop = () =>
 
   .arco-icon {
     font-size: @font-size-title-1;
-    color: @color-text-3;
+    color: white;
   }
 }
 
