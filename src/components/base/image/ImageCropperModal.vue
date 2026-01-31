@@ -827,7 +827,7 @@ defineExpose({
 </script>
 
 <style scoped lang="less">
-@import '@/assets/style/global.less';
+
 
 .image-cropper-container {
   display: flex;

@@ -16,7 +16,7 @@ const handleCreate = () => {
 </script>
 
 <style lang="less" scoped>
-@import '@/assets/style/global.less';
+
 
 .favorite-item {
     height: 24px;

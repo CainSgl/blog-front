@@ -90,7 +90,7 @@ const goToUserSpace = () =>
 </script>
 
 <style scoped lang="less">
-@import '@/assets/style/global.less';
+
 
 .user-avatar {
     margin-right: @size-3;

@@ -12,7 +12,7 @@
       </template>
       <template #extra>
         <div style="display: flex; align-items: center">
-          <a-link :href="`/p/${postInfo.id}`" target="_albank">
+          <a-link :href="`/p/${postInfo.id}`" target="_albank" v-if="postInfo.status=='已发布'">
             前往文章页面
           </a-link>
 

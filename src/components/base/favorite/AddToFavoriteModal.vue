@@ -116,7 +116,7 @@ watch(visible, (newVal) => {
 </script>
 
 <style lang="less" scoped>
-@import '@/assets/style/global.less';
+
 
 .add-to-favorite-modal {
     width: calc(60vw - 40px);

@@ -11,7 +11,7 @@
         </span>
         {{ commentData.likeCount + (like ? 1 : 0) }}
       </span>
-      <span class="view-replies arco-comment-datetime" style="font-size: 14px;" key="reply" @click="toggleReplyInput">
+      <span class="view-replies comment-gray-color" style="font-size: 14px;" key="reply" @click="toggleReplyInput">
         回复
       </span>
     </template>
@@ -51,22 +51,22 @@
     <transition name="toggle-button">
       <div v-if="commentData.replyCount > 0">
         <div v-if="!showReplies">
-          <span class="arco-comment-datetime" style="font-size: 14px;">
+          <span class="comment-gray-color" style="font-size: 14px;">
             共{{ commentData.replyCount }}条回复，
           </span>
-          <span class="view-replies arco-comment-datetime" @click="toggleReplies" style="font-size: 14px;">
+          <span class="view-replies comment-gray-color" @click="toggleReplies" style="font-size: 14px;">
             点击查看
           </span>
         </div>
         <div v-else>
-          <span class="arco-comment-datetime" style="font-size: 14px;" v-if="showReplies">
+          <span class="comment-gray-color" style="font-size: 14px;" v-if="showReplies">
             共{{ commentData.replyCount }}条回复，
           </span>
-          <span class="view-replies arco-comment-datetime" v-if="hasMore && commentData.replyCount > replies.length"
+          <span class="view-replies comment-gray-color" v-if="hasMore && commentData.replyCount > replies.length"
             @click="loadReply()" style="font-size: 14px;">
             查看更多，
           </span>
-          <span class="view-replies arco-comment-datetime" @click="toggleReplies" style="font-size: 14px;">
+          <span class="view-replies comment-gray-color" @click="toggleReplies" style="font-size: 14px;">
             点击收起
           </span>
         </div>
@@ -77,18 +77,18 @@
 </template>
 
 <script setup>
-import {defineProps, nextTick, onMounted, ref, watch} from 'vue';
-import {useUserStore} from '@/store/user.js';
-import {Message} from '@arco-design/web-vue';
-import {IconHeart, IconHeartFill,} from '@arco-design/web-vue/es/icon';
+import { defineProps, nextTick, onMounted, ref, watch } from 'vue';
+import { useUserStore } from '@/store/user.js';
+import { Message } from '@arco-design/web-vue';
+import { IconHeart, IconHeartFill, } from '@arco-design/web-vue/es/icon';
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import UserLevel from '@/components/base/UserLevel.vue';
 import CommentReply from './CommentReply.vue'; // 引入新的回复组件
 import ReplyInput from './ReplyInput.vue'; // 引入ReplyInput组件
 import api from '@/api/index.js';
-import {formatDate, getDateNow} from '@/utils/DateFormatter.js';
-import {useCommentStore} from '@/components/comment/commentStore.js';
-import {storeToRefs} from 'pinia';
+import { formatDate, getDateNow } from '@/utils/DateFormatter.js';
+import { useCommentStore } from '@/components/comment/commentStore.js';
+import { storeToRefs } from 'pinia';
 
 const commentStore = useCommentStore();
 
@@ -437,7 +437,7 @@ async function getReply() {
       await toggleReplies();
     }
   }
-  targetReplyId.value=null
+  targetReplyId.value = null
 }
 
 
@@ -474,7 +474,7 @@ const emit = defineEmits(['reply']);
   justify-content: center;
   gap: 4px;
   padding: 0 8px;
-  color: var(--color-text-1);
+  color: @color-text-1;
   line-height: 24px;
   height: 24px;
   background: transparent;
@@ -482,15 +482,19 @@ const emit = defineEmits(['reply']);
   cursor: pointer;
   transition: all 0.1s ease;
   font-size: 14px;
-}
 
+  &:hover {
+    background: @color-fill-3;
+  }
+}
+.comment-gray-color{
+  color:@color-text-3;
+}
 :deep(.arco-comment-avatar) {
   cursor: default;
 }
 
-.action:hover {
-  background: var(--color-fill-3);
-}
+
 
 .author-with-level {
   display: inline-flex;

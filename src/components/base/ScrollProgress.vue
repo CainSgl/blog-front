@@ -45,7 +45,7 @@ const handleScrollToTop = () =>
 </script>
 
 <style scoped lang="less">
-@import '@/assets/style/global.less';
+
 
 .scroll-progress-container {
   width: clamp(100px, 10vw, 140px);
@@ -68,7 +68,6 @@ const handleScrollToTop = () =>
 
   span {
     font-size: @font-size-body-1;
-    color: @color-text-3;
     min-width: 30px;
     text-align: right;
   }
@@ -81,7 +80,7 @@ const handleScrollToTop = () =>
 
   .arco-icon {
     font-size: @font-size-title-1;
-    color: white;
+    color: @color-bg-white;
   }
 }
 

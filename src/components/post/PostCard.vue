@@ -233,7 +233,7 @@ const handleCardClick = () => {
   height: 100%;
 
   .post-card-container {
-    border-radius: @border-radius-medium;
+    border-radius: @border-radius-large;
     border: @border-1 solid @color-border-2;
     box-shadow: 0 1px 3px 0 fade(#000, 8%);
     transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
@@ -252,7 +252,7 @@ const handleCardClick = () => {
   }
 
   .post-card-loading {
-    border-radius: @border-radius-medium;
+    border-radius: @border-radius-large;
     border: @border-1 solid @color-border-2;
     box-shadow: 0 1px 3px 0 fade(#000, 8%);
     transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
@@ -271,7 +271,7 @@ const handleCardClick = () => {
       .post-image {
         height: auto;
         max-height: 100%;
-        border-radius: @border-radius-medium;
+        border-radius: @border-radius-large;
       }
 
       .post-content {

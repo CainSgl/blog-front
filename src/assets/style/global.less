@@ -1,5 +1,6 @@
 @import "@arco-design/web-vue/dist/arco.less";
 
+// Less 变量定义（保持原值）
 @primary-1: #eff5fc; //浅色/白底悬浮
 @primary-2: #999999; //文字禁用
 @primary-3: #d0d0d0; //一般禁用
@@ -13,23 +14,41 @@
 
 //文字颜色
 @color-text-1: #1f1f1f;
-@color-text-2: #404040;
-@color-text-3: #595959;
+
+
 @color-text-4: #8c8c8c;
 
+// 覆盖 Arco Design CSS 变量
+:root {
+  --arcoblue-1: #eff5fc;
+  --arcoblue-2: #999999;
+  --arcoblue-3: #d0d0d0;
+  --arcoblue-4: #ff6699;
+  --arcoblue-5: #00b8f6;
+  --arcoblue-6: #00aeec;
+  --arcoblue-7: #00b1ec;
+  --red-6: #ff0000;
+  --color-neutral-10: #1f1f1f;
+  --color-neutral-8: #1f1f1f;
+  --color-neutral-6: #1f1f1f;
+  --color-neutral-4: #1f1f1f;
+  --border-radius-none: 4px;
+  --border-radius-small: 6px;
+  --border-radius-medium: 12px;
+  --border-radius-large: 24px;
+}
+
 //字体大小
+
 @font-size-title-1: 16px; //标题-小
 @font-size-title-2: 20px; //标题-中
 @font-size-title-4: 28px; //标题-大
-
 @size-N: (4 * N) px; //变量对应的值为 (4 * N)px 大小
-
 // 代码编辑器特殊颜色（VS Code Dark 主题）
 @code-keyword: #569cd6; // 关键字（蓝色）
 @code-function: #c586c0; // 函数关键字（紫色）
 @code-function-name: #dcdcaa; // 函数名（黄色）
 @code-comment: #6a9955; // 注释（绿色）
-
 
 @terminal-bg: #1e1e1e;
 @terminal-header-bg: #2d2d2d;
@@ -37,6 +56,13 @@
 @terminal-text: #ddd;
 
 
+
+@color-text-1: #1f1f1f;
+@color-text-2: #414141;
+@color-text-3: #525252;
+@color-text-4: #8c8c8c;
+
+@warning-6: #ffa500;
 
 html,
 body {
@@ -81,19 +107,13 @@ body {
 }
 
 
-
 .header-container {
   height: 64px;
 }
 
-@terminal-bg: #1e1e1e;
-@terminal-header-bg: #2d2d2d;
-@terminal-border: #444;
-@terminal-text: #ddd;
 
 .font-color-bg {
-  background-image: url('@/assets/font-color.png');
-  background-size: cover;
+  background: linear-gradient(to right, #ff4b91, #c59dc5, #94caff);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -105,16 +125,16 @@ body {
 }
 
 .arco-btn-outline.arco-btn-status-normal {
-  transition:  background-color 0.4s ease !important;
-  
-  &:hover { 
+  transition: background-color 0.4s ease !important;
+
+  &:hover {
     background-color: fade(@primary-6, 10%) !important;
   }
 }
 
 .arco-btn-outline.arco-btn-status-danger {
-  transition:  background-color 0.4s ease;
-  
+  transition: background-color 0.4s ease;
+
   &:hover {
     background-color: fade(@danger-6, 10%) !important;
   }

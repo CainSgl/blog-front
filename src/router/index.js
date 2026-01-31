@@ -143,7 +143,7 @@ const routes = [
     path: '/kb',
     name: 'KB',
     component: () => import('@/views/kb/kb.vue'),
-    meta: { title: '加载知识库中' },
+    meta: { title: '知识库' },
     children: [
       {
         path: '',

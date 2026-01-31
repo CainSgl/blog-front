@@ -140,7 +140,7 @@ const handleCroppedImage = async (croppedFile) =>
 </script>
 
 <style lang="less" scoped>
-@import '@/assets/style/global.less';
+
 
 .user-avatar-wrapper {
   margin-bottom: @size-4;

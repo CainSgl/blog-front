@@ -35,7 +35,8 @@
 
     <div class="content">
       <router-view />
-      <div class="collapse-button-fixed" v-if="isCollapsed" v-show="isCollapsed && showCollapseButton" @click="toggleCollapse">
+      <div class="collapse-button-fixed" v-if="isCollapsed" v-show="isCollapsed && showCollapseButton"
+        @click="toggleCollapse">
         <IconDoubleRight class="collapse-icon" size="large"></IconDoubleRight>
       </div>
     </div>
@@ -46,16 +47,16 @@
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import TreeMenu from '@/views/kb/components/treemenu/TreeMenuWrapper.vue';
 import AddToFavoriteModal from '@/components/base/favorite/AddToFavoriteModal.vue';
 
-import {IconDoubleLeft, IconDoubleRight, IconHome, IconStar, IconStarFill} from '@arco-design/web-vue/es/icon';
-import {useRoute, useRouter} from 'vue-router';
-import {useKbStore} from './kbStore.js';
-import {useUserStore} from '@/store/user';
-import {messageManager} from '@/api/request.js';
-import {Message, Modal} from '@arco-design/web-vue';
+import { IconDoubleLeft, IconDoubleRight, IconHome, IconStar, IconStarFill } from '@arco-design/web-vue/es/icon';
+import { useRoute, useRouter } from 'vue-router';
+import { useKbStore } from './kbStore.js';
+import { useUserStore } from '@/store/user';
+import { messageManager } from '@/api/request.js';
+import { Message, Modal } from '@arco-design/web-vue';
 import Header from '@/components/layout/Header.vue';
 import api from '@/api/index';
 
@@ -128,7 +129,7 @@ onMounted(async () => {
       if (kbData) {
         kbId.value = kbData.id;
         kbInfo.value = kbData;
-        document.title=kbInfo.value.name+'-知识库'
+
         const userInfo = await useUserStore().getUserInfo();
         if (kbData.userId == userInfo.id) {
           edit.value = true;
@@ -433,7 +434,7 @@ onUnmounted(() => {
   justify-content: center;
   z-index: 100;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: @color-fill-1;
   }

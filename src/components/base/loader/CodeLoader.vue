@@ -144,10 +144,6 @@ const leave = (el, done) =>
 </script>
 
 <style scoped lang="less">
-@import '@/assets/style/global.less';
-
-
-
 
 .code-loader {
   position: fixed;

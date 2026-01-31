@@ -12,9 +12,9 @@
             <a-tag v-if="userInfo?.status == 'banned'" color="red" size="small" style="margin-left: 8px;">已封禁</a-tag>
             <UserLevel :level="userInfo?.level" v-if="currentUserInfo.id != userId" />
             <icon-man v-if="userInfo?.gender === '男'"
-              :style="{ color: '@{link-5}', fontSize: '16px', marginLeft: '2px' }" />
+              :style="{ color: '#55acee', fontSize: '16px', marginLeft: '2px' }" />
             <icon-woman v-else-if="userInfo?.gender === '女'"
-              :style="{ color: '@{primary-4}', fontSize: '16px', marginLeft: '2px' }" />
+              :style="{ color: '#e85695', fontSize: '16px', marginLeft: '2px' }" />
           </div>
           <div class="user-profile-actions" v-if="currentUserInfo.id != userId">
             <FollowButton :user-id="userId" @follow-changed="handleFollowChange" />
