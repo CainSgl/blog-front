@@ -1,7 +1,10 @@
 <template>
+    <!-- 遮罩层（仅手机端） -->
+    <div v-if="!collapsed" class="sidebar-mask" @click="toggleCollapse"></div>
+    
     <div class="sidebar" :class="{ 'sidebar-collapsed': collapsed }">
         <div class="sidebar-header">
-            <h2 v-show="!collapsed">关于本站</h2>
+            <h2 v-show="!collapsed" style="color: var(--color-neutral-10);">关于本站</h2>
             <a-button type="text" size="large" @click="toggleCollapse" class="collapse-btn">
                 <template #icon>
                     <icon-menu-fold size="large" v-if="!collapsed" />
@@ -243,11 +246,16 @@ const selectNodeById = (id) => {
 // 暴露方法给父组件
 defineExpose({
     selectNodeById,
-    rawTreeData // 暴露树形数据给父组件
+    rawTreeData, // 暴露树形数据给父组件
+    toggleCollapse // 暴露切换方法给父组件
 });
 
 onMounted(() => {
     loadTreeData();
+    // 手机端默认折叠
+    if (window.innerWidth <= 768) {
+        collapsed.value = true;
+    }
 });
 </script>
 
@@ -364,7 +372,32 @@ onMounted(() => {
     color: var(--color-text-3);
 }
 
+.sidebar-mask {
+    display: none;
+}
+
 @media (max-width: 768px) {
+    .sidebar-mask {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
     .sidebar {
         position: fixed;
         left: 0;
@@ -372,6 +405,8 @@ onMounted(() => {
         height: 100vh;
         z-index: 100;
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        transform: translateX(0);
+        transition: transform 0.3s ease;
 
         &.sidebar-collapsed {
             transform: translateX(-100%);

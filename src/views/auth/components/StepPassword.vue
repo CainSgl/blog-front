@@ -120,4 +120,16 @@ const handleBack = () => {
   font-size: @font-size-body-3;
   margin-top: @size-2;
 }
+
+/* 显示密码的眼睛图标 */
+:deep(.arco-input-password-icon) {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-8);
+}
+
+:deep(.arco-input-password-icon:hover) {
+  color: rgb(var(--primary-6));
+}
 </style>

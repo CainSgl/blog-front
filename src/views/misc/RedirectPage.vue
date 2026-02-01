@@ -1,7 +1,7 @@
 <template>
   <div class="redirect-page">
     <div class="redirect-container">
-      <h2>安全跳转提示</h2>
+      <h2 style="color: var(--color-neutral-10);">安全跳转提示</h2>
       <p>您即将跳转到外部网站：</p>
       <p class="external-url">{{ decodedUrl }}</p>
       <p>为确保您的安全，我们建议您确认此网站的可信度。</p>

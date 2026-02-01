@@ -1,7 +1,7 @@
 <template>
   <Header />
   <div class="user-layout">
-    <a-layout style="min-height: 100vh;">
+    <a-layout style="min-height: 100dvh;">
       <a-layout-sider :width="200" :collapsed="isSiderCollapsed" :collapsed-width="50" collapsible breakpoint="md"
         @collapse="handleCollapseChange">
         <UserSidebar :is-collapsed="isSiderCollapsed" :is-me="isMe" />
@@ -10,7 +10,7 @@
         <a-layout-content>
           <div class="content-wrapper">
             <div class="header-container"></div>
-            <div  id="router-page-container" style="max-height: calc(100dvh - 75px); overflow-y: auto;">
+            <div  id="router-page-container" style="max-height: 100dvh; overflow-y: auto;">
               <router-view />
             </div>
 

@@ -5,7 +5,7 @@
         <icon-trophy />
       </div>
       <div class="levelup-content">
-        <h2>恭喜升级！</h2>
+        <h2 style="color: var(--color-neutral-10);">恭喜升级！</h2>
         <div class="level-change">
           <span class="old-level">LV.{{ oldLevel }}</span>
           <icon-arrow-right class="arrow" />

@@ -18,6 +18,15 @@
 @danger-6: #ff0000;
 @warning-6: #ffa500;
 
+// 覆盖 Arco Design 的 CSS 变量
+:root {
+  --color-primary-4: #ff6699;
+}
+
+body[arco-theme='dark'] {
+  --color-primary-4: #ff6699;
+}
+
 //文字颜色
 @color-text-1: #1f1f1f;
 @color-text-2: #414141;
@@ -69,23 +78,24 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: fade(@color-text-4, 30%);
+  background: color-mix(in srgb, var(--color-text-4) 30%, transparent);
   border-radius: 10px;
   border: 1px solid transparent;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: fade(@color-text-4, 50%);
+  background: color-mix(in srgb, var(--color-text-4) 50%, transparent);
 }
 
 // Firefox 滚动条样式
 * {
   scrollbar-width: thin;
-  scrollbar-color: fade(@color-text-4, 30%) transparent;
+  scrollbar-color: color-mix(in srgb, var(--color-text-4) 30%, transparent) transparent;
 }
 
 
 .header-container {
+  background-color: var(--color-bg-1);
   height: 64px;
 }
 
@@ -106,7 +116,7 @@ body {
   transition: background-color 0.4s ease !important;
 
   &:hover {
-    background-color: fade(@primary-6, 10%) !important;
+    background-color: color-mix(in srgb, var(--color-primary-light-1) 10%, transparent) !important;
   }
 }
 
@@ -114,7 +124,7 @@ body {
   transition: background-color 0.4s ease;
 
   &:hover {
-    background-color: fade(@danger-6, 10%) !important;
+    background-color: color-mix(in srgb, var(--color-danger-light-1) 10%, transparent) !important;
   }
 }
 :deep(.arco-spin-mask)

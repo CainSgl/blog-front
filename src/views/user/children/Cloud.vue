@@ -586,4 +586,68 @@ const handleFileClick = (file) => {
     }
   }
 }
+
+// 移动端适配
+@media (max-width: 768px) {
+  .user-cloud {
+    :deep(.arco-page-header) {
+      .arco-page-header-title {
+        font-size: 18px;
+      }
+
+      .arco-page-header-subtitle {
+        font-size: 12px;
+      }
+    }
+
+    .storage-overview {
+      :deep(.arco-descriptions) {
+        .arco-descriptions-item {
+          padding: 8px 0;
+        }
+      }
+    }
+
+    .file-manager {
+      :deep(.arco-row) {
+        flex-direction: column;
+        gap: 12px;
+
+        .arco-col {
+          width: 100% !important;
+          text-align: left !important;
+        }
+      }
+
+      :deep(.arco-radio-group) {
+        width: 100%;
+        display: flex;
+
+        .arco-radio {
+          flex: 1;
+        }
+      }
+
+      .grid-view {
+        :deep(.arco-grid) {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+        }
+      }
+
+      .list-view {
+        overflow-x: auto;
+
+        :deep(.arco-table) {
+          min-width: 600px;
+
+          .arco-table-th,
+          .arco-table-td {
+            padding: 8px;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}
 </style>

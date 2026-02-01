@@ -147,53 +147,53 @@ const handleCancel = () => {
 .favorite-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--color-bg-2);
-    border: 1px solid var(--color-border-2);
-    border-radius: var(--border-radius-medium);
+    gap: @size-3;
+    padding: @size-3 @size-4;
+    background: @color-bg-white;
+    border: @border-1 solid @color-fill-3;
+    border-radius: @border-radius-medium;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        border-color: rgb(var(--primary-6));
-        background: var(--color-primary-light-1);
+        border-color: @primary-6;
+        background: @primary-1;
     }
 
     .item-icon {
         font-size: 18px;
-        color: var(--color-text-3);
+        color: @color-text-3;
         flex-shrink: 0;
     }
 
     .item-name {
-        font-size: 14px;
-        color: var(--color-text-1);
-        font-weight: 400;
+        font-size: @font-size-body-3;
+        color: @color-text-1;
+        font-weight: @font-weight-400;
         flex: 1;
     }
 
     .item-count {
-        font-size: 12px;
-        color: var(--color-text-4);
-        background: var(--color-fill-2);
+        font-size: @font-size-body-2;
+        color: @color-text-4;
+        background: @color-fill-2;
         padding: 2px 10px;
         border-radius: 10px;
-        font-weight: 500;
+        font-weight: @font-weight-500;
         flex-shrink: 0;
     }
 
     .item-more {
         font-size: 18px;
-        color: var(--color-text-4);
+        color: @color-text-4;
         flex-shrink: 0;
         padding: 2px;
-        border-radius: var(--border-radius-small);
+        border-radius: @border-radius-small;
         transition: all 0.08s;
 
         &:hover {
-            background: var(--color-fill-2);
-            color: var(--color-text-2);
+            background: @primary-8;
+            color: @primary-6;
         }
     }
 }
@@ -217,7 +217,7 @@ const handleCancel = () => {
 
     .modal-footer-right {
         display: flex;
-        gap: 12px;
+        gap: @size-3;
     }
 }
 </style>

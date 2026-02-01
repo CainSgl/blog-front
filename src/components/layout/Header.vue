@@ -10,7 +10,7 @@
           <div>
             <a-link v-for="nav in navLinks" :key="nav.path" :href="nav.path" class="nav-option"
               :class="{ 'nav-option-active': isActiveRoute(nav.path) }" :hoverable="hoverable">
-              <span :style="{ color: textColor }">{{ nav.label }}</span>
+              <span :style="{ color: isActiveRoute(nav.path) ? undefined : 'var(--primary-4)' }">{{ nav.label }}</span>
             </a-link>
           </div>
 
@@ -25,13 +25,13 @@
             </div>
             <!-- 登录后显示的功能入口 -->
             <div class="user-actions" v-if="userInfo?.id != '-1'">
-              <a-dropdown trigger="hover">
-                <div class="action-item">
-                  <a-tooltip content="消息" :popup-visible="isSmallScreen ? undefined : false">
+              <a-dropdown trigger="hover" v-model:popup-visible="messageDropdownVisible">
+                <div class="action-item" @click="handleMessageClick">
+                  <div >
                     <a-badge :count="msgCount" :max-count="99" :offset="['5px', '0px', '0px', '15px']">
                       <icon-notification :size="20" />
                     </a-badge>
-                  </a-tooltip>
+                  </div>
                   <span class="action-text">消息</span>
                 </div>
                 <template #content>
@@ -49,9 +49,9 @@
 
               <div v-for="action in userActions" :key="action.path" class="action-item"
                 @click="openInNewTab(`/space/${userInfo?.id}/${action.path}`)">
-                <a-tooltip :content="action.tooltip" :popup-visible="isSmallScreen ? undefined : false">
+                <div :content="action.tooltip" :popup-visible="isSmallScreen || !hasMouse ? false : undefined">
                   <component :is="action.icon" :size="20" />
-                </a-tooltip>
+                </div>
                 <span class="action-text">{{ action.label }}</span>
               </div>
             </div>
@@ -102,10 +102,10 @@ const messageOptions = [
 
 // 用户操作项配置
 const userActions = [
-  { path: 'favorites', label: '收藏', tooltip: '收藏', icon: IconStar },
-  { path: 'history', label: '历史', tooltip: '历史', icon: IconHistory },
-  { path: 'knowledge', label: '知识库', tooltip: '我的知识库', icon: IconBook },
-  { path: 'docs', label: '文档', tooltip: '我的文档', icon: IconFile }
+  { path: 'favorites', label: '收藏',  icon: IconStar },
+  { path: 'history', label: '历史',  icon: IconHistory },
+  { path: 'knowledge', label: '知识库',  icon: IconBook },
+  { path: 'docs', label: '文档', icon: IconFile }
 ];
 
 // 滚动相关状态
@@ -189,6 +189,25 @@ const handleResize = () => {
   isSmallScreen.value = window.innerWidth < 768;
 };
 
+// 检测是否有鼠标（非触摸设备）
+const hasMouse = ref(true);
+const messageDropdownVisible = ref(false);
+
+// 处理消息图标点击
+const handleMessageClick = () => {
+  // 如果是触摸设备（没有鼠标）
+  if (!hasMouse.value) {
+    // 如果下拉菜单未显示，则显示下拉菜单，不跳转
+    if (!messageDropdownVisible.value) {
+      messageDropdownVisible.value = true;
+      return;
+    }
+  }
+  
+  // 有鼠标的设备，或者下拉菜单已显示时，执行跳转
+  openInNewTab('/messages/reply');
+};
+
 // 处理滚动事件
 const handleScroll = () => {
   const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -220,6 +239,10 @@ const handleScroll = () => {
 onMounted(() => {
   window.addEventListener('resize', handleResize);
   window.addEventListener('scroll', handleScroll, { passive: true });
+  
+  // 检测设备是否支持触摸
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  hasMouse.value = !isTouchDevice;
 });
 
 onUnmounted(() => {
@@ -485,6 +508,6 @@ onMounted(async () => {
 }
 
 .nav-option-active {
-  color: @primary-4 !important;
+  color: var(--color-primary-4) !important;
 }
 </style>

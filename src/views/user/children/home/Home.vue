@@ -3,7 +3,7 @@
     <a-card class="user-profile-card" :bordered="false">
       <div class="user-profile-header">
         <div class="user-avatar-section">
-          <AvatarSection :user-info="userInfo" />
+          <AvatarSection :user-info="userInfo" @update="handlerUpdate" />
           <div class="user-name-row" @click="tryChangeInfo">
             <a-typography-title :heading="4"
               :class="['username', { 'arco-link arco-link-status-noraml editable-username': currentUserInfo.id == userId }]">
@@ -119,7 +119,10 @@ const fetchUserInfo = async (id) => {
     console.error('获取用户信息失败:', err);
   }
 };
-
+function handlerUpdate(url)
+{
+  userInfo.value.avatarUrl=url
+}
 function tryChangeInfo() {
   if (currentUserInfo.value.id != userId.value) {
     return;

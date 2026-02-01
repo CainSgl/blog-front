@@ -267,7 +267,7 @@ onUnmounted(() => {
 
 .no-more-hint {
     padding: 16px 0;
-    border-top: 1px solid @color-border-1;
+    border-top: 1px solid var(--color-border-1);
 }
 
 .empty-state,
@@ -284,12 +284,12 @@ onUnmounted(() => {
 
 .empty-icon {
     font-size: 64px;
-    color: @color-fill-4;
+    color: var(--color-fill-4);
 }
 
 .initial-icon {
     font-size: 80px;
-    color: @color-fill-3;
+    color: var(--color-fill-3);
 }
 
 .initial-text {

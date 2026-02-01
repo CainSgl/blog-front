@@ -19,8 +19,8 @@
         </div>
       </div>
 
-      <ContentArea :loading="loading" :list-data="posts" loading-tip="正在加载文章..." :card-width="cardWidth"
-        :card-height="cardHeight - 90" :height-offset="600" @page-size-change="handlePageSizeChange" emptyHeight="50vh">
+      <ContentArea :loading="loading" :list-data="posts" :card-width="cardWidth"
+        :card-height="cardHeight - 90" @page-size-change="handlePageSizeChange">
         <template #default>
           <div class="posts-list">
             <!-- 文章卡片将在这里展示 -->
@@ -758,12 +758,6 @@ const handlePageSizeChange = (newPageSize) => {
     margin-top: 24px;
   }
 
-  .content-area {
-    min-height: 480px;
-    height: calc(100vh - 400px);
-  }
-
-  // 状态筛选区域样式
   .status-filter-area {
     padding: 16px 0;
     border-bottom: 1px solid @color-border-1;
@@ -782,12 +776,68 @@ const handlePageSizeChange = (newPageSize) => {
 
       .create-tip {
         font-size: @font-size-body-3;
-        color: var(--color-neutral-4);
+        color: var(--color-neutral-10);
       }
     }
   }
+}
 
+// 移动端适配
+@media (max-width: 768px) {
+  .user-docs {
+    padding: 0 12px;
 
+    .posts-list {
+      gap: 12px;
+      padding: 12px 0;
+      justify-content: center;
+    }
+
+    .pagination-wrapper {
+      margin-top: 16px;
+      
+      :deep(.arco-pagination) {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    .status-filter-area {
+      padding: 12px 0;
+
+      .status-filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 12px;
+        gap: 8px;
+
+        .status-and-tip {
+          flex-direction: column;
+          align-items: flex-start;
+          width: 100%;
+          gap: 8px;
+        }
+
+        :deep(.arco-radio-group) {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          width: 100%;
+
+          .arco-radio {
+            flex: 1;
+            min-width: calc(50% - 4px);
+            text-align: center;
+          }
+        }
+
+        .create-tip {
+          font-size: 12px;
+          width: 100%;
+        }
+      }
+    }
+  }
 }
 
 @media (max-width: 1380px) {

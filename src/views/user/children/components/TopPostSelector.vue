@@ -1,6 +1,6 @@
 <template>
 
-  <a-modal v-model:visible="visible" title="选择置顶文章" :footer="null" @cancel="handleCancel" width="auto">
+  <ModalWrapper v-model:visible="visible" title="选择置顶文章" :footer="null" @cancel="handleCancel" width="auto">
     <div class="top-post-selector">
       <div class="search-section">
         <a-auto-complete v-model="searchValue" :data="searchOptions" placeholder="搜索文章..." :style="{ width: '100%' }"
@@ -51,17 +51,34 @@
           @change="handlePageChange" />
       </div>
     </div>
-  </a-modal>
+  </ModalWrapper>
 
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {IconSearch} from '@arco-design/web-vue/es/icon';
 import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import {debounce} from 'lodash-es';
 import PostCard from '../../../../components/post/PostCardWrapper.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
+
+// 响应式布局
+const windowWidth = ref(window.innerWidth);
+const isMobile = computed(() => windowWidth.value < 768);
+
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 // 接收父组件传入的用户ID
 const props = defineProps({
@@ -297,7 +314,7 @@ defineExpose({
   .posts-container {
     width: calc(60vw + 4px);
     max-width: 724px;
-    min-width: 524px;
+    min-width: 300px;
     height: 700px;
     overflow-y: auto;
   }
@@ -305,7 +322,7 @@ defineExpose({
   .post-item {
     width: calc(60vw - 20px);
     max-width: 700px;
-    min-width: 500px;
+    min-width: 280px;
     padding: 12px;
   }
 
@@ -313,6 +330,32 @@ defineExpose({
     display: flex;
     justify-content: center;
     margin-top: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .posts-container {
+      width: 100%;
+      min-width: auto;
+      height: 60vh;
+    }
+
+    .post-item {
+      width: 100%;
+      min-width: auto;
+      padding: 8px 4px;
+    }
+
+    .sort-section {
+      :deep(.arco-btn-group) {
+        display: flex;
+        width: 100%;
+        
+        .arco-btn {
+          flex: 1;
+          font-size: 12px;
+        }
+      }
+    }
   }
 }
 </style>

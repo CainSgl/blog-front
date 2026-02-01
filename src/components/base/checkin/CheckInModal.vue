@@ -190,7 +190,7 @@ defineExpose({
 
     .no-data-icon {
       font-size: 48px;
-      color: var(--color-neutral-4);
+      color: var(--color-neutral-6);
       margin-bottom: 16px;
     }
 

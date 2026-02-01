@@ -102,10 +102,10 @@ parseRouteParams();
   position: sticky;
   top: 0;
   z-index: 100;
-  background: fade(@color-bg-white, 95%);
+  background: var(--color-bg-1);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid @color-border-1;
-  box-shadow: @shadow2-center;
+  border-bottom: 1px solid var(--color-border-1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .search-header-container {
@@ -117,7 +117,7 @@ parseRouteParams();
 .search-page {
   padding-top: 10dvh;
   min-height: calc(100vh - 80px);
-  background: linear-gradient(to bottom, @color-fill-1 0%, @color-bg-white 300px);
+  background: var(--color-bg-1);
   max-width: 100vw;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -134,9 +134,9 @@ parseRouteParams();
 .search-info {
   margin-bottom: 24px;
   padding: 16px 20px;
-  background: @color-bg-white;
+  background: var(--color-bg-2);
   border-radius: 12px;
-  box-shadow: @shadow2-center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .search-meta {

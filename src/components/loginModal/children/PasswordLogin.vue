@@ -3,19 +3,19 @@
   <a-form :model="loginForm" @submit="handleLogin">
     <a-form-item field="username" label="用户名" :help="usernameHelp" :validate-status="usernameValidateStatus">
       <a-input v-model="loginForm.username" placeholder="请输入用户名/邮件/手机号" size="large" allow-clear
-        :class="{ 'invalid-input': isUsernameInvalid }" autocomplete="username" />
+        :class="{ 'invalid-input': isUsernameInvalid }" autocomplete="username" @keyup.enter="handleLogin" />
     </a-form-item>
 
     <a-form-item field="password" label="密码" :help="passwordHelp" :validate-status="passwordValidateStatus">
       <a-input-password v-model="loginForm.password" placeholder="请输入密码" size="large" allow-clear
-        :class="{ 'invalid-input': isPasswordInvalid }" autocomplete="current-password" />
+        :class="{ 'invalid-input': isPasswordInvalid }" autocomplete="current-password" @keyup.enter="handleLogin" />
     </a-form-item>
 
     <!-- 验证码输入框 -->
     <a-form-item v-if="needCaptcha" field="captcha" label="验证码">
       <div class="captcha-container">
         <a-input v-model="loginForm.captcha" placeholder="请输入验证码" size="large" allow-clear
-          class="captcha-input" />
+          class="captcha-input" @keyup.enter="handleLogin" />
         <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" @click="refreshCaptcha" />
       </div>
     </a-form-item>

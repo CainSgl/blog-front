@@ -111,6 +111,25 @@ onMounted(async () => {
   if (route.path === '/messages' || route.path === '/messages/') {
     router.replace('/messages/reply');
   }
+  
+  // 触发当前激活标签的处理逻辑，清除消息计数
+  const currentTab = activeTab.value;
+  if (userInfo.value) {
+    const tab = tabs.find(t => t.key === currentTab);
+    if (tab && userInfo.value[tab.countKey] > 0) {
+      try {
+        const olddata = userInfo.value[tab.countKey];
+        api.get('/user/hotInfo/ack', { type: tab.countKey }).then(() => {
+          userStore.setUserInfo(userInfo.value);
+        }).catch(() => {
+          userInfo.value[tab.countKey] = olddata;
+        });
+        userInfo.value[tab.countKey] = 0;
+      } catch (error) {
+        console.error('清除消息计数失败:', error);
+      }
+    }
+  }
 });
 </script>
 
@@ -176,11 +195,14 @@ onMounted(async () => {
 
   .messages-tabs {
     padding: 12px 16px 0;
+    overflow-x: auto;
 
-    .tab-title {
-      span {
-        display: none;
-      }
+    .tab-text {
+      display: none;
+    }
+
+    :deep(.arco-tabs-nav-tab) {
+      padding: 8px 12px;
     }
   }
 

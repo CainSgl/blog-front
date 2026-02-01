@@ -8,7 +8,7 @@
           </template>
           返回
         </a-button>
-        <h2>编辑知识库</h2>
+        <h2 style="color: var(--color-neutral-10);">编辑知识库</h2>
         <a-button type="primary" @click="saveContent" :loading="saving">
           <template #icon>
             <IconSave />

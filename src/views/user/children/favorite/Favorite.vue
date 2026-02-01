@@ -173,6 +173,7 @@ onMounted(async () => {
     margin: 0 auto;
     background-color: var(--color-bg-1);
     max-width: 1200px;
+    
     .content-area {
         margin-top: 20px;
 
@@ -194,9 +195,6 @@ onMounted(async () => {
         gap: 8px;
     }
 
-
-
-    // 分组样式
     .favorite-group {
         margin-top: 16px;
         width: 100%;
@@ -232,7 +230,6 @@ onMounted(async () => {
 
             .group-icon {
                 font-size: 16px;
-               
             }
 
             .group-title {
@@ -256,6 +253,49 @@ onMounted(async () => {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 12px;
+        }
+    }
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+    .user-favorite {
+        .content-area {
+            margin-top: 12px;
+
+            .favorite-card {
+                min-height: 300px;
+
+                :deep(.arco-card-body) {
+                    padding: 16px;
+                }
+            }
+        }
+
+        .favorite-group {
+            margin-top: 12px;
+
+            .group-header {
+                padding: 8px 10px;
+
+                .group-icon {
+                    font-size: 14px;
+                }
+
+                .group-title {
+                    font-size: 14px;
+                }
+
+                .group-count {
+                    font-size: 12px;
+                    padding: 2px 6px;
+                }
+            }
+
+            .group-items {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
         }
     }
 }

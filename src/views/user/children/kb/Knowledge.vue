@@ -18,11 +18,9 @@
       </div>
     </div>
 
-    <ContentArea :loading="loading" :list-data="knowledgeBases" loading-tip="正在加载知识库..." :card-width="cardWidth"
-      :card-height="cardHeight" :height-offset="600" @page-size-change="handlePageSizeChange" emptyHeight="50vh"
-      emptyWidth="80vw">
-      <template
-        #default="{ pageSize: currentPageSize, containerWidth: currentContainerWidth, containerHeight: currentContainerHeight }">
+    <ContentArea :loading="loading" :list-data="knowledgeBases" :card-width="cardWidth"
+      :card-height="cardHeight" @page-size-change="handlePageSizeChange">
+      <template #default>
         <div class="kb-list">
           <a-dropdown alignPoint v-for="kb in knowledgeBases" :key="kb.id"
             :trigger="isCurrentUser ? 'contextMenu' : []">
@@ -672,12 +670,6 @@ const handlePageSizeChange = (newPageSize) => {
     margin-top: 48px;
   }
 
-  .content-area {
-    min-height: 350px;
-    height: calc(100vh - 400px);
-  }
-
-  // 状态筛选区域样式
   .status-filter-area {
     padding: 16px 0;
     border-bottom: 1px solid @color-border-1;
@@ -687,11 +679,9 @@ const handlePageSizeChange = (newPageSize) => {
       align-items: center;
       gap: 12px;
       padding: 0 16px;
-
     }
   }
 
-  // 创建知识库卡片样式
   .create-kb-card {
     width: 180px;
     position: relative;
@@ -749,19 +739,77 @@ const handlePageSizeChange = (newPageSize) => {
     }
 
     &:hover {
-
       .create-icon,
       .create-text {
         color: @link-6;
       }
     }
   }
-
-
-
 }
 
-// 响应式布局：当屏幕宽度小于1080px时，为PageHeader的extra插槽内容添加上边距
+// 移动端适配
+@media (max-width: 768px) {
+  .user-knowledge {
+    padding: 0 12px;
+
+    .kb-list {
+      gap: 12px;
+      padding: 12px 0;
+      justify-content: center;
+    }
+
+    .pagination-wrapper {
+      margin-top: 24px;
+      
+      :deep(.arco-pagination) {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    .status-filter-area {
+      padding: 12px 0;
+
+      .status-filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 12px;
+        gap: 8px;
+
+        :deep(.arco-radio-group) {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          width: 100%;
+
+          .arco-radio {
+            flex: 1;
+            min-width: calc(50% - 4px);
+            text-align: center;
+          }
+        }
+      }
+    }
+
+    .create-kb-card {
+      width: 150px;
+      height: 220px;
+
+      .kb-cover-empty {
+        height: 220px;
+      }
+
+      .create-icon {
+        font-size: 36px;
+      }
+
+      .create-text {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
 @media (max-width: 1080px) {
   :deep(.arco-page-header .arco-page-header-extra) {
     margin-top: 16px;

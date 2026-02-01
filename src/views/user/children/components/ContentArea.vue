@@ -1,17 +1,14 @@
 <template>
-  <div class="content-area" style="margin-top: 20px;">
-    <a-card :bordered="false" style="background-color:var(--color-bg-1) ;">
-      <!-- 突然发现不用spin更好看 -->
-      <div :loading="loading" :tip="loadingTip">
-        <div class="list-container">
-          <div class="list">
-            <slot :pageSize="pageSize" :containerWidth="containerWidth" :containerHeight="containerHeight"></slot>
-          </div>
-          <div v-if="$slots.empty && listData.length === 0 && !loading" class="empty-container">
-            <slot name="empty"></slot>
-          </div>
-          <div v-else-if="listData.length === 0 && loading" :style="{ height: emptyHeight, width: emptyWidth }"></div>
+  <div class="content-area">
+    <a-card :bordered="false">
+      <div class="list-container">
+        <div class="list">
+          <slot :pageSize="pageSize" :containerWidth="containerWidth" :containerHeight="containerHeight"></slot>
         </div>
+        <div v-if="$slots.empty && listData.length === 0 && !loading" class="empty-container">
+          <slot name="empty"></slot>
+        </div>
+        <div v-else-if="listData.length === 0 && loading" class="loading-placeholder"></div>
       </div>
     </a-card>
   </div>
@@ -20,7 +17,6 @@
 <script setup>
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 
-// 接收父组件的 props
 const props = defineProps({
   loading: {
     type: Boolean,
@@ -29,10 +25,6 @@ const props = defineProps({
   listData: {
     type: Array,
     default: () => []
-  },
-  loadingTip: {
-    type: String,
-    default: '正在加载...'
   },
   cardWidth: {
     type: Number,
@@ -45,130 +37,78 @@ const props = defineProps({
   cardGap: {
     type: Number,
     default: 16
-  },
-  heightOffset: {
-    type: Number,
-    default: 400
-  },
-  emptyHeight: {
-    type: String,
-    default: '50vh'
-  },
-  emptyWidth: {
-    type: String,
-    default: '80vw'
   }
 });
 
-// 响应式容器尺寸
 const containerWidth = ref(0);
 const containerHeight = ref(0);
 
-// 简化的计算：直接计算可用空间能放多少个卡片
-const loadingContainerWNumber = computed(() => 
-{
+// 简化计算：根据容器宽度计算每行卡片数
+const cardsPerRow = computed(() => {
   if (containerWidth.value <= 0) return 1;
-  const cardsPerRow = Math.floor(containerWidth.value / (props.cardWidth + props.cardGap));
-  return Math.max(1, cardsPerRow);
-});
-
-const loadingContainerHNumber = computed(() => 
-{
-  if (containerHeight.value <= 0) return 1;
-  const rows = Math.floor(containerHeight.value / (props.cardHeight + props.cardGap));
-  return Math.max(1, rows);
-});
-
-const pageSize = computed(() => 
-{
-  const widthCount = loadingContainerWNumber.value;
-  const heightCount = loadingContainerHNumber.value;
-  const calculatedSize = Math.floor(widthCount * heightCount);
-  const finalSize = Math.min(calculatedSize, 100);
-  return finalSize;
-});
-
-// 监听容器尺寸变化
-let resizeObserver = null;
-let resizeTimeout = null;
-let containerElement = null; // 缓存 DOM 元素
-
-const updateContainerSize = () => 
-{
-  // 清除之前的定时器
-  if (resizeTimeout) 
-  {
-    clearTimeout(resizeTimeout);
+  
+  // 移动端适配
+  if (containerWidth.value < 768) {
+    return Math.floor(containerWidth.value / Math.min(props.cardWidth, 300));
   }
+  
+  const cards = Math.floor(containerWidth.value / (props.cardWidth + props.cardGap));
+  return Math.max(1, cards);
+});
 
-  // 使用 setTimeout 防抖，延迟执行
-  resizeTimeout = setTimeout(() => 
-  {
-    // 只在最后一次调用后执行
-    if (containerElement || (containerElement = document.querySelector('.content-area'))) 
-    {
-      if (containerElement) 
-      {
-        // 确保响应式数据正确更新
-        const newWidth = containerElement.clientWidth;
-        const newHeight = window.innerHeight - props.heightOffset;
+// 简化的 pageSize 计算
+const pageSize = computed(() => {
+  const rows = 3; // 固定显示3行
+  const size = cardsPerRow.value * rows;
+  return Math.min(Math.max(size, 6), 100); // 最小6个，最大100个
+});
 
-        // 只有真正变化时才更新，避免不必要的重新渲染
-        if (newWidth !== containerWidth.value) 
-        {
-          containerWidth.value = newWidth;
-        }
-        if (newHeight !== containerHeight.value) 
-        {
-          containerHeight.value = newHeight;
-        }
-      }
-    }
-  }, 100); // 100ms 延迟防抖
-};
-
-// 监听pageSize变化，通知父组件
 const emit = defineEmits(['pageSizeChange']);
 
-watch(pageSize, (newSize, oldSize) => 
-{
-  if (newSize !== oldSize && oldSize > 0) 
-  {
+watch(pageSize, (newSize, oldSize) => {
+  if (newSize !== oldSize && oldSize > 0) {
     emit('pageSizeChange', newSize);
   }
 });
 
-// 组件挂载时加载数据
-onMounted(() => 
-{
+let resizeObserver = null;
+let resizeTimeout = null;
+
+const updateContainerSize = () => {
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
+
+  resizeTimeout = setTimeout(() => {
+    const containerElement = document.querySelector('.content-area .list-container');
+    if (containerElement) {
+      const newWidth = containerElement.clientWidth;
+      if (newWidth !== containerWidth.value) {
+        containerWidth.value = newWidth;
+      }
+    }
+  }, 150);
+};
+
+onMounted(() => {
   updateContainerSize();
   
-  // 初始化ResizeObserver监听尺寸变化
-  resizeObserver = new ResizeObserver(() => 
-  {
-    updateContainerSize();
-  });
+  resizeObserver = new ResizeObserver(updateContainerSize);
   const contentArea = document.querySelector('.content-area');
-  if (contentArea) 
-  {
+  if (contentArea) {
     resizeObserver.observe(contentArea);
   }
-  // 监听窗口大小变化
+  
   window.addEventListener('resize', updateContainerSize);
 });
 
-// 组件卸载时清理监听
-onUnmounted(() => 
-{
-  if (resizeObserver) 
-  {
+onUnmounted(() => {
+  if (resizeObserver) {
     resizeObserver.disconnect();
   }
   window.removeEventListener('resize', updateContainerSize);
-
-  // 清理定时器
-  if (resizeTimeout) 
-  {
+  
+  if (resizeTimeout) {
     clearTimeout(resizeTimeout);
   }
 });
@@ -176,12 +116,13 @@ onUnmounted(() =>
 
 <style lang="less" scoped>
 .content-area {
-  min-height: 450px;
-  height: calc(100vh - 300px);
+  margin-top: 20px;
+
+  :deep(.arco-card) {
+    background-color: var(--color-bg-1);
+  }
 
   .list-container {
-    max-width: 1400px;
-    margin: 0 auto;
     width: 100%;
   }
 
@@ -191,7 +132,6 @@ onUnmounted(() =>
     gap: 16px;
     justify-content: flex-start;
     padding: 16px 0;
-    align-items: flex-start;
   }
 
   .empty-container {
@@ -201,11 +141,30 @@ onUnmounted(() =>
     align-items: center;
     min-height: 400px;
   }
+
+  .loading-placeholder {
+    min-height: 400px;
+  }
 }
 
-// 为知识库页面调整高度
-.content-area.kb-content {
-  min-height: 600px;
-  height: calc(100vh - 400px);
+// 移动端适配
+@media (max-width: 768px) {
+  .content-area {
+    margin-top: 12px;
+
+    .list {
+      gap: 12px;
+      padding: 12px 0;
+      justify-content: center;
+    }
+
+    .empty-container {
+      min-height: 300px;
+    }
+
+    .loading-placeholder {
+      min-height: 300px;
+    }
+  }
 }
 </style>

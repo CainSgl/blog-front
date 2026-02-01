@@ -1,7 +1,7 @@
 <template>
   <div class="avatar-section">
-    <a-popover trigger="hover" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }">
-      <Avatar :src="userInfo?.avatarUrl" class="avatar-trigger" @click="openInNewTab(`/space/${userInfo?.id}`)" />
+    <a-popover trigger="hover" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }" v-model:popup-visible="popoverVisible">
+      <Avatar :src="userInfo?.avatarUrl" class="avatar-trigger" @click="handleAvatarClick" />
       <template #content>
         <div class="user-info-popover" v-if="userInfo?.id != '-1'">
           <div class="user-header">
@@ -90,10 +90,7 @@ import ThemeSwitcher from '@/components/base/ThemeSwitcher.vue';
 import LevelUpModal from '@/components/base/checkin/LevelUpModal.vue';
 import CheckInModal from '@/components/base/checkin/CheckInModal.vue';
 import {
-  IconBook,
-  IconCloud,
   IconExport,
-  IconFile,
   IconLock,
   IconMan,
   IconUser,
@@ -112,6 +109,16 @@ const router = useRouter();
 const { userInfo } = storeToRefs(userStore);
 const levelUpModalRef = ref(null);
 const checkInModalRef = ref(null);
+const popoverVisible = ref(false);
+
+// 检测是否有鼠标（非触摸设备）
+const hasMouse = ref(true);
+
+onMounted(() => {
+  // 检测设备是否支持触摸
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  hasMouse.value = !isTouchDevice;
+});
 
 // 自动签到
 onMounted(() => {
@@ -159,6 +166,21 @@ const autoCheckIn = async () => {
 
 
 
+// 处理头像点击
+const handleAvatarClick = () => {
+  // 如果是触摸设备（没有鼠标）
+  if (!hasMouse.value) {
+    // 如果弹出层未显示，则显示弹出层，不跳转
+    if (!popoverVisible.value) {
+      popoverVisible.value = true;
+      return;
+    }
+  }
+  
+  // 有鼠标的设备，或者弹出层已显示时，执行跳转
+  openInNewTab(`/space/${userInfo.value?.id}`);
+};
+
 // 在新标签页中打开指定路径
 const openInNewTab = (path) => {
   if (userInfo.value.id == '-1') {
@@ -178,7 +200,7 @@ const showLogin = () => {
 const logout = async () => {
   const loginService = getLoginService();
   loginService.logout();
-  await router.push({ name: 'Home' });
+  window.location.reload();
 };
 
 // 打开签到记录

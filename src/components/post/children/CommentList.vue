@@ -1,6 +1,6 @@
 <template>
   <div class="comments-header">
-    <h2>评论</h2>
+    <h2 style="color: var(--color-neutral-10);">评论</h2>
     <div class="comment-count"> {{ commentCountText }}</div>
   </div>
   <div class="comment-list" v-if="postId">
@@ -185,7 +185,7 @@ onUnmounted(() => {
   margin: 0 30px 0 6px;
   font-size: 13px;
   font-weight: 400;
-  color: var(--color-neutral-4);
+  color: var(--color-neutral-6);
 }
 
 .comment-list {
@@ -197,7 +197,7 @@ onUnmounted(() => {
 .no-comments {
   text-align: center;
   padding: 20px;
-  color: #999;
+  color: var(--color-neutral-6);
   font-size: 14px;
 }
 
@@ -205,7 +205,7 @@ onUnmounted(() => {
 .no-more {
   text-align: center;
   padding: 10px;
-  color: #999;
+  color: var(--color-neutral-6);
   font-size: 14px;
 }
 </style>

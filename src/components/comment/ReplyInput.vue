@@ -51,7 +51,7 @@ defineExpose({
   {
     nextTick(() => 
     {
-      if (!props.autoFocus.value) 
+      if (!props.autoFocus) 
       {
         console.error('该组件autoFocus为false，禁止聚焦');
         return;
@@ -113,7 +113,7 @@ onMounted(async () =>
 {
   const info = await userStore.getUserInfo();
   currentUserInfo.value = info;
-  if (props.autoFocus.value) 
+  if (props.autoFocus) 
   {
     commentInputRef.value.focus();
     return;
@@ -142,6 +142,6 @@ onMounted(async () =>
 .comment-count {
     font-size: 13px;
     font-weight: 400;
-    color: var(--color-neutral-4);
+    color: var(--color-neutral-6);
 }
 </style>

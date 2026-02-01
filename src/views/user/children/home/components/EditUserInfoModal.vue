@@ -1,6 +1,6 @@
 <template>
   <!-- 设置用户名弹窗 -->
-  <a-modal 
+  <ModalWrapper 
     v-model:visible="usernameModalVisible" 
     title="设置用户名" 
     :footer="null" 
@@ -48,12 +48,12 @@
         </a-form-item>
       </a-form>
     </a-space>
-  </a-modal>
+  </ModalWrapper>
 
   <!-- 编辑个人信息弹窗 -->
-  <a-modal v-model:visible="modalVisible" title="编辑个人信息" :footer="null" @cancel="handleCancel" width="auto">
-    <a-space class="edit-user-info-modal" direction="vertical">
-      <a-form :model="form" :rules="rules" :label-col-props="{ span: 3 }" :wrapper-col-props="{ span: 20 }"
+  <ModalWrapper v-model:visible="modalVisible" title="编辑个人信息" :footer="null" @cancel="handleCancel" width="auto">
+    <a-space class="edit-user-info-modal" direction="vertical" :style="{ width: '100%' }">
+      <a-form :model="form" :rules="rules" :label-col-props="labelColProps" :wrapper-col-props="wrapperColProps"
         @submit="handleSubmit" ref="formRef" class="form-container">
         <a-form-item field="username" label="用户名">
           <a-input 
@@ -91,15 +91,37 @@
         </div>
       </a-form>
     </a-space>
-  </a-modal>
+  </ModalWrapper>
 </template>
 
 <script setup>
 import {computed, nextTick, reactive, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
 import {useUserStore} from '@/store/user.js';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const userStore = useUserStore();
+
+// 响应式布局配置
+const windowWidth = ref(window.innerWidth);
+const isMobile = computed(() => windowWidth.value < 768);
+
+const labelColProps = computed(() => 
+  isMobile.value ? { flex: '80px' } : { span: 3 }
+);
+
+const wrapperColProps = computed(() => 
+  isMobile.value ? { flex: '1' } : { span: 20 }
+);
+
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+// 监听窗口大小变化
+if (typeof window !== 'undefined') {
+  window.addEventListener('resize', handleResize);
+}
 
 // 定义 emits
 const emit = defineEmits(['update:modelValue', 'saved']);
@@ -309,11 +331,30 @@ const handleSubmit = async () =>
 
 <style scoped lang="less">
 .edit-user-info-modal {
+  width: 100%;
+  
   .form-container {
     width: calc(60vw - 40px);
     max-width: 600px;
-    min-width: 500px;
+    min-width: 300px;
     padding: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .form-container {
+      width: 100%;
+      min-width: auto;
+      max-width: none;
+      padding: 8px 4px;
+    }
+    
+    :deep(.arco-form-item-label-col) {
+      flex: 0 0 80px;
+    }
+    
+    :deep(.arco-form-item-wrapper-col) {
+      flex: 1;
+    }
   }
 
   .arco-form-item {

@@ -27,8 +27,9 @@ const props = defineProps({
   userInfo: {
     type: Object,
     default: null
-  }
+  },
 });
+const emit = defineEmits(['update'])
 
 const currentUserInfo = ref(false);
 const cropperModalVisible = ref(false);
@@ -111,10 +112,14 @@ const handleCroppedImage = async (croppedFile) =>
         'Content-Type': 'multipart/form-data'
       }
     });
-    props.userInfo.avatarUrl = data.shortUrl;
+    
     // 更新用户头像
     const avatarUrl = data.shortUrl;
-    userStore.updateUserInfo({ avatarUrl });
+    await userStore.updateUserInfo({ avatarUrl });
+    
+    // 触发更新事件
+    emit('update', avatarUrl);
+    
     Message.success({
       id: 'upload-avatar',
       content: '头像更新成功',

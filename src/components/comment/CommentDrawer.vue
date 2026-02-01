@@ -16,14 +16,9 @@
       </div>
 
       <!-- 评论输入框 -->
-      <div class="comment-input-wrapper" :class="{ 'mobile-keyboard-active': isKeyboardActive }">
-        <a-textarea v-model="newCommentContent" placeholder="评论一下吧！" :maxlength="{ length: 255, errorOnly: true }"
-          :auto-size="{ minRows: 1, maxRows: 4 }" @keydown.enter="handleEnterKey" @focus="handleInputFocus"
-          @blur="handleInputBlur" show-word-limit allow-clear ref="commentInputRef" />
-        <a-button type="primary" @click="handleAddComment" :disabled="!newCommentContent.trim()" class="submit-btn"
-          :loading="pushCommentLoading">
-          发送
-        </a-button>
+      <div :class="{ 'mobile-keyboard-active': isKeyboardActive }">
+        <ReplyInput :show-self="false" :auto-focus="false" :on-submit-comment="handleAddComment" 
+          placeholder="评论一下吧！" ref="replyInputRef" />
       </div>
     </div>
   </a-drawer>
@@ -32,6 +27,7 @@
 <script setup>
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import Comment from '@/components/comment/Comment.vue';
+import ReplyInput from '@/components/comment/ReplyInput.vue';
 import {useCommentStore} from '@/components/comment/commentStore.js';
 import {Message} from '@arco-design/web-vue';
 import {useUserStore} from '@/store/user.js';
@@ -66,10 +62,7 @@ const isMobile = ref(false);
 const isKeyboardActive = ref(false);
 
 // 评论输入框引用
-const commentInputRef = ref(null);
-
-// 新评论内容
-const newCommentContent = ref('');
+const replyInputRef = ref(null);
 
 // 滚动容器引用
 const commentsContainerRef = ref(null);
@@ -95,7 +88,6 @@ const initData = () => {
   comments.value = [];
   hasMore.value = true;
   loading.value = false;
-  newCommentContent.value = '';
   currentPage.value = 1;
   pinnedCommentId.value = null;
 };
@@ -188,22 +180,8 @@ const handleScroll = () => {
   }
 };
 
-// 处理回车键
-const handleEnterKey = (event) => {
-  // 只有在按下 Ctrl+Enter 或 Alt+Enter 时才提交评论
-  if (event.ctrlKey || event.altKey || event.metaKey) {
-    event.preventDefault(); // 阻止默认换行行为
-    handleAddComment();
-  }
-  // 如果只按 Enter 键，则允许换行（默认行为）
-};
-
 // 处理添加评论
-const handleAddComment = async () => {
-  if (!newCommentContent.value.trim()) {
-    Message.warning('请输入评论内容');
-    return;
-  }
+const handleAddComment = async (content) => {
   if (!commentStore.paragrahphId) {
     Message.error('发生了未知的错误，请重新打开评论区');
     return;
@@ -213,8 +191,6 @@ const handleAddComment = async () => {
   }
   pushCommentLoading.value = true;
   try {
-    const content = newCommentContent.value;
-    newCommentContent.value = '';
     const msgid = 'paragraph' + commentStore.postId + ":" + commentStore.paragrahphId
     Message.loading({ id: msgid, content: '发送评论中...' });
     const { data } = await api.post('/comment', { postId: commentStore.postId, version: commentStore.version, dataId: commentStore.paragrahphId, content });
@@ -230,7 +206,6 @@ const handleAddComment = async () => {
         likeCount: 0,
       };
       comments.value.unshift(newComment); // 添加到数组开头而不是末尾
-      newCommentContent.value = '';
       // 滚动到顶部
       await nextTick();
       if (commentsContainerRef.value) {
@@ -244,31 +219,6 @@ const handleAddComment = async () => {
   finally {
     pushCommentLoading.value = false;
   }
-
-};
-
-// 监听键盘事件，用于检测手机端输入法是否激活
-const handleInputFocus = () => {
-  if (isMobile.value) {
-    isKeyboardActive.value = true;
-    // 在手机端聚焦时，尝试滚动到输入框位置
-    nextTick(() => {
-      if (commentInputRef.value) {
-        // 尝试滚动使输入框可见
-        commentInputRef.value.$el?.scrollIntoView?.({
-          behavior: 'smooth',
-          block: 'center'
-        });
-      }
-    });
-  }
-};
-
-const handleInputBlur = () => {
-  // 延迟设置，以确保键盘完全收起
-  setTimeout(() => {
-    isKeyboardActive.value = false;
-  }, 300);
 };
 
 onMounted(() => {
@@ -350,37 +300,14 @@ onUnmounted(() => {
   font-size: 14px;
 }
 
-.comment-input-wrapper {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
-  border-top: 1px solid #eee;
-  background-color: white;
-  position: sticky;
+.mobile-keyboard-active {
+  // 在手机端键盘激活时调整样式
+  position: fixed;
   bottom: 0;
-  z-index: 10;
-
-  :deep(.arco-input-wrapper),
-  :deep(.arco-textarea-wrapper) {
-    border-radius: 5px !important;
-    flex: 1;
-    align-self: center;
-  }
-
-
-
-  &.mobile-keyboard-active {
-    // 在手机端键盘激活时调整样式
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: auto;
-    background-color: white;
-    border-top: 1px solid #eee;
-    padding: 12px 16px;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-  }
+  left: 0;
+  right: 0;
+  width: auto;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 }
 
 // 高亮评论的动画效果

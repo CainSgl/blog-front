@@ -1,7 +1,7 @@
 <template>
   <div ref="wrapperRef" class="markdown-preview-wrapper"
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
-    <MarkdownPreview v-show="!(isMobile && shouldShowToc)" :showComment="showComment" ref="markdownPreviewRef"
+    <MarkdownPreview v-show="!(isMobile && shouldShowToc)||!hasData" :showComment="showComment" ref="markdownPreviewRef"
       :content="content" :useWindowScroll="useWindowScroll" :class="['preview', { 'preview-full': !isTocVisible }]"
       @scroll="handleMdScroll">
       <div :class="['scroll-progress-container', { 'scroll-progress-mobile': isMobile }]">
@@ -11,7 +11,7 @@
       </div>
     </MarkdownPreview>
 
-    <div :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]"
+    <div :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]" v-if="hasData"
       :target="affixTarget ? affixTarget : null" :style="tocHasData ? '' : 'width: 0;'">
       <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect" :tocDefaultShow="tocDefaultShow"
         :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" @hasData="handleHasData" />

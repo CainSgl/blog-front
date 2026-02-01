@@ -1,13 +1,13 @@
 <template>
   <div class="step-nickname">
     <div class="step-header">
-      <p>完成个人信息</p>
+      <p>完善个人信息</p>
       <a-link @click="handleSkip">稍后完善</a-link>
     </div>
 
     <!-- 头像部分 -->
     <div class="avatar-wrapper">
-      <AvatarSection :user-info="userInfo" />
+      <AvatarSection :user-info="userInfo" @update="handleAvatarUpdate" />
     </div>
 
     <!-- 基本信息表单 -->
@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import {onMounted, reactive, ref} from 'vue'
+import {computed, onMounted, reactive, ref} from 'vue'
 import AvatarSection from '@/components/base/avatar/AvatarSection.vue'
 import {useUserStore} from '@/store/user.js';
 
@@ -77,7 +77,18 @@ const props = defineProps({
 const emit = defineEmits(['next'])
 
 
-const userInfo = ref()
+
+const userStore = useUserStore();
+
+// 使用 ref 存储用户信息
+const userInfo = ref(null);
+
+// 处理头像更新
+const handleAvatarUpdate = (avatarUrl) => {
+  if (userInfo.value) {
+    userInfo.value.avatarUrl = avatarUrl;
+  }
+}
 
 // 表单数据
 const form = reactive({
@@ -93,13 +104,11 @@ const errorMsg = reactive({
 })
 
 const loading = ref(false)
-
 // 跳过此步骤
 const handleSkip = () => {
   emit('next', { ...props.formData }, false)
 }
 
-const userStore = useUserStore();
 // 提交表单
 const handleNext = async () => {
     await userStore.updateUserInfo({

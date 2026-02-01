@@ -2,7 +2,7 @@
     <div class="history-page">
         <a-affix :offset-top="64"  target-container="#router-page-container">
             <div class="page-header">
-                <h2>浏览历史</h2>
+                <h2 style="color: var(--color-neutral-10);">浏览历史</h2>
                 <div class="header-actions">
                     <a-button v-if="!isSelectMode" type="outline" @click="enterSelectMode">
                         <template #icon><icon-edit /></template>

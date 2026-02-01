@@ -6,8 +6,15 @@
 
       <!-- 侧边栏导航 -->
       <AboutSidebar ref="sidebarRef" @node-select="handleNodeSelect" />
+      
       <!-- 主内容区 -->
       <div class="main-content">
+        <!-- 手机端菜单按钮 -->
+        <a-button class="mobile-menu-btn" type="primary" @click="toggleSidebar">
+          <template #icon>
+            <icon-menu />
+          </template>
+        </a-button>
         <!-- 面包屑导航 -->
         <AboutBreadcrumb :breadcrumbs="breadcrumbs" @clear-selection="clearSelection"
           @breadcrumb-click="handleBreadcrumbClick" />
@@ -33,6 +40,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
+import {IconMenu} from '@arco-design/web-vue/es/icon';
 import AboutSidebar from './components/AboutSidebar.vue';
 import AboutBreadcrumb from './components/AboutBreadcrumb.vue';
 import ArticleView from './children/ArticleView.vue';
@@ -97,6 +105,12 @@ const handleNodeSelect = async (node) => {
   }
   document.title = `${node.name} - 关于`;
   console.log(node)
+  
+  // 手机端选中节点后自动关闭侧边栏
+  if (window.innerWidth <= 768 && sidebarRef.value) {
+    sidebarRef.value.toggleCollapse();
+  }
+  
   if (node.postId) {
     currentNode.value = node;
     if (!node.content) {
@@ -349,6 +363,13 @@ const handleEnterDirectory = () => {
   }
 };
 
+// 切换侧边栏（手机端）
+const toggleSidebar = () => {
+  if (sidebarRef.value) {
+    sidebarRef.value.toggleCollapse();
+  }
+};
+
 // 初始化
 onMounted(() => {
   parseRoute();
@@ -386,5 +407,25 @@ onMounted(() => {
   height: 100%;
   min-height: 400px;
   background-color: var(--color-bg-1);
+}
+
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>

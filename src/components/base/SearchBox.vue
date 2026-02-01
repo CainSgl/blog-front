@@ -306,9 +306,7 @@ const handleSearch = () => {
   }
 
   &.focused {
-    box-shadow: 0 4px 20px color-mix(in srgb, var(--color-neutral-10) 20%, transparent);
     background: var(--color-bg-2);
-    
   }
 }
 
@@ -326,7 +324,6 @@ const handleSearch = () => {
   }
 
   &.focused {
-    box-shadow: 0 2px 6px color-mix(in srgb, var(--color-neutral-10) 10%, transparent);
     border-color: color-mix(in srgb, var(--color-neutral-10) 18%, transparent);
   }
 }

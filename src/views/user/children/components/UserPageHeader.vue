@@ -3,8 +3,8 @@
     :subtitle="userInfo ? `用户 ${userInfo ? userInfo.nickname || userInfo.username : userId} 的${subtitle}` : ''"
     @back="handleBack">
     <template #extra>
-      <a-space v-if="showSearch">
-        <a-button-group size="medium" style="margin-right: 16px;">
+      <div v-if="showSearch" class="header-extra">
+        <a-button-group size="medium" class="sort-buttons">
           <a-button v-for="sortOption in sortOptions" :key="sortOption.value"
             :type="sortBy === sortOption.value ? 'primary' : 'outline'" @click="handleSortButtonClick(sortOption.value)"
             size="medium">
@@ -12,7 +12,7 @@
           </a-button>
         </a-button-group>
         <a-auto-complete v-model="searchValue" :data="displaySearchOptions" :placeholder="searchPlaceholder"
-          :style="{ width: searchWidth }" :filter-option="false" @search="handleSearchWrapper"
+          class="search-input" :filter-option="false" @search="handleSearchWrapper"
           @select="handleSearchSelect" @press-enter="handleSearchEnter" allow-clear :popup-visible="showDropdown">
           <template #prefix>
             <IconSearch />
@@ -31,7 +31,7 @@
             </div>
           </template>
         </a-auto-complete>
-      </a-space>
+      </div>
     </template>
   </a-page-header>
 </template>
@@ -221,6 +221,30 @@ const handleBack = () => {
 </script>
 
 <style lang="less" scoped>
+.header-extra {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sort-buttons {
+  flex-shrink: 0;
+  
+  :deep(.arco-btn-group) {
+    display: inline-flex;
+    
+    .arco-btn {
+      min-width: 80px;
+      transition: none;
+    }
+  }
+}
+
+.search-input {
+  width: 320px;
+  flex-shrink: 0;
+}
+
 .custom-option {
   display: flex;
   justify-content: space-between;
@@ -241,7 +265,6 @@ const handleBack = () => {
   }
 }
 
-// 搜索框底部加载和空结果样式
 .search-footer-loading,
 .search-footer-empty {
   padding: 12px;
@@ -266,7 +289,6 @@ const handleBack = () => {
   color: var(--color-neutral-6);
 }
 
-// 搜索框样式优化
 :deep(.arco-auto-complete) {
   .arco-input {
     transition: all 0.3s ease;
@@ -283,6 +305,62 @@ const handleBack = () => {
   .arco-auto-complete-dropdown {
     border-radius: @border-radius-medium;
     box-shadow: 0 4px 12px fade(#000, 10%);
+  }
+}
+
+// 平板和移动端适配
+@media (max-width: 1024px) {
+  .header-extra {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+    order: 2;
+  }
+
+  .sort-buttons {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-extra {
+    gap: 12px;
+  }
+
+  .sort-buttons {
+    width: 100%;
+    
+    :deep(.arco-btn-group) {
+      display: flex;
+      width: 100%;
+      
+      .arco-btn {
+        flex: 1;
+        font-size: 12px;
+        padding: 4px 8px;
+      }
+    }
+  }
+
+  .search-input {
+    min-width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .sort-buttons {
+    :deep(.arco-btn-group) {
+      flex-wrap: wrap;
+      gap: 4px;
+      
+      .arco-btn {
+        flex: 1 1 calc(50% - 2px);
+        min-width: 0;
+      }
+    }
   }
 }
 </style>
