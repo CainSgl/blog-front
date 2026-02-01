@@ -295,7 +295,7 @@ defineExpose({
   }
 
   .posts-container {
-    width: calc(60vw+4);
+    width: calc(60vw + 4px);
     max-width: 724px;
     min-width: 524px;
     height: 700px;

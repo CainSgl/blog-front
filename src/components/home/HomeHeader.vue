@@ -5,7 +5,7 @@
 
     <!-- 背景图片设置为绝对定位 -->
     <div class="background-container" :style="{ opacity: backgroundOpacity, transform: `translateX(-50%) scale(${backgroundScale})` }">
-      <CImg :src="`/welcome/background/${randomBgIndex}`" class="background-img"  :preview-visible="false" ></CImg>
+      <CImg :src="`/file/welcome/background/${randomBgIndex}`" class="background-img"  :preview-visible="false" ></CImg>
       <!-- 白色半透明遮罩层 -->
       <div class="overlay-mask"></div>
       <div class="rain-container">
@@ -39,7 +39,7 @@ import {IconDoubleDown, IconDoubleUp} from '@arco-design/web-vue/es/icon';
 import Header from '@/components/layout/Header.vue';
 
 const raindrops = ref([]);
-const randomBgIndex = Math.floor(Math.random() * 10) % 10;
+const randomBgIndex = Math.floor(Math.random() * 10) % 6;
 const lastScrollY = ref(0);
 const isAtBottom = ref(false);
 const backgroundOpacity = ref(1);

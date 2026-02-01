@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useUserStore } from '@/store/user.js';
+import { showLoginModal } from '@/services/authService';
 
 const routes = [
   {
@@ -58,7 +60,6 @@ const routes = [
     name: 'SpaceRedirect',
     beforeEnter: async (to, from, next) => {
       // 导入用户store来获取当前用户信息
-      const { useUserStore } = await import('@/store/user.js');
       const userStore = useUserStore();
 
       // 尝试获取用户信息
@@ -66,7 +67,6 @@ const routes = [
         const userInfo = await userStore.getUserInfo();
         if (userInfo.id == '-1') {
           //必须登录才行，直接跳转到登录页
-          const { showLoginModal } = await import('@/services/authService');
           showLoginModal(false);
           return;
         }
