@@ -3,7 +3,7 @@
   <div class="container">
     <KBList :initialPosts="[]" :load-data="loadKbs" :listenWindowScroll="true"
       :enableAutoLoad="enableAutoLoad"
-      hasMoreText="你真是一个博学的人，本站的知识库都被看光了 ヾ(*´∀ ˋ*)ﾉ" />
+      hasMoreText="没有更多知识库了" />
   </div>
 </template>
 

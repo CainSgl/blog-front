@@ -247,7 +247,7 @@ onUnmounted(() => {
 
     .page-header {
         padding: 24px 32px;
-        background-color: var(--color-bg-2);
+        background-color: var(--color-bg-1);
         border-bottom: 1px solid var(--color-border-2);
         display: flex;
         justify-content: space-between;
@@ -354,14 +354,30 @@ onUnmounted(() => {
             .header-actions {
                 width: 100%;
 
-                :deep(.arco-space) {
+                > :deep(.arco-btn) {
                     width: 100%;
-                    flex-wrap: wrap;
                 }
 
-                :deep(.arco-btn) {
-                    flex: 1;
-                    min-width: 80px;
+                :deep(.arco-space) {
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 8px;
+
+                    .arco-space-item {
+                        width: 100%;
+                        
+                        .arco-btn {
+                            width: 100%;
+                            font-size: 13px;
+                            padding: 0 8px;
+                        }
+                    }
+
+                    // 让"取消"按钮占满整行
+                    .arco-space-item:last-child {
+                        grid-column: 1 / -1;
+                    }
                 }
             }
         }

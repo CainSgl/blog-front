@@ -6,7 +6,7 @@
     </a-button>
 
     <HomePostList :initialPosts=[] :load-data="loadPosts" :listenWindowScroll="true"
-      hasMoreText="你真是一个博学的人，本站的文档都被看光了 ヾ(*´∀ ˋ*)ﾉ" />
+      hasMoreText="没有更多博客了" />
 
     <div v-if="!hasMore">
       <div style="height: 200px;"></div>
