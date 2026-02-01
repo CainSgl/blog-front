@@ -178,4 +178,37 @@ watch(() => props.node, (newNode) => {
   right: 20px;
   bottom: 20px;
 }
+
+@media (max-width: 768px) {
+  .article-header {
+    padding: 20px 16px 16px;
+    margin-bottom: 16px;
+  }
+
+  .article-title {
+    font-size: 24px;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .article-summary {
+    gap: 10px;
+    padding: 12px 16px;
+    margin-top: 12px;
+  }
+
+  .summary-icon {
+    font-size: 16px;
+  }
+
+  .summary-text {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .comment-affix-button {
+    right: 16px;
+    bottom: 16px;
+  }
+}
 </style>

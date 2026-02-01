@@ -282,6 +282,7 @@ onMounted(() => {
     justify-content: space-between;
     padding: 24px 16px;
     border-bottom: 1px solid var(--color-border-2);
+    position: relative;
 
     h2 {
         margin: 0;
@@ -292,6 +293,7 @@ onMounted(() => {
 
     .collapse-btn {
         flex-shrink: 0;
+        transition: all 0.3s ease;
     }
 }
 
@@ -380,12 +382,12 @@ onMounted(() => {
     .sidebar-mask {
         display: block;
         position: fixed;
-        top: 0;
+        top: 64px;
         left: 0;
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 99;
+        z-index: 90;
         animation: fadeIn 0.3s ease;
     }
 
@@ -401,16 +403,78 @@ onMounted(() => {
     .sidebar {
         position: fixed;
         left: 0;
-        top: 0;
-        height: 100vh;
-        z-index: 100;
+        top: 64px;
+        height: calc(100vh - 64px);
+        z-index: 95;
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
         transform: translateX(0);
         transition: transform 0.3s ease;
+        width: 85vw;
+        min-width: 85vw;
+        max-width: 360px;
 
         &.sidebar-collapsed {
-            transform: translateX(-100%);
+            transform: translateX(calc(-100% + 48px));
+            width: 48px;
+            min-width: 48px;
+            box-shadow: none;
         }
+    }
+
+    .sidebar-header {
+        padding: 16px 8px;
+        
+        h2 {
+            font-size: 16px;
+        }
+
+        .collapse-btn {
+            background-color: var(--color-bg-3);
+            border-radius: 8px;
+            
+            &:hover {
+                background-color: var(--color-fill-3);
+            }
+        }
+    }
+
+    .sidebar-collapsed .sidebar-header {
+        justify-content: center;
+        padding: 16px 4px;
+        border-bottom: none;
+
+        .collapse-btn {
+            background-color: rgb(var(--primary-6));
+            color: white;
+            box-shadow: 0 2px 8px rgba(var(--primary-6), 0.3);
+            animation: pulse 2s ease-in-out infinite;
+            
+            &:hover {
+                background-color: rgb(var(--primary-5));
+                animation: none;
+            }
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 2px 8px rgba(var(--primary-6), 0.3);
+        }
+        50% {
+            box-shadow: 0 2px 16px rgba(var(--primary-6), 0.6);
+        }
+    }
+
+    .sidebar-content {
+        padding: 12px;
+    }
+
+    .search-input {
+        margin-bottom: 12px;
+    }
+
+    .stats-info {
+        margin-bottom: 12px;
     }
 }
 </style>

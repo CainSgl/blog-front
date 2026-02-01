@@ -42,4 +42,18 @@ defineEmits(['clear-selection', 'breadcrumb-click']);
     }
   }
 }
+
+@media (max-width: 768px) {
+  .breadcrumb-container {
+    padding: 10px 16px;
+    
+    :deep(.arco-breadcrumb-item) {
+      font-size: 13px;
+      
+      .arco-icon {
+        font-size: 14px;
+      }
+    }
+  }
+}
 </style>

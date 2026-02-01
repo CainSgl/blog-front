@@ -188,4 +188,35 @@ watch(() => props.node, () => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+@media (max-width: 768px) {
+  .dir-view {
+    padding: 16px;
+  }
+
+  .dir-content {
+    gap: 10px;
+  }
+
+  .dir-item {
+    padding: 12px;
+    
+    &:hover {
+      transform: translateX(2px);
+    }
+  }
+
+  .item-icon {
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  .item-name {
+    font-size: 15px;
+  }
+
+  .item-path {
+    font-size: 13px;
+  }
+}
 </style>

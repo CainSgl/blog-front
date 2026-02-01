@@ -64,4 +64,10 @@ onMounted(() => {
   background-color: var(--color-bg-1);
   padding: 24px;
 }
+
+@media (max-width: 768px) {
+  .welcome-container {
+    padding: 16px;
+  }
+}
 </style>
