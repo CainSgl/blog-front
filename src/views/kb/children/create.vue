@@ -28,7 +28,7 @@
             <div class="preview-section">
               <h3>预览</h3>
               <div class="kb-card-preview" style="width: 180px;">
-                <KbCard :kbInfo="kbInfo" />
+                <KbCard :kbInfo="kbInfo" :skeleton="false" />
               </div>
             </div>
 
@@ -226,7 +226,15 @@ const createKb = async () =>
 
 const goBack = () => 
 {
-  router.go(-1);
+  // 如果有历史记录则返回上一页，否则返回首页
+  if (window.history.length > 1) 
+  {
+    router.go(-1);
+  }
+  else 
+  {
+    router.push({ name: 'Home' });
+  }
 };
 
 // 处理裁剪后的图片

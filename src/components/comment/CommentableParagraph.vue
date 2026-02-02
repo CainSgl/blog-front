@@ -11,10 +11,10 @@
       <icon-message :size="20" />
       <span class="comment-text">评论</span>
     </div>
-    <!-- 移动端评论图标（无评论时） -->
+    <!-- 移动端评论图标（无评论时）
     <div v-if="isMobile && commentCount < 1" class="mobile-comment-icon" @click="handleCommentParClick">
       <icon-message :size="16" />
-    </div>
+    </div> -->
     <!-- 已存在的评论徽章 -->
     <div class="comment-badge" @click="handleCommentClick" v-if="commentCount > 0">
       <span class="comment-count">{{ commentCount > 99 ? '99+' : commentCount }}</span>

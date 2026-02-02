@@ -10,7 +10,7 @@
                 :key="action.key"
                 class="action-item" 
                 @click="action.handler">
-                <a-tooltip :content="action.tooltip" position="right">
+                <TooltipWrapper :content="action.tooltip" position="right" >
                     <div 
                         class="action-button" 
                         :class="[action.className, { [action.activeClass]: action.isActive }]">
@@ -21,7 +21,7 @@
                             {{ formatCount(action.count) }}
                         </span>
                     </div>
-                </a-tooltip>
+                </TooltipWrapper>
             </div>
 
             <!-- 收起按钮 -->
@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import {ref, computed} from 'vue';
+import {ref, computed, onMounted} from 'vue';
 import {Message, Modal} from '@arco-design/web-vue';
 import {
   IconDoubleLeft,
@@ -53,6 +53,7 @@ import {
   IconStarFill
 } from '@arco-design/web-vue/es/icon';
 import AddToFavoriteModal from '@/components/base/favorite/AddToFavoriteModal.vue';
+import TooltipWrapper from '@/components/base/TooltipWrapper.vue';
 import api from '@/api/index.js'
 
 const props = defineProps({
@@ -82,13 +83,26 @@ const props = defineProps({
     },
     authorId:{
         type:String
+    },
+    defaultExpanded: {
+        type: Boolean,
+        default: undefined
     }
 });
 
 const emit = defineEmits(['like', 'favorite', 'comment', 'report']);
 
-// 控制展开/收起状态
+// 控制展开/收起状态 - 根据屏幕宽度和 prop 决定初始状态
 const isExpanded = ref(true);
+
+onMounted(() => {
+    if (props.defaultExpanded !== undefined) {
+        isExpanded.value = props.defaultExpanded;
+    } else {
+        // 手机端默认收起，PC端默认展开
+        isExpanded.value = window.innerWidth >= 768;
+    }
+});
 
 // 收藏弹窗
 const showFavoriteModal = ref(false);
@@ -231,7 +245,9 @@ const handleReport = () => {
     align-items: center;
 
     @media screen and (max-width: 768px) {
-        display: none;
+        top: auto;
+        bottom: 20px;
+        transform: none;
     }
 }
 
@@ -253,6 +269,17 @@ const handleReport = () => {
         color: rgb(var(--primary-6));
         width: 24px;
     }
+
+    @media screen and (max-width: 768px) {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+
+        &:hover {
+            width: 40px;
+        }
+    }
 }
 
 .post-actions-panel {
@@ -263,6 +290,13 @@ const handleReport = () => {
     padding: 16px 14px;
     border-radius: 0 12px 12px 0;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+
+    @media screen and (max-width: 768px) {
+        border-radius: 12px;
+        padding: 12px 10px;
+        gap: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    }
 }
 
 .action-item {

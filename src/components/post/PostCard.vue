@@ -56,11 +56,11 @@
             <div class="post-tags" v-if="post.tags && post.tags.length > 0">
               <a-space wrap>
                 <template v-for="(tag, index) in post.tags" :key="index">
-                  <a-tooltip v-if="getTagScore(tag)" :content="getTagScore(tag)" position="top">
+                  <TooltipWrapper v-if="getTagScore(tag)" :content="getTagScore(tag)" position="top">
                     <a-tag color="arcoblue">
                       {{ getTagDisplayName(tag) }}
                     </a-tag>
-                  </a-tooltip>
+                  </TooltipWrapper>
                   <a-tag v-else color="arcoblue">
                     {{ getTagDisplayName(tag) }}
                   </a-tag>
@@ -110,6 +110,7 @@
 import {IconEye, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
 import {computed} from 'vue';
 import CImg from '../base/image/cImg.vue';
+import TooltipWrapper from '../base/TooltipWrapper.vue';
 import {formatDate} from '@/utils/DateFormatter.js';
 
 const emit = defineEmits(['clickCard']);
@@ -401,7 +402,7 @@ const handleCardClick = () => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--color-neutral-4);
+  color: var(--color-neutral-6);
   font-size: 14px;
   margin-right: 16px;
 }
@@ -411,7 +412,7 @@ const handleCardClick = () => {
 }
 
 .post-date {
-  color: var(--color-neutral-4);
+  color: var(--color-neutral-6);
   font-size: 14px;
 }
 

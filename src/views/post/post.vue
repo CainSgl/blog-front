@@ -21,7 +21,26 @@
               <div class="post-user-info">
                 <AvatarWithInfo :user="author" :size="70" />
                 <div class="post-title-section">
-                  <h1 class="post-title">{{ post?.title || '加载中' }}</h1>
+                  <div class="title-with-kb">
+                    <h1 class="post-title">{{ post?.title || '加载中' }}</h1>
+                    <!-- 知识库信息 Trigger -->
+                    <a-trigger 
+                      v-if="kbInfo" 
+                      trigger="hover"
+                      position="bottom"
+                      :popup-translate="[0, 4]"
+                      @click="handleKbClick"
+                    >
+                      <span class="kb-info-text">
+                        该文章来自
+                        <a-link :href="`/kb?kb=${kbInfo.id}`" @click.stop>{{ kbInfo.name }}</a-link>
+                        知识库
+                      </span>
+                      <template #content>
+                        <KbCard :kbInfo="kbInfo" :useLink="false" />
+                      </template>
+                    </a-trigger>
+                  </div>
                   <div class="post-meta">
                     <span class="post-date">发布于：{{ formatDate(post?.publishedAt) }} <span style="margin-left: 16px;"
                         v-if="showMoreInfo">创建于：{{
@@ -97,6 +116,7 @@ import PostActions from '@/components/post/common/PostActions.vue';
 import Header from '../../components/layout/Header.vue';
 import {storeToRefs} from 'pinia';
 import {formatDate} from '@/utils/DateFormatter.js';
+import KbCard from '@/components/kb/KbCard.vue';
 
 const userStore = useUserStore();
 const commentStore = useCommentStore();
@@ -115,6 +135,7 @@ const codeLoader = ref(0);
 const version = ref();
 const isFavorited = ref(false);
 const isLiked = ref(false);
+const kbInfo = ref(null);
 let originContent;
 let orginCommentCountData;
 let summaryCache;
@@ -164,6 +185,16 @@ const loadPostContent = async (postId) => {
 
     if (data.userId) {
       author.value = await userStore.getUserInfo(data.userId);
+    }
+
+    // 获取知识库信息
+    if (data.kbId) {
+      try {
+        const { data: kbData } = await api.get('/post/kb/info', { id: data.kbId });
+        kbInfo.value = kbData;
+      } catch (error) {
+        console.error('获取知识库信息失败:', error);
+      }
     }
   }
   catch (error) {
@@ -301,6 +332,13 @@ const handleFavoriteSuccess = (b) => {
 // 举报处理（后续实现）
 const handleReport = () => {
   Message.info('举报功能待实现');
+};
+
+// 处理知识库点击（电脑端）
+const handleKbClick = () => {
+  if (kbInfo.value && window.innerWidth >= 768) {
+    window.open(`/kb?kb=${kbInfo.value.id}`, '_blank');
+  }
 };
 
 
@@ -468,13 +506,43 @@ onMounted(() => {
   align-items: flex-start;
 }
 
+.title-with-kb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.kb-info-text {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background-color: var(--color-fill-2);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--color-fill-3);
+  }
+
+  .arco-link {
+    margin: 0 4px;
+    font-weight: 500;
+  }
+}
+
 .post-title-section {
   margin-left: 16px;
   flex: 1;
 }
 
 .post-title {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 30px;
   font-weight: bold;
   color: var(--color-neutral-10);

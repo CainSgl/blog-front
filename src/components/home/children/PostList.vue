@@ -241,12 +241,12 @@ onUnmounted(() =>
   }
 
   .post-grid {
-    grid-template-columns: 1fr;
-    gap: @size-3;
+    grid-template-columns: repeat(2, 1fr);
+    gap: @size-2;
   }
 
   .post-grid-item {
-    height: 300px;
+    height: 280px;
   }
 }
 </style>

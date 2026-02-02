@@ -143,8 +143,7 @@ const leave = (el, done) =>
 };
 </script>
 
-<style scoped lang="less">
-
+<style scoped>
 .code-loader {
   position: fixed;
   top: 0;
@@ -154,59 +153,63 @@ const leave = (el, done) =>
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: var(--color-mask-bg);
   z-index: 9999;
   backdrop-filter: blur(5px);
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .terminal {
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   height: 300px;
-  background-color: @terminal-bg;
-  border-radius: @border-radius-medium;
+  background-color: var(--color-bg-3);
+  border-radius: var(--border-radius-medium);
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   position: relative;
   font-family: 'Courier New', monospace;
+  border: 1px solid var(--color-border-2);
 }
 
 .terminal-header {
-  background-color: @terminal-header-bg;
-  padding: @size-3 @size-4;
+  background-color: var(--color-bg-4);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  border-bottom: @border-1 solid @terminal-border;
+  border-bottom: 1px solid var(--color-border-2);
+}
 
-  .dot {
-    display: inline-block;
-    width: @size-3;
-    height: @size-3;
-    border-radius: @border-radius-circle;
-    margin-right: @size-2;
-  }
+.terminal-header .dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
 
-  .red {
-    background-color: @danger-6;
-  }
+.terminal-header .red {
+  background-color: rgb(var(--danger-6));
+}
 
-  .yellow {
-    background-color: @warning-6;
-  }
+.terminal-header .yellow {
+  background-color: rgb(var(--warning-6));
+}
 
-  .green {
-    background-color: @success-6;
-  }
+.terminal-header .green {
+  background-color: rgb(var(--success-6));
+}
 
-  .title {
-    color: var(--color-neutral-4);
-    font-size: @font-size-body-3;
-    margin-left: auto;
-    font-weight: @font-weight-700;
-  }
+.terminal-header .title {
+  color: var(--color-text-2);
+  font-size: 14px;
+  margin-left: auto;
+  font-weight: 600;
 }
 
 .terminal-content {
-  padding: @size-5;
+  padding: 20px;
   height: calc(100% - 50px);
   overflow: hidden;
   position: relative;
@@ -219,42 +222,115 @@ const leave = (el, done) =>
 
 .function-call-wrapper {
   position: absolute;
-  left: @size-5;
-  right: @size-5;
+  left: 0;
+  right: 0;
   height: 40px;
   display: flex;
   align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .function-call {
   display: flex;
   align-items: center;
-  font-size: @font-size-body-3;
+  font-size: 14px;
   line-height: 1.5;
-  color: @terminal-text;
+  color: var(--color-text-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+  max-width: 100%;
+  flex-shrink: 1;
+}
 
-  .keyword {
-    color: @code-keyword;
-    margin-right: @size-1;
+.function-call .keyword {
+  color: color-mix(in srgb, #4277a3 90%, var(--color-neutral-10));
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.function-call .function-keyword {
+  color: color-mix(in srgb, #c586c0 90%, var(--color-neutral-10));
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.function-call .function-name {
+  color: color-mix(in srgb, #bebe93 90%, var(--color-neutral-10));
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.function-call .comment {
+  color: color-mix(in srgb, #507440 90%, var(--color-neutral-10));
+  margin-left: 8px;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 手机端适配 */
+@media (max-width: 768px) {
+  .code-loader {
+    padding: 12px;
   }
 
-  .function-keyword {
-    color: @code-function;
-    margin: 0 @size-1;
+  .terminal {
+    height: 250px;
+    max-width: 100%;
   }
 
-  .function-name {
-    color: @code-function-name;
-    margin: 0 @size-1;
+  .terminal-header {
+    padding: 10px 12px;
   }
 
-  .comment {
-    color: @code-comment;
-    margin-left: @size-2;
+  .terminal-header .dot {
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
+  }
+
+  .terminal-header .title {
+    font-size: 12px;
+  }
+
+  .terminal-content {
+    padding: 12px;
+  }
+
+  .function-call-wrapper {
+    padding: 0 12px;
+    height: 35px;
+  }
+
+  .function-call {
+    font-size: 12px;
+  }
+
+  .function-call .keyword,
+  .function-call .function-keyword,
+  .function-call .function-name {
+    margin: 0 2px;
+  }
+
+  .function-call .comment {
+    margin-left: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .terminal {
+    height: 220px;
+  }
+
+  .terminal-header .title {
+    font-size: 11px;
+  }
+
+  .function-call {
+    font-size: 11px;
   }
 }
 </style>

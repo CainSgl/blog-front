@@ -6,7 +6,7 @@
         target="_blank"
     >
         <a-card 
-            v-if="isLoaded" 
+            v-if="isLoaded||!skeleton" 
             class="kb-card-container" 
             :bordered="false" 
             :body-style="{ padding: 0 }"
@@ -69,6 +69,10 @@ const props = defineProps({
     type: Object,
     required: true,
     default: () => ({})
+  },
+  skeleton:{
+    type:Boolean,
+    defineEmits:true,
   },
   useLink: {
     type: Boolean,
@@ -186,7 +190,7 @@ const skeletonStyle = computed(() => SKELETON_STYLE);
     justify-content: space-between;
     align-items: center;
     font-size: @font-size-body-1;
-    color: var(--color-neutral-4);
+    color: var(--color-neutral-8);
 }
 
 .kb-stats {

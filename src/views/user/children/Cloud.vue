@@ -20,7 +20,7 @@
                 <span>{{ usedStorage }} / {{ totalStorage }}</span>
               </template>
             </a-progress>
-            <a-descriptions :column="3" size="large" style="margin-top: 20px;">
+            <a-descriptions :column="{ xs: 1, sm: 1, md: 3, lg: 3, xl: 3 }" size="large" style="margin-top: 20px;">
               <a-descriptions-item label="已使用">
                 {{ usedStorage }}
               </a-descriptions-item>

@@ -320,9 +320,11 @@ const renderedMarkdown = computed(() =>
   const reallyContent=preFix+props.content
 
   const rawHtml = marked(reallyContent);
-  const clean = DOMPurify.sanitize(rawHtml, {
+  let clean = DOMPurify.sanitize(rawHtml, {
     ADD_ATTR: ['target']
   });
+  //增加一个底部的高度适配按钮
+  clean+='<div style="height:40px;"></div>'
   return clean;
 });
 

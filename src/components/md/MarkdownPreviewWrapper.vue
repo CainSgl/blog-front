@@ -1,7 +1,7 @@
 <template>
 
   <div ref="wrapperRef" class="markdown-preview-wrapper"
-    :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
+    :class="[currentTocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
 
     <MarkdownPreview v-show="!(isMobile && shouldShowToc)" :showComment="showComment" ref="markdownPreviewRef"
       :content="content" :useWindowScroll="useWindowScroll" :class="['preview', { 'preview-full': !shouldShowToc }]"
@@ -14,8 +14,9 @@
 
     <div v-if="props.showToc" v-show="tocHasData" :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]"
       :target="affixTarget ? affixTarget : null">
-      <TableOfContents v-if="shouldRenderToc" :content="content" @select="handleSelect" :tocDefaultShow="tocDefaultShow"
-        :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" @hasData="handleHasData" />
+      <TableOfContents v-if="shouldRenderToc" :isMobile="isMobile" :content="content" @select="handleSelect" :tocDefaultShow="tocDefaultShow"
+        :tocPosition="currentTocPosition" :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" 
+        @hasData="handleHasData" @positionChange="handlePositionChange" />
     </div>
 
 
@@ -88,6 +89,7 @@ const markdownPreviewRef = ref(null);
 const currentScrollPercent = ref(0); // 当前滚动进度百分比
 const showScrollProgress = ref(false);
 const tocHasData = ref(false);
+const currentTocPosition = ref(props.tocPosition); // 当前目录位置
 
 // 是否渲染 TableOfContents 组件（用于初始化和获取 hasData）
 const shouldRenderToc = computed(() => {
@@ -143,7 +145,7 @@ function handleMdScroll(e) {
 const updateMobileStatus = () => {
   if (wrapperRef.value) {
     const rect = wrapperRef.value.getBoundingClientRect();
-    isMobile.value = rect.width < 768;
+    isMobile.value = rect.width < 668;
   }
 };
 
@@ -159,6 +161,11 @@ const calculateTocMaxHeight = () => {
 // 处理目录可见性变化
 const handleTocVisibilityChange = (isVisible) => {
   isTocVisible.value = isVisible;
+};
+
+// 处理目录位置变化
+const handlePositionChange = (newPosition) => {
+  currentTocPosition.value = newPosition;
 };
 
 const handleSelect = () => {
@@ -247,7 +254,7 @@ onUnmounted(() => {
   .toc {
     transition: all 0.3s ease; // 添加过渡动画
     overflow: hidden;
-
+    min-width: 220px;
     max-width: 400px;
 
     &:hover {
@@ -278,9 +285,8 @@ onUnmounted(() => {
     transition: none; // 移动端禁用过渡动画
 
     &.toc-visible {
-      width: 100vw;
       display: block !important;
-      width: calc(100vw - 30px) !important;
+      max-width: 100%;
       flex: 0 0 calc(100vw - 30px) !important;
     }
 

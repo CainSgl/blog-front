@@ -2,7 +2,7 @@
   <div v-if="treeData.length > 0" class="table-of-contents" ref="containerRef">
     <a-affix :offsetTop="0" :target="affixTarget ? affixTarget : containerRef">
       <div class="toc-controls">
-        <a-tooltip :content="isVisible ? '隐藏目录' : '显示目录'">
+        <TooltipWrapper :content="isVisible ? '隐藏目录' : '显示目录'">
           <a-button size="small" @click="toggleVisibility">
             <template #icon>
               <icon-eye v-if="!isVisible" />
@@ -10,8 +10,16 @@
             </template>
             {{ isVisible ? '隐藏' : '显示' }}
           </a-button>
-        </a-tooltip>
-        <a-tooltip :content="isAllExpanded ? '收起全部' : '展开全部'">
+        </TooltipWrapper>
+        <TooltipWrapper :content="tocPosition === 'right' ? '移到右侧' : '移到左侧'" v-show="!props.isMobile">
+          <a-button size="small" @click="togglePosition">
+            <template #icon>
+              <icon-caret-right v-if="tocPosition === 'right'" />
+              <icon-caret-left v-else />
+            </template>
+          </a-button>
+        </TooltipWrapper>
+        <TooltipWrapper :content="isAllExpanded ? '收起全部' : '展开全部'">
           <a-button size="small" @click="toggleExpandAll">
             <template #icon>
               <icon-shrink v-if="!isAllExpanded" />
@@ -19,7 +27,7 @@
             </template>
             {{ isAllExpanded ? '收起全部' : '展开全部' }}
           </a-button>
-        </a-tooltip>
+        </TooltipWrapper>
       </div>
     </a-affix>
     <div v-show="isVisible" class="toc-content">
@@ -32,9 +40,10 @@
 <script setup>
 import {nextTick, onMounted, ref, watch} from 'vue';
 import {parseMarkdownToTree} from '@/utils/markdownToTree.js';
-import {IconEye, IconEyeInvisible, IconShrink} from '@arco-design/web-vue/es/icon';
+import {IconEye, IconEyeInvisible, IconShrink, IconCaretLeft, IconCaretRight} from '@arco-design/web-vue/es/icon';
 import {useTocStore} from './toc.js';
 import {storeToRefs} from 'pinia';
+import TooltipWrapper from '@/components/base/TooltipWrapper.vue';
 
 const containerRef = ref(null);
 // 定义组件props
@@ -54,11 +63,20 @@ const props = defineProps({
   tocDefaultShow:{
     type:Boolean,
     default:true
+  },
+  tocPosition: {
+    type: String,
+    default: 'left',
+    validator: (value) => ['left', 'right'].includes(value)
+  },
+  isMobile: {
+    type: Boolean,
+    default: false
   }
 });
 
 // 定义组件事件
-const emit = defineEmits(['visibilityChange', 'hasData']);
+const emit = defineEmits(['visibilityChange', 'hasData', 'positionChange']);
 
 // 响应式数据
 const treeData = ref([]);
@@ -119,6 +137,13 @@ const toggleVisibility = () =>
   isVisible.value = !isVisible.value;
   // 通知父组件显示/隐藏状态已改变
   emit('visibilityChange', isVisible.value);
+};
+
+// 切换目录位置
+const togglePosition = () => 
+{
+  const newPosition = props.tocPosition === 'left' ? 'right' : 'left';
+  emit('positionChange', newPosition);
 };
 
 // 查找节点路径的辅助函数
@@ -344,6 +369,11 @@ const handleNodeClick = (node) =>
   tocStore.setCurrentTocItem(id);
   // 同步到URL hash
   tocStore.syncToUrl(id);
+  
+  // 如果是手机端，点击后自动关闭目录
+  if (props.isMobile) {
+    toggleVisibility();
+  }
 };
 </script>
 
@@ -370,7 +400,7 @@ const handleNodeClick = (node) =>
   background-color: var(--color-bg-1);
   padding: 10px 0;
 }
-x
+
 .toc-content {
   width: 100%;
   height: 100%;
@@ -417,7 +447,7 @@ x
 
 /* 选中节点的样式 */
 :deep(.arco-tree-node-selected .arco-tree-node-title) {
-  background-color: rgb(var(--primary-6)) !important;
+  background-color: rgb(var(--primary-5)) !important;
   color: rgb(var(--primary-1)) !important;
   font-weight: 500;
 }

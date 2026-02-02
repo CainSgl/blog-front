@@ -1,7 +1,18 @@
 <template>
-  <div class="post-recommend" v-if="postId && recommendList && recommendList.length > 0">
-    <div class="recommend-title">相似文档推荐</div>
-    <div class="recommend-list">
+  <div class="post-recommend" v-if="postId && recommendList && recommendList.length > 0" :class="{ collapsed: isCollapsed }">
+    <div class="recommend-header">
+      <div class="recommend-title">相似文档推荐</div>
+      <a-button 
+        type="text" 
+        size="small" 
+        @click="isCollapsed = !isCollapsed"
+        class="toggle-btn"
+      >
+        <icon-right v-if="isCollapsed" />
+        <icon-left v-else />
+      </a-button>
+    </div>
+    <div class="recommend-list" v-show="!isCollapsed">
       <div v-for="(post, index) in recommendList">
         <a-link :href="`/p/${post.id}`" :hoverable="false">
           <div style="width: 100%;;height: 17vw;max-height: 300px; min-height: 200px;" v-if="index <= 6">
@@ -22,6 +33,7 @@
 import {ref, watch} from 'vue';
 import api from '@/api/index.js';
 import PostCardWrapper from '../../../components/post/PostCardWrapper.vue';
+import { IconLeft, IconRight } from '@arco-design/web-vue/es/icon';
 
 const props = defineProps({
   postId: {
@@ -33,6 +45,7 @@ const props = defineProps({
 const emit = defineEmits(['recommendItemClick']);
 
 const recommendList = ref([]);
+const isCollapsed = ref(false);
 
 const fetchRecommendData = async () => 
 {
@@ -76,12 +89,34 @@ watch(() => props.postId, (newPostId) =>
   padding: 16px;
   width: 100%;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+
+  &.collapsed {
+    width: 48px;
+    padding: 16px 8px;
+  }
+
+  .recommend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
 
   .recommend-title {
     font-size: 16px;
     font-weight: bold;
-    margin-bottom: 12px;
     color: var(--color-neutral-8);
+    white-space: nowrap;
+  }
+
+  .toggle-btn {
+    flex-shrink: 0;
+    padding: 4px;
+  }
+
+  &.collapsed .recommend-title {
+    display: none;
   }
 
   .recommend-list {

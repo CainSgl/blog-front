@@ -250,6 +250,7 @@ onMounted(async () => {
       .user-stats {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap;
         gap: 10px;
         padding: 16px 0;
 
