@@ -1,5 +1,11 @@
 <template>
-    <a-modal v-model:visible="visible" title="添加到收藏夹" width="auto" :footer="false" @cancel="handleClose">
+    <ModalWrapper 
+        v-model:visible="visible" 
+        title="添加到收藏夹" 
+        width="auto" 
+        :footer="false" 
+        @cancel="handleClose"
+    >
         <div class="add-to-favorite-modal">
             <a-spin :loading="loading" tip="加载中..." style="display: block;">
                 <div class="favorite-list">
@@ -16,13 +22,14 @@
 
         <!-- 创建收藏夹弹窗 -->
         <CreateFavoriteModal v-model="createModalVisible" :type="type" @success="handleCreateSuccess" />
-    </a-modal>
+    </ModalWrapper>
 </template>
 
 <script setup>
 import {computed, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import FavoriteItem from './FavoriteItem.vue';
 import FavoriteItemCreate from './FavoriteItemCreate.vue';
 import CreateFavoriteModal from './CreateFavoriteModal.vue';

@@ -53,13 +53,13 @@
     </div>
   </a-affix>
   <!-- 评论 Modal -->
-  <a-modal v-model:visible="showCommentModal" title="评论列表" :width="'min(980px,80vw)'" :footer="false" unmount-on-close>
+  <ModalWrapper v-model:visible="showCommentModal" title="评论列表" width="980px" :footer="false" unmount-on-close>
     <div style="overflow-x: hidden;">
       <CommentList v-if="node?.content?.id" :noCommentsText="'这里是无人区~'" :commentCountText="'不好的地方可以评论一下'"
         :version="version" :postId="node.content.id" :postCount="commentCount" />
     </div>
 
-  </a-modal>
+  </ModalWrapper>
 </template>
 
 <script setup>
@@ -68,6 +68,7 @@ import {IconExclamationCircleFill, IconInfoCircle, IconMessage} from '@arco-desi
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
 import ScrollProgressTrigger from '@/views/about/components/ScrollProgressTrigger.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import {useCommentStore} from '@/components/comment/commentStore.js';
 
 const props = defineProps({

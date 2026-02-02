@@ -21,15 +21,15 @@
 
 
         <!-- 摘要确认模态框 -->
-        <a-modal v-model:visible="summaryModalVisible" title="确认摘要" @ok="confirmSummary" @cancel="cancelSummary"
-            okText="使用AI生成的摘要" cancelText="取消">
+        <ModalWrapper v-model:visible="summaryModalVisible" title="确认摘要" @ok="confirmSummary" @cancel="cancelSummary"
+            okText="使用AI生成的摘要" cancelText="取消" width="520px">
             <div class="summary-comparison">
                 <p><strong>原文摘要：</strong></p>
                 <div class="summary-content original-summary">{{ articleForm.summary }}</div>
                 <p><strong>AI生成的摘要：</strong></p>
                 <div class="summary-content ai-summary">{{ aiGeneratedSummary }}</div>
             </div>
-        </a-modal>
+        </ModalWrapper>
 
         <div class="content">
             <Spin :loading="publishing" tip="正在发布文章..." style="display: block;">
@@ -187,6 +187,7 @@ import MarkdownPreview from '../../components/md/MarkdownPreview.vue';
 import ImageCropperModal from '../../components/base/image/ImageCropperModal.vue';
 import {IconArrowLeft, IconPlus, IconSend} from '@arco-design/web-vue/lib/icon';
 import PostCard from '@/components/post/PostCard.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import api from '@/api/index.js';
 
 const router = useRouter();

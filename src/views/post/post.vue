@@ -49,11 +49,11 @@
               <div class="markdown-content" :class="{ 'best-reading-content': !notBestReading }">
                 <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content" :showComment="true" />
                 <div v-show="notBestReading" class="full-screen-tip">
-                  <a-tooltip content="点我可回正屏幕获取最佳阅读体验哦">
+                  <div >
                     <a-button type="primary" shape="circle" @click="handleFullScreenClick">
                       <icon-fullscreen />
                     </a-button>
-                  </a-tooltip>
+                  </div>
                 </div>
               </div>
 

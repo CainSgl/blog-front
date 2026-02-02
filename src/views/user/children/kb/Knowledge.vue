@@ -67,7 +67,7 @@
     </div>
 
     <!-- 编辑知识库弹窗 -->
-    <a-modal v-model:visible="editModalVisible" title="编辑知识库" @ok="handleUpdateKb" @cancel="handleCancelEdit"
+    <ModalWrapper v-model:visible="editModalVisible" title="编辑知识库" @ok="handleUpdateKb" @cancel="handleCancelEdit"
       :ok-loading="updateLoading" ok-text="保存" cancel-text="取消" width="600px">
       <a-form :model="editForm" layout="vertical">
         <a-form-item label="知识库名称" required>
@@ -100,14 +100,14 @@
 
         </a-form-item>
       </a-form>
-    </a-modal>
+    </ModalWrapper>
 
     <!-- 图片裁剪模态框 -->
     <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible" :aspect-ratio="1"
       @confirm="handleCroppedImage" />
 
     <!-- 删除知识库确认弹窗 -->
-    <a-modal v-model:visible="deleteModalVisible" :title="`是否删除 ${deleteKbInfo.name}？`" @cancel="handleCancelDelete"
+    <ModalWrapper v-model:visible="deleteModalVisible" :title="`是否删除 ${deleteKbInfo.name}？`" @cancel="handleCancelDelete"
       :footer="true" width="500px">
       <a-form :model="deleteForm" layout="vertical">
         <a-form-item>
@@ -131,7 +131,7 @@
           </a-button>
         </div>
       </template>
-    </a-modal>
+    </ModalWrapper>
 
   </div>
 </template>
@@ -148,6 +148,7 @@ import UserPageHeader from '../components/UserPageHeader.vue';
 import ContentArea from '../components/ContentArea.vue';
 import CImg from '@/components/base/image/cImg.vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 // 定义排序选项
 const sortOptions = [

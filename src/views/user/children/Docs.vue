@@ -55,7 +55,7 @@
     </div>
 
     <!-- 编辑文章弹窗 -->
-    <a-modal v-model:visible="editModalVisible" title="编辑文章信息" @ok="handleUpdatePost" @cancel="handleCancelEdit"
+    <ModalWrapper v-model:visible="editModalVisible" title="编辑文章信息" @ok="handleUpdatePost" @cancel="handleCancelEdit"
       :ok-loading="updateLoading" ok-text="保存" cancel-text="取消" width="600px">
       <a-form :model="editForm" layout="vertical">
         <a-form-item label="文章标题" required>
@@ -96,7 +96,7 @@
           </div>
         </a-form-item>
       </a-form>
-    </a-modal>
+    </ModalWrapper>
 
     <!-- 图片裁剪模态框 -->
     <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible" :aspect-ratio="1.5"
@@ -120,6 +120,7 @@ import UserPageHeader from './components/UserPageHeader.vue';
 import ContentArea from './components/ContentArea.vue';
 import CImg from '@/components/base/image/cImg.vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import { useUserStore } from '@/store/user.js';
 import KnowledgeBaseSelector from '@/views/user/children/kb/components/KnowledgeBaseSelector.vue';
 import { useKbStore } from '@/views/kb/kbStore.js';

@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:visible="visible" title="选择知识库" @ok="handleConfirm" @cancel="handleCancel"
+  <ModalWrapper v-model:visible="visible" title="选择知识库" @ok="handleConfirm" @cancel="handleCancel"
     :ok-loading="confirmLoading" ok-text="确认" cancel-text="取消" width="700px">
     <div class="kb-selector">
       <!-- 搜索框 -->
@@ -38,7 +38,7 @@
           show-total @change="handlePageChange" />
       </div>
     </div>
-  </a-modal>
+  </ModalWrapper>
 </template>
 
 <script setup>
@@ -47,6 +47,7 @@ import {IconBook, IconCheckCircleFill} from '@arco-design/web-vue/es/icon';
 import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import CImg from '@/components/base/image/cImg.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const props = defineProps({
   modelValue: {

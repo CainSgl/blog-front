@@ -1,9 +1,10 @@
 <template>
-    <a-modal 
+    <ModalWrapper 
         v-model:visible="visible" 
         :title="`创建${type}收藏夹`" 
         @ok="handleConfirm" 
         @cancel="handleCancel"
+        width="520px"
     >
         <a-form :model="form" layout="vertical">
             <a-form-item label="收藏夹名称" required>
@@ -31,13 +32,14 @@
                 />
             </a-form-item>
         </a-form>
-    </a-modal>
+    </ModalWrapper>
 </template>
 
 <script setup>
 import {computed, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const props = defineProps({
     modelValue: {

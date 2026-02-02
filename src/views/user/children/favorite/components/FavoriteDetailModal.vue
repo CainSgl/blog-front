@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:visible="visible" :title="favoriteData?.name || '收藏夹详情'" width="auto" :footer="false"
+    <ModalWrapper v-model:visible="visible" :title="favoriteData?.name || '收藏夹详情'" width="auto" :footer="false"
         @cancel="handleClose">
         <div class="favorite-detail-modal">
             <a-spin :loading="loading" tip="加载中..." style="display:block">
@@ -25,7 +25,7 @@
                 </div>
             </a-spin>
         </div>
-    </a-modal>
+    </ModalWrapper>
 </template>
 
 <script setup>
@@ -33,6 +33,7 @@ import {computed, ref, watch} from 'vue';
 import api from '@/api/index.js';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import KbCard from '@/components/kb/KbCard.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const props = defineProps({
     modelValue: {
