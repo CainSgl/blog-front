@@ -157,6 +157,7 @@ import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import VMdEditor from '@/plugins/v-md-editor';
+import {uploadFile} from '@/utils/fileUploader.js';
 const formatButtons1 = [
   {
     content: "粗体",
@@ -468,21 +469,13 @@ const handleCroppedImage = async (croppedFile) => {
       duration: 15000,
     });
 
-    // 创建FormData对象 
-    const formData = new FormData();
-    formData.append('file', croppedFile);
-
-    // 使用api上传文件 
-    const { data } = await api.post('/file/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    // 使用文件上传工具类上传
+    const { fileId } = await uploadFile(croppedFile);
 
     // 使用保存的回调函数插入图片
     if (insertImageCallback) {
       insertImageCallback({
-        url: data.shortUrl,
+        url: fileId,
         desc: croppedFile.name,
         width: 'auto',
         height: 'auto',

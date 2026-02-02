@@ -9,7 +9,7 @@
 
     <a-checkbox v-model="agree" style="margin-bottom: 24px">
       我已阅读并同意
-      <a-link>《用户协议》</a-link>
+      <a-link :href="'/p/2018449944307085313'" target="_ablank">《用户协议》</a-link>
       和
       <a-link>《隐私政策》</a-link>
     </a-checkbox>

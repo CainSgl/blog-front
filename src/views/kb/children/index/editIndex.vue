@@ -94,6 +94,7 @@ import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import KbCard from '../../../../components/kb/KbCard.vue';
 import {useKbStore} from '../../kbStore.js';
+import {uploadFile} from '@/utils/fileUploader.js';
 
 const route = useRoute();
 const router = useRouter();
@@ -178,31 +179,15 @@ const saveContent = async () =>
     // 如果有新的图片需要上传
     if (formData.value !== null) 
     {
-      Message.loading({
-        id: 'upload-cover',
-        content: '正在上传封面...',
-        duration: 15000
-      });
-
       if (orginCoverUrl) 
       {
         api.get('/file/free', { f: orginCoverUrl });
       }
-      // 上传图片
-      const { data } = await api.post('/file/upload', formData.value, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      // 更新封面URL为上传后的URL
-      const coverUrl = data.shortUrl;
+      
+      // 直接使用已上传的fileId
+      requestData.coverUrl = formData.value;
       // 清空formData
       formData.value = null;
-      Message.success({
-        id: 'upload-cover',
-        content: '封面上传成功',
-      });
-      requestData.coverUrl = coverUrl;
     }
     // 检查内容是否发生变化，如果变化了才添加content字段
     if (content.value !== originalContent.value) 
@@ -250,12 +235,11 @@ const handleCroppedImage = async (croppedFile) =>
 {
   try 
   {
-    // 创建FormData对象 
-    const newFormData = new FormData();
-    newFormData.append('file', croppedFile);
+    // 使用文件上传工具类上传
+    const { fileId } = await uploadFile(croppedFile);
 
-    // 存储formData，等待保存时上传
-    formData.value = newFormData;
+    // 存储fileId，等待保存时使用
+    formData.value = fileId;
 
     // 创建本地预览URL
     const localUrl = URL.createObjectURL(croppedFile);
@@ -267,7 +251,7 @@ const handleCroppedImage = async (croppedFile) =>
     // 显示成功信息
     Message.success({
       id: 'upload-cropped-image:' + croppedFile.name,
-      content: '封面已更新，将在保存时上传',
+      content: '封面已上传',
       duration: 3000,
     });
 

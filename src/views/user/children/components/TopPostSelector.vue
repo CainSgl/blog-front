@@ -335,8 +335,10 @@ defineExpose({
   @media (max-width: 768px) {
     .posts-container {
       width: 100%;
+      max-width: 100%;
       min-width: auto;
-      height: 60vh;
+      height: calc(100vh - 280px);
+      min-height: 500px;
     }
 
     .post-item {

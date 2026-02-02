@@ -1,5 +1,5 @@
 <template>
-  <a-drawer :visible="authStore.showLoginModal" placement="bottom" :height="'100vh'"
+  <a-drawer :visible="authStore.showLoginModal" placement="bottom" :height="'100dvh'"
     :mask-closable="authStore.allowClose" :closable="false" :hide-cancel="true" :footer="false" :header="false"
     @close="authStore.closeLogin" :wrap-style="{ padding: 0, margin: 0 }"
     :body-style="{ padding: 0, margin: 0, overflow: 'hidden' }">
@@ -30,7 +30,7 @@
               <CodeLogin :is-loading="authStore.isLoading" @login-success="handleLoginSuccess" />
             </a-tab-pane>
           </a-tabs>
-          <a-link>
+          <a-link :href="'/p/2018449944307085313'" target="_ablank">
             用户协议
           </a-link>
           <a-link :href="registerUrl">

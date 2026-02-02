@@ -149,6 +149,7 @@ import ContentArea from '../components/ContentArea.vue';
 import CImg from '@/components/base/image/cImg.vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import ModalWrapper from '@/components/base/ModalWrapper.vue';
+import { uploadFile } from '@/utils/fileUploader.js';
 
 // 定义排序选项
 const sortOptions = [
@@ -510,32 +511,15 @@ const handleUpdateKb = async () => {
       status: editForm.value.publish ? '已发布' : '草稿'
     };
 
-    // 如果有新的图片需要上传
+    // 如果有新的封面 fileId
     if (formData.value !== null) {
-      Message.loading({
-        id: 'upload-cover',
-        content: '正在上传封面...',
-        duration: 15000
-      });
-
       if (originalCoverUrl) {
         api.get('/file/free', { f: originalCoverUrl });
       }
 
-      // 上传图片
-      const { data } = await api.post('/file/upload', formData.value, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      requestData.coverUrl = data.shortUrl;
+      // 使用已上传的 fileId
+      requestData.coverUrl = formData.value;
       formData.value = null;
-
-      Message.success({
-        id: 'upload-cover',
-        content: '封面上传成功',
-      });
     }
 
     await api.put('/post/kb', requestData);
@@ -577,17 +561,25 @@ const handleCancelEdit = () => {
 // 处理裁剪后的图片
 const handleCroppedImage = async (croppedFile) => {
   try {
-    const newFormData = new FormData();
-    newFormData.append('file', croppedFile);
-    formData.value = newFormData;
+    // 直接上传文件并获取 fileId
+    Message.loading({
+      id: 'upload-cropped-image',
+      content: '正在上传封面...',
+      duration: 15000
+    });
 
+    const { fileId, isInstant } = await uploadFile(croppedFile);
+    
+    // 保存 fileId 用于后续更新
+    formData.value = fileId;
+    
     // 创建本地预览URL
     const localUrl = URL.createObjectURL(croppedFile);
     editForm.value.coverUrl = localUrl;
 
     Message.success({
-      id: 'upload-cropped-image:' + croppedFile.name,
-      content: '封面已更新，将在保存时上传',
+      id: 'upload-cropped-image',
+      content: isInstant ? '封面秒传成功' : '封面上传成功',
       duration: 3000,
     });
 
@@ -596,7 +588,7 @@ const handleCroppedImage = async (croppedFile) => {
   } catch (error) {
     console.error('处理裁剪图片失败:', error);
     Message.error({
-      id: 'upload-cropped-image:' + croppedFile.name,
+      id: 'upload-cropped-image',
       content: '处理裁剪图片失败，请稍后重试',
       duration: 3000,
     });

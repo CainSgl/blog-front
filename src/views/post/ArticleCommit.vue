@@ -189,6 +189,7 @@ import {IconArrowLeft, IconPlus, IconSend} from '@arco-design/web-vue/lib/icon';
 import PostCard from '@/components/post/PostCard.vue';
 import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import api from '@/api/index.js';
+import {uploadFile} from '@/utils/fileUploader.js';
 
 const router = useRouter();
 const kbStore = useKbStore();
@@ -458,17 +459,9 @@ const handleCroppedImage = async (croppedFile) =>
       duration: 15000,
     });
 
-    // 创建FormData对象 
-    const formData = new FormData();
-    formData.append('file', croppedFile);
-
-    // 使用api上传文件 
-    const { data } = await api.post('/file/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    articleForm.value.img = data.shortUrl;
+    // 使用文件上传工具类上传
+    const { fileId } = await uploadFile(croppedFile);
+    articleForm.value.img = fileId;
 
     // 显示成功信息
     Message.success({
@@ -477,14 +470,12 @@ const handleCroppedImage = async (croppedFile) =>
       duration: 3000,
     });
 
-    // 可以将上传的图片URL添加到文章内容中
-    const imageUrl = data.shortUrl;
-    console.log('裁剪后图片上传成功，URL:', imageUrl);
+    console.log('裁剪后图片上传成功，fileId:', fileId);
 
     cropperModalVisible.value = false;
     currentImageFile.value = null;
 
-    return imageUrl;
+    return fileId;
   }
   catch (error) 
   {

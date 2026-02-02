@@ -130,7 +130,7 @@ const route = useRoute();
 const userStore = useUserStore();
 const userInfo = ref(null); // 用户信息
 const files = ref([]);
-const totalStorageBytes = ref(3 * 1024 * 1024 * 1024); // 3GB in bytes
+const totalStorageBytes = ref(10 * 1024 * 1024 * 1024); // 3GB in bytes
 const totalStorage = computed(() => formatBytes(totalStorageBytes.value));
 const usedStorageBytes = ref(0); // 实际使用的字节数
 const usedStorage = computed(() => formatBytes(usedStorageBytes.value)); // 格式化后的已用存储

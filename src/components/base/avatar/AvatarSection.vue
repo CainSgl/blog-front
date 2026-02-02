@@ -22,6 +22,7 @@ import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import api from '@/api/index.js';
 import {Message} from '@arco-design/web-vue';
 import {getDateNow} from '@/utils/DateFormatter.js';
+import {uploadFile} from '@/utils/fileUploader.js';
 
 const props = defineProps({
   userInfo: {
@@ -102,19 +103,13 @@ const handleCroppedImage = async (croppedFile) =>
     const newFileName = `${userStore.userInfo?.id || 'user'}的头像图片_${getDateNow()}.${fileExtension}`;
     const renamedFile = new File([croppedFile], newFileName, { type: croppedFile.type });
 
-    // 创建FormData对象 
-    const formData = new FormData();
-    formData.append('file', renamedFile);
     api.get('/file/free', { f: props.userInfo?.avatarUrl });
-    // 使用api上传文件 
-    const { data } = await api.post('/file/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    
+    // 使用文件上传工具类上传
+    const { fileId, isInstant } = await uploadFile(renamedFile);
     
     // 更新用户头像
-    const avatarUrl = data.shortUrl;
+    const avatarUrl = fileId;
     await userStore.updateUserInfo({ avatarUrl });
     
     // 触发更新事件

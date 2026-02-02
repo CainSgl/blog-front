@@ -124,6 +124,7 @@ import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import { useUserStore } from '@/store/user.js';
 import KnowledgeBaseSelector from '@/views/user/children/kb/components/KnowledgeBaseSelector.vue';
 import { useKbStore } from '@/views/kb/kbStore.js';
+import {uploadFile} from '@/utils/fileUploader.js';
 
 // 定义排序选项
 const sortOptions = [
@@ -507,30 +508,13 @@ const handleUpdatePost = async () => {
     Message.loading({ id: updateId, content: "推送数据中..." });
     // 如果有新的图片需要上传
     if (formData.value !== null) {
-      Message.loading({
-        id: 'upload-img',
-        content: '正在上传封面...',
-        duration: 15000
-      });
-
       if (originalImg) {
         api.get('/file/free', { f: originalImg });
       }
 
-      // 上传图片
-      const { data } = await api.post('/file/upload', formData.value, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      requestData.img = data.shortUrl;
+      // 直接使用已上传的fileId
+      requestData.img = formData.value;
       formData.value = null;
-
-      Message.success({
-        id: 'upload-img',
-        content: '封面上传成功',
-      });
     }
 
     await api.put('/post', requestData);
@@ -664,9 +648,11 @@ const handleDeletePost = (postId) => {
 // 处理裁剪后的图片
 const handleCroppedImage = async (croppedFile) => {
   try {
-    const newFormData = new FormData();
-    newFormData.append('file', croppedFile);
-    formData.value = newFormData;
+    // 使用文件上传工具类上传
+    const { fileId } = await uploadFile(croppedFile);
+    
+    // 存储fileId
+    formData.value = fileId;
 
     // 创建本地预览URL
     const localUrl = URL.createObjectURL(croppedFile);
@@ -674,7 +660,7 @@ const handleCroppedImage = async (croppedFile) => {
 
     Message.success({
       id: 'upload-cropped-image:' + croppedFile.name,
-      content: '封面已更新，将在保存时上传',
+      content: '封面已上传',
       duration: 3000,
     });
 

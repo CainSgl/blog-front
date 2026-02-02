@@ -432,5 +432,8 @@ const handleFollowChanged = (isFollowing) =>
       flex-shrink: 0;
     }
   }
+  .user-name{
+    color: var(--color-neutral-10);
+  }
 }
 </style>

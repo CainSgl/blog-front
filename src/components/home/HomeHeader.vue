@@ -22,7 +22,7 @@
     </div>
 
     <!-- 底部滚动提示 -->
-    <div class="scroll-hint" :class="{ 'reverse': isAtBottom, 'dark-text': isAtBottom }">
+    <div class="scroll-hint" :class="{ 'reverse': isAtBottom, 'dark-text': isAtBottom }" @click="handleScrollHintClick">
       <div class="scroll-hint-text">{{ scrollHintText }}</div>
       <icon-double-down v-if="!isAtBottom" class="scroll-hint-icon" />
       <icon-double-up v-else class="scroll-hint-icon" />
@@ -116,6 +116,24 @@ const getRainDropStyle = (drop) =>
     animationDuration: `${drop.speed}s`,
     animationDelay: `${drop.delay}s`,
   };
+};
+
+// 处理滚动提示点击事件
+const handleScrollHintClick = () =>
+{
+  if (isAtBottom.value) {
+    // 如果在底部，滚动到顶部
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  } else {
+    // 如果在顶部，滚动到底部（100vh位置）
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: 'smooth'
+    });
+  }
 };
 </script>
 

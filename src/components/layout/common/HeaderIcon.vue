@@ -149,7 +149,7 @@ const autoCheckIn = async () => {
       // 重新获取用户信息
       const oldLevel = userInfo.value.level;
       const currentUserResponse = await api.get('/user/current');
-      await userStore.updateUserInfo(currentUserResponse.data);
+      await userStore.updateUserInfo(currentUserResponse.data,true);
 
       // 检查是否升级
       const newLevel = currentUserResponse.data.level;

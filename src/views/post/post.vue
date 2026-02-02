@@ -143,7 +143,7 @@ function getSummrayElment(summary) {
   if (!summary) {
     summary = '这个人没有设置任何摘要哦';
   }
-  summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>`;
+  summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>\n\n`;
   return summaryCache;
 }
 const loadPostContent = async (postId) => {

@@ -207,11 +207,14 @@ export const useUserStore = defineStore('user', () => {
   };
 
   // 更新用户信息
-  const updateUserInfo = async (updateData) => {
+  const updateUserInfo = async (updateData,noApi) => {
     const oldUserInfo = await getUserInfo();
     try {
       userInfo.value = { ...oldUserInfo, ...updateData };
-      await api.put('/user', updateData);
+      if(!noApi)
+      {
+          await api.put('/user', updateData);
+      }
       saveUserCache(userInfo.value);
     } catch (error) {
       userInfo.value = oldUserInfo;

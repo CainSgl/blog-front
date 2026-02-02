@@ -6,7 +6,7 @@
 
     <!-- 搜索结果列表 -->
     <div v-else-if="results.length > 0" class="results-list">
-        <a-link :href="`/space/${post.id}`" :hoverable="false" v-for="post in results" :key="post.id" target="_ablank">
+        <a-link :href="`/p/${post.id}`" :hoverable="false" v-for="post in results" :key="post.id" target="_ablank">
             <div class="post-card-container">
                 <PostCardWrapper   :height="'100%'" :post="post" :showStatus="false" :showBottom="false"
                     :inHtlm="true" />
