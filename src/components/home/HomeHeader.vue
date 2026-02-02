@@ -125,7 +125,7 @@ const getRainDropStyle = (drop) =>
 .home-container {
   position: relative;
   margin: 0 auto;
-  height: 100dvh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -136,7 +136,7 @@ const getRainDropStyle = (drop) =>
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 20dvh;
+  padding-top: 20vh;
   gap: 40px;
 }
 
@@ -156,7 +156,7 @@ const getRainDropStyle = (drop) =>
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100dvh;
+  height: 100vh;
   object-fit: contain;
   z-index: 1;
   pointer-events: none;
@@ -167,8 +167,8 @@ const getRainDropStyle = (drop) =>
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100dvh;
-  background-color: color-mix(in oklab, var(--color-bg-white) 60%, transparent);
+  height: 100vh;
+  background-color: color-mix(in oklab, var(--color-bg-1) 60%, transparent);
   z-index: 2;
   pointer-events: none;
 }
