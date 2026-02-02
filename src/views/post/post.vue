@@ -24,20 +24,17 @@
                   <div class="title-with-kb">
                     <h1 class="post-title">{{ post?.title || '加载中' }}</h1>
                     <!-- 知识库信息 Trigger -->
-                    <a-trigger 
-                      v-if="kbInfo" 
-                      trigger="hover"
-                      position="bottom"
-                      :popup-translate="[0, 4]"
-                      @click="handleKbClick"
-                    >
+                    <a-trigger v-if="kbInfo" trigger="hover" position="bottom" :popup-translate="[0, 4]"
+                      @click="handleKbClick">
                       <span class="kb-info-text">
                         该文章来自
                         <a-link :href="`/kb?kb=${kbInfo.id}`" @click.stop>{{ kbInfo.name }}</a-link>
                         知识库
                       </span>
                       <template #content>
-                        <KbCard :kbInfo="kbInfo" :useLink="false" />
+                        <div style="width: 180px;">
+                          <KbCard :kbInfo="kbInfo" :useLink="true" />
+                        </div>
                       </template>
                     </a-trigger>
                   </div>
@@ -68,7 +65,7 @@
               <div class="markdown-content" :class="{ 'best-reading-content': !notBestReading }">
                 <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="post?.content" :showComment="true" />
                 <div v-show="notBestReading" class="full-screen-tip">
-                  <div >
+                  <div>
                     <a-button type="primary" shape="circle" @click="handleFullScreenClick">
                       <icon-fullscreen />
                     </a-button>
@@ -99,23 +96,23 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue';
-import {useRoute} from 'vue-router';
-import {IconEye, IconFullscreen, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
-import {Message} from '@arco-design/web-vue';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { IconEye, IconFullscreen, IconHeart, IconMessage } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
-import {useUserStore} from '@/store/user.js';
+import { useUserStore } from '@/store/user.js';
 import PostHistroy from '@/views/post/components/PostHistroy.vue';
 import PostRecommend from '@/views/post/components/PostRecommend.vue';
-import {useCommentStore} from '@/components/comment/commentStore.js';
+import { useCommentStore } from '@/components/comment/commentStore.js';
 import CodeLoader from '@/components/base/loader/CodeLoader.vue';
 import CommentList from '@/components/post/children/CommentList.vue';
 import PostActions from '@/components/post/common/PostActions.vue';
 import Header from '../../components/layout/Header.vue';
-import {storeToRefs} from 'pinia';
-import {formatDate} from '@/utils/DateFormatter.js';
+import { storeToRefs } from 'pinia';
+import { formatDate } from '@/utils/DateFormatter.js';
 import KbCard from '@/components/kb/KbCard.vue';
 
 const userStore = useUserStore();
