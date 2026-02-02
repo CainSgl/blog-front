@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:visible="visible" title="签到记录" :width="480" :footer="false" @cancel="handleClose">
+  <ModalWrapper v-model:visible="visible" title="签到记录" width="480" :footer="false" @cancel="handleClose">
     <div class="checkin-modal">
       <!-- 签到统计 -->
       <div class="checkin-stats" v-if="checkInData">
@@ -38,13 +38,14 @@
         <p>暂无签到记录</p>
       </div>
     </div>
-  </a-modal>
+  </ModalWrapper>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { IconCalendar } from '@arco-design/web-vue/es/icon';
 import { getCheckInData } from '@/services/checkInService.js';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const visible = ref(false);
 const checkInData = ref(null);

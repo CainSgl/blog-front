@@ -81,7 +81,7 @@ watch(() => props.postId, (newPostId) =>
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 12px;
-    color: #333;
+    color: var(--color-neutral-8);
   }
 
   .recommend-list {

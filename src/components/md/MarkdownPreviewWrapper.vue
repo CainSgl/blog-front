@@ -1,26 +1,27 @@
 <template>
+
   <div ref="wrapperRef" class="markdown-preview-wrapper"
     :class="[tocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
-    <MarkdownPreview v-show="!(isMobile && shouldShowToc)||!hasData" :showComment="showComment" ref="markdownPreviewRef"
-      :content="content" :useWindowScroll="useWindowScroll" :class="['preview', { 'preview-full': !isTocVisible }]"
+
+    <MarkdownPreview v-show="!(isMobile && shouldShowToc)" :showComment="showComment" ref="markdownPreviewRef"
+      :content="content" :useWindowScroll="useWindowScroll" :class="['preview', { 'preview-full': !shouldShowToc }]"
       @scroll="handleMdScroll">
       <div :class="['scroll-progress-container', { 'scroll-progress-mobile': isMobile }]">
-        <ScrollProgress 
-          :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
+        <ScrollProgress :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
           @scroll-to-top="handleScrollToTop" />
       </div>
     </MarkdownPreview>
 
-    <div :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]" v-if="hasData"
-      :target="affixTarget ? affixTarget : null" :style="tocHasData ? '' : 'width: 0;'">
-      <TableOfContents v-if="shouldShowToc" :content="content" @select="handleSelect" :tocDefaultShow="tocDefaultShow"
+    <div v-if="props.showToc" v-show="tocHasData" :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]"
+      :target="affixTarget ? affixTarget : null">
+      <TableOfContents v-if="shouldRenderToc" :content="content" @select="handleSelect" :tocDefaultShow="tocDefaultShow"
         :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" @hasData="handleHasData" />
     </div>
 
 
 
     <!-- 移动端目录切换按钮 -->
-    <div v-if="isMobile && !isTocVisible && props.showToc" class="toc-toggle-container">
+    <div v-if="isMobile && !isTocVisible && tocHasData && props.showToc" class="toc-toggle-container">
       <a-button type="primary" @click="showTocOnMobile" shape="circle" :size="'large'" class="toc-toggle-button">
         <template #icon>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +38,7 @@
 </template>
 
 <script setup>
-import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import MarkdownPreview from './MarkdownPreview.vue';
 import TableOfContents from './common/toc/TableOfContents.vue';
 import ScrollProgress from '../base/ScrollProgress.vue';
@@ -69,9 +70,9 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  tocDefaultShow:{
-    type:Boolean,
-    default:true,
+  tocDefaultShow: {
+    type: Boolean,
+    default: true,
   }
 });
 
@@ -86,34 +87,36 @@ const isMobile = ref(false); // 跟踪是否为移动端
 const markdownPreviewRef = ref(null);
 const currentScrollPercent = ref(0); // 当前滚动进度百分比
 const showScrollProgress = ref(false);
-const tocHasData = ref(true);
-// 判断是否应该显示目录：在桌面端始终根据isTocVisible决定，
-// 在移动端仅在可见状态下显示，隐藏状态下不显示（包括控制按钮）
-const shouldShowToc = computed(() => 
-{
+const tocHasData = ref(false);
+
+// 是否渲染 TableOfContents 组件（用于初始化和获取 hasData）
+const shouldRenderToc = computed(() => {
   return props.showToc && (isMobile.value ? isTocVisible.value : true);
 });
+
+// 判断是否应该显示目录：需要同时满足 props.showToc、tocHasData 和可见性条件
+const shouldShowToc = computed(() => {
+  if (!props.showToc || !tocHasData.value) return false;
+  return isMobile.value ? isTocVisible.value : true;
+});
+
 let closeScrollProgress;
 
 
 
-function handleHasData(hasData) 
-{
-  console.log('hasData', hasData);
+function handleHasData(hasData) {
+  console.log("toc是否有数据?",hasData)
   tocHasData.value = hasData;
 }
 
 
-function handleMdScroll(e) 
-{
+function handleMdScroll(e) {
   showScrollProgress.value = true;
-  if (closeScrollProgress) 
-  {
+  if (closeScrollProgress) {
     clearTimeout(closeScrollProgress);
   }
   const target = e.target;
-  if (target) 
-  {
+  if (target) {
     const scrollTop = target.scrollTop;
     const scrollHeight = target.scrollHeight;
     const clientHeight = target.clientHeight;
@@ -132,26 +135,21 @@ function handleMdScroll(e)
     // 向父组件发送滚动事件
     emit('scroll', e);
   }
-  closeScrollProgress = setTimeout(() => 
-  {
+  closeScrollProgress = setTimeout(() => {
     showScrollProgress.value = false;
   }, 600);
 }
 // 监听容器大小变化
-const updateMobileStatus = () => 
-{
-  if (wrapperRef.value) 
-  {
+const updateMobileStatus = () => {
+  if (wrapperRef.value) {
     const rect = wrapperRef.value.getBoundingClientRect();
     isMobile.value = rect.width < 768;
   }
 };
 
 // 计算目录的最大高度
-const calculateTocMaxHeight = () => 
-{
-  if (wrapperRef.value) 
-  {
+const calculateTocMaxHeight = () => {
+  if (wrapperRef.value) {
     const wrapperRect = wrapperRef.value.getBoundingClientRect();
     // 设置目录最大高度为容器在屏幕中的高度减去一些边距
     tocMaxHeight.value = `${wrapperRect.height - 20}px`;
@@ -159,32 +157,26 @@ const calculateTocMaxHeight = () =>
 };
 
 // 处理目录可见性变化
-const handleTocVisibilityChange = (isVisible) => 
-{
+const handleTocVisibilityChange = (isVisible) => {
   isTocVisible.value = isVisible;
 };
 
-const handleSelect = (item) => 
-{
-
+const handleSelect = () => {
+  // Handle TOC item selection
 };
 
 // 移动端显示目录
-const showTocOnMobile = () => 
-{
+const showTocOnMobile = () => {
   isTocVisible.value = true;
 };
 
 // 滚动到顶部
-const handleScrollToTop = () => 
-{
-  if (currentScrollPercent.value < 60) 
-  {
+const handleScrollToTop = () => {
+  if (currentScrollPercent.value < 60) {
 
     markdownPreviewRef.value.scrollToTopOrBottom(true);
   }
-  else 
-  {
+  else {
     window.scrollTo({
       top: 0,
     });
@@ -195,38 +187,31 @@ const handleScrollToTop = () =>
 let resizeObserver = null;
 
 // 监听窗口大小变化，重新计算目录高度和移动端判断
-const handleResize = () => 
-{
-  nextTick(() => 
-  {
+const handleResize = () => {
+  nextTick(() => {
     calculateTocMaxHeight();
     updateMobileStatus();
   });
 };
 
 // 监听content变化，重新计算目录高度
-watch(() => props.content, () => 
-{
-  nextTick(() => 
-  {
+watch(() => props.content, () => {
+  nextTick(() => {
     calculateTocMaxHeight();
   });
 }, {
   immediate: false // 不需要立即执行，因为onMounted中已经计算过一次
 });
 
-onMounted(() => 
-{
+onMounted(() => {
   // 组件挂载后计算目录高度
-  nextTick(() => 
-  {
+  nextTick(() => {
     calculateTocMaxHeight();
     updateMobileStatus();
   });
 
   // 使用ResizeObserver监听容器大小变化
-  if (wrapperRef.value) 
-  {
+  if (wrapperRef.value) {
     resizeObserver = new ResizeObserver(updateMobileStatus);
     resizeObserver.observe(wrapperRef.value);
   }
@@ -235,12 +220,10 @@ onMounted(() =>
   window.addEventListener('resize', handleResize);
 });
 
-onUnmounted(() => 
-{
+onUnmounted(() => {
   // 组件卸载时移除事件监听
   window.removeEventListener('resize', handleResize);
-  if (resizeObserver) 
-  {
+  if (resizeObserver) {
     resizeObserver.disconnect();
   }
 });

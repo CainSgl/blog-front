@@ -1,5 +1,5 @@
 <template>
-  <a-modal
+  <ModalWrapper
     v-model:visible="visible"
     title="图片裁剪"
     :footer="false"
@@ -60,12 +60,13 @@
         </div>
       </div>
     </div>
-  </a-modal>
+  </ModalWrapper>
 </template>
 
 <script setup>
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const props = defineProps({
   modelValue: {

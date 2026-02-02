@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:visible="visible" title="恭喜升级！" :width="400" :footer="false" @cancel="handleClose">
+  <ModalWrapper v-model:visible="visible" title="恭喜升级！" width="400" :footer="false" @cancel="handleClose">
     <div class="levelup-modal">
       <div class="levelup-icon">
         <icon-trophy />
@@ -14,12 +14,13 @@
         <p class="levelup-message">继续加油，探索更多精彩内容！</p>
       </div>
     </div>
-  </a-modal>
+  </ModalWrapper>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { IconTrophy, IconArrowRight } from '@arco-design/web-vue/es/icon';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const visible = ref(false);
 const oldLevel = ref(0);

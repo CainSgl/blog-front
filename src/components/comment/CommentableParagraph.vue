@@ -1,12 +1,19 @@
 <template>
   <div class="cainsgl-commentable-paragraph" :class="{ 'no-comments': commentCount < 1 }" :data-comment-id="commentId"
-    ref="paragraphRef">
+    ref="paragraphRef"
+    @touchstart="handleTouchStart"
+    @touchend="handleTouchEnd"
+    @touchmove="handleTouchMove">
     <span v-html="text" class="paragraph-text"></span>
-    <!-- 文字选中后的评论按钮 -->
-    <div v-if="showCommentButton && commentCount < 1" class="comment-button"
+    <!-- 文字选中后的评论按钮（PC端） -->
+    <div v-if="showCommentButton && commentCount < 1 && !isMobile" class="comment-button"
       :style="{ top: buttonPosition.top + 'px', left: buttonPosition.left + 'px' }" @click="handleCommentParClick">
       <icon-message :size="20" />
       <span class="comment-text">评论</span>
+    </div>
+    <!-- 移动端评论图标（无评论时） -->
+    <div v-if="isMobile && commentCount < 1" class="mobile-comment-icon" @click="handleCommentParClick">
+      <icon-message :size="16" />
     </div>
     <!-- 已存在的评论徽章 -->
     <div class="comment-badge" @click="handleCommentClick" v-if="commentCount > 0">
@@ -14,11 +21,12 @@
     </div>
 
     <!-- 评论模态框 -->
-    <a-modal v-if="commentCount < 1 && commentModalVisible" v-model:visible="commentModalVisible" title="评论"
-      @ok="submitComment" @cancel="commentModalVisible = false" ok-text="提交" cancel-text="取消" :mask-closable="true">
+    <ModalWrapper v-if="commentCount < 1 && commentModalVisible" v-model:visible="commentModalVisible" title="评论"
+      @ok="submitComment" @cancel="commentModalVisible = false" ok-text="提交" cancel-text="取消" :mask-closable="true"
+      width="520px">
       <a-textarea v-model="commentContent" placeholder="请输入您的评论..." :auto-size="{ minRows: 4, maxRows: 8 }"
         :maxlength="255" show-word-limit />
-    </a-modal>
+    </ModalWrapper>
   </div>
 </template>
 
@@ -29,6 +37,7 @@ import {storeToRefs} from 'pinia';
 import {IconMessage} from '@arco-design/web-vue/es/icon';
 import {Message} from '@arco-design/web-vue';
 import api from '@/api/index.js';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 
 const props = defineProps({
   text: {
@@ -48,6 +57,9 @@ const showCommentButton = ref(false);
 const buttonPosition = ref({ top: 0, left: 0 });
 const commentModalVisible = ref(false);
 const commentContent = ref('');
+const isMobile = ref(false);
+const longPressTimer = ref(null);
+const touchMoved = ref(false);
 
 // 计算评论数量
 const commentCount = computed(() => {
@@ -124,8 +136,45 @@ const checkSelection = () => {
 
 
 
-// 监听鼠标释放事件
+// 检测是否为移动设备
+const detectMobile = () => {
+  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+    || window.innerWidth <= 768;
+};
+
+// 移动端长按事件处理
+const handleTouchStart = (event) => {
+  if (!isMobile.value || commentCount.value > 0) return;
+  
+  touchMoved.value = false;
+  longPressTimer.value = setTimeout(() => {
+    if (!touchMoved.value) {
+      // 长按触发评论
+      handleCommentParClick();
+      // 震动反馈（如果设备支持）
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }
+  }, 500); // 500ms 长按
+};
+
+const handleTouchMove = () => {
+  touchMoved.value = true;
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value);
+  }
+};
+
+const handleTouchEnd = () => {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value);
+  }
+};
+
+// 监听鼠标释放事件（仅PC端）
 const handleMouseUp = () => {
+  if (isMobile.value) return;
   setTimeout(() => { // 使用setTimeout确保在选择完成后获取到选中内容
     checkSelection();
   }, 1);
@@ -194,13 +243,19 @@ watch(targetDataId, (newTargetDataId) => {
 }, { immediate: true });
 
 onMounted(() => {
+  detectMobile();
+  window.addEventListener('resize', detectMobile);
   document.addEventListener('mouseup', handleMouseUp);
   document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
+  window.removeEventListener('resize', detectMobile);
   document.removeEventListener('mouseup', handleMouseUp);
   document.removeEventListener('click', handleClickOutside);
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value);
+  }
 });
 </script>
 
@@ -269,5 +324,33 @@ onUnmounted(() => {
 .comment-count {
   display: block;
   width: 100%;
+}
+
+.mobile-comment-icon {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 4px;
+  color: var(--color-text-3);
+  cursor: pointer;
+  vertical-align: middle;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.mobile-comment-icon:active {
+  background-color: var(--color-fill-2);
+  color: rgb(var(--primary-6));
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .no-comments:hover {
+    background-color: transparent;
+  }
+  
+  .paragraph-text {
+    user-select: text;
+    -webkit-user-select: text;
+  }
 }
 </style>
