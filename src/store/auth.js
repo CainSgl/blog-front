@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import {ref} from 'vue';
 import {useUserStore} from './user';
+import {useUserSettingStore} from './userSetting';
 import api from '@/api/index.js';
 
 export const useAuthStore = defineStore('auth', () => 
@@ -9,6 +10,7 @@ export const useAuthStore = defineStore('auth', () =>
   const allowClose = ref(true);  // 控制是否允许关闭登录弹窗
   const isLoading = ref(false);
   const userStore = useUserStore();
+  const userSettingStore = useUserSettingStore();
 
   const openLogin = (b) => 
   {
@@ -48,6 +50,13 @@ export const useAuthStore = defineStore('auth', () =>
       }
       userStore.setUserInfo(res.data.userInfo);
       userStore.setToken(res.data.token);
+      
+      // 登录成功后，初始化用户设置
+      try {
+        await userSettingStore.initSettings();
+      } catch (settingError) {
+        console.warn('初始化用户设置失败，但不影响登录:', settingError);
+      }
     }
     catch (error) 
     {
@@ -62,6 +71,8 @@ export const useAuthStore = defineStore('auth', () =>
   {
     api.post('/user/logout');
     userStore.clearUserInfo();
+    // 退出登录时清除用户设置（不删除服务器数据）
+    userSettingStore.clearSettings(false);
   };
   const checkLogin = () => 
   {

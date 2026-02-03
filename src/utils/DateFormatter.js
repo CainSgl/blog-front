@@ -21,7 +21,11 @@ const formatDate = (dateString,preFix='') =>
   }
 
   // 7天内：根据时间差返回 "XX前"
-  if (diffSeconds < 60) 
+  if (diffSeconds < 10) 
+  {
+    return `刚刚${preFix}`;
+  }
+  else if (diffSeconds < 60) 
   {
     return `${diffSeconds}秒前${preFix}`;
   }

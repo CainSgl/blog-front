@@ -1,184 +1,117 @@
 <template>
-  <div class="system-messages">
-  
-
-    <div class="messages-list" v-if="messages.length > 0">
-      <MessageItem v-for="message in messages" :key="message.id" :message="message" @click="handleMessageClick">
-        <template #action>
-          <icon-heart :style="{ color: '#f53f3f', marginRight: '4px' }" />
-          点赞了你的文章
-        </template>
-      </MessageItem>
-      <!-- 加载触发器 -->
-      <div ref="loadMoreTrigger" class="load-more-trigger">
-        <a-spin v-if="loading" tip="获取更多中" style="display: block;" />
-        <div v-else-if="!hasMore" class="no-more">没有更多了</div>
+  <div class="chat-page">
+    <div class="session-list-wrapper">
+      <div class="session-list-header">
+        <h3>{{ showBlocked ? '已拉黑的会话' : '消息列表' }}</h3>
+        <a-button 
+          type="text" 
+          size="small"
+          @click="toggleBlocked"
+        >
+          <template #icon>
+            <icon-swap v-if="!showBlocked" />
+            <icon-arrow-left v-else />
+          </template>
+          {{ showBlocked ? '返回' : '拉黑列表' }}
+        </a-button>
       </div>
+      <ChatSessionList
+        v-if="!showBlocked"
+        ref="sessionListRef"
+        @select="handleSelectSession"
+      />
+      <BlockedSessionList
+        v-else
+      />
     </div>
-
-    <a-empty v-else-if="!loading" description="暂无系统消息" />
-   <a-spin v-else :loading="loading" style="display: block;">
-      <div style="width: 100%; height: 300px;"></div>
-    </a-spin>
+    <ChatMessageList
+      v-if="selectedSession && !showBlocked"
+      :session="selectedSession"
+      @block-user="handleBlockUser"
+    />
+    <div v-else class="empty-chat">
+      <p>{{ showBlocked ? '选择一个会话进行恢复' : '选择一个会话开始聊天' }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref} from 'vue';
-import api from '@/api/index.js'
-import {IconHeart} from '@arco-design/web-vue/es/icon';
-import MessageItem from '@/views/messages/components/MessageItem.vue';
+import { ref } from 'vue';
+import { IconSwap, IconArrowLeft } from '@arco-design/web-vue/es/icon';
+import ChatSessionList from '@/components/base/chat/ChatSessionList.vue';
+import ChatMessageList from '@/components/base/chat/ChatMessageList.vue';
+import BlockedSessionList from '@/components/base/chat/BlockedSessionList.vue';
 
-const loading = ref(false);
-const messages = ref([]);
-const after = ref(null);
-const size = ref(15);
-const hasMore = ref(true);
-const loadMoreTrigger = ref(null);
-let observer = null;
+const selectedSession = ref(null);
+const sessionListRef = ref(null);
+const showBlocked = ref(false);
 
+const handleSelectSession = (session) => {
+  selectedSession.value = session;
+};
 
-const loadMessages = async () => {
-  if (loading.value || !hasMore.value) return;
-
-  loading.value = true;
-  try {
-    const { data } = await api.get('/user/notice', { type: ["消息"], size: size.value, after: after.value })
-    console.log("data", data)
-    const newMessages = data.records;
-    messages.value.push(...newMessages);
-    hasMore.value = data.hasMore;
-    after.value = data.after;
-  } catch (error) {
-    console.error('加载消息失败:', error);
-  } finally {
-    loading.value = false;
+const handleBlockUser = (sessionId) => {
+  // 清空当前选中的会话（如果被拉黑的是当前会话）
+  if (selectedSession.value?.id === sessionId) {
+    selectedSession.value = null;
   }
 };
 
-const setupObserver = () => {
-  if (!loadMoreTrigger.value) return;
-
-  observer = new IntersectionObserver(
-    (entries) => {
-      const [entry] = entries;
-      if (entry.isIntersecting && hasMore.value && !loading.value) {
-        loadMessages();
-      }
-    },
-    {
-      root: null,
-      rootMargin: '100px',
-      threshold: 0.1
-    }
-  );
-
-  observer.observe(loadMoreTrigger.value);
+const toggleBlocked = () => {
+  showBlocked.value = !showBlocked.value;
+  selectedSession.value = null;
 };
-
-onMounted(() => {
-  loadMessages().then(() => {
-    setupObserver();
-  });
-});
-
-onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-  }
-});
 </script>
 
 <style scoped lang="less">
-.system-messages {
-  .messages-list {
+.chat-page {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height:calc(100dvh - 210px);
+
+  .session-list-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-  }
+    height: 100%;
+    background-color: var(--color-bg-1);
+    border-right: 1px solid var(--color-border-2);
+    overflow: hidden;
 
-  .message-item {
-    display: flex;
-    gap: 16px;
-    padding: 16px;
-    background-color: var(--color-bg-2);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+    .session-list-header {
+      flex-shrink: 0;
+      padding: 16px;
+      border-bottom: 1px solid var(--color-border-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-    &:hover {
-      background-color: var(--color-fill-2);
-    }
-
-    &.unread {
-      background-color: var(--color-primary-light-1);
-
-      &:hover {
-        background-color: var(--color-primary-light-2);
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--color-text-1);
       }
     }
 
-    .message-icon {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background-color: var(--color-primary-light-3);
-      border-radius: 50%;
-      color: rgb(var(--primary-6));
-    }
-
-    .message-content {
+    :deep(.chat-session-list),
+    :deep(.blocked-session-list) {
       flex: 1;
-      min-width: 0;
+      overflow: hidden;
+      border-right: none;
 
-      .message-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-
-        .message-title {
-          font-weight: 600;
-          color: var(--color-neutral-10);
-        }
-
-        .message-time {
-          font-size: 12px;
-          color: var(--color-neutral-6);
-        }
+      .session-list-header {
+        display: none;
       }
-
-      .message-text {
-        color: var(--color-neutral-8);
-        line-height: 1.6;
-      }
-    }
-
-    .message-status {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
     }
   }
 
-  .load-more-trigger {
-    padding: 20px;
+  .empty-chat {
     display: flex;
-    justify-content: center;
     align-items: center;
-
-    .no-more {
-      color: var(--color-neutral-6);
-      font-size: 14px;
-      width: 100%;
-      height: 300px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    justify-content: center;
+    background-color: var(--color-bg-1);
+    color: var(--color-text-3);
+    font-size: 16px;
   }
 }
 </style>

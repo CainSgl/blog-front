@@ -8,14 +8,21 @@ export const useThemeStore = defineStore('theme', {
   actions: {
     toggleTheme() {
       this.isDark = !this.isDark;
-      // 立即同步应用主题，不等待响应式更新
-      const theme = this.isDark ? 'dark' : 'light';
-      if (this.isDark) {
-        document.body.setAttribute('arco-theme', 'dark');
+      this.applyTheme();
+    },
+    
+    setTheme(theme) {
+      // theme 可以是 'dark', 'auto', 或空字符串/null（浅色）
+      if (theme === 'dark') {
+        this.isDark = true;
+      } else if (theme === 'auto') {
+        // 跟随系统
+        this.isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       } else {
-        document.body.removeAttribute('arco-theme');
+        // 浅色或默认
+        this.isDark = false;
       }
-      localStorage.setItem('theme', theme);
+      this.applyTheme();
     },
     
     applyTheme() {
@@ -27,11 +34,28 @@ export const useThemeStore = defineStore('theme', {
     },
     
     initTheme() {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') {
-        this.isDark = true;
+      // 优先从 userSettings 读取主题设置
+      try {
+        const userSettings = localStorage.getItem('userSettings');
+        if (userSettings) {
+          const settings = JSON.parse(userSettings);
+          if (settings.theme) {
+            this.setTheme(settings.theme);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('读取用户设置主题失败:', error);
       }
-      this.applyTheme();
+      
+      // 降级：从旧的 theme 键读取
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        this.setTheme(savedTheme);
+      } else {
+        // 默认浅色
+        this.applyTheme();
+      }
     }
   }
 });

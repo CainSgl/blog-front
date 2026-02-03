@@ -1,5 +1,4 @@
 <template>
-  
   <a-avatar 
     :size="size" 
     :shape="shape"

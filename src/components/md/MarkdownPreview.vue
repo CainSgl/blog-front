@@ -19,6 +19,8 @@ import 'highlight.js/styles/github.css';
 import ArcoVue, {Image as AImage} from '@arco-design/web-vue';
 import CodeBlock from './common/CodeBlock.vue';
 import CommentableParagraph from '../comment/CommentableParagraph.vue';
+import ShareFile from './common/ShareFile.vue';
+import MusicPlayer from './common/MusicPlayer.vue';
 import {API_BASE_URL} from '@/config';
 import containerExtension from '@/plugins/md-tip-info-extens.js';
 import {useTocStore} from './common/toc/toc.js';
@@ -429,6 +431,58 @@ const processDynamicComponents = async () =>
         paragraphApp.mount(container);
       });
     }
+
+    // 处理分享文件占位符
+    const shareFilePlaceholders = previewContentRef.value.querySelectorAll('.share-file-placeholder');
+    shareFilePlaceholders.forEach(placeholder => 
+    {
+      const fileId = decodeURIComponent(placeholder.getAttribute('data-file-id'));
+      const description = decodeURIComponent(placeholder.getAttribute('data-description'));
+
+      // 创建一个容器来放置 ShareFile 组件
+      const container = document.createElement('div');
+      container.className = 'share-file-container';
+      placeholder.parentNode.replaceChild(container, placeholder);
+
+      const shareFileApp = createApp({
+        render() 
+        {
+          return h(ShareFile, {
+            fileId: fileId,
+            description: description
+          });
+        }
+      });
+      shareFileApp.use(ArcoVue);
+      // 挂载到容器
+      shareFileApp.mount(container);
+    });
+
+    // 处理音乐播放器占位符
+    const musicPlayerPlaceholders = previewContentRef.value.querySelectorAll('.music-player-placeholder');
+    musicPlayerPlaceholders.forEach(placeholder => 
+    {
+      const fileId = decodeURIComponent(placeholder.getAttribute('data-file-id'));
+      const description = decodeURIComponent(placeholder.getAttribute('data-description'));
+
+      // 创建一个容器来放置 MusicPlayer 组件
+      const container = document.createElement('div');
+      container.className = 'music-player-container';
+      placeholder.parentNode.replaceChild(container, placeholder);
+
+      const musicPlayerApp = createApp({
+        render() 
+        {
+          return h(MusicPlayer, {
+            fileId: fileId,
+            description: description
+          });
+        }
+      });
+      musicPlayerApp.use(ArcoVue);
+      // 挂载到容器
+      musicPlayerApp.mount(container);
+    });
   }
 };
 

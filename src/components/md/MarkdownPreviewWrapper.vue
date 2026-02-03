@@ -4,7 +4,7 @@
     :class="[currentTocPosition === 'right' ? 'toc-right' : 'toc-left', { 'toc-hidden': !isTocVisible }]">
 
     <MarkdownPreview v-show="!(isMobile && shouldShowToc)" :showComment="showComment" ref="markdownPreviewRef"
-      :content="content" :useWindowScroll="useWindowScroll" :class="['preview', { 'preview-full': !shouldShowToc }]"
+      :content="content" :useWindowScroll="useWindowScroll" :class="['preview', { 'preview-full': !shouldShowToc || !tocHasData }]"
       @scroll="handleMdScroll">
       <div :class="['scroll-progress-container', { 'scroll-progress-mobile': isMobile }]">
         <ScrollProgress :current-scroll-percent="currentScrollPercent" :show-scroll-progress="showScrollProgress"
@@ -13,6 +13,7 @@
     </MarkdownPreview>
 
     <div v-if="props.showToc" v-show="tocHasData" :class="['toc', { 'toc-visible': isTocVisible, 'toc-mobile': isMobile }]"
+      :style="{ display: tocHasData ? '' : 'none' }"
       :target="affixTarget ? affixTarget : null">
       <TableOfContents v-if="shouldRenderToc" :isMobile="isMobile" :content="content" @select="handleSelect" :tocDefaultShow="tocDefaultShow"
         :tocPosition="currentTocPosition" :style="{ maxHeight: tocMaxHeight }" @visibilityChange="handleTocVisibilityChange" 
@@ -273,6 +274,18 @@ onUnmounted(() => {
       max-width: 80px !important;
       overflow: hidden;
     }
+    
+    // 当没有数据时，完全不占据空间
+    &[style*="display: none"] {
+      flex: 0 0 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+      visibility: hidden !important;
+    }
   }
 
   // 当目录隐藏时，预览区域占据剩余空间（减去目录按钮的宽度）
@@ -296,6 +309,22 @@ onUnmounted(() => {
       max-width: 0px !important;
       overflow: hidden;
     }
+    
+    // 移动端没有数据时，完全不占据空间且不遮挡
+    &[style*="display: none"] {
+      position: absolute !important;
+      left: -9999px !important;
+      flex: 0 0 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
   }
 
 
@@ -305,6 +334,11 @@ onUnmounted(() => {
     flex: 1;
     overflow-y: auto;
     transition: all 0.3s ease;
+    
+    &.preview-full {
+      width: 100%;
+      max-width: 100%;
+    }
   }
 
 

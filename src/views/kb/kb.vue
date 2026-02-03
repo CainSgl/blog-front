@@ -76,7 +76,8 @@ const kbStore = useKbStore();
 const showFavoriteModal = ref(false);
 
 // collapse-button 精细控制相关状态
-const showCollapseButton = ref(window.innerWidth >= 800);  // 默认根据屏幕宽度决定是否显示
+const isTouchDevice = ref('ontouchstart' in window || navigator.maxTouchPoints > 0);
+const showCollapseButton = ref(isTouchDevice.value || window.innerWidth >= 800);  // 触摸设备始终显示
 const hideTimer = ref(null);
 
 // 检查屏幕宽度的函数
@@ -191,7 +192,7 @@ onMounted(async () => {
   }
 
   // 初始化时检查屏幕尺寸
-  if (!checkScreenSize()) {
+  if (!checkScreenSize() && !isTouchDevice.value) {
     showCollapseButton.value = false;
   }
 
@@ -201,12 +202,12 @@ onMounted(async () => {
 
 // 窗口大小变化处理函数
 function handleResize() {
-  if (!checkScreenSize()) {
+  if (!checkScreenSize() && !isTouchDevice.value) {
     showCollapseButton.value = false;
     isCollapsed.value = true;  // 在小屏幕上默认折叠侧边栏
   }
   else {
-    // 在大屏幕上恢复显示按钮
+    // 在大屏幕上或触摸设备上恢复显示按钮
     showCollapseButton.value = true;
   }
 }
@@ -236,6 +237,11 @@ function toggleCollapse() {
 }
 
 function handleMouseMove(event) {
+  // 触摸设备始终显示按钮，不受鼠标移动影响
+  if (isTouchDevice.value) {
+    return;
+  }
+
   if (!checkScreenSize()) {
     showCollapseButton.value = false;
     return;

@@ -135,6 +135,7 @@ import {
   IconCheckCircle,
   IconDown,
   IconFaceSmileFill,
+  IconFile,
   IconFontColors,
   IconH1,
   IconH2,
@@ -144,6 +145,7 @@ import {
   IconImage,
   IconItalic,
   IconLink,
+  IconMusic,
   IconOrderedList,
   IconQuote,
   IconRedo,
@@ -232,6 +234,20 @@ const formatButtons2 = [
     title: "上传图片",
     icon: IconImage,
     handler: () => insertImage()
+  },
+  {
+    content: "分享文件",
+    type: "share-file",
+    title: "分享文件",
+    icon: IconFile,
+    handler: () => insertShareFile()
+  },
+  {
+    content: "插入音乐",
+    type: "music",
+    title: "插入音乐",
+    icon: IconMusic,
+    handler: () => insertMusic()
   }
 ];
 const menuItems = [
@@ -1475,6 +1491,126 @@ const insertImage = () => {
           textarea.focus();
         }, 0);
       }, files);
+    }
+  };
+  fileInput.click();
+};
+
+// 插入分享文件
+const insertShareFile = () => {
+  // 触发文件选择对话框
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '*/*'; // 接受所有文件类型
+  fileInput.onchange = async (e) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      
+      try {
+        Message.loading({
+          id: 'upload-share-file:' + file.name,
+          content: file.name + ' 文件上传中...',
+          duration: 15000,
+        });
+
+        // 使用文件上传工具类上传
+        const { fileId } = await uploadFile(file);
+
+        // 获取编辑器和光标位置
+        const editor = editorRef.value;
+        if (!editor) return;
+
+        const textarea = editor.$refs.editorEgine?.textareaEl || editor.$el.querySelector('textarea');
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        // 插入 share 格式：:::share fileId 文件名\n:::\n
+        const shareMarkdown = `\n:::share ${fileId} ${file.name}\n:::\n`;
+        const newText = text.value.substring(0, start) + shareMarkdown + text.value.substring(end);
+        text.value = newText;
+
+        // 设置光标位置到分享块后面
+        setTimeout(() => {
+          textarea.setSelectionRange(start + shareMarkdown.length, start + shareMarkdown.length);
+          textarea.focus();
+        }, 0);
+
+        Message.success({
+          id: 'upload-share-file:' + file.name,
+          content: '文件上传成功',
+          duration: 3000,
+        });
+      } catch (error) {
+        console.error('文件上传失败:', error);
+        Message.error({
+          id: 'upload-share-file:' + file.name,
+          content: '文件上传失败，请稍后重试',
+          duration: 3000,
+        });
+      }
+    }
+  };
+  fileInput.click();
+};
+
+// 插入音乐
+const insertMusic = () => {
+  // 触发文件选择对话框
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'audio/*'; // 只接受音频文件
+  fileInput.onchange = async (e) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      
+      try {
+        Message.loading({
+          id: 'upload-music:' + file.name,
+          content: file.name + ' 音乐上传中...',
+          duration: 15000,
+        });
+
+        // 使用文件上传工具类上传
+        const { fileId } = await uploadFile(file);
+
+        // 获取编辑器和光标位置
+        const editor = editorRef.value;
+        if (!editor) return;
+
+        const textarea = editor.$refs.editorEgine?.textareaEl || editor.$el.querySelector('textarea');
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        // 插入 music 格式：:::music fileId 音乐名称\n:::\n
+        const musicMarkdown = `\n:::music ${fileId} ${file.name}\n:::\n`;
+        const newText = text.value.substring(0, start) + musicMarkdown + text.value.substring(end);
+        text.value = newText;
+
+        // 设置光标位置到音乐块后面
+        setTimeout(() => {
+          textarea.setSelectionRange(start + musicMarkdown.length, start + musicMarkdown.length);
+          textarea.focus();
+        }, 0);
+
+        Message.success({
+          id: 'upload-music:' + file.name,
+          content: '音乐上传成功',
+          duration: 3000,
+        });
+      } catch (error) {
+        console.error('音乐上传失败:', error);
+        Message.error({
+          id: 'upload-music:' + file.name,
+          content: '音乐上传失败，请稍后重试',
+          duration: 3000,
+        });
+      }
     }
   };
   fileInput.click();

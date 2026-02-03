@@ -11,7 +11,7 @@
             {{ isVisible ? '隐藏' : '显示' }}
           </a-button>
         </TooltipWrapper>
-        <TooltipWrapper :content="tocPosition === 'right' ? '移到右侧' : '移到左侧'" v-show="!props.isMobile">
+        <TooltipWrapper :content="tocPosition === 'right' ? '移到右侧' : '移到左侧'" v-if="!props.isMobile">
           <a-button size="small" @click="togglePosition">
             <template #icon>
               <icon-caret-right v-if="tocPosition === 'right'" />

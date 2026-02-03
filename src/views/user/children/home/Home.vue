@@ -18,9 +18,17 @@
           </div>
           <div class="user-profile-actions" v-if="currentUserInfo.id != userId">
             <FollowButton :user-id="userId" @follow-changed="handleFollowChange" />
-            <a-button size="large" style="margin-left: 12px;">私信</a-button>
+            <ChatButton :user-id="userId" style="margin-left: 12px;" />
           </div>
-          <div v-else>
+          <div v-else class="user-profile-actions">
+            <a-button type="primary" size="large" @click="showSettingsModal = true">
+              <template #icon>
+                <icon-settings />
+              </template>
+              个人设置
+            </a-button>
+          </div>
+          <div v-if="currentUserInfo.id == userId">
             <!-- 用户经验条 -->
             <div class="user-experience">
               <div class="exp-container">
@@ -75,17 +83,22 @@
 
     <!-- 编辑用户信息对话框 -->
     <EditUserInfoModal v-model="showEditModal" :user-info="userInfo" @saved="onUserInfoSaved" />
+    
+    <!-- 用户设置对话框 -->
+    <UserSettingsModal v-model="showSettingsModal" @saved="onSettingsSaved" />
   </div>
 </template>
 
 <script setup>
 import {computed, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
+import {IconMan, IconWoman, IconSettings} from '@arco-design/web-vue/es/icon';
 import {useUserStore} from '@/store/user.js';
 import AvatarSection from '@/components/base/avatar/AvatarSection.vue';
 import FollowButton from '@/components/base/follow/FollowButton.vue';
+import ChatButton from '@/components/base/chat/ChatButton.vue';
 import EditUserInfoModal from '@/views/user/children/home/components/EditUserInfoModal.vue';
+import UserSettingsModal from '@/views/user/children/home/components/UserSettingsModal.vue';
 import UserLevel from '@/components/base/UserLevel.vue';
 
 const userStore = useUserStore();
@@ -93,6 +106,7 @@ const route = useRoute();
 const router = useRouter();
 const userInfo = ref(null);
 const showEditModal = ref(false);
+const showSettingsModal = ref(false);
 
 
 
@@ -133,6 +147,12 @@ function tryChangeInfo() {
 // 用户信息保存后的回调
 const onUserInfoSaved = async () => {
   userInfo.value = await userStore.getUserInfo();
+};
+
+// 设置保存后的回调
+const onSettingsSaved = () => {
+  // 设置已保存，可以在这里做一些额外的处理
+  console.log('用户设置已保存');
 };
 // 处理关注状态变化
 const handleFollowChange = async (shouldFollow) => {

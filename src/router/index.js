@@ -207,7 +207,7 @@ const routes = [
         path: 'message',
         name: 'MessagesMessage',
         component: () => import('@/views/messages/children/Message.vue'),
-        meta: { title: '系统消息' }
+        meta: { title: '消息' }
       },
       {
         path: 'report',

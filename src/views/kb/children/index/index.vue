@@ -67,7 +67,7 @@
       <div class="user-info">
         <div class="user-info-content">
           <avatarWithInfo :user="masterUser" :size="40" />
-          <div v-if="masterUser" class="user-name">{{ masterUser.nickname }}</div>
+          <div v-if="masterUser" class="user-name"><span style=" color: var(--color-neutral-10);"> {{ masterUser.nickname }}</span></div>
         </div>
         <FollowButton :userId="masterUser?.id" @followChanged="handleFollowChanged" />
       </div>

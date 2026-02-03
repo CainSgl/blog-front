@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import api from '@/api/index.js';
 import { Message } from '@arco-design/web-vue';
 import { likeCache } from '@/utils/likeCache.js';
+import { useUserSettingStore } from './userSetting';
 
 const youKe = { id: -1 };
 const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10分钟
@@ -172,6 +173,14 @@ export const useUserStore = defineStore('user', () => {
         // 异步更新，不阻塞返回
         updateHotInfo(cached.data);
       }
+      
+      // 初始化用户设置（从缓存或服务器）
+      const userSettingStore = useUserSettingStore();
+      if (!userSettingStore.isLoaded) {
+        userSettingStore.initSettings().catch(err => {
+          console.warn('初始化用户设置失败:', err);
+        });
+      }
 
       return cached.data;
     }
@@ -189,6 +198,13 @@ export const useUserStore = defineStore('user', () => {
         saveUserCache(response.data);
         resetHotCounter();
         currentUserPromise = null;
+        
+        // 初始化用户设置
+        const userSettingStore = useUserSettingStore();
+        userSettingStore.initSettings().catch(err => {
+          console.warn('初始化用户设置失败:', err);
+        });
+        
         return response.data;
       })
       .catch((error) => {
