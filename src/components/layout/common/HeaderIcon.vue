@@ -1,7 +1,7 @@
 <template>
   <div class="avatar-section">
-    <a-popover trigger="hover" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }" v-model:popup-visible="popoverVisible">
-      <Avatar :src="userInfo?.avatarUrl" class="avatar-trigger" @click="handleAvatarClick" />
+    <a-popover trigger="click" position="br" :content-style="{ minWidth: '300px', maxWidth: '400px' }" v-model:popup-visible="popoverVisible">
+      <Avatar :src="userInfo?.avatarUrl" class="avatar-trigger"  />
       <template #content>
         <div class="user-info-popover" v-if="userInfo?.id != '-1'">
           <div class="user-header">
@@ -16,9 +16,17 @@
                 <a-tag color="arcoblue" size="small" style="margin-left: 8px;">LV.{{ userInfo?.level }}</a-tag>
               </div>
               <div class="user-stats">
-                <div v-for="stat in userStats" :key="stat.label" class="stat-item">
-                  <span class="stat-label">{{ stat.label }}</span>
-                  <span class="stat-value">{{ stat.value }}</span>
+                <div class="stat-item stat-clickable" @click="goToFollowers">
+                  <span class="stat-label">粉丝</span>
+                  <span class="stat-value">{{ userInfo?.followerCount || 0 }}</span>
+                </div>
+                <div class="stat-item stat-clickable" @click="goToFollowing">
+                  <span class="stat-label">关注</span>
+                  <span class="stat-value">{{ userInfo?.followingCount || 0 }}</span>
+                </div>
+                <div class="stat-item stat-clickable" @click="goToLikes">
+                  <span class="stat-label">获赞</span>
+                  <span class="stat-value">{{ userInfo?.likeCount || 0 }}</span>
                 </div>
               </div>
             </div>
@@ -212,12 +220,35 @@ const openCheckIn = () => {
   checkInModalRef.value?.open(userInfo.value);
 };
 
-// 用户统计数据
-const userStats = computed(() => [
-  { label: '粉丝', value: userInfo.value?.followerCount || 0 },
-  { label: '关注', value: userInfo.value?.followingCount || 0 },
-  { label: '获赞', value: userInfo.value?.likeCount || 0 }
-]);
+// 跳转到粉丝页面
+const goToFollowers = () => {
+  if (!userStore.isUserLoggedIn()) {
+    showLogin();
+    return;
+  }
+  popoverVisible.value = false;
+  router.push(`/space/${userInfo.value?.id}/followers`);
+};
+
+// 跳转到关注页面
+const goToFollowing = () => {
+  if (!userStore.isUserLoggedIn()) {
+    showLogin();
+    return;
+  }
+  popoverVisible.value = false;
+  router.push(`/space/${userInfo.value?.id}/following`);
+};
+
+// 跳转到获赞页面
+const goToLikes = () => {
+  if (!userStore.isUserLoggedIn()) {
+    showLogin();
+    return;
+  }
+  popoverVisible.value = false;
+  router.push('/messages/like');
+};
 
 // 菜单选项配置
 const menuOptions = computed(() => [
@@ -305,20 +336,38 @@ const menuOptions = computed(() => [
           flex-direction: column;
           align-items: center;
           margin-right: @size-4;
+          border-radius: 4px;
+          padding: 4px 8px;
+          transition: all 0.3s ease;
 
           &:last-child {
             margin-right: 0;
           }
 
+          &.stat-clickable {
+            cursor: pointer;
+
+            &:hover {
+              background-color: var(--color-fill-2);
+
+              .stat-label,
+              .stat-value {
+                color: rgb(var(--primary-6)) !important;
+              }
+            }
+          }
+
           .stat-label {
             font-size: @font-size-body-2;
             color: var(--color-neutral-6);
+            transition: color 0.3s ease;
           }
 
           .stat-value {
             font-size: @font-size-body-3;
             font-weight: bold;
             color: var(--color-neutral-10);
+            transition: color 0.3s ease;
           }
         }
       }

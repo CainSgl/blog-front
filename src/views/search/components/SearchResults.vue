@@ -27,8 +27,8 @@
         </div>
     </div>
 
-    <!-- 空状态 -->
-    <div v-else-if="!loading && searchQuery" class="empty-state">
+    <!-- 空状态 - 只在没有任何结果时显示 -->
+    <div v-else-if="!loading && searchQuery && shouldShowEmpty" class="empty-state">
         <a-empty description="未找到相关结果">
             <template #image>
                 <icon-search class="empty-icon" />
@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import {nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import {IconSearch} from '@arco-design/web-vue/es/icon';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
@@ -77,6 +77,25 @@ const loadMoreTrigger = ref(null);
 let observer = null;
 let searchAfter;
 let vectorOffset = 1;
+
+// 判断是否应该显示空状态
+const shouldShowEmpty = computed(() => {
+    const filtersParam = route.query.filters || '';
+    const filters = filtersParam ? filtersParam.split(',').filter(f => f) : [];
+    
+    // 如果筛选了用户，则不显示空状态（因为可能有用户结果）
+    if (filters.includes('user')) {
+        return false;
+    }
+    
+    // 如果没有指定 filters，也不显示空状态（因为可能有用户结果）
+    if (filters.length === 0) {
+        return false;
+    }
+    
+    // 其他情况显示空状态
+    return true;
+});
 
 // 从路由参数中解析搜索条件
 const parseRouteParams = () => {

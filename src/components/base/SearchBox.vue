@@ -253,18 +253,30 @@ const handleSearch = () => {
     ? filters.value.filter(f => f.checked).map(f => f.value)
     : [];
 
-  // 构建搜索 URL
-  const searchUrl = router.resolve({
-    path: '/search',
-    query: {
-      mode: searchMode.value,
-      query: searchQuery.value,
-      filters: activeFilters.join(',')
-    }
-  });
+  // 构建搜索查询参数
+  const queryParams = {
+    mode: searchMode.value,
+    query: searchQuery.value,
+    filters: activeFilters.join(',')
+  };
 
-  // 在新窗口打开搜索结果
-  window.open(searchUrl.href, '_blank');
+  // 判断当前是否在搜索页面
+  const isOnSearchPage = route.path === '/search';
+
+  if (isOnSearchPage) {
+    // 如果已经在搜索页面，直接更新路由参数
+    router.push({
+      path: '/search',
+      query: queryParams
+    });
+  } else {
+    // 如果不在搜索页面，在新窗口打开搜索结果
+    const searchUrl = router.resolve({
+      path: '/search',
+      query: queryParams
+    });
+    window.open(searchUrl.href, '_blank');
+  }
 };
 </script>
 

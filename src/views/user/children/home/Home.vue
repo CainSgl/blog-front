@@ -260,6 +260,7 @@ onMounted(async () => {
         }
 
         .user-profile-actions {
+
           display: flex;
           justify-content: center;
           gap: 12px;

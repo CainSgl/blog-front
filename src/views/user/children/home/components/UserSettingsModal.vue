@@ -16,7 +16,7 @@
                         </a-form-item>
 
                         <a-form-item label="语言" field="language">
-                            <a-select v-model="formData.language" style="width: 200px;">
+                            <a-select v-model="formData.language" style="width: 200px;" disabled>
                                 <a-option value="zh-CN">简体中文</a-option>
                                 <a-option value="zh-TW">繁體中文</a-option>
                                 <a-option value="en-US">English</a-option>

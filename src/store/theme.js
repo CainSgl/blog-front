@@ -2,7 +2,9 @@ import { defineStore } from 'pinia';
 
 export const useThemeStore = defineStore('theme', {
   state: () => ({
-    isDark: false
+    isDark: false,
+    currentTheme: '', // 当前主题设置: '', 'dark', 'auto'
+    mediaQuery: null // 系统主题监听器
   }),
   
   actions: {
@@ -13,16 +15,35 @@ export const useThemeStore = defineStore('theme', {
     
     setTheme(theme) {
       // theme 可以是 'dark', 'auto', 或空字符串/null（浅色）
+      this.currentTheme = theme || '';
+      
+      // 移除旧的监听器
+      if (this.mediaQuery) {
+        this.mediaQuery.removeEventListener('change', this.handleSystemThemeChange);
+        this.mediaQuery = null;
+      }
+      
       if (theme === 'dark') {
         this.isDark = true;
       } else if (theme === 'auto') {
         // 跟随系统
         this.isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 监听系统主题变化
+        this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        this.mediaQuery.addEventListener('change', this.handleSystemThemeChange);
       } else {
         // 浅色或默认
         this.isDark = false;
       }
       this.applyTheme();
+    },
+    
+    handleSystemThemeChange(e) {
+      if (this.currentTheme === 'auto') {
+        this.isDark = e.matches;
+        this.applyTheme();
+      }
     },
     
     applyTheme() {
@@ -39,7 +60,7 @@ export const useThemeStore = defineStore('theme', {
         const userSettings = localStorage.getItem('userSettings');
         if (userSettings) {
           const settings = JSON.parse(userSettings);
-          if (settings.theme) {
+          if (settings.theme !== undefined) {
             this.setTheme(settings.theme);
             return;
           }

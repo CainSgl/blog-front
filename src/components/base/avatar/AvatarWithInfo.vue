@@ -46,6 +46,12 @@
                 <div v-if="user.bio" class="user-info-item bio-section">
                     <span class="bio-text">{{ user.bio }}</span>
                 </div>
+
+                <!-- 关注和私信按钮 -->
+                <div v-if="!isCurrentUser && user.status !== 'banned'" class="action-buttons">
+                    <FollowButton :user-id="user.id" />
+                    <ChatButton :user-id="user.id" />
+                </div>
             </div>
         </template>
     </a-popover>
@@ -53,10 +59,14 @@
 </template>
 
 <script setup>
+import {computed} from 'vue';
 import {IconMan, IconWoman} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
 import Avatar from '@/components/base/avatar/Avatar.vue';
+import FollowButton from '@/components/base/follow/FollowButton.vue';
+import ChatButton from '@/components/base/chat/ChatButton.vue';
 import {formatDate} from '@/utils/DateFormatter.js';
+import {useUserStore} from '@/store/user.js';
 
 const props = defineProps({
   user: {
@@ -77,6 +87,13 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const userStore = useUserStore();
+
+// 判断是否是当前用户自己
+const isCurrentUser = computed(() => {
+  const currentUser = userStore.userInfo;
+  return currentUser && props.user && currentUser.id === props.user.id;
+});
 
 // 跳转到用户空间页面
 const goToUserSpace = () => 
@@ -200,5 +217,13 @@ const goToUserSpace = () =>
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.4;
+}
+
+.action-buttons {
+    display: flex;
+    gap: @size-2;
+    margin-top: @size-3;
+    padding-top: @size-3;
+    border-top: @border-1 solid @color-fill-3;
 }
 </style>

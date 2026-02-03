@@ -4,6 +4,7 @@
     :type="type"
     :loading="loading"
     @click="handleChat"
+    style="border:none"
   >
     <template #icon v-if="showIcon">
       <icon-message />
@@ -59,7 +60,7 @@ const handleChat = async () => {
   loading.value = true;
   try {
     // 创建或获取会话
-    const { data: session } = await api.post('/chat/session', {}, { otherUserId: props.userId  });
+    const { data: session } = await api.post(`/chat/session?otherUserId=${props.userId}`);
     
     // 跳转到聊天页面，并传递会话ID
     router.push({

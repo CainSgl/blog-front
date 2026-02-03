@@ -13,18 +13,30 @@
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/store/theme';
+import { useUserSettingStore } from '@/store/userSetting';
 import { IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon';
 
 const themeStore = useThemeStore();
+const userSettingStore = useUserSettingStore();
 const { isDark } = storeToRefs(themeStore);
 
 const isToggling = ref(false);
 
-const handleToggle = () => {
+const handleToggle = async () => {
   if (isToggling.value) return;
   
   isToggling.value = true;
-  themeStore.toggleTheme();
+  
+  // 切换主题
+  const newTheme = isDark.value ? '' : 'dark';
+  themeStore.setTheme(newTheme);
+  
+  // 保存到用户设置
+  try {
+    await userSettingStore.setSetting('theme', newTheme, false);
+  } catch (error) {
+    console.error('保存主题设置失败:', error);
+  }
   
   setTimeout(() => {
     isToggling.value = false;

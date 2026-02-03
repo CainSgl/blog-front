@@ -33,7 +33,7 @@ const goBack = () => {
 <style scoped lang="less">
 .not-found-page {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: var(--color-bg-1);
 }
 
 .not-found-content {
@@ -48,13 +48,13 @@ const goBack = () => {
   h1 {
     font-size: 32px;
     font-weight: 600;
-    color: var(--color-neutral-10);
+    color: var(--color-text-1);
     margin: 0 0 16px 0;
   }
 
   p {
     font-size: 16px;
-    color: var(--color-neutral-8);
+    color: var(--color-text-2);
     margin: 0 0 32px 0;
   }
 
@@ -64,7 +64,7 @@ const goBack = () => {
     gap: 16px;
 
     .separator {
-      color: var(--color-neutral-6);
+      color: var(--color-text-3);
     }
   }
 }

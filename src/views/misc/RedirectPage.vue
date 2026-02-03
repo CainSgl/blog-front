@@ -1,8 +1,8 @@
 <template>
   <div class="redirect-page">
     <div class="redirect-container">
-      <h2 style="color: var(--color-neutral-10);">安全跳转提示</h2>
-      <p>您即将跳转到外部网站：</p>
+      <h2>安全跳转提示</h2>
+      <p>即将跳转到外部网站：</p>
       <p class="external-url">{{ decodedUrl }}</p>
       <p>为确保您的安全，我们建议您确认此网站的可信度。</p>
       
@@ -77,47 +77,51 @@ const proceedToUrl = () =>
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .redirect-page {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: var(--color-bg-1);
   padding: 20px;
 }
 
 .redirect-container {
-  background: white;
+  background: var(--color-bg-2);
   padding: 30px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--color-neutral-10) 5%, transparent);
   max-width: 500px;
   width: 100%;
   text-align: center;
-}
 
-.redirect-container h2 {
-  color: #333;
-  margin-bottom: 15px;
+  h2 {
+    color: var(--color-text-1);
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: var(--color-text-2);
+  }
 }
 
 .external-url {
   word-break: break-all;
-  color: #007bff;
+  color: rgb(var(--primary-6));
   font-weight: bold;
   margin: 15px 0;
   padding: 10px;
-  background-color: #f8f9fa;
+  background-color: var(--color-fill-2);
   border-radius: 4px;
   font-family: monospace;
 }
 
 .button-group {
   margin-top: 20px;
-}
 
-.button-group .arco-btn {
-  margin: 0 8px;
+  :deep(.arco-btn) {
+    margin: 0 8px;
+  }
 }
 </style>

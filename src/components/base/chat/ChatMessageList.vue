@@ -113,6 +113,7 @@ const messages = ref([]);
 let last;
 let observer = null;
 const hasMore = ref(true);
+let isLoading = false; // 加载锁
 
 // 强行发送相关
 const forceSendModalVisible = ref(false);
@@ -132,24 +133,30 @@ const scrollToBottom = () => {
     }
   });
 };
+
 // 加载消息
 const loadMessages = async () => {
-  try {
-    if(!hasMore.value)
-  {
+  // 防重复请求：如果正在加载或没有更多消息，直接返回
+  if (isLoading || !hasMore.value) {
     return;
   }
 
+  try {
+    isLoading = true; // 上锁
+    
     const { data } = await api.post('/chat/messages', { sessionId: props.session.id, last });
-    console.log(data.messages.length)
-    if (data.messages.length==0) {
+    
+    if (data.messages.length === 0) {
       hasMore.value = false;
+    } else {
+      messages.value = [...messages.value, ...data.messages];
+      last = data.last;
     }
-    messages.value = [ ...messages.value, ...data.messages];
-    last=data.last;
   } catch (error) {
     console.error('加载消息失败:', error);
     Message.error('加载消息失败');
+  } finally {
+    isLoading = false; // 解锁
   }
 };
 // 处理输入事件，发送正在输入状态
@@ -321,10 +328,7 @@ onMounted(async () => {
   // 监听 WebSocket
   chatWebSocket.onMessage(webSocketHandler);
 
-  // 加载消息
-  loadMessages();
-
-  // 设置滚动加载
+  // 设置滚动加载 - 只交给 IntersectionObserver 处理，不在这里主动调用
   if (observerTarget.value) {
     observer = new IntersectionObserver(
       (entries) => {
@@ -358,6 +362,7 @@ watch(() => props.session.id, async () => {
   messages.value = [];
   last = null;
   hasMore.value = true;
+  isLoading = false; // 重置加载锁
   isOtherUserTyping.value = false;
   
   // 清理定时器和标志
@@ -370,7 +375,7 @@ watch(() => props.session.id, async () => {
   isTypingSent = false;
   
   await loadOtherUserInfo();
-  loadMessages();
+  // 不在这里调用 loadMessages，交给 IntersectionObserver 处理
 });
 
 </script>

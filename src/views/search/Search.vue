@@ -25,6 +25,9 @@
         </div>
       </div>
 
+      <!-- 用户搜索结果组件 -->
+      <UserSearchResults />
+      
       <!-- 搜索结果组件 -->
       <SearchResults @updateTotal="updateTotal" />
     </div>
@@ -36,6 +39,7 @@ import {ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import SearchBox from '@/components/base/SearchBox.vue';
 import SearchResults from './components/SearchResults.vue';
+import UserSearchResults from './components/UserSearchResults.vue';
 import Header from '@/components/layout/Header.vue';
 
 const route = useRoute();
@@ -156,7 +160,7 @@ parseRouteParams();
 }
 
 .search-count {
-  color: var(--color-neutral-4);
+  color: var(--color-neutral-8);
   font-size: 14px;
 }
 
@@ -168,7 +172,7 @@ parseRouteParams();
 }
 
 .filter-label {
-  color: var(--color-neutral-4);
+  color: var(--color-neutral-8);
   font-size: 14px;
 }
 

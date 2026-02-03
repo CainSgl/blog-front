@@ -49,7 +49,12 @@
 
               <div v-for="action in userActions" :key="action.path" class="action-item"
                 @click="openInNewTab(`/space/${userInfo?.id}/${action.path}`)">
-                <div :content="action.tooltip" :popup-visible="isSmallScreen || !hasMouse ? false : undefined">
+                <HistoryPreview v-if="action.path === 'history'">
+                  <div :content="action.tooltip" :popup-visible="isSmallScreen || !hasMouse ? false : undefined">
+                    <component :is="action.icon" :size="20" />
+                  </div>
+                </HistoryPreview>
+                <div v-else :content="action.tooltip" :popup-visible="isSmallScreen || !hasMouse ? false : undefined">
                   <component :is="action.icon" :size="20" />
                 </div>
                 <span class="action-text">{{ action.label }}</span>
@@ -69,6 +74,7 @@ import { useUserStore } from '@/store/user.js';
 import { storeToRefs } from 'pinia';
 import SearchBox from '@/components/base/SearchBox.vue';
 import HeaderIcon from './common/HeaderIcon.vue';
+import HistoryPreview from './common/HistoryPreview.vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   IconBook,
