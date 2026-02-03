@@ -100,6 +100,7 @@ watch(() => props.message.senderId, () => {
       color: var(--color-text-1);
       word-wrap: break-word;
       word-break: break-word;
+      white-space: pre-wrap;
 
       body[arco-theme='dark'] & {
         background-color: var(--color-bg-1);

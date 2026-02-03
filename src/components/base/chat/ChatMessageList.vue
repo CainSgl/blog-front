@@ -46,17 +46,24 @@
         <a-link @click="showForceSendModal">强行发送</a-link>
       </div>
       <template v-else>
-        <a-textarea v-model="inputText" placeholder="输入消息..." :auto-size="{ minRows: 1, maxRows: 4 }"
+        <a-textarea 
+          v-model="inputText" 
+          placeholder="输入消息..." 
+          :auto-size="{ minRows: 1, maxRows: 4 }"
+          :max-length="512"
+          show-word-limit
+          :error="inputText.length > 512"
           @keydown.enter.exact.prevent="sendMessage"
-          @input="handleTyping" />
-        <a-button type="primary" @click="sendMessage" :disabled="!inputText.trim()">
+          @input="handleTyping" 
+        />
+        <a-button type="primary" @click="sendMessage" :disabled="!inputText.trim() || inputText.length > 512">
           发送
         </a-button>
       </template>
     </div>
 
     <!-- 强行发送消息弹窗 -->
-    <a-modal 
+    <ModalWrapper 
       v-model:visible="forceSendModalVisible" 
       title="强行发送消息"
       @ok="handleForceSend"
@@ -72,9 +79,12 @@
         v-model="forceSendText" 
         placeholder="输入要发送的消息..." 
         :auto-size="{ minRows: 3, maxRows: 6 }"
+        :max-length="512"
+        show-word-limit
+        :error="forceSendText.length > 512"
         style="margin-top: 16px;"
       />
-    </a-modal>
+    </ModalWrapper>
   </div>
 </template>
 
@@ -84,6 +94,7 @@ import { Message, Modal } from '@arco-design/web-vue';
 import { IconMore, IconStop, IconExclamationCircleFill } from '@arco-design/web-vue/es/icon';
 import ChatMessageItem from './ChatMessageItem.vue';
 import Avatar from '@/components/base/avatar/Avatar.vue';
+import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import api from '@/api';
 import chatWebSocket from '@/services/chatWebSocket';
 import { useUserStore } from '@/store/user';
@@ -214,6 +225,11 @@ const showForceSendModal = () => {
 const handleForceSend = () => {
   if (!forceSendText.value.trim()) {
     Message.warning('请输入消息内容');
+    return;
+  }
+
+  if (forceSendText.value.length > 512) {
+    Message.error('消息长度不能超过512个字符');
     return;
   }
 
