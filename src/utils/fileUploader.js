@@ -55,7 +55,10 @@ export async function uploadFile(file, onProgress = null) {
     // 5. 直接上传到 TOS
     const uploadResponse = await fetch(data.url, {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers: {
+        'Cache-Control': 'max-age=3600'
+      }
     });
 
     if (!uploadResponse.ok) {

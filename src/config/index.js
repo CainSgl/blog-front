@@ -6,10 +6,7 @@ const getApiBaseUrl = () => {
   if (import.meta.env.DEV) {
     return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
   }
-  
-  // 生产环境：使用当前域名 + /api
-  const { protocol, hostname } = window.location;
-  return `${protocol}//${hostname}/api`;
+  return `https://cainsgl.cn/api`;
 };
 
 export const API_BASE_URL = getApiBaseUrl();

@@ -10,8 +10,9 @@ import '@kangc/v-md-editor/lib/plugins/tip/tip.css';
 import createEmojiPlugin from '@kangc/v-md-editor/lib/plugins/emoji/index';
 import '@kangc/v-md-editor/lib/plugins/emoji/emoji.css';
 import createKatexPlugin from '@kangc/v-md-editor/lib/plugins/katex/npm.js';
-import createMermaidPlugin from '@kangc/v-md-editor/lib/plugins/mermaid/npm.js';
-import '@kangc/v-md-editor/lib/plugins/mermaid/mermaid.css';
+// Mermaid 改为动态导入，减少首屏加载
+// import createMermaidPlugin from '@kangc/v-md-editor/lib/plugins/mermaid/npm.js';
+// import '@kangc/v-md-editor/lib/plugins/mermaid/mermaid.css';
 import createTodoListPlugin from '@kangc/v-md-editor/lib/plugins/todo-list/index';
 import '@kangc/v-md-editor/lib/plugins/todo-list/todo-list.css';
 import createLineNumbertPlugin from '@kangc/v-md-editor/lib/plugins/line-number/index';
@@ -22,7 +23,8 @@ import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css';
 import createAlignPlugin from '@kangc/v-md-editor/lib/plugins/align';
 // External libraries
 import katex from 'katex';
-import mermaid from 'mermaid';
+// mermaid 改为动态导入
+// import mermaid from 'mermaid';
 
 // highlight.js
 import hljs from 'highlight.js';
@@ -400,7 +402,21 @@ VMdEditor.use(vuepressTheme, {
 VMdEditor.use(createTipPlugin({ name: 'tip-plugin' }));
 VMdEditor.use(createEmojiPlugin());
 VMdEditor.use(createKatexPlugin({ katex }));
-VMdEditor.use(createMermaidPlugin({ mermaid }));
+// Mermaid 插件动态加载
+let mermaidPluginLoaded = false;
+export const loadMermaidPlugin = async () => {
+  if (mermaidPluginLoaded) return;
+  
+  const [createMermaidPlugin, mermaid] = await Promise.all([
+    import('@kangc/v-md-editor/lib/plugins/mermaid/npm.js'),
+    import('mermaid'),
+    import('@kangc/v-md-editor/lib/plugins/mermaid/mermaid.css')
+  ]);
+  
+  VMdEditor.use(createMermaidPlugin.default({ mermaid: mermaid.default }));
+  mermaidPluginLoaded = true;
+};
+
 VMdEditor.use(createTodoListPlugin());
 VMdEditor.use(createLineNumbertPlugin());
 VMdEditor.use(createHighlightLinesPlugin());

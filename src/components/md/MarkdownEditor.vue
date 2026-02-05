@@ -158,7 +158,7 @@ import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import VuePickColors from 'vue-pick-colors';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
-import VMdEditor from '@/plugins/v-md-editor';
+import VMdEditor, { loadMermaidPlugin } from '@/plugins/v-md-editor';
 import {uploadFile} from '@/utils/fileUploader.js';
 const formatButtons1 = [
   {
@@ -1619,6 +1619,8 @@ const insertMusic = () => {
 
 
 onMounted(async () => {
+  // 动态加载 Mermaid 插件（仅在编辑器页面加载）
+  await loadMermaidPlugin();
 });
 
 </script>
