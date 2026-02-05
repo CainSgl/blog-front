@@ -24,7 +24,7 @@
           </div>
 
           <!-- 评论区 -->
-          <a-divider dashed ref="commentDividerRef" />
+          <a-divider dashed />
           <CommentList :noCommentsText="'看来大家都没什么意见'" :commentCountText="'留下你宝贵的意见吧'" :version="version" :postId="announcement.id"
             :postCount="announcement.commentCount" />
         </div>
@@ -50,7 +50,6 @@ const commentStore = useCommentStore();
 const announcement = ref(null);
 const loading = ref(true);
 const version = ref();
-const commentDividerRef = ref(null);
 
 onMounted(async () => {
   await fetchAnnouncement();
@@ -86,16 +85,16 @@ const fetchAnnouncement = async () => {
 .announcement-page {
   width: 100%;
   min-height: 100vh;
-  background: @color-fill-1;
+  background: var(--color-bg-1);
   padding: @size-5;
 }
 
 .announcement-container {
   max-width: 1200px;
   margin: 0 auto;
-  background: @color-bg-white;
+  background: var(--color-bg-2);
   border-radius: @size-3;
-  box-shadow: 0 2px 12px fade(#000, 8%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -113,7 +112,7 @@ const fetchAnnouncement = async () => {
 .announcement-header {
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: @border-1 solid @color-border-2;
+  border-bottom: 1px solid var(--color-border-2);
 }
 
 .announcement-title {
