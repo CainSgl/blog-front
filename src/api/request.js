@@ -78,6 +78,7 @@ service.interceptors.response.use(
             // 如果清除失败，忽略错误
           }
         }
+        userStore.clearUserInfo();
         const msgInstance = Message.warning({
           id: '40100',
           content: '登录似乎过期了，请重新登录',

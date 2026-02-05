@@ -36,6 +36,10 @@
                 <template #icon><icon-settings /></template>
                 更新信息
               </a-doption>
+              <a-doption v-if="isCurrentUser" @click="handlePublishAllPosts(kb.id)">
+                <template #icon><icon-public /></template>
+                公开所有未发布文档
+              </a-doption>
               <a-doption v-if="isCurrentUser" @click="handleDeleteKb(kb.id)">
                 <template #icon><icon-delete /></template>
                 删除该知识库
@@ -106,6 +110,43 @@
     <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible" :aspect-ratio="1"
       @confirm="handleCroppedImage" />
 
+    <!-- 公开所有文档进度弹窗 -->
+    <ModalWrapper v-model:visible="publishProgressVisible" title="公开文档进度" :footer="false" width="600px"
+      :closable="!publishInProgress">
+      <div class="publish-progress-container">
+        <div v-if="publishInProgress" class="progress-info">
+          <a-progress :percent="publishProgress/100" :status="publishStatus" />
+          <div class="progress-text">
+            {{ publishProgressText }}
+          </div>
+        </div>
+        <div v-else class="progress-result">
+          <a-result :status="publishResultStatus" :title="publishResultTitle">
+            <template #subtitle>
+              {{ publishResultSubtitle }}
+            </template>
+            <template #extra>
+              <a-button type="primary" @click="publishProgressVisible = false">
+                关闭
+              </a-button>
+            </template>
+          </a-result>
+        </div>
+        <div v-if="publishLogs.length > 0" class="publish-logs">
+          <a-divider>处理日志</a-divider>
+          <div class="log-list">
+            <div v-for="(log, index) in publishLogs" :key="index" class="log-item"
+              :class="{ 'log-success': log.status === 'success', 'log-failed': log.status === 'failed' }">
+              <icon-check-circle v-if="log.status === 'success'" class="log-icon success" />
+              <icon-close-circle v-if="log.status === 'failed'" class="log-icon failed" />
+              <span class="log-title">{{ log.title }}</span>
+              <span v-if="log.message" class="log-message">{{ log.message }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ModalWrapper>
+
     <!-- 删除知识库确认弹窗 -->
     <ModalWrapper v-model:visible="deleteModalVisible" :title="`是否删除 ${deleteKbInfo.name}？`" @cancel="handleCancelDelete"
       :footer="true" width="500px">
@@ -139,7 +180,7 @@
 <script setup>
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IconDelete, IconHome, IconPlus, IconSettings } from '@arco-design/web-vue/es/icon';
+import { IconCheckCircle, IconCloseCircle, IconDelete, IconHome, IconPlus, IconPublic, IconSettings } from '@arco-design/web-vue/es/icon';
 import { Message, Upload } from '@arco-design/web-vue';
 import KbCard from '@/components/kb/KbCard.vue';
 import api from '@/api/index.js';
@@ -150,6 +191,7 @@ import CImg from '@/components/base/image/cImg.vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import ModalWrapper from '@/components/base/ModalWrapper.vue';
 import { uploadFile } from '@/utils/fileUploader.js';
+import { API_BASE_URL } from '@/config';
 
 // 定义排序选项
 const sortOptions = [
@@ -639,6 +681,126 @@ const handlePageSizeChange = (newPageSize) => {
   currentPage.value = 1;
   loadKnowledgeBases(1);
 };
+
+// 公开所有未发布文档相关
+const publishProgressVisible = ref(false);
+const publishInProgress = ref(false);
+const publishProgress = ref(0);
+const publishStatus = ref('normal');
+const publishProgressText = ref('');
+const publishResultStatus = ref('success');
+const publishResultTitle = ref('');
+const publishResultSubtitle = ref('');
+const publishLogs = ref([]);
+
+// 处理公开所有文档
+const handlePublishAllPosts = async (kbId) => {
+  publishProgressVisible.value = true;
+  publishInProgress.value = true;
+  publishProgress.value = 0;
+  publishStatus.value = 'normal';
+  publishProgressText.value = '准备开始...';
+  publishLogs.value = [];
+
+  let totalCount = 0;
+  let successCount = 0;
+  let failedCount = 0;
+
+  try {
+    // 获取 token 用于 SSE 认证
+    const token = userStore.getToken();
+    const url = new URL(`${API_BASE_URL}/post/kb/publish-all-posts`);
+    url.searchParams.append('kbId', kbId);
+    if (token) {
+      url.searchParams.append('token', token);
+    }
+    
+    const eventSource = new EventSource(url.toString(), {
+      withCredentials: true
+    });
+
+    eventSource.addEventListener('start', (e) => {
+      const data = JSON.parse(e.data);
+      totalCount = data.total;
+      publishProgressText.value = `共找到 ${totalCount} 个未发布文档`;
+    });
+
+    eventSource.addEventListener('progress', (e) => {
+      const data = JSON.parse(e.data);
+      const percent = Math.round((data.processed / data.total) * 100);
+      publishProgress.value = percent;
+      publishProgressText.value = `正在处理: ${data.processed}/${data.total} - ${data.title}`;
+
+      if (data.status === 'success') {
+        successCount++;
+      } else if (data.status === 'failed') {
+        failedCount++;
+      }
+
+      publishLogs.value.push({
+        title: data.title,
+        status: data.status,
+        message: data.message || ''
+      });
+    });
+
+    eventSource.addEventListener('complete', (e) => {
+      const data = JSON.parse(e.data);
+      publishInProgress.value = false;
+      publishStatus.value = data.failed > 0 ? 'warning' : 'success';
+
+      if (data.failed === 0) {
+        publishResultStatus.value = 'success';
+        publishResultTitle.value = '全部公开成功';
+        publishResultSubtitle.value = `成功公开 ${data.success} 个文档`;
+      } else {
+        publishResultStatus.value = 'warning';
+        publishResultTitle.value = '部分文档公开失败';
+        publishResultSubtitle.value = `成功 ${data.success} 个，失败 ${data.failed} 个`;
+      }
+
+      eventSource.close();
+      Message.success('文档公开处理完成');
+    });
+
+    eventSource.addEventListener('info', (e) => {
+      const data = JSON.parse(e.data);
+      publishInProgress.value = false;
+      publishResultStatus.value = 'info';
+      publishResultTitle.value = '无需处理';
+      publishResultSubtitle.value = data.message;
+      eventSource.close();
+    });
+
+    eventSource.addEventListener('error', (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        Message.error(`处理出错: ${data.message}`);
+      } catch (err) {
+        console.error('SSE error event:', e);
+      }
+    });
+
+    eventSource.onerror = (err) => {
+      console.error('SSE connection error:', err);
+      publishInProgress.value = false;
+      publishStatus.value = 'danger';
+      publishResultStatus.value = 'error';
+      publishResultTitle.value = '连接失败';
+      publishResultSubtitle.value = '无法连接到服务器，请稍后重试';
+      eventSource.close();
+      Message.error('连接失败，请稍后重试');
+    };
+  } catch (error) {
+    console.error('公开文档失败:', error);
+    publishInProgress.value = false;
+    publishStatus.value = 'danger';
+    publishResultStatus.value = 'error';
+    publishResultTitle.value = '操作失败';
+    publishResultSubtitle.value = error.message || '未知错误';
+    Message.error('操作失败，请稍后重试');
+  }
+};
 </script>
 
 <style lang="less" scoped>
@@ -806,6 +968,81 @@ const handlePageSizeChange = (newPageSize) => {
 @media (max-width: 1080px) {
   :deep(.arco-page-header .arco-page-header-extra) {
     margin-top: 16px;
+  }
+}
+
+.publish-progress-container {
+  padding: 20px 0;
+
+  .progress-info {
+    .progress-text {
+      margin-top: 16px;
+      text-align: center;
+      color: var(--color-text-2);
+      font-size: 14px;
+    }
+  }
+
+  .progress-result {
+    padding: 20px 0;
+  }
+
+  .publish-logs {
+    margin-top: 24px;
+
+    .log-list {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      background-color: var(--color-fill-1);
+      transition: all 0.3s ease;
+
+      &.log-success {
+        background-color: color-mix(in srgb, rgb(var(--success-1)) 30%, transparent);
+      }
+
+      &.log-failed {
+        background-color: color-mix(in srgb, rgb(var(--danger-1)) 30%, transparent);
+      }
+
+      .log-icon {
+        font-size: 16px;
+        margin-right: 8px;
+        flex-shrink: 0;
+
+        &.success {
+          color: @success-6;
+        }
+
+        &.failed {
+          color: @danger-6;
+        }
+      }
+
+      .log-title {
+        flex: 1;
+        color: var(--color-text-1);
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .log-message {
+        margin-left: 8px;
+        color: var(--color-text-3);
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+    }
   }
 }
 </style>

@@ -21,6 +21,7 @@ import CodeBlock from './common/CodeBlock.vue';
 import CommentableParagraph from '../comment/CommentableParagraph.vue';
 import ShareFile from './common/ShareFile.vue';
 import MusicPlayer from './common/MusicPlayer.vue';
+import VideoPlayer from './common/VideoPlayer.vue';
 import {API_BASE_URL} from '@/config';
 import containerExtension from '@/plugins/md-tip-info-extens.js';
 import {useTocStore} from './common/toc/toc.js';
@@ -482,6 +483,32 @@ const processDynamicComponents = async () =>
       musicPlayerApp.use(ArcoVue);
       // 挂载到容器
       musicPlayerApp.mount(container);
+    });
+
+    // 处理视频播放器占位符
+    const videoPlayerPlaceholders = previewContentRef.value.querySelectorAll('.video-player-placeholder');
+    videoPlayerPlaceholders.forEach(placeholder => 
+    {
+      const fileId = decodeURIComponent(placeholder.getAttribute('data-file-id'));
+      const description = decodeURIComponent(placeholder.getAttribute('data-description'));
+
+      // 创建一个容器来放置 VideoPlayer 组件
+      const container = document.createElement('div');
+      container.className = 'video-player-container';
+      placeholder.parentNode.replaceChild(container, placeholder);
+
+      const videoPlayerApp = createApp({
+        render() 
+        {
+          return h(VideoPlayer, {
+            fileId: fileId,
+            description: description
+          });
+        }
+      });
+      videoPlayerApp.use(ArcoVue);
+      // 挂载到容器
+      videoPlayerApp.mount(container);
     });
   }
 };

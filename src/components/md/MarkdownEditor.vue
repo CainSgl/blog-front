@@ -147,6 +147,7 @@ import {
   IconLink,
   IconMusic,
   IconOrderedList,
+  IconPlayCircle,
   IconQuote,
   IconRedo,
   IconStrikethrough,
@@ -248,6 +249,13 @@ const formatButtons2 = [
     title: "插入音乐",
     icon: IconMusic,
     handler: () => insertMusic()
+  },
+  {
+    content: "插入视频/动图",
+    type: "video",
+    title: "插入视频/动图",
+    icon: IconPlayCircle,
+    handler: () => insertVideo()
   }
 ];
 const menuItems = [
@@ -317,6 +325,12 @@ const menuItems = [
     label: '插入链接',
     icon: IconLink,
     handler: () => insertLink()
+  },
+  {
+    type: 'video',
+    label: '插入视频/动图',
+    icon: IconPlayCircle,
+    handler: () => insertVideo()
   }
 ];
 
@@ -1527,8 +1541,8 @@ const insertShareFile = () => {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
 
-        // 插入 share 格式：:::share fileId 文件名\n:::\n
-        const shareMarkdown = `\n:::share ${fileId} ${file.name}\n:::\n`;
+        // 插入 share 格式：:::share fileId \n 文件名\n:::\n
+        const shareMarkdown = `\n:::share ${fileId} \n ${file.name}\n:::\n`;
         const newText = text.value.substring(0, start) + shareMarkdown + text.value.substring(end);
         text.value = newText;
 
@@ -1587,8 +1601,8 @@ const insertMusic = () => {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
 
-        // 插入 music 格式：:::music fileId 音乐名称\n:::\n
-        const musicMarkdown = `\n:::music ${fileId} ${file.name}\n:::\n`;
+        // 插入 music 格式：:::music fileId\n 音乐名称\n:::\n
+        const musicMarkdown = `\n:::music ${fileId} \n ${file.name}\n:::\n`;
         const newText = text.value.substring(0, start) + musicMarkdown + text.value.substring(end);
         text.value = newText;
 
@@ -1608,6 +1622,69 @@ const insertMusic = () => {
         Message.error({
           id: 'upload-music:' + file.name,
           content: '音乐上传失败，请稍后重试',
+          duration: 3000,
+        });
+      }
+    }
+  };
+  fileInput.click();
+};
+
+// 插入视频/动图
+const insertVideo = () => {
+  // 触发文件选择对话框
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'video/*,image/gif'; // 接受视频文件和GIF
+  fileInput.onchange = async (e) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      
+      try {
+        const isGif = file.type === 'image/gif';
+        const fileType = isGif ? '动图' : '视频';
+        
+        Message.loading({
+          id: 'upload-video:' + file.name,
+          content: file.name + ` ${fileType}上传中...`,
+          duration: 15000,
+        });
+
+        // 使用文件上传工具类上传
+        const { fileId } = await uploadFile(file);
+
+        // 获取编辑器和光标位置
+        const editor = editorRef.value;
+        if (!editor) return;
+
+        const textarea = editor.$refs.editorEgine?.textareaEl || editor.$el.querySelector('textarea');
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        // 插入 video 格式：:::video fileId \n 视频名称\n:::\n
+        const videoMarkdown = `\n:::video ${fileId} \n ${file.name}\n:::\n`;
+        const newText = text.value.substring(0, start) + videoMarkdown + text.value.substring(end);
+        text.value = newText;
+
+        // 设置光标位置到视频块后面
+        setTimeout(() => {
+          textarea.setSelectionRange(start + videoMarkdown.length, start + videoMarkdown.length);
+          textarea.focus();
+        }, 0);
+
+        Message.success({
+          id: 'upload-video:' + file.name,
+          content: `${fileType}上传成功`,
+          duration: 3000,
+        });
+      } catch (error) {
+        console.error('视频上传失败:', error);
+        Message.error({
+          id: 'upload-video:' + file.name,
+          content: '视频上传失败，请稍后重试',
           duration: 3000,
         });
       }

@@ -47,6 +47,15 @@ const containerExtension = {
       return `<div class="music-player-placeholder" data-music-id="${musicId}" data-file-id="${encodeURIComponent(token.title)}" data-description="${encodeURIComponent(token.content)}">Loading music player...</div>`;
     }
     
+    // 处理 video 类型 - 创建占位符，稍后用 Vue 组件替换
+    if (token.kind === 'video') 
+    {
+      // token.title 包含 "id 视频名称"
+      // token.content 可能包含额外的内容（如果有的话）
+      const videoId = ++globalShareIdCounter;
+      return `<div class="video-player-placeholder" data-video-id="${videoId}" data-file-id="${encodeURIComponent(token.title)}" data-description="${encodeURIComponent(token.content)}">Loading video player...</div>`;
+    }
+    
     // 定义容器类型映射
     const containerTypes = {
       info: { class: 'cainsgl-container-info', title: '信息' },
