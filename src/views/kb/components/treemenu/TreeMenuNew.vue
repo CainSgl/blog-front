@@ -397,8 +397,38 @@ const actionHandlers = {
       loading.value -= 1;
     }
   },
-  'import': (node) => {
-    //后面再做 TODO
+  'import': async (node) => {
+    try {
+      // 创建文件输入元素，支持选择文件夹
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.webkitdirectory = true;
+      input.multiple = true;
+      
+      input.onchange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+        
+        loading.value += 1;
+        const messageId = 'import-files';
+        Message.loading({ id: messageId, content: '正在导入文件...' });
+        
+        try {
+          await importFiles(files, node);
+          Message.success({ id: messageId, content: '导入成功！' });
+        } catch (error) {
+          console.error('导入失败:', error);
+          Message.error({ id: messageId, content: '导入失败：' + (error.message || '未知错误') });
+        } finally {
+          loading.value -= 1;
+        }
+      };
+      
+      input.click();
+    } catch (error) {
+      console.error('打开文件选择器失败:', error);
+      Message.error('打开文件选择器失败');
+    }
   },
   'rename': (node) => {
     startRename(node);
@@ -1160,6 +1190,150 @@ function startMoveDirs() {
       moveDirItem = null;
     }
   }, 100);
+}
+
+// 导入文件功能
+async function importFiles(files, parentNode) {
+  // 过滤只保留 .md 和 .txt 文件
+  const validFiles = files.filter(file => {
+    const ext = file.name.toLowerCase().split('.').pop();
+    return ext === 'md' || ext === 'txt';
+  });
+
+  if (validFiles.length === 0) {
+    Message.warning('没有找到可导入的文件（仅支持 .md 和 .txt 文件）');
+    return;
+  }
+
+  // 构建文件树结构
+  const fileTree = buildFileTree(validFiles);
+  
+  // 递归创建目录和上传文件
+  await processFileTree(fileTree, parentNode);
+}
+
+// 构建文件树结构
+function buildFileTree(files) {
+  const tree = {};
+  
+  files.forEach(file => {
+    const pathParts = file.webkitRelativePath.split('/');
+    let current = tree;
+    
+    pathParts.forEach((part, index) => {
+      if (index === pathParts.length - 1) {
+        // 这是文件
+        if (!current._files) current._files = [];
+        current._files.push(file);
+      } else {
+        // 这是目录
+        if (!current[part]) {
+          current[part] = {};
+        }
+        current = current[part];
+      }
+    });
+  });
+  
+  return tree;
+}
+
+// 递归处理文件树
+async function processFileTree(tree, parentNode, basePath = '') {
+  const parentId = parentNode?.id || null;
+  
+  // 处理当前层级的所有目录
+  for (const [name, content] of Object.entries(tree)) {
+    if (name === '_files') continue;
+    
+    // 创建目录
+    const dirNode = await createDirectory(name, parentId);
+    
+    // 递归处理子目录
+    await processFileTree(content, dirNode, basePath + name + '/');
+  }
+  
+  // 处理当前层级的所有文件
+  if (tree._files) {
+    for (const file of tree._files) {
+      await uploadFile(file, parentId);
+    }
+  }
+}
+
+// 创建目录
+async function createDirectory(name, parentId) {
+  try {
+    const { data } = await api.post('/post/dir', {
+      name,
+      kbId: props.kbId,
+      parentId,
+    });
+    
+    const newNode = {
+      id: data,
+      name,
+      parentId,
+      depth: parentId ? (flatNodes.value.find(n => n.id === parentId)?.depth || 0) + 1 : 0,
+      children: []
+    };
+    
+    addChildNode(parentId ? flatNodes.value.find(n => n.id === parentId) : null, newNode);
+    
+    return newNode;
+  } catch (error) {
+    console.error('创建目录失败:', name, error);
+    throw new Error(`创建目录 ${name} 失败`);
+  }
+}
+
+// 上传文件
+async function uploadFile(file, parentId) {
+  try {
+    // 读取文件内容
+    const content = await readFileContent(file);
+    
+    // 获取文件名（不含扩展名）作为文档标题
+    const title = file.name.replace(/\.(md|txt)$/i, '');
+    
+    // 创建文档（先创建空文档）
+    const { data } = await api.post('/post', {
+      title,
+      kbId: props.kbId,
+      parentId,
+    });
+    
+    // 更新文档内容
+    await api.put('/post', {
+      id: data.post.id,
+      content,
+      auto: false
+    });
+    
+    const newNode = {
+      id: data.dirId,
+      name: title,
+      parentId,
+      postId: data.post.id,
+      depth: parentId ? (flatNodes.value.find(n => n.id === parentId)?.depth || 0) + 1 : 0,
+      children: []
+    };
+    
+    addChildNode(parentId ? flatNodes.value.find(n => n.id === parentId) : null, newNode);
+  } catch (error) {
+    console.error('上传文件失败:', file.name, error);
+    throw new Error(`上传文件 ${file.name} 失败`);
+  }
+}
+
+// 读取文件内容
+function readFileContent(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = (e) => reject(new Error('读取文件失败'));
+    reader.readAsText(file, 'UTF-8');
+  });
 }
 
 

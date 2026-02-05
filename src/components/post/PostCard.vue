@@ -53,19 +53,24 @@
           </div>
           <div class="footer">
             <!-- 标签 -->
-            <div class="post-tags" v-if="post.tags && post.tags.length > 0">
-              <a-space wrap>
-                <template v-for="(tag, index) in post.tags" :key="index">
+            <div class="post-tags" v-if="post.tags && post.tags.length > 0" ref="tagsContainer">
+              <div class="tags-wrapper">
+                <template v-for="(tag, index) in visibleTags" :key="index">
                   <TooltipWrapper v-if="getTagScore(tag)" :content="getTagScore(tag)" position="top">
-                    <a-tag color="arcoblue">
+                    <a-tag color="arcoblue" class="tag-item" @click="handleTagClick($event, tag)">
                       {{ getTagDisplayName(tag) }}
                     </a-tag>
                   </TooltipWrapper>
-                  <a-tag v-else color="arcoblue">
+                  <a-tag v-else color="arcoblue" class="tag-item" @click="handleTagClick($event, tag)">
                     {{ getTagDisplayName(tag) }}
                   </a-tag>
                 </template>
-              </a-space>
+                <TooltipWrapper v-if="hiddenTagsCount > 0" :content="hiddenTagsTooltip" position="top">
+                  <a-tag color="gray" class="tag-item hidden-count">
+                    +{{ hiddenTagsCount }}
+                  </a-tag>
+                </TooltipWrapper>
+              </div>
             </div>
             <div class="post-stats-footer-wrapper" v-if="showBottom">
               <!-- 统计数据和时间信息容器 -->
@@ -108,7 +113,7 @@
 
 <script setup>
 import {IconEye, IconHeart, IconMessage} from '@arco-design/web-vue/es/icon';
-import {computed} from 'vue';
+import {computed, ref, onMounted, nextTick, watch} from 'vue';
 import CImg from '../base/image/cImg.vue';
 import TooltipWrapper from '../base/TooltipWrapper.vue';
 import {formatDate} from '@/utils/DateFormatter.js';
@@ -152,6 +157,12 @@ const TITLE_HEIGHT = 36;
 const FOOTER_HEIGHT = 70;
 const TAGS_HEIGHT_WITH_TAGS = 50;
 const TAGS_HEIGHT_WITHOUT_TAGS = 10;
+const TAG_HEIGHT = 24; // 单个标签高度
+
+// 标签容器引用
+const tagsContainer = ref(null);
+const visibleTags = ref([]);
+const hiddenTagsCount = ref(0);
 
 // 布局模式
 const isVerticalLayout = computed(() => props.width <= LAYOUT_BREAKPOINT);
@@ -219,11 +230,83 @@ const getTagScore = (tag) => {
   return null;
 };
 
+// 隐藏标签的提示内容
+const hiddenTagsTooltip = computed(() => {
+  if (hiddenTagsCount.value === 0 || !props.post.tags) return '';
+  const hiddenTags = props.post.tags.slice(visibleTags.value.length);
+  return hiddenTags.map(tag => getTagDisplayName(tag)).join(', ');
+});
+
+// 计算可见标签
+const calculateVisibleTags = () => {
+  if (!props.post.tags || props.post.tags.length === 0) {
+    visibleTags.value = [];
+    hiddenTagsCount.value = 0;
+    return;
+  }
+
+  // 如果标签数量少，直接全部显示
+  if (props.post.tags.length <= 3) {
+    visibleTags.value = props.post.tags;
+    hiddenTagsCount.value = 0;
+    return;
+  }
+
+  // 估算每个标签的宽度（字符数 * 8 + 24px padding）
+  const availableWidth = props.width - 40; // 减去卡片padding
+  const plusTagWidth = 50; // +N 标签的宽度
+  let currentWidth = 0;
+  let count = 0;
+
+  for (let i = 0; i < props.post.tags.length; i++) {
+    const tagName = getTagDisplayName(props.post.tags[i]);
+    const tagWidth = tagName.length * 8 + 32 + 8; // 字符宽度 + padding + margin
+    
+    // 如果不是最后一个标签，需要预留 +N 标签的空间
+    const needPlusTag = i < props.post.tags.length - 1;
+    const requiredWidth = currentWidth + tagWidth + (needPlusTag ? plusTagWidth : 0);
+    
+    if (requiredWidth > availableWidth) {
+      break;
+    }
+    
+    currentWidth += tagWidth;
+    count++;
+  }
+
+  // 至少显示一个标签
+  count = Math.max(1, count);
+  
+  visibleTags.value = props.post.tags.slice(0, count);
+  hiddenTagsCount.value = props.post.tags.length - count;
+};
+
+// 监听宽度和标签变化
+watch(() => [props.width, props.post.tags], () => {
+  nextTick(() => {
+    calculateVisibleTags();
+  });
+}, { immediate: true, deep: true });
+
+onMounted(() => {
+  nextTick(() => {
+    calculateVisibleTags();
+  });
+});
+
 // 事件处理
 const handleCardClick = () => {
   if (props.post.id) {
     emit('clickCard', props.post);
   }
+};
+
+// 标签点击事件
+const handleTagClick = (event, tag) => {
+  event.stopPropagation(); // 阻止冒泡到卡片点击事件
+  const tagName = getTagDisplayName(tag);
+  const searchUrl = `/search?mode=term&query=${encodeURIComponent(tagName)}&filters=title,tag`;
+  window.open(searchUrl, '_blank');
 };
 </script>
 
@@ -373,6 +456,35 @@ const handleCardClick = () => {
 .post-tags {
   margin-top: 10px;
   margin-bottom: 8px;
+  overflow: hidden;
+  max-height: 24px; /* 限制为一行标签的高度 */
+}
+
+.tags-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.tag-item {
+  flex-shrink: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.tag-item:hover {
+  transform: translateY(-2px);
+}
+
+.hidden-count {
+  cursor: default;
+  user-select: none;
+}
+
+.hidden-count:hover {
+  transform: none;
 }
 
 .post-stats-footer-container {

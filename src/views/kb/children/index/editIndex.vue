@@ -336,8 +336,8 @@ onMounted(() =>
   flex-direction: column;
 
   .header {
-    background: #fff;
-    border-bottom: 1px solid #e5e6eb;
+    background: var(--color-bg-2);
+    border-bottom: 1px solid var(--color-border-2);
     padding: 5px 24px;
     display: flex;
     align-items: center;

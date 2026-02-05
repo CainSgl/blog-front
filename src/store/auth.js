@@ -21,6 +21,8 @@ export const useAuthStore = defineStore('auth', () =>
   const closeLogin = () => 
   {
     showLoginModal.value = false;
+    // 关闭登录弹窗时清空token等用户信息，避免重复弹出
+    userStore.clearUserInfo();
   };
 
   const login = async (credentials) => 

@@ -4,15 +4,35 @@
 </template>
 
 <script setup>
-import {defineAsyncComponent} from 'vue';
+import {defineAsyncComponent, onMounted} from 'vue';
 import {useAuthStore} from '@/store/auth';
 import {useThemeStore} from '@/store/theme';
+import {Modal} from '@arco-design/web-vue';
 
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
 
 // 初始化主题
 themeStore.initTheme();
+
+// 检测 HTTP 连接并强制跳转到 HTTPS
+onMounted(() => {
+  if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+    Modal.warning({
+      title: '连接不安全',
+      content: '当前连接不安全，请立即切换到 HTTPS 安全连接',
+      okText: '是',
+      hideCancel: true,
+      closable: false,
+      maskClosable: false,
+      escToClose: false,
+      onOk: () => {
+        const httpsUrl = window.location.href.replace('http://', 'https://');
+        window.location.replace(httpsUrl);
+      }
+    });
+  }
+});
 
 // 懒加载 LoginModal，只在需要时才加载 three.js 等重资源
 const LoginModal = defineAsyncComponent(() => 
