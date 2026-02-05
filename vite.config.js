@@ -5,6 +5,7 @@ import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import {ArcoResolver} from 'unplugin-vue-components/resolvers';
 import viteCompression from 'vite-plugin-compression';
+import {VitePWA} from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
@@ -20,6 +21,136 @@ export default defineConfig({
           importStyle: false
         })
       ]
+    }),
+    // PWA 支持
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['src/assets/icon2.webp', 'src/assets/Icon.svg'],
+      manifest: {
+        name: 'cainsgl的小站',
+        short_name: 'cainsgl',
+        description: '一个基于 Vue 3 的个人博客和知识库平台',
+        theme_color: '#165dff',
+        background_color: '#ffffff',
+        // 显示模式优先级（从高到低尝试）
+        display_override: ['window-controls-overlay', 'standalone'],
+        display: 'standalone',
+        start_url: '/',
+        scope: '/',
+        icons: [
+          {
+            src: '/src/assets/icon2.webp',
+            sizes: '192x192',
+            type: 'image/webp',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/src/assets/icon2.webp',
+            sizes: '512x512',
+            type: 'image/webp',
+            purpose: 'any maskable'
+          }
+        ],
+        // 桌面快捷方式
+        shortcuts: [
+          {
+            name: '首页',
+            short_name: '首页',
+            description: '查看最新文章和动态',
+            url: '/',
+            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+          },
+          {
+            name: '知识库',
+            short_name: '知识库',
+            description: '浏览知识库内容',
+            url: '/knowledge',
+            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+          },
+          {
+            name: '我的主页',
+            short_name: '我的',
+            description: '查看个人主页',
+            url: '/user',
+            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+          },
+          {
+            name: '消息中心',
+            short_name: '消息',
+            description: '查看消息和通知',
+            url: '/messages',
+            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+          }
+        ],
+        // 分享目标（允许其他应用分享内容到你的 PWA）
+        share_target: {
+          action: '/share',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url',
+            files: [
+              {
+                name: 'file',
+                accept: ['image/*', 'video/*', 'audio/*']
+              }
+            ]
+          }
+        },
+        // 屏幕方向
+        orientation: 'any',
+        // 分类
+        categories: ['blog', 'education', 'social']
+      },
+      workbox: {
+        // 增加文件大小限制到 5MB
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        // 只预缓存关键资源，其他资源按需缓存
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+        // 排除超大文件，使用运行时缓存
+        globIgnores: ['**/node_modules/**/*'],
+        // 缓存策略
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/api\.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 24 小时
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /\.(png|jpg|jpeg|svg|gif|webp)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'image-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 天
+              }
+            }
+          },
+          {
+            urlPattern: /\.(js|css)$/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-resources',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 天
+              }
+            }
+          }
+        ]
+      }
     }),
     // Gzip 压缩
     viteCompression({

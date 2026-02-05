@@ -1,6 +1,8 @@
 <template>
+  <PWATitleBar />
   <router-view />
   <LoginModal v-if="authStore.showLoginModal" />
+  <PWAInstallPrompt />
 </template>
 
 <script setup>
@@ -15,8 +17,17 @@ const themeStore = useThemeStore();
 // 初始化主题
 themeStore.initTheme();
 
-// 检测 HTTP 连接并强制跳转到 HTTPS
+// 检测 PWA 模式并添加 body class
 onMounted(() => {
+  const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+                window.navigator.standalone === true;
+  
+  if (isPWA) {
+    document.body.classList.add('pwa-mode');
+  }
+  
+  // 检测 HTTP 连接并强制跳转到 HTTPS
   if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
     Modal.warning({
       title: '连接不安全',
@@ -38,6 +49,17 @@ onMounted(() => {
 const LoginModal = defineAsyncComponent(() => 
   import('@/components/loginModal/LoginModal.vue')
 );
+
+// PWA 安装提示组件
+const PWAInstallPrompt = defineAsyncComponent(() =>
+  import('@/components/base/PWAInstallPrompt.vue')
+);
+
+// PWA 标题栏组件
+const PWATitleBar = defineAsyncComponent(() =>
+  import('@/components/base/PWATitleBar.vue')
+);
+
 
 </script>
 
