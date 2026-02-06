@@ -38,15 +38,14 @@ function navigateToPath(href, config) {
     // 检查是否为当前页面
     const currentPath = window.location.pathname + window.location.search + window.location.hash;
     if (path !== currentPath) {
-      if (config.debug) {
-        console.log('PWA 内部导航:', path);
-      }
+      safeLog('PWA 内部导航:', path);
+      showDebugNotification(`导航到: ${path}`);
       router.push(path);
       return true;
     }
     return false;
   } catch (error) {
-    console.error('PWA 导航失败:', error);
+    safeLog('PWA 导航失败:', error);
     return false;
   }
 }
@@ -58,8 +57,28 @@ const config = {
   // 是否拦截外部链接（true: 拦截并提示, false: 允许在浏览器打开）
   interceptExternalLinks: false,
   // 是否在控制台输出调试信息
-  debug: true
+  debug: false, // 生产环境默认关闭，避免被 terser 删除代码
+  // 是否显示通知（用于生产环境调试）
+  showNotification: false
 };
+
+// 安全的日志函数，不会被 terser 删除
+function safeLog(message, data) {
+  if (config.debug && typeof console !== 'undefined' && console.log) {
+    if (data !== undefined) {
+      console.log(message, data);
+    } else {
+      console.log(message);
+    }
+  }
+}
+
+// 显示通知（用于生产环境调试）
+function showDebugNotification(message) {
+  if (config.showNotification && 'Notification' in window && Notification.permission === 'granted') {
+    new Notification('PWA 链接拦截器', { body: message });
+  }
+}
 
 // 保存原始的 window.open 方法
 const originalWindowOpen = window.open;
@@ -83,9 +102,8 @@ function overrideWindowOpen() {
 
     // 检查是否为内部链接
     if (isInternalLink(urlString)) {
-      if (config.debug) {
-        console.log('拦截 window.open 内部链接:', urlString);
-      }
+      safeLog('拦截 window.open 内部链接:', urlString);
+      showDebugNotification(`拦截 window.open: ${urlString}`);
       
       // 在应用内导航
       navigateToPath(urlString, config);
@@ -100,9 +118,7 @@ function overrideWindowOpen() {
     } else {
       // 外部链接
       if (config.interceptExternalLinks) {
-        if (config.debug) {
-          console.log('拦截 window.open 外部链接:', urlString);
-        }
+        safeLog('拦截 window.open 外部链接:', urlString);
         
         if (confirm(`即将打开外部链接：\n${urlString}\n\n点击"确定"在浏览器中打开\n点击"取消"留在应用内`)) {
           return originalWindowOpen.call(window, url, target, features);
@@ -110,9 +126,7 @@ function overrideWindowOpen() {
         return null;
       } else {
         // 允许外部链接在浏览器中打开
-        if (config.debug) {
-          console.log('允许 window.open 外部链接:', urlString);
-        }
+        safeLog('允许 window.open 外部链接:', urlString);
         return originalWindowOpen.call(window, url, target, features);
       }
     }
@@ -127,15 +141,12 @@ export function initPWALinkHandler(options = {}) {
   Object.assign(config, options);
 
   if (!isPWAMode()) {
-    if (config.debug) {
-      console.log('非 PWA 模式，链接拦截器未启动');
-    }
+    safeLog('非 PWA 模式，链接拦截器未启动');
     return;
   }
 
-  if (config.debug) {
-    console.log('PWA 模式已激活，启用链接拦截器');
-  }
+  safeLog('PWA 模式已激活，启用链接拦截器');
+  showDebugNotification('PWA 链接拦截器已启动');
 
   // 1. 重写 window.open 方法
   overrideWindowOpen();
@@ -166,9 +177,8 @@ export function initPWALinkHandler(options = {}) {
         event.preventDefault();
         event.stopPropagation();
         
-        if (config.debug) {
-          console.log('拦截 target="_blank" 内部链接:', href);
-        }
+        safeLog('拦截 target="_blank" 内部链接:', href);
+        showDebugNotification(`拦截链接: ${href}`);
       } else {
         event.preventDefault();
         event.stopPropagation();
@@ -181,9 +191,7 @@ export function initPWALinkHandler(options = {}) {
       event.preventDefault();
       event.stopPropagation();
       
-      if (config.debug) {
-        console.log('拦截外部链接:', href);
-      }
+      safeLog('拦截外部链接:', href);
       
       // 显示提示，询问用户是否要在浏览器中打开
       if (confirm(`即将打开外部链接：\n${href}\n\n点击"确定"在浏览器中打开\n点击"取消"留在应用内`)) {
@@ -193,7 +201,5 @@ export function initPWALinkHandler(options = {}) {
     // 如果 interceptExternalLinks 为 false，外部链接会正常在浏览器中打开
   }, true); // 使用捕获阶段，确保在其他事件处理器之前执行
 
-  if (config.debug) {
-    console.log('PWA 链接拦截器已启动，配置:', config);
-  }
+  safeLog('PWA 链接拦截器已启动，配置:', config);
 }

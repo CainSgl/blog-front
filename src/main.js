@@ -12,6 +12,11 @@ import { registerSW } from 'virtual:pwa-register';
 // 导入 PWA 链接处理器
 import { initPWALinkHandler } from './utils/pwaLinkHandler';
 
+// 导入 PWA 诊断工具（开发环境）
+if (import.meta.env.DEV) {
+  import('./utils/pwaDiagnostics');
+}
+
 const app = createApp(App);
 const pinia = createPinia();
 
@@ -32,7 +37,11 @@ window.addEventListener('unhandledrejection', (event) =>
 app.mount('#app');
 
 // 初始化 PWA 链接拦截器（在应用挂载后）
-initPWALinkHandler();
+// 开发环境启用调试
+initPWALinkHandler({
+  debug: import.meta.env.DEV,
+  showNotification: false
+});
 
 // 注册 Service Worker（在应用挂载后）
 if ('serviceWorker' in navigator) {

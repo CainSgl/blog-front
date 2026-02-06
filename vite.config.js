@@ -44,6 +44,10 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         scope: '/',
+        // 这会让所有同域链接在 PWA 内打开
+        launch_handler: {
+          client_mode: 'navigate-existing'
+        },
         icons: [
           {
             src: '/android-chrome-192x192.png',

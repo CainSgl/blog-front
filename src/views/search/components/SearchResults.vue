@@ -279,7 +279,7 @@ onUnmounted(() => {
 
 .load-more-hint,
 .no-more-hint {
-    color: var(--color-neutral-4);
+    color: var(--color-neutral-6);
     font-size: 14px;
     text-align: center;
 }

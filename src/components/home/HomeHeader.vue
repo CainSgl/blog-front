@@ -22,7 +22,7 @@
     </div>
 
     <!-- 底部滚动提示 -->
-    <div class="scroll-hint" :class="{ 'reverse': isAtBottom, 'dark-text': isAtBottom }" @click="handleScrollHintClick">
+    <div class="scroll-hint" :class="{ 'dark-text': !isAtBottom }" @click="handleScrollHintClick">
       <div class="scroll-hint-text">{{ scrollHintText }}</div>
       <icon-double-down v-if="!isAtBottom" class="scroll-hint-icon" />
       <icon-double-up v-else class="scroll-hint-icon" />
@@ -244,6 +244,7 @@ const handleScrollHintClick = () =>
 
 .scroll-hint-text {
   font-size: @font-size-body-3;
+  color: var(--color-text-1);
   text-shadow: 0 2px 4px color-mix(in srgb, var(--color-neutral-10) 30%, transparent);
   letter-spacing: 1px;
   transition: all 0.3s ease;
@@ -251,6 +252,7 @@ const handleScrollHintClick = () =>
 
 .scroll-hint-icon {
   font-size: 24px;
+  color: var(--color-text-1);
   filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--color-neutral-10) 30%, transparent));
   animation: arrowBounce 4s ease-in-out infinite;
   transition: all 0.3s ease;

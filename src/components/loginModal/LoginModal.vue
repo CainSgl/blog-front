@@ -30,10 +30,10 @@
               <CodeLogin :is-loading="authStore.isLoading" @login-success="handleLoginSuccess" />
             </a-tab-pane>
           </a-tabs>
-          <a-link :href="'/p/2018449944307085313'" target="_ablank">
+          <a-link :href="'/p/2018449944307085313'" target="_ablank" @click="authStore.closeLogin">
             用户协议
           </a-link>
-          <a-link :href="registerUrl">
+          <a-link :href="registerUrl" @click="authStore.closeLogin">
             立即注册
           </a-link>
           <div>
