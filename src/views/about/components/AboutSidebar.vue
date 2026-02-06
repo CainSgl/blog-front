@@ -1,7 +1,12 @@
 <template>
     <!-- 遮罩层（仅手机端） -->
     <div v-if="!collapsed" class="sidebar-mask" @click="toggleCollapse"></div>
-    
+    <a-button type="text" size="large" @click="toggleCollapse" class="collapse-btn mobile-only-btn">
+        <template #icon>
+            <icon-menu-fold size="large" v-if="!collapsed" />
+            <icon-menu-unfold size="large" v-else />
+        </template>
+    </a-button>
     <div class="sidebar" :class="{ 'sidebar-collapsed': collapsed }">
         <div class="sidebar-header">
             <h2 v-show="!collapsed" style="color: var(--color-neutral-10);">关于本站</h2>
@@ -51,11 +56,11 @@
 </template>
 
 <script setup>
-import {computed, nextTick, onMounted, ref} from 'vue';
-import {useRoute, useRouter} from 'vue-router';
-import {IconMenuFold, IconMenuUnfold} from '@arco-design/web-vue/es/icon';
+import { computed, nextTick, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { IconMenuFold, IconMenuUnfold } from '@arco-design/web-vue/es/icon';
 import api from '@/api/index.js';
-import {Message} from '@arco-design/web-vue';
+import { Message } from '@arco-design/web-vue';
 
 const emit = defineEmits(['node-select']);
 const router = useRouter();
@@ -270,6 +275,7 @@ onMounted(() => {
     transition: width 0.3s ease, min-width 0.3s ease;
     overflow: hidden;
 
+  
     &.sidebar-collapsed {
         width: 60px;
         min-width: 60px;
@@ -288,7 +294,7 @@ onMounted(() => {
         margin: 0;
         font-size: 18px;
         font-weight: 600;
-        color: var(--color-text-1);
+        color: var(--color-neutral-10);
     }
 
     .collapse-btn {
@@ -378,7 +384,14 @@ onMounted(() => {
     display: none;
 }
 
+.mobile-only-btn {
+    display: none;
+}
+
 @media (max-width: 768px) {
+    .mobile-only-btn {
+        display: flex;
+    }
     .sidebar-mask {
         display: block;
         position: fixed;
@@ -395,6 +408,7 @@ onMounted(() => {
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }
@@ -424,7 +438,7 @@ onMounted(() => {
 
     .sidebar-header {
         padding: 16px 8px;
-        
+
         h2 {
             font-size: 16px;
         }
@@ -432,7 +446,7 @@ onMounted(() => {
         .collapse-btn {
             background-color: var(--color-bg-3);
             border-radius: 8px;
-            
+
             &:hover {
                 background-color: var(--color-fill-3);
             }
@@ -449,7 +463,7 @@ onMounted(() => {
             color: white;
             box-shadow: 0 2px 8px rgba(var(--primary-6), 0.3);
             animation: pulse 2s ease-in-out infinite;
-            
+
             &:hover {
                 background-color: rgb(var(--primary-5));
                 animation: none;
@@ -458,48 +472,37 @@ onMounted(() => {
     }
 
     @keyframes pulse {
-        0%, 100% {
+
+        0%,
+        100% {
             box-shadow: 0 2px 8px rgba(var(--primary-6), 0.3);
         }
+
         50% {
             box-shadow: 0 2px 16px rgba(var(--primary-6), 0.6);
         }
     }
 
     // 移动端浮动按钮（当侧边栏完全隐藏时显示）
-    .sidebar-collapsed::before {
-        content: '';
-        position: fixed;
-        left: 12px;
-        top: 80px;
-        width: 44px;
-        height: 44px;
-        background-color: rgb(var(--primary-6));
-        border-radius: 50%;
-        box-shadow: 0 2px 12px rgba(var(--primary-6), 0.4);
-        z-index: 80;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: pulse 2s ease-in-out infinite;
-    }
-
     .sidebar-collapsed .collapse-btn {
-        position: fixed;
-        left: 12px;
-        top: 80px;
-        width: 44px;
-        height: 44px;
-        background-color: rgb(var(--primary-6));
-        color: white;
-        border-radius: 50%;
-        box-shadow: 0 2px 12px rgba(var(--primary-6), 0.4);
-        z-index: 85;
+        position: fixed !important;
+        left: 12px !important;
+        top: 80px !important;
+        width: 44px !important;
+        height: 44px !important;
+        background-color: rgb(var(--primary-6)) !important;
+        color: white !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 12px rgba(var(--primary-6), 0.4) !important;
+        z-index: 100 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
         animation: pulse 2s ease-in-out infinite;
-        
+
         &:hover {
-            background-color: rgb(var(--primary-5));
+            background-color: rgb(var(--primary-5)) !important;
             animation: none;
         }
     }

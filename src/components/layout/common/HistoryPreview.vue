@@ -5,6 +5,7 @@
     :popup-offset="20"
     :show-arrow="false"
     :auto-fit-position="true"
+    :mouse-enter-delay="0"
     v-model:popup-visible="popupVisible"
     @popup-visible-change="handleVisibleChange"
   >

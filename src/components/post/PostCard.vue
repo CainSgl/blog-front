@@ -56,12 +56,12 @@
             <div class="post-tags" v-if="post.tags && post.tags.length > 0" ref="tagsContainer">
               <div class="tags-wrapper">
                 <template v-for="(tag, index) in visibleTags" :key="index">
-                  <TooltipWrapper v-if="getTagScore(tag)" :content="getTagScore(tag)" position="top">
-                    <a-tag color="arcoblue" class="tag-item" @click="handleTagClick($event, tag)">
+                  <TooltipWrapper v-if="getTagScore(tag)" :content="getTagScore(tag)" position="top" @click.stop>
+                    <a-tag color="arcoblue" class="tag-item" @click.stop="handleTagClick($event, tag)">
                       {{ getTagDisplayName(tag) }}
                     </a-tag>
                   </TooltipWrapper>
-                  <a-tag v-else color="arcoblue" class="tag-item" @click="handleTagClick($event, tag)">
+                  <a-tag v-else color="arcoblue" class="tag-item" @click.stop="handleTagClick($event, tag)">
                     {{ getTagDisplayName(tag) }}
                   </a-tag>
                 </template>
