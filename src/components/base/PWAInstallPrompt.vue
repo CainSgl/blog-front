@@ -21,8 +21,10 @@ const canInstall = ref(false);
 let deferredPrompt = null;
 
 const handleBeforeInstallPrompt = (e) => {
+
   deferredPrompt = e;
   canInstall.value = true;
+  console.log('PWA 可安装，浏览器会在合适时机显示安装提示');
 };
 
 const handleAppInstalled = () => {

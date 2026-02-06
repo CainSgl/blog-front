@@ -405,6 +405,7 @@ onMounted(() => {
 
   .main-content {
     width: 100%;
+    margin-left: 0; // 确保主内容不被侧边栏影响
   }
 
   .content-area {

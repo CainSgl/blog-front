@@ -1,5 +1,4 @@
 <template>
-  <PWATitleBar />
   <router-view />
   <LoginModal v-if="authStore.showLoginModal" />
 </template>
@@ -47,11 +46,6 @@ onMounted(() => {
 // 懒加载 LoginModal，只在需要时才加载 three.js 等重资源
 const LoginModal = defineAsyncComponent(() => 
   import('@/components/loginModal/LoginModal.vue')
-);
-
-// PWA 标题栏组件
-const PWATitleBar = defineAsyncComponent(() =>
-  import('@/components/base/PWATitleBar.vue')
 );
 
 

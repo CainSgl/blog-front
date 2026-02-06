@@ -414,10 +414,11 @@ onMounted(() => {
         max-width: 360px;
 
         &.sidebar-collapsed {
-            transform: translateX(calc(-100% + 48px));
-            width: 48px;
-            min-width: 48px;
+            transform: translateX(-100%);
+            width: 0;
+            min-width: 0;
             box-shadow: none;
+            border-right: none;
         }
     }
 
@@ -462,6 +463,44 @@ onMounted(() => {
         }
         50% {
             box-shadow: 0 2px 16px rgba(var(--primary-6), 0.6);
+        }
+    }
+
+    // 移动端浮动按钮（当侧边栏完全隐藏时显示）
+    .sidebar-collapsed::before {
+        content: '';
+        position: fixed;
+        left: 12px;
+        top: 80px;
+        width: 44px;
+        height: 44px;
+        background-color: rgb(var(--primary-6));
+        border-radius: 50%;
+        box-shadow: 0 2px 12px rgba(var(--primary-6), 0.4);
+        z-index: 80;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    .sidebar-collapsed .collapse-btn {
+        position: fixed;
+        left: 12px;
+        top: 80px;
+        width: 44px;
+        height: 44px;
+        background-color: rgb(var(--primary-6));
+        color: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 12px rgba(var(--primary-6), 0.4);
+        z-index: 85;
+        animation: pulse 2s ease-in-out infinite;
+        
+        &:hover {
+            background-color: rgb(var(--primary-5));
+            animation: none;
         }
     }
 

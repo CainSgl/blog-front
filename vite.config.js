@@ -25,12 +25,19 @@ export default defineConfig({
     // PWA 支持
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['src/assets/icon2.webp', 'src/assets/Icon.svg'],
+      // 开发环境也启用 PWA（用于测试）
+      devOptions: {
+        enabled: true,
+        type: 'module',
+        navigateFallback: 'index.html',
+        suppressWarnings: true
+      },
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'android-chrome-192x192.png', 'android-chrome-512x512.png'],
       manifest: {
         name: 'cainsgl的小站',
         short_name: 'cainsgl',
         description: '一个基于 Vue 3 的个人博客和知识库平台',
-        theme_color: '#165dff',
+        theme_color: '#f7f8fa',
         background_color: '#ffffff',
         // 显示模式优先级（从高到低尝试）
         display_override: ['window-controls-overlay', 'standalone'],
@@ -39,15 +46,15 @@ export default defineConfig({
         scope: '/',
         icons: [
           {
-            src: '/src/assets/icon2.webp',
+            src: '/android-chrome-192x192.png',
             sizes: '192x192',
-            type: 'image/webp',
+            type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/src/assets/icon2.webp',
+            src: '/android-chrome-512x512.png',
             sizes: '512x512',
-            type: 'image/webp',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ],
@@ -58,28 +65,28 @@ export default defineConfig({
             short_name: '首页',
             description: '查看最新文章和动态',
             url: '/',
-            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+            icons: [{ src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' }]
           },
           {
             name: '知识库',
             short_name: '知识库',
             description: '浏览知识库内容',
             url: '/knowledge',
-            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+            icons: [{ src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' }]
           },
           {
             name: '我的主页',
             short_name: '我的',
             description: '查看个人主页',
             url: '/user',
-            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+            icons: [{ src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' }]
           },
           {
             name: '消息中心',
             short_name: '消息',
             description: '查看消息和通知',
             url: '/messages',
-            icons: [{ src: '/src/assets/icon2.webp', sizes: '192x192' }]
+            icons: [{ src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' }]
           }
         ],
         // 分享目标（允许其他应用分享内容到你的 PWA）
@@ -108,9 +115,9 @@ export default defineConfig({
         // 增加文件大小限制到 5MB
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         // 只预缓存关键资源，其他资源按需缓存
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
         // 排除超大文件，使用运行时缓存
-        globIgnores: ['**/node_modules/**/*'],
+        globIgnores: ['**/node_modules/**/*', '**/dev-dist/**/*'],
         // 缓存策略
         runtimeCaching: [
           {

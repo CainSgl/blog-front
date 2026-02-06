@@ -49,9 +49,24 @@ export const useThemeStore = defineStore('theme', {
     applyTheme() {
       if (this.isDark) {
         document.body.setAttribute('arco-theme', 'dark');
+        // 更新 PWA 标题栏颜色为暗黑模式
+        this.updateThemeColor('#17171a');
       } else {
         document.body.removeAttribute('arco-theme');
+        // 更新 PWA 标题栏颜色为浅色模式
+        this.updateThemeColor('#f7f8fa');
       }
+    },
+    
+    updateThemeColor(color) {
+      // 更新 meta theme-color，影响 PWA 标题栏和浏览器 UI
+      let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (!metaThemeColor) {
+        metaThemeColor = document.createElement('meta');
+        metaThemeColor.name = 'theme-color';
+        document.head.appendChild(metaThemeColor);
+      }
+      metaThemeColor.setAttribute('content', color);
     },
     
     initTheme() {

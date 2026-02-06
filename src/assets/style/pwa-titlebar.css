@@ -1,0 +1,48 @@
+/**
+ * PWA Window Controls Overlay 样式
+ * 
+ * 当 PWA 使用 window-controls-overlay 模式时，
+ * 浏览器会提供原生的窗口控制按钮（最小化、最大化、关闭）
+ * 我们只需要确保内容不会被这些按钮遮挡
+ */
+
+/* 只在 Window Controls Overlay 模式下应用 */
+@media (display-mode: window-controls-overlay) {
+  
+  /* 为顶部导航栏添加安全区域，避开系统窗口控制按钮 */
+  :root {
+    /* 使用环境变量来获取标题栏区域的尺寸 */
+    --titlebar-height: env(titlebar-area-height, 0px);
+  }
+
+  /* 确保页面内容不会被标题栏遮挡 */
+  body {
+    /* 为整个页面添加顶部间距 */
+    padding-top: var(--titlebar-height);
+    /* 确保背景色与标题栏无缝衔接 */
+    background-color: var(--color-bg-1);
+  }
+  
+  /* 移除 #app 的 padding，避免双重间距 */
+  #app {
+    padding-top: 0;
+  }
+  
+  /* 调整固定定位的 Header */
+  .header-container {
+    /* 当 Header 是 absolute 定位时，从标题栏下方开始 */
+    top: var(--titlebar-height) !important;
+  }
+  
+  .header-container.header-fixed {
+    /* 当 Header 是 fixed 定位时，也要考虑标题栏高度 */
+    top: var(--titlebar-height) !important;
+  }
+}
+
+/* 
+ * 注意：
+ * 1. theme_color 会自动应用到标题栏背景
+ * 2. 系统窗口控制按钮由浏览器/操作系统提供，会自动适配暗黑模式
+ * 3. 不需要自己实现窗口控制按钮
+ */
