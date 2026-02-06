@@ -7,6 +7,7 @@
 
     <!-- 头像部分 -->
     <div class="avatar-wrapper">
+
       <AvatarSection :user-info="userInfo" @update="handleAvatarUpdate" />
     </div>
 
@@ -63,6 +64,7 @@
 import {computed, onMounted, reactive, ref} from 'vue'
 import AvatarSection from '@/components/base/avatar/AvatarSection.vue'
 import {useUserStore} from '@/store/user.js';
+import { Message } from '@arco-design/web-vue';
 
 const props = defineProps({
   formData: {
@@ -85,6 +87,9 @@ const userInfo = ref(null);
 
 // 处理头像更新
 const handleAvatarUpdate = (avatarUrl) => {
+  Message.info(
+  '头像已更新，但可能由于某些bug，这里无法看见'
+  )
   if (userInfo.value) {
     userInfo.value.avatarUrl = avatarUrl;
   }

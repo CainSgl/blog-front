@@ -103,6 +103,21 @@
                 <!-- 高级设置 -->
                 <a-tab-pane key="advanced" title="高级">
                     <a-form layout="vertical">
+                        <a-form-item label="PWA 应用">
+                            <div class="pwa-section">
+                                <div class="pwa-info">
+                                    <icon-apps :size="24" style="color: var(--color-text-2);" />
+                                    <div>
+                                        <div class="pwa-title">安装桌面应用</div>
+                                        <div class="pwa-desc">将网站安装到桌面，获得更快的加载速度和离线访问能力</div>
+                                    </div>
+                                </div>
+                                <PWAInstallPrompt type="primary" />
+                            </div>
+                        </a-form-item>
+
+                        <a-divider />
+
                         <a-form-item label="原始设置数据">
                             <a-textarea v-model="rawSettingsJson" :auto-size="{ minRows: 10, maxRows: 20 }"
                                 placeholder="JSON 格式的设置数据" />
@@ -187,10 +202,11 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { Message, Modal } from '@arco-design/web-vue';
-import { IconInfoCircle, IconUpload, IconDownload } from '@arco-design/web-vue/es/icon';
+import { IconInfoCircle, IconUpload, IconDownload, IconApps } from '@arco-design/web-vue/es/icon';
 import { useUserSettingStore } from '@/store/userSetting';
 import { useThemeStore } from '@/store/theme';
 import ModalWrapper from '@/components/base/ModalWrapper.vue';
+import PWAInstallPrompt from '@/components/base/PWAInstallPrompt.vue';
 
 const props = defineProps({
     modelValue: {
@@ -525,6 +541,36 @@ watch(formData, (newVal) => {
         ul {
             font-size: 13px;
             line-height: 1.8;
+        }
+    }
+
+    .pwa-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background-color: var(--color-fill-2);
+        border-radius: 8px;
+        border: 1px solid var(--color-border-2);
+
+        .pwa-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+
+            .pwa-title {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--color-text-1);
+                margin-bottom: 4px;
+            }
+
+            .pwa-desc {
+                font-size: 12px;
+                color: var(--color-text-3);
+                line-height: 1.5;
+            }
         }
     }
 }

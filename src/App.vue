@@ -2,7 +2,6 @@
   <PWATitleBar />
   <router-view />
   <LoginModal v-if="authStore.showLoginModal" />
-  <PWAInstallPrompt />
 </template>
 
 <script setup>
@@ -48,11 +47,6 @@ onMounted(() => {
 // 懒加载 LoginModal，只在需要时才加载 three.js 等重资源
 const LoginModal = defineAsyncComponent(() => 
   import('@/components/loginModal/LoginModal.vue')
-);
-
-// PWA 安装提示组件
-const PWAInstallPrompt = defineAsyncComponent(() =>
-  import('@/components/base/PWAInstallPrompt.vue')
 );
 
 // PWA 标题栏组件

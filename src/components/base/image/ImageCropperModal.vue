@@ -134,12 +134,23 @@ const resizeDirection = ref('');
 // 预览尺寸，根据aspectRatio调整
 const previewSize = computed(() => 
 {
-  const baseWidth = 150; // 基础宽度
+  const baseWidth = 150; // 基础显示宽度
   // 始终根据当前裁剪区域的实际比例计算预览尺寸
   const currentAspectRatio = cropArea.value.width > 0 ? cropArea.value.height / cropArea.value.width : 1;
   return {
     width: baseWidth,
     height: baseWidth * currentAspectRatio
+  };
+});
+
+// 预览canvas的实际分辨率（用于高清渲染）
+const previewCanvasSize = computed(() => 
+{
+  // 使用2倍或更高的分辨率来避免马赛克
+  const scale = 2; // 可以根据需要调整，2倍通常足够
+  return {
+    width: previewSize.value.width * scale,
+    height: previewSize.value.height * scale
   };
 });
 
@@ -317,6 +328,10 @@ const updateCropPreview = () =>
   cropPreviewCanvas.width = cropArea.value.width;
   cropPreviewCanvas.height = cropArea.value.height;
   
+  // 启用高质量图像平滑
+  cropPreviewCtx.imageSmoothingEnabled = true;
+  cropPreviewCtx.imageSmoothingQuality = 'high';
+  
   // 计算实际裁剪区域在原图上的坐标
   const scaleX = originalImage.value.width / canvasRef.value.width;
   const scaleY = originalImage.value.height / canvasRef.value.height;
@@ -395,14 +410,18 @@ const updatePreview = () =>
   const cropWidth = cropArea.value.width * scaleX;
   const cropHeight = cropArea.value.height * scaleY;
   
-  // 设置预览canvas尺寸
-  previewCanvas.width = previewSize.value.width;
-  previewCanvas.height = previewSize.value.height;
+  // 设置预览canvas的实际分辨率（高于显示尺寸以获得更清晰的效果）
+  previewCanvas.width = previewCanvasSize.value.width;
+  previewCanvas.height = previewCanvasSize.value.height;
+  
+  // 启用高质量图像平滑
+  previewCtx.imageSmoothingEnabled = true;
+  previewCtx.imageSmoothingQuality = 'high';
   
   // 清空预览画布
   previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
   
-  // 绘制裁剪区域
+  // 绘制裁剪区域到高分辨率canvas
   if (originalImage.value.complete) 
   {
     previewCtx.drawImage(
