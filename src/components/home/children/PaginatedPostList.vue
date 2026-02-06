@@ -166,7 +166,7 @@ watch(containerWidth, () => {
 
 <style scoped>
 .paginated-container {
-  padding-left: 20px;
+  padding: 0;
   min-height: 60vh;
 }
 

@@ -123,6 +123,6 @@ onMounted(async () => {
 
 <style scoped>
 .container {
-  padding-left: 20px;
+  padding: 0;
 }
 </style>

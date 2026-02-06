@@ -79,16 +79,23 @@ function handleNoData() {
   flex: 1;
   max-width: 1800px;
   margin: 100px auto;
+  padding: 0 20px;
 }
 
 .view-switcher {
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
-  padding: 0 20px;
 }
 
 .content-area {
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    margin: 80px auto 20px;
+    padding: 0 10px;
+  }
 }
 </style>

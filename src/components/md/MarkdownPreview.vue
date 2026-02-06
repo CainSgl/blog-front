@@ -337,45 +337,7 @@ const processDynamicComponents = async () =>
   await nextTick();
   if (previewContentRef.value) 
   {
-    // 处理图片占位符
-    const imagePlaceholders = previewContentRef.value.querySelectorAll('.arco-image-placeholder');
-    imagePlaceholders.forEach(placeholder => 
-    {
-      let src = placeholder.getAttribute('data-src');
-      const alt = placeholder.getAttribute('data-alt');
-      const title = placeholder.getAttribute('data-title');
-      let width = placeholder.getAttribute('data-width');
-
-      // Arco 图片组件
-      const container = document.createElement('div');
-      container.className = 'arco-image-container';
-      placeholder.parentNode.replaceChild(container, placeholder);
-
-      // 渲染 Arco 图片组件
-      const imageApp = createApp({
-        render() 
-        {
-          return h(AImage, {
-            src: src,
-            alt: alt,
-            width: width ? parseInt(width) : undefined, // 如果有 width 属性，则使用它
-            height: 'auto',
-            fit: 'scale-down', // 使用 scale-down 模式，保持宽高比且不放大图片
-            'show-loader': true,
-            'lazy': true,
-            preview: true,
-            style: {
-              borderRadius: '6px',
-              margin: '16px 0',
-              maxWidth: '100%'
-            }
-          });
-        }
-      });
-
-      // 挂载到容器
-      imageApp.mount(container);
-    });
+ 
 
     // 处理代码块占位符
     const codeBlockPlaceholders = previewContentRef.value.querySelectorAll('.code-block-placeholder');
@@ -432,6 +394,46 @@ const processDynamicComponents = async () =>
         paragraphApp.mount(container);
       });
     }
+
+       // 处理图片占位符
+    const imagePlaceholders = previewContentRef.value.querySelectorAll('.arco-image-placeholder');
+    imagePlaceholders.forEach(placeholder => 
+    {
+      let src = placeholder.getAttribute('data-src');
+      const alt = placeholder.getAttribute('data-alt');
+      const title = placeholder.getAttribute('data-title');
+      let width = placeholder.getAttribute('data-width');
+
+      // Arco 图片组件
+      const container = document.createElement('div');
+      container.className = 'arco-image-container';
+      placeholder.parentNode.replaceChild(container, placeholder);
+
+      // 渲染 Arco 图片组件
+      const imageApp = createApp({
+        render() 
+        {
+          return h(AImage, {
+            src: src,
+            alt: alt,
+            width: width ? parseInt(width) : undefined, // 如果有 width 属性，则使用它
+            height: 'auto',
+            fit: 'scale-down', // 使用 scale-down 模式，保持宽高比且不放大图片
+            'show-loader': true,
+            'lazy': true,
+            preview: true,
+            style: {
+              borderRadius: '6px',
+              margin: '16px 0',
+              maxWidth: '100%'
+            }
+          });
+        }
+      });
+
+      // 挂载到容器
+      imageApp.mount(container);
+    });
 
     // 处理分享文件占位符
     const shareFilePlaceholders = previewContentRef.value.querySelectorAll('.share-file-placeholder');
