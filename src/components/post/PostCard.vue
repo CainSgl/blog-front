@@ -2,7 +2,7 @@
   <div class="post-card" :style="{ height: `${props.height}px`, width: `${props.width}px` }"
     :alt="post.summary ? post.summary : post.title">
 
-    <a-card class="post-card-container" :bordered="false" :body-style="{ padding: '20px' }" @click="handleCardClick"
+    <a-card class="post-card-container" :bordered="false" :body-style="cardBodyStyle" @click="handleCardClick"
       v-if="post.id||post.title">
       <!-- 图片和内容容器，用于响应式布局 -->
       <div class="post-content-wrapper"
@@ -167,6 +167,12 @@ const hiddenTagsCount = ref(0);
 // 布局模式
 const isVerticalLayout = computed(() => props.width <= LAYOUT_BREAKPOINT);
 
+// 卡片内边距 - 小屏幕使用更小的padding
+const cardBodyStyle = computed(() => {
+  const padding = props.width < 300 ? '12px' : '20px';
+  return { padding };
+});
+
 // 图片尺寸计算
 const imageHeight = computed(() => {
   if (!props.post.img || !isVerticalLayout.value) return 0;
@@ -315,6 +321,7 @@ const handleTagClick = (event, tag) => {
   container-type: inline-size;
   container-name: post-card;
   height: 100%;
+  width: 100%;
 }
 
 .post-card-container {
@@ -325,6 +332,7 @@ const handleTagClick = (event, tag) => {
   overflow: hidden;
   cursor: pointer;
   height: 100%;
+  width: 100%;
 }
 
 .post-card-container:hover {

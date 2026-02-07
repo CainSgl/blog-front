@@ -63,9 +63,7 @@ const computedWidth = ref(0);
 const computedHeight = ref(0);
 
 // 常量
-const MIN_WIDTH = 200;
 const MIN_HEIGHT = 150;
-const PADDING_OFFSET = 8;
 
 // 样式计算
 const wrapperStyle = computed(() => {
@@ -96,8 +94,8 @@ const calculateDimensions = async () => {
   const actualWidth = wrapperRef.value.clientWidth || rect.width;
   const actualHeight = wrapperRef.value.clientHeight || rect.height;
 
-  computedWidth.value = Math.max(actualWidth - PADDING_OFFSET, MIN_WIDTH);
-  computedHeight.value = Math.max(actualHeight - PADDING_OFFSET, MIN_HEIGHT);
+  computedWidth.value = actualWidth || 0;
+  computedHeight.value = Math.max(actualHeight, MIN_HEIGHT);
 };
 
 // 事件处理

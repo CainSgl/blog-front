@@ -53,13 +53,70 @@ export default defineConfig({
             src: '/android-chrome-192x192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           },
           {
             src: '/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/android-chrome-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: '/android-chrome-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ],
+        // PWA 安装截图（用于增强的安装 UI）
+        screenshots: [
+          {
+            src: '/screenshots/mobile-1.webp',
+            sizes: '540x720',
+            type: 'image/webp',
+            form_factor: 'narrow',
+            label: '首页展示'
+          },
+          {
+            src: '/screenshots/mobile-2.webp',
+            sizes: '540x720',
+            type: 'image/webp',
+            form_factor: 'narrow',
+            label: '知识库浏览'
+          },
+          {
+            src: '/screenshots/mobile-3.webp',
+            sizes: '540x720',
+            type: 'image/webp',
+            form_factor: 'narrow',
+            label: '文章阅读'
+          },
+          {
+            src: '/screenshots/desktop-1.webp',
+            sizes: '1280x720',
+            type: 'image/webp',
+            form_factor: 'wide',
+            label: '桌面端首页'
+          },
+          {
+            src: '/screenshots/desktop-2.webp',
+            sizes: '1280x720',
+            type: 'image/webp',
+            form_factor: 'wide',
+            label: '桌面端知识库'
+          },
+          {
+            src: '/screenshots/desktop-3.webp',
+            sizes: '1280x720',
+            type: 'image/webp',
+            form_factor: 'wide',
+            label: '桌面端编辑器'
           }
         ],
         // 桌面快捷方式
