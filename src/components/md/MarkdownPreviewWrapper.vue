@@ -43,7 +43,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import MarkdownPreview from './MarkdownPreview.vue';
 import TableOfContents from './common/toc/TableOfContents.vue';
-import ScrollProgress from '../base/ScrollProgress.vue';
+import ScrollProgress from './common/ScrollProgress.vue';
 import CommentDrawer from '@/components/comment/CommentDrawer.vue';
 
 const props = defineProps({

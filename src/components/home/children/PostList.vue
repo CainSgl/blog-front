@@ -3,7 +3,7 @@
     <div class="post-grid" ref="gridRef">
       <template v-for="item in displayItems" :key="item.id || item.tempId">
         <!-- 加载中的骨架屏 -->
-        <div v-if="item.loading" class="post-grid-item loading-item">
+        <!-- <div v-if="item.loading" class="post-grid-item loading-item">
           <a-skeleton animation>
             <a-skeleton-shape class="skeleton-image" />
             <a-space direction="vertical" :size="8" style="width: 100%; padding: 12px;">
@@ -11,10 +11,10 @@
               <a-skeleton-line :rows="1" :widths="['60%']" />
             </a-space>
           </a-skeleton>
-        </div>
+        </div> -->
 
         <!-- 实际文章卡片 -->
-        <a-link v-else :href="`/p/${item.id}`" class="post-grid-item" :hoverable="false" target="_blank">
+        <a-link  :href="item.id?`/p/${item.id}`:undefined" class="post-grid-item" :hoverable="false" target="_blank">
           <PostCardWrapper
               :post="item"
               :height="'100%'"

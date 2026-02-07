@@ -233,16 +233,10 @@ const handleItemClick = (item) =>
 }
 
 .kb-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: @size-5;
-  justify-content: flex-start;
-}
-
-/* 固定KB卡片宽度为180px */
-.kb-grid :deep(.kb-item) {
-  width: 180px;
-  flex: 0 0 180px;
+  width: 100%;
 }
 
 .no-more-tips {
@@ -264,8 +258,8 @@ const handleItemClick = (item) =>
   }
 
   .kb-grid {
-    gap: 10px;
-    justify-content: center;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .no-more-tips {

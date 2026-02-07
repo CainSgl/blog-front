@@ -220,17 +220,17 @@ export default defineConfig({
         ]
       }
     }),
-    // Gzip 压缩
-    viteCompression({
-      algorithm: 'gzip',
-      ext: '.gz',
-      threshold: 10240, // 只压缩大于 10KB 的文件
-      deleteOriginFile: false
-    }),
-    // Brotli 压缩（更好的压缩率）
+    // Brotli 压缩（更好的压缩率，直接替换原文件）
     viteCompression({
       algorithm: 'brotliCompress',
       ext: '.br',
+      threshold: 10240, // 只压缩大于 10KB 的文件
+      deleteOriginFile: false // 保留原文件作为降级方案
+    }),
+    // Gzip 压缩（兼容性更好）
+    viteCompression({
+      algorithm: 'gzip',
+      ext: '.gz',
       threshold: 10240,
       deleteOriginFile: false
     })

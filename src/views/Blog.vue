@@ -13,9 +13,8 @@
 
       <!-- 内容区域 -->
       <div class="content-area">
-        <NewHomePostList 
+        <PostList 
           v-if="viewMode === 'stream'" 
-          @noData="handleNoData"
         />
         <PaginatedPostList v-else />
       </div>
@@ -26,18 +25,13 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import Header from '@/components/layout/Header.vue';
-import NewHomePostList from '@/components/home/children/NewHomePostList.vue';
+import PostList from '@/components/home/children/PostList.vue';
 import PaginatedPostList from '@/components/home/children/PaginatedPostList.vue';
 
-const isMobile = ref(true);
-const showNewKBList = ref(true);
 const viewMode = ref('stream'); // 'stream' 或 'pagination'
 
 // 页面加载时获取数据
 onMounted(() => {
-  updateScreenSize();
-  window.addEventListener('resize', updateScreenSize);
-  
   // 从 localStorage 恢复用户的选择
   const savedMode = localStorage.getItem('blog_view_mode');
   if (savedMode) {
@@ -53,16 +47,6 @@ const saveViewMode = () => {
 // 使用 watch 监听变化
 import { watch } from 'vue';
 watch(viewMode, saveViewMode);
-
-const updateScreenSize = () => {
-  // 当屏幕宽度大于1024px时，isMobile为false
-  isMobile.value = window.innerWidth <= 1024;
-};
-
-function handleNoData() {
-  console.log('文章没数据了，让他去看看知识库的');
-  showNewKBList.value = false;
-}
 </script>
 
 <style scoped>
