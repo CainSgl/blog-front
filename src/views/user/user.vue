@@ -10,7 +10,7 @@
         <a-layout-content>
           <div class="content-wrapper">
             <div class="header-container"></div>
-            <div  id="router-page-container" style="max-height: 100dvh; overflow-y: auto;">
+            <div  id="router-page-container" style="max-height: calc(100dvh - 70px); overflow-y: auto;">
               <router-view />
             </div>
 

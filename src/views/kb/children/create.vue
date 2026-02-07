@@ -70,6 +70,25 @@
         <div class="bottom-panel">
           <a-card>
             <template #title>首页内容编辑</template>
+            <a-carousel v-if="!hideEditorTips" :auto-play="true" :animation-name="'fade'" indicator-type="never" 
+              show-arrow="never" :autoplay-speed="5000" style="margin-bottom: 12px;">
+              <a-carousel-item>
+                <a-alert type="warning" closable @close="handleCloseTips">
+                  <template #icon>
+                    <icon-exclamation-circle />
+                  </template>
+                  编辑时请注意多换行，否则可能出现不必要的显示错误。
+                </a-alert>
+              </a-carousel-item>
+              <a-carousel-item>
+                <a-alert type="warning" closable @close="handleCloseTips">
+                  <template #icon>
+                    <icon-exclamation-circle />
+                  </template>
+                  预览与实际最终显示效果可能不一致，这是正常现象。
+                </a-alert>
+              </a-carousel-item>
+            </a-carousel>
             <div class="editor-container">
               <MarkdownEditor :hasToc="false" :hashGoBack="false" v-model="content" :height="editorHeight" />
             </div>
@@ -88,18 +107,30 @@
 import {computed, nextTick, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {Message, Upload} from '@arco-design/web-vue';
-import {IconArrowLeft, IconPlus, IconSave} from '@arco-design/web-vue/lib/icon';
+import {IconArrowLeft, IconExclamationCircle, IconPlus, IconSave} from '@arco-design/web-vue/lib/icon';
 import api from '@/api/index.js';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import KbCard from '@/components/kb/KbCard.vue';
 import {uploadFile} from '@/utils/fileUploader.js';
+import { useUserSettingStore } from '@/store/userSetting.js';
 
 const router = useRouter();
 const route = useRoute(); // 添加获取路由参数
+const userSettingStore = useUserSettingStore();
 const content = ref('');
 const creating = ref(false);
 const editorHeight = ref('800px');
+
+// 编辑器提示相关
+const hideEditorTips = computed(() => {
+  return userSettingStore.getSetting('editor.hideEditTips', false);
+});
+
+// 处理关闭提示
+const handleCloseTips = async () => {
+  await userSettingStore.setSetting('editor.hideEditTips', true, false);
+};
 
 // 知识库信息状态
 const kbInfo = ref({

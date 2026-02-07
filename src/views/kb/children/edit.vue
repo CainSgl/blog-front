@@ -3,9 +3,28 @@
     <div>
       <div style="padding:10px 0px;">
         <KBCardHeader :post-info="postInfo" :kb-id="kbId" :tree-data="treeData" :kb-info="kbInfo"
-          :on-back="goBackFromHeader" />
+          :on-back="goBackFromHeader" @update="handlePostUpdate" />
       </div>
       <div style="height: 100%;padding-left:16px;">
+        <a-carousel v-if="!hideEditorTips" :auto-play="true" :animation-name="'fade'" indicator-type="never" 
+          show-arrow="never" :autoplay-speed="5000" style="margin-bottom: 12px;">
+          <a-carousel-item>
+            <a-alert type="warning" closable @close="handleCloseTips">
+              <template #icon>
+                <icon-exclamation-circle />
+              </template>
+              编辑时请注意多换行，否则可能出现不必要的显示错误。
+            </a-alert>
+          </a-carousel-item>
+          <a-carousel-item>
+            <a-alert type="warning" closable @close="handleCloseTips">
+              <template #icon>
+                <icon-exclamation-circle />
+              </template>
+              预览与实际最终显示效果可能不一致，这是正常现象。
+            </a-alert>
+          </a-carousel-item>
+        </a-carousel>
         <MarkdownEditor :show-publish="true" v-model="textContent" :height="editorHeight" @go-back="goBack"
           @publish="publishArticle" />
       </div>
@@ -17,14 +36,17 @@
 import { computed, h, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { Message, Modal } from '@arco-design/web-vue';
+import { IconExclamationCircle } from '@arco-design/web-vue/lib/icon';
 import MarkdownEditor from '@/components/md/MarkdownEditor.vue';
 import KBCardHeader from '@/views/kb/components/KBCardHeader.vue';
 import api from '@/api/index.js';
 import { useKbStore } from '../kbStore.js';
+import { useUserSettingStore } from '@/store/userSetting.js';
 
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();
+const userSettingStore = useUserSettingStore();
 
 // 响应式数据
 const textContent = ref('');
@@ -35,6 +57,16 @@ let isAutoSave = false; // 自动保存的定时器（非响应式）
 let localSaveCount = 0; // 本地保存计数器
 const editorHeight = ref('calc(100vh - 194px)');
 const loading = ref(false); // 控制文章加载时的旋转动画
+
+// 编辑器提示相关
+const hideEditorTips = computed(() => {
+  return userSettingStore.getSetting('editor.hideEditTips', false);
+});
+
+// 处理关闭提示
+const handleCloseTips = async () => {
+  await userSettingStore.setSetting('editor.hideEditTips', true, false);
+};
 
 // 从store中获取treeData
 const treeData = computed(() => kbStore.treeData);
@@ -51,6 +83,19 @@ const isContentChanged = computed(() => {
 // 页头返回函数 - 直接返回上一级，不询问是否发布
 const goBackFromHeader = () => {
   router.push({ name: 'KBIndex', query: { kb: kbId.value } });
+};
+
+// 处理文章更新
+const handlePostUpdate = (updatedData) => {
+  // 更新本地的 postInfo
+  postInfo.value = {
+    ...postInfo.value,
+    title: updatedData.title,
+    summary: updatedData.summary,
+    isTop: updatedData.isTop,
+    tags: updatedData.tags,
+    img: updatedData.img || postInfo.value.img
+  };
 };
 const publishArticle = () => {
   const postId = route.query.p;

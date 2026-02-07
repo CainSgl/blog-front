@@ -2,10 +2,8 @@
   <a-trigger
     trigger="hover"
     :position="triggerPosition"
-    :popup-offset="20"
-    :show-arrow="false"
-    :auto-fit-position="true"
-    :mouse-enter-delay="0"
+    :popup-offset="27"
+     :mouse-leave-delay="300"
     v-model:popup-visible="popupVisible"
     @popup-visible-change="handleVisibleChange"
   >

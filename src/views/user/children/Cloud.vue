@@ -45,8 +45,8 @@
               </a-breadcrumb>
             </a-col>
             <a-col :span="12" style="text-align: right;">
-              <!-- 当有文件被选中时显示操作按钮 -->
-              <div v-if="selectedRowKeys.length > 0" style="display: inline-block; margin-right: 16px;">
+              <!-- 当有文件被选中时显示操作按钮（仅当前用户可见） -->
+              <div v-if="isCurrentUser && selectedRowKeys.length > 0" style="display: inline-block; margin-right: 16px;">
                 <a-space>
                   <a-button type="primary" status="danger" @click="handleBatchDelete" size="small">
                     删除 ({{ selectedRowKeys.length }})
@@ -92,7 +92,6 @@
               <template #actions="{ record }">
                 <a-space>
                   <a-button size="small" @click.stop="handlePreview(record)">预览</a-button>
-                  <!-- <a-button size="small" @click.stop="handleNewDownload(record)" :loading="record.download">下载</a-button> -->
                   <a-button size="small" @click.stop="handleDownload(record)" :loading="record.download">下载</a-button>
                 </a-space>
               </template>
@@ -129,6 +128,7 @@ const viewMode = ref('list');
 const route = useRoute();
 const userStore = useUserStore();
 const userInfo = ref(null); // 用户信息
+const currentUserInfo = ref({ id: -1 }); // 当前登录用户信息
 const files = ref([]);
 const totalStorageBytes = ref(10 * 1024 * 1024 * 1024); // 3GB in bytes
 const totalStorage = computed(() => formatBytes(totalStorageBytes.value));
@@ -139,6 +139,11 @@ const hasMore = ref(true); // 是否还有更多数据
 
 // 初始化 userId，并监听路由变化
 const userId = ref(route.params.id);
+
+// 计算当前是否为访问自己的云存储
+const isCurrentUser = computed(() => {
+  return currentUserInfo.value.id == userId.value;
+});
 
 
 // 图片预览相关状态
@@ -235,8 +240,12 @@ onMounted(async () => {
   if (userId.value) {
     Message.loading({ id: 'cloudLoading', content: '加载数据中' });
     try {
-      // 先获取用户信息以获得存储使用情况
-      await fetchUserInfo(userId.value);
+      // 获取当前登录用户信息和页面用户信息
+      const [currentUserInfoData] = await Promise.all([
+        userStore.getUserInfo(),
+        fetchUserInfo(userId.value)
+      ]);
+      currentUserInfo.value = currentUserInfoData;
       // 然后获取文件列表
       await fetchFileList();
       Message.success({ id: 'cloudLoading', content: '加载成功' });
@@ -251,9 +260,8 @@ onMounted(async () => {
 const handleBack = () => {
   router.push(`/space/${userId.value}`);
 };
-const handleViewModeChange = (value) => {
-
-  //切换自己的选中状态
+const handleViewModeChange = () => {
+  // 切换视图模式
 };
 
 // 定义表格列
@@ -295,6 +303,11 @@ const selectedRowKeys = ref([]);
 
 // 根据选中的行 keys 自动计算行选择配置
 const rowSelection = computed(() => {
+  // 只有当前用户才能看到选择框
+  if (!isCurrentUser.value) {
+    return null;
+  }
+  
   if (selectedRowKeys.value.length === 0) {
     // 如果没有选中任何行，则返回 null（不显示选择框）
     return null;
@@ -334,6 +347,11 @@ const handleSelectionChange = (newSelectedRowKeys) => {
 
 // 处理行点击事件
 const handleRowClick = (record) => {
+  // 只有当前用户才能选择行
+  if (!isCurrentUser.value) {
+    return;
+  }
+  
   const isSelected = selectedRowKeys.value.includes(record.shortUrl);
   if (isSelected) {
     // 当前行已选中，取消选中
@@ -428,57 +446,6 @@ const handleDownload = async (record) => {
   }
 };
 
-// 处理分享事件
-const handleShare = (record) => {
-  console.log('分享文件:', record);
-};
-
-// 处理重命名事件
-const handleRename = (record) => {
-  console.log('重命名文件:', record);
-};
-
-// 处理删除事件
-const handleDelete = (record) => {
-  console.log('删除文件:', record);
-  Modal.warning({
-    title: '确认删除',
-    content: `确定要删除文件 "${record.name}" 吗？`,
-    okText: '确定',
-    cancelText: '取消',
-    onOk: async () => {
-      try {
-        const userStore = useUserStore();
-        const token = userStore.getToken();
-        if (!token) {
-          showLoginModal();
-          return;
-        }
-
-        Message.loading({ id: 'deleteLoading', content: '删除中...' });
-        // 调用删除API
-        await api.post('/file/delete', {
-          fileIds: [record.shortUrl] // 单个文件删除
-        }, {
-          headers: {
-            'token': token,
-          }
-        });
-
-        Message.success({ id: 'deleteLoading', content: '删除成功' });
-        // 从本地列表中移除已删除的文件
-        files.value = files.value.filter(file => file.shortUrl !== record.shortUrl);
-        // 重置选择状态
-        selectedRowKeys.value = [];
-      }
-      catch (error) {
-        console.error('删除失败:', error);
-        Message.error({ id: 'deleteLoading', content: '删除失败: ' + error.message });
-      }
-    }
-  });
-};
-
 // 处理批量删除事件
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
@@ -502,7 +469,7 @@ const handleBatchDelete = () => {
 
         Message.loading({ id: 'batchDeleteLoading', content: '批量删除中...', duration: 30000 });
         // 调用批量删除API
-        const { data } = await api.get('/file/batchFree', {
+        await api.get('/file/batchFree', {
           f: selectedRowKeys.value // 传递选中的文件ID数组
         });
         Message.success({ id: 'batchDeleteLoading', content: '批量删除成功' });

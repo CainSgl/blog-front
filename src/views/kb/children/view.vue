@@ -2,7 +2,7 @@
   <a-spin :loading="loading" tip="正在加载文章内容..." style="display: block;">
     <div>
       <div style="padding:10px 0px;">
-        <KBCardHeader :post-info="postInfo" :kb-id="kbId" :tree-data="treeData" :kb-info="kbInfo" :on-back="goBack" :show-go-post="true" />
+        <KBCardHeader :post-info="postInfo" :kb-id="kbId" :tree-data="treeData" :kb-info="kbInfo" :on-back="goBack" :show-go-post="true" @update="handlePostUpdate" />
       </div>
       <div style="height: 100%;padding-left:16px;margin-right: 10px;position: relative;" :style="{'height': previewHeight}">
         <MarkdownPreviewWrapper @scroll="handleContentScroll" :content="textContent" :useWindowScroll="true" />
@@ -175,6 +175,19 @@ watch(
 const goBack = () => 
 {
   router.push({ name: 'KBIndex', query: { kb: kbId.value } });
+};
+
+// 处理文章更新
+const handlePostUpdate = (updatedData) => {
+  // 更新本地的 postInfo
+  postInfo.value = {
+    ...postInfo.value,
+    title: updatedData.title,
+    summary: updatedData.summary,
+    isTop: updatedData.isTop,
+    tags: updatedData.tags,
+    img: updatedData.img || postInfo.value.img
+  };
 };
 
 // 组件挂载时的逻辑（如果需要）

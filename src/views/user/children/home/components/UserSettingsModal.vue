@@ -2,7 +2,7 @@
     <ModalWrapper v-model:visible="visible" title="个人设置" width="800px" :mask-closable="false" @cancel="handleCancel"
         @before-ok="handleSave" ok-text="保存" cancel-text="取消">
         <div class="settings-container">
-            <a-tabs default-active-key="musicPlayer" :lazy-load="true">
+            <a-tabs default-active-key="appearance" :lazy-load="true">
 
                 <!-- 主题设置 -->
                 <a-tab-pane key="appearance" title="外观">
@@ -47,12 +47,14 @@
                         </a-form-item>
 
                         <a-form-item label="播放确认" field="musicPlayer.dontAskAgain">
-                            <a-switch v-model="formData.musicPlayer.dontAskAgain">
-                                <template #checked>不再提示</template>
-                                <template #unchecked>每次询问</template>
-                            </a-switch>
-                            <div class="form-item-tip">
-                                开启后，文章中的音乐将自动播放，不再弹出确认对话框
+                            <div class="setting-row">
+                                <a-switch v-model="formData.musicPlayer.dontAskAgain">
+                                    <template #checked>不再提示</template>
+                                    <template #unchecked>每次询问</template>
+                                </a-switch>
+                                <div class="form-item-tip">
+                                    开启后，文章中的音乐将自动播放，不再弹出确认对话框
+                                </div>
                             </div>
                         </a-form-item>
                     </a-form>
@@ -100,20 +102,28 @@
                     </a-form>
                 </a-tab-pane>
 
+                <!-- 我知道的 -->
+                <a-tab-pane key="iknow" title="我知道的">
+                    <a-form :model="formData" layout="vertical">
+                        <a-form-item label="编辑器提示" field="editor.hideEditTips">
+                            <div class="setting-row">
+                                <a-switch v-model="formData.editor.hideEditTips">
+                                    <template #checked>隐藏</template>
+                                    <template #unchecked>显示</template>
+                                </a-switch>
+                                <div class="form-item-tip">
+                                    关闭后，在编辑页面将显示编辑提示（关于换行和预览的提醒）
+                                </div>
+                            </div>
+                        </a-form-item>
+                    </a-form>
+                </a-tab-pane>
+
                 <!-- 高级设置 -->
                 <a-tab-pane key="advanced" title="高级">
                     <a-form layout="vertical">
                         <a-form-item label="PWA 应用">
-                            <div class="pwa-section">
-                                <div class="pwa-info">
-                                    <icon-apps :size="24" style="color: var(--color-text-2);" />
-                                    <div>
-                                        <div class="pwa-title">安装桌面应用</div>
-                                        <div class="pwa-desc">将网站安装到桌面，获得更快的加载速度和离线访问能力</div>
-                                    </div>
-                                </div>
-                                <PWAInstallPrompt type="primary" />
-                            </div>
+                            <PWAInstallPrompt />
                         </a-form-item>
 
                         <a-divider />
@@ -202,7 +212,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { Message, Modal } from '@arco-design/web-vue';
-import { IconInfoCircle, IconUpload, IconDownload, IconApps } from '@arco-design/web-vue/es/icon';
+import { IconInfoCircle, IconUpload, IconDownload } from '@arco-design/web-vue/es/icon';
 import { useUserSettingStore } from '@/store/userSetting';
 import { useThemeStore } from '@/store/theme';
 import ModalWrapper from '@/components/base/ModalWrapper.vue';
@@ -246,6 +256,9 @@ const defaultSettings = {
         showPhone: false,
         allowSearch: true,
         showOnlineStatus: false
+    },
+    editor: {
+        hideEditTips: false
     }
 };
 
@@ -498,6 +511,17 @@ watch(formData, (newVal) => {
         line-height: 1.5;
     }
 
+    .setting-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .form-item-tip {
+            margin-top: 0;
+            flex: 1;
+        }
+    }
+
     :deep(.arco-form-item) {
         margin-bottom: 24px;
     }
@@ -544,34 +568,5 @@ watch(formData, (newVal) => {
         }
     }
 
-    .pwa-section {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px;
-        background-color: var(--color-fill-2);
-        border-radius: 8px;
-        border: 1px solid var(--color-border-2);
-
-        .pwa-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-
-            .pwa-title {
-                font-size: 14px;
-                font-weight: 600;
-                color: var(--color-text-1);
-                margin-bottom: 4px;
-            }
-
-            .pwa-desc {
-                font-size: 12px;
-                color: var(--color-text-3);
-                line-height: 1.5;
-            }
-        }
-    }
 }
 </style>

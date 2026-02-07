@@ -55,52 +55,7 @@
     </div>
 
     <!-- 编辑文章弹窗 -->
-    <ModalWrapper v-model:visible="editModalVisible" title="编辑文章信息" @ok="handleUpdatePost" @cancel="handleCancelEdit"
-      :ok-loading="updateLoading" ok-text="保存" cancel-text="取消" width="600px">
-      <a-form :model="editForm" layout="vertical">
-        <a-form-item label="文章标题" required>
-          <a-input v-model="editForm.title" placeholder="请输入文章标题" :max-length="60" show-word-limit />
-        </a-form-item>
-
-        <a-form-item label="文章摘要">
-          <a-textarea v-model="editForm.summary" placeholder="请输入文章摘要" :auto-size="{ minRows: 3, maxRows: 6 }"
-            :max-length="255" show-word-limit />
-        </a-form-item>
-
-        <a-form-item label="是否置顶">
-          <a-switch v-model="editForm.isTop" checked-text="置顶" unchecked-text="默认" />
-        </a-form-item>
-
-        <a-form-item label="文章标签">
-          <a-select v-model="editForm.tags" multiple allow-create filterable placeholder="请选择或输入标签" :max-tag-count="8">
-            <a-option v-for="tag in editForm.tags" :key="tag" :value="tag">{{ tag }}</a-option>
-          </a-select>
-        </a-form-item>
-
-        <a-form-item label="封面">
-          <div>
-            <div v-if="editForm.img" style="display: flex;align-items: center;justify-content: center;margin-top:20px;">
-              <CImg :src="editForm.img" alt="封面预览" style="width: 300px;" />
-            </div>
-            <div style="display: flex;align-items: center;justify-content: center;margin-top:20px">
-              <Upload :custom-request="customRequest" :show-file-list="false" :multiple="false" accept="image/*"
-                @progress="uploadingImage = true">
-                <a-button type="dashed" :loading="uploadingImage" style="margin-top: 12px;">
-                  <template #icon>
-                    <IconPlus />
-                  </template>
-                  {{ editForm.img ? '修改封面' : '上传封面' }}
-                </a-button>
-              </Upload>
-            </div>
-          </div>
-        </a-form-item>
-      </a-form>
-    </ModalWrapper>
-
-    <!-- 图片裁剪模态框 -->
-    <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible" :aspect-ratio="1.5"
-      @confirm="handleCroppedImage" />
+    <EditPostModal v-model="editModalVisible" :post-data="currentEditPost" @success="handleUpdateSuccess" />
 
     <!-- 知识库选择弹窗 -->
     <KnowledgeBaseSelector v-model="kbSelectorVisible" :userId="userId" @confirm="handleKbSelected" />
@@ -110,21 +65,18 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IconBook, IconDelete, IconFile, IconLink, IconPlus, IconSend, IconSettings } from '@arco-design/web-vue/es/icon';
-import { Message, Modal, Upload } from '@arco-design/web-vue';
+import { IconBook, IconDelete, IconFile, IconLink, IconSend, IconSettings } from '@arco-design/web-vue/es/icon';
+import { Message, Modal } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 import PostCard from '@/components/post/PostCard.vue';
 import UserPageHeader from './components/UserPageHeader.vue';
 import ContentArea from './components/ContentArea.vue';
-import CImg from '@/components/base/image/cImg.vue';
-import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
-import ModalWrapper from '@/components/base/ModalWrapper.vue';
+import EditPostModal from '@/components/base/EditPostModal.vue';
 import { useUserStore } from '@/store/user.js';
 import KnowledgeBaseSelector from '@/views/user/children/kb/components/KnowledgeBaseSelector.vue';
 import { useKbStore } from '@/views/kb/kbStore.js';
-import {uploadFile} from '@/utils/fileUploader.js';
 
 // 定义排序选项
 const sortOptions = [
@@ -452,108 +404,31 @@ const handleKbSelected = async (kb) => {
 
 // 编辑文章相关
 const editModalVisible = ref(false);
-const updateLoading = ref(false);
-const editForm = ref({
-  id: null,
-  title: '',
-  summary: '',
-  img: '',
-  isTop: false,
-  tags: []
-});
-
-// 图片上传相关
-const uploadingImage = ref(false);
-const cropperModalVisible = ref(false);
-const imageCropperRef = ref();
-const currentImageFile = ref(null);
-const formData = ref(null);
-let originalImg = '';
+const currentEditPost = ref({});
 
 // 打开编辑弹窗
 const handleEditPost = (postId) => {
   const post = posts.value.find(item => item.id === postId);
   if (post) {
-    editForm.value = {
-      id: post.id,
-      title: post.title || '',
-      summary: post.summary || '',
-      img: post.img || '',
-      isTop: post.isTop || false,
-      tags: post.tags ? [...post.tags] : []
-    };
-    originalImg = post.img || '';
-    formData.value = null;
+    currentEditPost.value = post;
     editModalVisible.value = true;
   }
 };
 
-// 更新文章信息
-const handleUpdatePost = async () => {
-  if (!editForm.value.title || !editForm.value.title.trim()) {
-    Message.warning('请输入文章标题');
-    return;
-  }
-
-  updateLoading.value = true;
-  try {
-    const requestData = {
-      id: editForm.value.id,
-      title: editForm.value.title.trim(),
-      summary: editForm.value.summary?.trim() || '',
-      isTop: editForm.value.isTop,
-      tags: editForm.value.tags || []
+// 更新成功回调
+const handleUpdateSuccess = (updatedData) => {
+  // 无感更新：直接更新列表中的对应项
+  const updateIndex = posts.value.findIndex(item => item.id === updatedData.id);
+  if (updateIndex !== -1) {
+    posts.value[updateIndex] = {
+      ...posts.value[updateIndex],
+      title: updatedData.title,
+      summary: updatedData.summary,
+      isTop: updatedData.isTop,
+      tags: updatedData.tags,
+      img: updatedData.img || posts.value[updateIndex].img
     };
-    const updateId = '更新文章' + editForm.value.id
-    Message.loading({ id: updateId, content: "推送数据中..." });
-    // 如果有新的图片需要上传
-    if (formData.value !== null) {
-      if (originalImg) {
-        api.get('/file/free', { f: originalImg });
-      }
-
-      // 直接使用已上传的fileId
-      requestData.img = formData.value;
-      formData.value = null;
-    }
-
-    await api.put('/post', requestData);
-    Message.success({ id: updateId, content: '更新成功' });
-    editModalVisible.value = false;
-
-    // 无感更新：直接更新列表中的对应项
-    const updateIndex = posts.value.findIndex(item => item.id === editForm.value.id);
-    if (updateIndex !== -1) {
-      posts.value[updateIndex] = {
-        ...posts.value[updateIndex],
-        title: requestData.title,
-        summary: requestData.summary,
-        isTop: requestData.isTop,
-        tags: requestData.tags,
-        img: requestData.img || posts.value[updateIndex].img
-      };
-    }
-  } catch (error) {
-    console.error('更新文章失败:', error);
-    Message.error('更新失败，请稍后重试');
-  } finally {
-    updateLoading.value = false;
   }
-};
-
-// 取消编辑
-const handleCancelEdit = () => {
-  editModalVisible.value = false;
-  editForm.value = {
-    id: null,
-    title: '',
-    summary: '',
-    img: '',
-    isTop: false,
-    tags: []
-  };
-  formData.value = null;
-  originalImg = '';
 };
 
 // 删除文章
@@ -643,72 +518,6 @@ const handleDeletePost = (postId) => {
       }
     }
   });
-};
-
-// 处理裁剪后的图片
-const handleCroppedImage = async (croppedFile) => {
-  try {
-    // 使用文件上传工具类上传
-    const { fileId } = await uploadFile(croppedFile);
-    
-    // 存储fileId
-    formData.value = fileId;
-
-    // 创建本地预览URL
-    const localUrl = URL.createObjectURL(croppedFile);
-    editForm.value.img = localUrl;
-
-    Message.success({
-      id: 'upload-cropped-image:' + croppedFile.name,
-      content: '封面已上传',
-      duration: 3000,
-    });
-
-    cropperModalVisible.value = false;
-    currentImageFile.value = null;
-  } catch (error) {
-    console.error('处理裁剪图片失败:', error);
-    Message.error({
-      id: 'upload-cropped-image:' + croppedFile.name,
-      content: '处理裁剪图片失败，请稍后重试',
-      duration: 3000,
-    });
-    throw error;
-  }
-};
-
-// Arco Design Upload组件的自定义上传方法
-const customRequest = async (options) => {
-  const { fileItem, onError, onSuccess } = options;
-  const file = fileItem.file;
-
-  if (!file.type.startsWith('image/')) {
-    console.error('请选择图片文件');
-    Message.error('请选择图片文件');
-    onError();
-    return;
-  }
-
-  const img = new Image();
-  img.src = URL.createObjectURL(file);
-  img.onload = async () => {
-    currentImageFile.value = file;
-    cropperModalVisible.value = true;
-
-    await nextTick();
-    setTimeout(() => {
-      if (imageCropperRef.value) {
-        imageCropperRef.value.setImage(img);
-      }
-    }, 100);
-
-    onSuccess();
-  };
-  img.onerror = () => {
-    console.error('图片加载失败');
-    Message.error('图片加载失败');
-    onError();
-  };
 };
 
 

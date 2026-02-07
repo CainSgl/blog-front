@@ -47,16 +47,11 @@
                 </template>
               </a-dropdown>
 
-              <div v-for="action in userActions" :key="action.path" class="action-item"
-                @click="openInNewTab(`/space/${userInfo?.id}/${action.path}`)">
-                <HistoryPreview v-if="action.path === 'history'">
-                  <div :content="action.tooltip" :popup-visible="isSmallScreen || !hasMouse ? false : undefined">
-                    <component :is="action.icon" :size="20" />
-                  </div>
-                </HistoryPreview>
-                <div v-else :content="action.tooltip" :popup-visible="isSmallScreen || !hasMouse ? false : undefined">
+              <div v-for="action in userActions" :key="action.path" class="action-item"  @click="openInNewTab(`/space/${userInfo?.id}/${action.path}`)">
+                <HistoryPreview v-if="action.path === 'history'" >
                   <component :is="action.icon" :size="20" />
-                </div>
+                </HistoryPreview>
+                <component v-else :is="action.icon" :size="20" />
                 <span class="action-text">{{ action.label }}</span>
               </div>
             </div>

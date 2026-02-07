@@ -127,7 +127,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, h, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IconCopy,
@@ -147,7 +147,7 @@ import {
   IconSearch,
   IconSync
 } from '@arco-design/web-vue/es/icon';
-import { Dropdown, Input, Menu, Message, Spin } from '@arco-design/web-vue';
+import { Button, Dropdown, Input, Menu, Message, Modal, Spin } from '@arco-design/web-vue';
 import api from '@/api/index.js';
 
 const moreDropdownMenuItem = [
@@ -332,40 +332,59 @@ async function finishRename(node) {
 // 创建操作处理函数映射对象
 const actionHandlers = {
   'newPost': async (node) => {
-    loading.value += 1;
-    try {
-      const parentId = node?.id || null;
-      const docName = node ? `${node.name}下的文档` : '未命名文档';
+    const parentId = node?.id || null;
+    const defaultName = node ? `${node.name}下的文档` : '未命名文档';
+    
+    // 创建一个响应式变量来存储输入的文档名称
+    const docName = ref(defaultName);
+    
+    Modal.open({
+      title: '创建文档',
+      content: () => {
+        return h(Input, {
+          modelValue: docName.value,
+          'onUpdate:modelValue': (value) => { docName.value = value; },
+          placeholder: '请输入文档名称',
+          autofocus: true
+        });
+      },
+      onBeforeOk: async () => {
+        const finalDocName = docName.value.trim() || defaultName;
+        
+        loading.value += 1;
+        try {
+          const { data } = await api.post('/post', {
+            title: finalDocName,
+            kbId: props.kbId,
+            parentId,
+          });
 
-      const { data } = await api.post('/post', {
-        title: docName,
-        kbId: props.kbId,
-        parentId,
-      });
+          const newNode = {
+            id: data.dirId,
+            name: finalDocName,
+            parentId,
+            postId: data.post.id,
+            depth: node ? node.depth + 1 : 0,
+            children: []
+          };
 
-      const newNode = {
-        id: data.dirId,
-        name: docName,
-        parentId,
-        postId: data.post.id,
-        depth: node ? node.depth + 1 : 0,
-        children: []
-      };
+          addChildNode(node, newNode);
 
-      addChildNode(node, newNode);
-
-      router.push({
-        name: 'KBEdit',
-        query: { p: data.post.id, kb: props.kbId }
-      });
-    }
-    catch (error) {
-      console.error('创建文档失败:', error);
-      Message.error('创建文档失败');
-    }
-    finally {
-      loading.value -= 1;
-    }
+          router.push({
+            name: 'KBEdit',
+            query: { p: data.post.id, kb: props.kbId }
+          });
+        }
+        catch (error) {
+          console.error('创建文档失败:', error);
+          Message.error('创建文档失败');
+          return false;
+        }
+        finally {
+          loading.value -= 1;
+        }
+      }
+    });
   },
   'newDir': async (node) => {
     loading.value += 1;
@@ -490,31 +509,105 @@ const actionHandlers = {
     }
   },
   'delete': async (node) => {
-    loading.value += 1;
-    try {
-      const { data } = await api.delete('/post/dir', {
-        kbId: props.kbId,
-        dirId: node.id
-      });
-
-      if (data > 0) {
-        const message = node.postId
-          ? `${node.name}将移入回收站，若需要完全删除，请在个人空间操作。`
-          : `${node.name}目录下的${data}个文章已自动移入回收站列表，可在个人空间查看。`;
-        Message[node.postId ? 'success' : 'warning'](message);
-      }
-
-      removeNode(node);
-    }
-    catch (error) {
-      console.error('删除目录失败:', error);
-      Message.error('删除失败');
-    }
-    finally {
-      loading.value -= 1;
-    }
+    const modal = Modal.open({
+      title: '删除确认',
+      content: node.postId 
+        ? `确定要删除文档"${node.name}"吗？`
+        : `确定要删除目录"${node.name}"吗？目录下的所有文档都将被处理。`,
+      okText: '移到回收站',
+      cancelText: '取消',
+      footer: h('div', { style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' } }, [
+        h(Button, {
+          onClick: () => {
+            modal.close();
+          }
+        }, { default: () => '取消' }),
+        h(Button, {
+          status: 'danger', 
+          onClick: async () => {
+            modal.close();
+            await handleCompleteDelete(node);
+          }
+        }, { default: () => '彻底删除' }),
+        h(Button, {
+          type: 'primary',
+          onClick: async () => {
+            modal.close();
+            await handleMoveToRecycleBin(node);
+          }
+        }, { default: () => '移到回收站' })
+      ])
+    });
   }
 };
+
+// 移到回收站
+async function handleMoveToRecycleBin(node) {
+  loading.value += 1;
+  try {
+    const { data } = await api.delete('/post/dir', {
+      kbId: props.kbId,
+      dirId: node.id
+    });
+
+    if (data > 0) {
+      const message = node.postId
+        ? `${node.name}已移入回收站，可在个人空间查看。`
+        : `${node.name}目录下的${data}个文章已移入回收站，可在个人空间查看。`;
+      Message.success(message);
+    } else {
+      Message.success(`${node.name}已移入回收站`);
+    }
+
+    removeNode(node);
+  }
+  catch (error) {
+    console.error('移到回收站失败:', error);
+    Message.error('移到回收站失败');
+  }
+  finally {
+    loading.value -= 1;
+  }
+}
+
+// 彻底删除
+async function handleCompleteDelete(node) {
+  loading.value += 1;
+  try {
+    // 如果是文档节点且有封面，先删除封面
+    if (node.postId) {
+      try {
+        // 获取文档信息以获取封面
+        const { data: postData } = await api.get('/post/last', { id: node.postId });
+        if (postData && postData.img) {
+          await api.get('/file/free', { f: postData.img });
+        }
+      } catch (error) {
+        console.error('删除封面失败:', error);
+      }
+      
+      // 删除文档
+      await api.delete('/post', { id: node.postId });
+    }
+    
+    // 删除目录结构
+    const { data } = await api.delete('/post/dir', {
+      kbId: props.kbId,
+      dirId: node.id
+    });
+
+    Message.success(`${node.name}已彻底删除`);
+    removeNode(node);
+  }
+  catch (error) {
+    console.error('彻底删除失败:', error);
+    Message.error('彻底删除失败');
+  }
+  finally {
+    loading.value -= 1;
+  }
+}
+
 
 // 添加子节点
 function addChildNode(parentNode, childNode) {

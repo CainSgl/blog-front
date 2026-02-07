@@ -1,7 +1,16 @@
 <template>
   <div :style="{ background: 'var(--color-fill-2)' }">
-    <a-page-header :style="{ background: 'var(--color-bg-1)' }" :title="postInfo.title"
-      :subtitle="postInfo.version ? '版本：' + postInfo.version : undefined" :show-back="true" @back="handleBack">
+    <a-page-header :style="{ background: 'var(--color-bg-1)' }" :show-back="true" @back="handleBack">
+      <template #title>
+        <div class="title-container" @mouseenter="showEditIcon = true" @mouseleave="showEditIcon = false"
+          @click="handleEditTitle">
+          <span>{{ postInfo.title }}</span>
+          <IconEdit v-if="showEditIcon && isCurrentUser" class="edit-icon" />
+        </div>
+      </template>
+      <template #subtitle>
+        <span v-if="postInfo.version">版本：{{ postInfo.version }}</span>
+      </template>
       <template #breadcrumb>
         <a-breadcrumb>
           <a-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="item.id"
@@ -12,12 +21,13 @@
       </template>
       <template #extra>
         <div style="display: flex; align-items: center">
-          <a-link :href="`/p/${postInfo.id}`" target="_albank" v-if="postInfo.status=='已发布'">
+          <a-link :href="`/p/${postInfo.id}`" target="_albank" v-if="postInfo.status == '已发布'">
             前往文章页面
           </a-link>
 
-          <a-tooltip v-if="postInfo.status&&isCurrentUser" :content="getStatusTooltip()">
-            <component :is="getStatusIcon()" style="cursor: pointer; font-size: 20px;color:var(--color-neutral-10)" size="large" />
+          <a-tooltip v-if="postInfo.status && isCurrentUser" :content="getStatusTooltip()">
+            <component :is="getStatusIcon()" style="cursor: pointer; font-size: 20px;color:var(--color-neutral-10)"
+              size="large" />
           </a-tooltip>
 
           <span v-if="postInfo.updatedAt" style="color: var(--color-neutral-6); margin-left: 10px; font-size: 15px">
@@ -26,15 +36,19 @@
         </div>
       </template>
     </a-page-header>
+
+    <!-- 编辑文章弹窗 -->
+    <EditPostModal v-model="editModalVisible" :post-data="currentEditPost" @success="handleUpdateSuccess" />
   </div>
 </template>
 
 <script setup>
-import {computed, ref, watch} from 'vue';
-import {useRouter} from 'vue-router';
-import {IconFilePdf, IconUserGroup, IconWifi} from '@arco-design/web-vue/es/icon';
-import {useUserStore} from '@/store/user.js';
-import {formatDate} from '@/utils/DateFormatter.js';
+import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { IconEdit, IconFilePdf, IconUserGroup, IconWifi } from '@arco-design/web-vue/es/icon';
+import { useUserStore } from '@/store/user.js';
+import { formatDate } from '@/utils/DateFormatter.js';
+import EditPostModal from '@/components/base/EditPostModal.vue';
 
 const router = useRouter();
 
@@ -68,11 +82,15 @@ const props = defineProps({
 });
 
 // 定义 emits
-const emit = defineEmits(['back']);
+const emit = defineEmits(['back', 'update']);
 const userStore = useUserStore();
 const currentUserInfo = ref({})
+const showEditIcon = ref(false);
+const editModalVisible = ref(false);
+const currentEditPost = ref({});
+
 async function getCurrentUserInfo() {
-  currentUserInfo.value =await userStore.getUserInfo();
+  currentUserInfo.value = await userStore.getUserInfo();
 }
 
 const isCurrentUser = computed(() => {
@@ -147,8 +165,7 @@ const getStatusIcon = () => {
   }
   else if (props.postInfo.status === '已发布') {
     return IconWifi;
-  }else if(props.postInfo.status==='仅粉丝')
-  {
+  } else if (props.postInfo.status === '仅粉丝') {
     return IconUserGroup
   }
   return null;
@@ -177,6 +194,29 @@ const handleBack = () => {
     router.push({ name: 'KBIndex', query: { kb: props.kbId } });
   }
   emit('back');
+};
+
+// 处理编辑标题
+const handleEditTitle = () => {
+  if (!isCurrentUser.value) {
+    return;
+  }
+
+  currentEditPost.value = {
+    id: props.postInfo.id,
+    title: props.postInfo.title,
+    summary: props.postInfo.summary || '',
+    img: props.postInfo.img || '',
+    isTop: props.postInfo.isTop || false,
+    tags: props.postInfo.tags || []
+  };
+  editModalVisible.value = true;
+};
+
+// 更新成功回调
+const handleUpdateSuccess = (updatedData) => {
+  // 通知父组件更新
+  emit('update', updatedData);
 };
 
 // 监听treeData的变化，更新面包屑
@@ -232,6 +272,23 @@ watch(
 <style scoped>
 .last-item {
   font-weight: bold;
+  color: rgb(var(--primary-6));
+}
+
+.title-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.edit-icon {
+  font-size: 16px;
+  color: var(--color-text-3);
+  transition: color 0.2s;
+}
+
+.edit-icon:hover {
   color: rgb(var(--primary-6));
 }
 </style>
