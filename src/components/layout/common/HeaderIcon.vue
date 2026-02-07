@@ -94,7 +94,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useUserStore } from '@/store/user.js';
 import { storeToRefs } from 'pinia';
 import Avatar from '@/components/base/avatar/Avatar.vue';
-import ThemeSwitcher from '@/components/base/ThemeSwitcher.vue';
+import ThemeSwitcher from '@/components/layout/common/ThemeSwitcher.vue';
 import LevelUpModal from '@/components/base/checkin/LevelUpModal.vue';
 import CheckInModal from '@/components/base/checkin/CheckInModal.vue';
 import {

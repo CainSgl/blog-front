@@ -67,6 +67,7 @@
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import {Message} from '@arco-design/web-vue';
 import ModalWrapper from '@/components/base/ModalWrapper.vue';
+import Compressor from 'compressorjs';
 
 const props = defineProps({
   modelValue: {
@@ -747,11 +748,25 @@ const confirmCrop = async () =>
     {
       if (blob) 
       {
-        // 转换为File对象，使用用户输入的文件名
-        const finalFileName = fileName.value || 'cropped_image';
-        const file = new File([blob], `${finalFileName}_${Date.now()}.png`, { type: 'image/png' });
-        emit('confirm', file);
-        visible.value = false;
+        // 使用 Compressor.js 压缩裁剪后的图片
+        new Compressor(blob, {
+          quality: 0.8,
+          maxWidth: 1920,
+          maxHeight: 1920,
+          mimeType: 'image/webp', // 使用 webp 格式获得更好的压缩效果
+          success(compressedBlob) 
+          {
+            const finalFileName = fileName.value || 'cropped_image';
+            const file = new File([compressedBlob], `${finalFileName}_${Date.now()}.webp`, { type: 'image/webp' });
+            emit('confirm', file);
+            visible.value = false;
+          },
+          error(err) 
+          {
+            console.error('压缩失败:', err);
+            Message.error('图片压缩失败');
+          }
+        });
       }
       else 
       {
