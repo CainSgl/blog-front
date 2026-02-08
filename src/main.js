@@ -12,6 +12,9 @@ import { registerSW } from 'virtual:pwa-register';
 // 导入 PWA 链接处理器
 import { initPWALinkHandler } from './utils/pwaLinkHandler';
 
+// 导入全局请求拦截器
+import { setupRequestInterceptors } from './utils/requestInterceptor';
+
 // 导入 PWA 诊断工具（开发环境）
 if (import.meta.env.DEV) {
   import('./utils/pwaDiagnostics');
@@ -22,6 +25,9 @@ const pinia = createPinia();
 
 app.use(pinia);
 app.use(router);
+
+// 设置全局请求拦截器（fetch 和 XHR）
+setupRequestInterceptors();
 
 app.config.errorHandler = (err, instance, info) => 
 {
@@ -45,7 +51,7 @@ initPWALinkHandler({
 
 // 注册 Service Worker（在应用挂载后）
 if ('serviceWorker' in navigator) {
-  const updateSW = registerSW({
+   registerSW({
     immediate: true,
     onNeedRefresh() {
       console.log('发现新版本，准备更新...');

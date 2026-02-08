@@ -1,11 +1,11 @@
 <template>
   <div class="chat-message-list">
     <div class="message-list-header">
-      <a-link :href="`/space/${otherUserInfo.id}`">
-        <Avatar v-if="otherUserInfo" :size="32" :src="otherUserInfo.avatarUrl" class="header-avatar" />
+      <a-link :href="`/space/${otherUserInfo?.id}`">
+        <Avatar v-if="otherUserInfo" :size="32" :src="otherUserInfo?.avatarUrl" class="header-avatar" />
       </a-link>
       
-      <h3>{{ otherUserInfo?.nickname || '加载中...' }}</h3>
+      <h3>{{  otherUserInfo?.nickname || otherUserInfo?.username || '加载中...' }}</h3>
       <div class="header-actions">
         <a-dropdown @select="handleAction">
           <a-button type="text" size="small">
@@ -21,22 +21,34 @@
       </div>
     </div>
     <div ref="messageListContent" class="message-list-content">
-      <ChatMessageItem v-for="message in messages" :key="message.id" :message="message"
-        :is-mine="message.senderId == currentUserId"> </ChatMessageItem>
+      <!-- 加载提示 -->
+      <div v-if="isLoading && messages.length === 0" class="loading-indicator">
+        <a-spin />
+        <span>加载消息中...</span>
+      </div>
       
-      <!-- 正在输入提示 -->
-      <div v-if="isOtherUserTyping" class="typing-indicator">
-        <div class="typing-dots">
-          <span></span>
-          <span></span>
-          <span></span>
+      <template v-else>
+        <ChatMessageItem v-for="message in messages" :key="message.id" :message="message"
+          :is-mine="message.senderId == currentUserId"> </ChatMessageItem>
+        
+        <!-- 正在输入提示 -->
+        <div v-if="isOtherUserTyping" class="typing-indicator">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="typing-text">{{ otherUserInfo?.nickname ?? (otherUserInfo?.username || '对方') }} 正在输入中...</span>
         </div>
-        <span class="typing-text">{{ otherUserInfo?.nickname || '对方' }} 正在输入中...</span>
-      </div>
+        
+        <div v-if="!hasMore && messages.length > 0" class="no-more-message">
+          没有更多消息了
+        </div>
+        <div v-if="messages.length === 0 && !isLoading" class="empty-message">
+          暂无消息，开始聊天吧
+        </div>
+      </template>
       
-      <div v-if="!hasMore && messages.length > 0" class="no-more-message">
-        没有更多消息了
-      </div>
       <div ref="observerTarget" class="observer-target"></div>
     </div>
     <div class="message-input-area">
@@ -124,7 +136,7 @@ const messages = ref([]);
 let last;
 let observer = null;
 const hasMore = ref(true);
-let isLoading = false; // 加载锁
+const isLoading = ref(false); // 改为响应式，用于显示加载状态
 
 // 强行发送相关
 const forceSendModalVisible = ref(false);
@@ -148,12 +160,12 @@ const scrollToBottom = () => {
 // 加载消息
 const loadMessages = async () => {
   // 防重复请求：如果正在加载或没有更多消息，直接返回
-  if (isLoading || !hasMore.value) {
+  if (isLoading.value || !hasMore.value) {
     return;
   }
 
   try {
-    isLoading = true; // 上锁
+    isLoading.value = true; // 上锁
     
     const { data } = await api.post('/chat/messages', { sessionId: props.session.id, last });
     
@@ -167,7 +179,7 @@ const loadMessages = async () => {
     console.error('加载消息失败:', error);
     Message.error('加载消息失败');
   } finally {
-    isLoading = false; // 解锁
+    isLoading.value = false; // 解锁
   }
 };
 // 处理输入事件，发送正在输入状态
@@ -337,6 +349,30 @@ const handleBlockUser = () => {
 };
 
 // 设置 Intersection Observer
+const setupObserver = () => {
+  // 清理旧的 observer
+  if (observer) {
+    observer.disconnect();
+  }
+  
+  // 设置新的 observer
+  nextTick(() => {
+    if (observerTarget.value) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              loadMessages();
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(observerTarget.value);
+    }
+  });
+};
+
 onMounted(async () => {
   // 加载对方用户信息
   await loadOtherUserInfo();
@@ -344,20 +380,8 @@ onMounted(async () => {
   // 监听 WebSocket
   chatWebSocket.onMessage(webSocketHandler);
 
-  // 设置滚动加载 - 只交给 IntersectionObserver 处理，不在这里主动调用
-  if (observerTarget.value) {
-    observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            loadMessages();
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(observerTarget.value);
-  }
+  // 设置滚动加载
+  setupObserver();
 });
 
 onUnmounted(() => {
@@ -375,10 +399,11 @@ onUnmounted(() => {
 });
 
 watch(() => props.session.id, async () => {
+  // 重置所有状态
   messages.value = [];
   last = null;
   hasMore.value = true;
-  isLoading = false; // 重置加载锁
+  isLoading.value = false;
   isOtherUserTyping.value = false;
   
   // 清理定时器和标志
@@ -390,8 +415,15 @@ watch(() => props.session.id, async () => {
   }
   isTypingSent = false;
   
+  // 加载新会话的用户信息
   await loadOtherUserInfo();
-  // 不在这里调用 loadMessages，交给 IntersectionObserver 处理
+  
+  // 重新设置 observer，确保能触发加载
+  setupObserver();
+  
+  // 主动触发一次加载，防止 observer 没有及时触发
+  await nextTick();
+  loadMessages();
 });
 
 </script>
@@ -441,7 +473,7 @@ watch(() => props.session.id, async () => {
     display: flex;
     flex-direction: column-reverse;
     min-height: 0;
-
+    position: relative;
     .no-more-message {
       text-align: center;
       padding: 16px;
@@ -452,6 +484,30 @@ watch(() => props.session.id, async () => {
 
     .observer-target {
       height: 1px;
+      flex-shrink: 0;
+    }
+
+    .loading-indicator {
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 32px;
+      color: var(--color-text-3);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .empty-message {
+      text-align: center;
+      padding: 32px;
+      color: var(--color-text-3);
+      font-size: 14px;
       flex-shrink: 0;
     }
 

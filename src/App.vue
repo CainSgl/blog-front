@@ -1,4 +1,5 @@
 <template>
+  <RequestProgressBar />
   <router-view />
   <LoginModal v-if="authStore.showLoginModal" />
 </template>
@@ -8,6 +9,7 @@ import {defineAsyncComponent, onMounted} from 'vue';
 import {useAuthStore} from '@/store/auth';
 import {useThemeStore} from '@/store/theme';
 import {Modal} from '@arco-design/web-vue';
+import RequestProgressBar from '@/components/base/RequestProgressBar.vue';
 
 const authStore = useAuthStore();
 const themeStore = useThemeStore();

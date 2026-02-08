@@ -180,6 +180,7 @@ const skeletonStyle = computed(() => SKELETON_STYLE);
     margin-bottom: @size-3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.4;

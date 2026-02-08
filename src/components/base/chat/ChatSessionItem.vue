@@ -18,7 +18,7 @@
       <div class="session-content">
         <div class="session-header">
           <span class="session-name">
-            {{ userInfo?.nickname || '加载中...' }}
+            {{ userInfo?.nickname || userInfo?.username || '加载中...' }}
             <span v-if="session.deletedByOther" class="blocked-tag">已被拉黑</span>
           </span>
           <span class="session-time">{{ formatTime(session.lastMessageTime) }}</span>

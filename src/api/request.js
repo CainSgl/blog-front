@@ -3,6 +3,7 @@ import {Message, Notification} from '@arco-design/web-vue';
 import {useUserStore} from '@/store/user.js';
 import {showLoginModal} from '@/services/authService';
 import {API_BASE_URL} from '@/config';
+import {useRequestProgressStore} from '@/store/requestProgress';
 
 // 创建消息ID映射表，用于跟踪当前显示的消息
 const messageMap = new Map();
@@ -20,6 +21,10 @@ const service = axios.create({
 service.interceptors.request.use(
   (config) => 
   {
+    // 开始请求，增加进度
+    const progressStore = useRequestProgressStore();
+    progressStore.startRequest();
+    
     const userStore = useUserStore();
     if (userStore.getToken()) 
     {
@@ -36,6 +41,10 @@ service.interceptors.request.use(
   },
   (error) => 
   {
+    // 请求失败也要完成进度
+    const progressStore = useRequestProgressStore();
+    progressStore.completeRequest();
+    
     console.error('Request error:', error);
     return Promise.reject(error);
   }
@@ -45,6 +54,10 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => 
   {
+    // 请求完成，增加已完成数
+    const progressStore = useRequestProgressStore();
+    progressStore.completeRequest();
+    
     const code = String(response.data.code);
     if (code.startsWith('200')) 
     {
@@ -170,6 +183,10 @@ service.interceptors.response.use(
   },
   (error) => 
   {
+    // 响应错误也要完成进度
+    const progressStore = useRequestProgressStore();
+    progressStore.completeRequest();
+    
     console.error('Response error:', error);
     if (error.response) 
     {
