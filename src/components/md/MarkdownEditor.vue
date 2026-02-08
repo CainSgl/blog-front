@@ -1909,7 +1909,7 @@ onMounted(async () => {
   border: 1px solid @border-color;
   border-radius: 6px;
   overflow: hidden;
-  background-color: @vscode-bg;
+  background-color: var(--code-bg);
 
   :deep(.cainsgl-code-header) {
     display: flex;
@@ -1964,31 +1964,31 @@ onMounted(async () => {
 :deep(.cainsgl-code-block) {
   margin: 0;
   padding: 12px;
-  background-color: @vscode-bg;
+  background-color: var(--code-bg);
   overflow: auto; // 同时支持水平和垂直滚动 
 
   color: @default-color;
   border: none;
 }
 
-/* VSCode Light Theme 语法高亮配色 - 提取到根级别以确保覆盖 */
+/* 语法高亮配色 - 使用 CSS 变量支持主题切换 */
 :deep(.cainsgl-code-container code.hljs) {
-  background: @vscode-bg !important;
+  background: var(--code-bg) !important;
   padding: 0 !important;
   margin: 0;
-  color: @default-color;
+  color: var(--code-text-color);
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-comment),
 :deep(.cainsgl-code-container code.hljs .hljs-quote) {
-  color: @vscode-comment !important;
+  color: var(--hljs-comment) !important;
   font-style: italic !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-keyword),
 :deep(.cainsgl-code-container code.hljs .hljs-selector-tag),
 :deep(.cainsgl-code-container code.hljs .hljs-subst) {
-  color: @vscode-keyword !important;
+  color: var(--hljs-keyword) !important;
   font-weight: bold !important;
 }
 
@@ -1997,63 +1997,65 @@ onMounted(async () => {
 :deep(.cainsgl-code-container code.hljs .hljs-variable),
 :deep(.cainsgl-code-container code.hljs .hljs-template-variable),
 :deep(.cainsgl-code-container code.hljs .hljs-tag .hljs-attr) {
-  color: @vscode-constant !important;
+  color: var(--hljs-number) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-string),
 :deep(.cainsgl-code-container code.hljs .hljs-doctag) {
-  color: @vscode-string !important;
+  color: var(--hljs-string) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-title),
 :deep(.cainsgl-code-container code.hljs .hljs-section),
 :deep(.cainsgl-code-container code.hljs .hljs-selector-id) {
-  color: @vscode-function !important;
+  color: var(--hljs-function) !important;
   font-weight: bold !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-subst) {
-  color: @default-color !important;
+  color: var(--code-text-color) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-type),
 :deep(.cainsgl-code-container code.hljs .hljs-class .hljs-title) {
-  color: @vscode-constant !important;
+  color: var(--hljs-number) !important;
   font-weight: bold !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-tag),
 :deep(.cainsgl-code-container code.hljs .hljs-name),
 :deep(.cainsgl-code-container code.hljs .hljs-attribute) {
-  color: @vscode-keyword !important;
+  color: var(--hljs-tag) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-regexp),
 :deep(.cainsgl-code-container code.hljs .hljs-link) {
-  color: @vscode-string !important;
+  color: var(--hljs-string) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-symbol),
 :deep(.cainsgl-code-container code.hljs .hljs-bullet) {
-  color: @vscode-constant !important;
+  color: var(--hljs-number) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-built_in),
 :deep(.cainsgl-code-container code.hljs .hljs-builtin-name) {
-  color: @vscode-function !important;
+  color: var(--hljs-function) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-meta) {
-  color: @vscode-keyword !important;
+  color: var(--hljs-keyword) !important;
   font-weight: bold !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-deletion) {
-  background: @hljs-deletion-bg !important;
+  background: var(--hljs-deletion-bg) !important;
+  color: var(--hljs-deletion-color) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-addition) {
-  background: @hljs-addition-bg !important;
+  background: var(--hljs-addition-bg) !important;
+  color: var(--hljs-addition-color) !important;
 }
 
 :deep(.cainsgl-code-container code.hljs .hljs-emphasis) {
