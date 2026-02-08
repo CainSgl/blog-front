@@ -8,13 +8,12 @@
           v-for="post in posts" 
           :key="post.id"
           :hoverable="false"
+          class="post-grid-item"
         >
-          <PostCard 
-            :width="postCardWidth" 
-            :height="postCardHeight"
-            :onlyFans="true" 
-            :post="post" 
-            :show-status="true" 
+          <PostCardWrapper
+            :post="post"
+            :height="'100%'"
+            :onlyFans="true"
           />
         </a-link>
       </div>
@@ -39,8 +38,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import PostCard from '@/components/post/PostCard.vue';
+import { ref, onMounted } from 'vue';
+import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import api from '@/api/index.js';
 import { Message } from '@arco-design/web-vue';
 
@@ -50,54 +49,7 @@ const pageSize = ref(20);
 const totalCount = ref(0);
 const loading = ref(false);
 
-// 卡片尺寸相关
-const containerWidth = ref(0);
-const postCardWidth = ref(300);
-const postCardHeight = ref(400);
-let resizeObserver = null;
-
 const showTotal = (total) => `共 ${total} 篇文章`;
-
-// 根据容器宽度动态计算期望的列数
-function getExpectCount() {
-  if (containerWidth.value <= 768) {
-    return Math.max(1, Math.min(2, Math.floor(containerWidth.value / 175)));
-  } else if (containerWidth.value <= 1080) {
-    return Math.max(3, Math.min(3, Math.floor(containerWidth.value / 250)));
-  } else if (containerWidth.value <= 1780) {
-    return Math.max(3, Math.min(3, Math.floor(containerWidth.value / 300)));
-  } else {
-    return Math.max(4, Math.min(4, Math.floor(containerWidth.value / 350)));
-  }
-}
-
-function getMinHeightCount() {
-  if (containerWidth.value <= 768) {
-    return 1.6;
-  } else if (containerWidth.value <= 1080) {
-    return 1.4;
-  } else if (containerWidth.value <= 1280) {
-    return 1;
-  } else if (containerWidth.value <= 1580) {
-    return 5 / 7;
-  } else {
-    return 3.5 / 7;
-  }
-}
-
-// 根据容器宽度更新卡片尺寸
-const updateCardSize = () => {
-  let expectWidth = 300;
-  let expectHeight = 400;
-  expectWidth = containerWidth.value / getExpectCount() - 20;
-  expectHeight = Math.floor(getMinHeightCount() * expectWidth);
-  if (containerWidth.value <= 768) {
-    expectWidth = containerWidth.value / getExpectCount() - 20;
-    expectHeight = Math.floor(getMinHeightCount() * expectWidth);
-  }
-  postCardWidth.value = expectWidth;
-  postCardHeight.value = expectHeight;
-};
 
 const fetchPosts = async (page) => {
   loading.value = true;
@@ -133,47 +85,31 @@ const handlePageChange = (page) => {
 };
 
 onMounted(() => {
-  // 获取容器宽度
-  const container = document.querySelector('.paginated-container');
-  if (container) {
-    containerWidth.value = container.offsetWidth;
-    
-    // 监听容器宽度变化
-    resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
-        containerWidth.value = entry.contentRect.width;
-      }
-    });
-    resizeObserver.observe(container);
-    
-    updateCardSize();
-  }
-  
   fetchPosts(1);
-});
-
-onBeforeUnmount(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-  }
-});
-
-// 监听容器宽度变化，动态调整卡片尺寸
-watch(containerWidth, () => {
-  updateCardSize();
 });
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .paginated-container {
-  padding: 0;
+  padding: 24px 0;
   min-height: 60vh;
 }
 
 .post-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: @size-5;
+  width: 100%;
+}
+
+.post-grid-item {
+  width: 100%;
+  height: 320px;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-@size-1);
+  }
 }
 
 .pagination-wrapper {
@@ -190,9 +126,37 @@ watch(containerWidth, () => {
   min-height: 400px;
 }
 
+// 响应式设计 - 与流式加载保持一致
+@media (max-width: 1280px) {
+  .post-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: @size-4;
+  }
+}
+
 @media (max-width: 768px) {
   .post-grid {
-    gap: 5px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: @size-3;
+  }
+
+  .post-grid-item {
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .paginated-container {
+    padding: @size-4 0;
+  }
+
+  .post-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: @size-2;
+  }
+
+  .post-grid-item {
+    height: 280px;
   }
 }
 </style>

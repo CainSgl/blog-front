@@ -6,7 +6,7 @@
       <!-- 切换按钮 -->
       <div class="view-switcher">
         <a-radio-group v-model="viewMode" type="button" size="large">
-          <a-radio value="stream">流式加载</a-radio>
+          <a-radio value="stream">无限滚动</a-radio>
           <a-radio value="pagination">分页查询</a-radio>
         </a-radio-group>
       </div>

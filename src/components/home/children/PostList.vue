@@ -24,6 +24,9 @@
       </template>
     </div>
 
+    <!-- 底部加载触发器 -->
+    <div ref="loadMoreTrigger" class="load-more-trigger"></div>
+
     <div v-if="!hasMore && posts.length > 0" class="no-more-text">
       没有更多内容了
     </div>
@@ -32,7 +35,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref, nextTick} from 'vue';
 import PostCardWrapper from '@/components/post/PostCardWrapper.vue';
 import api from '@/api/index.js';
 
@@ -40,6 +43,8 @@ const posts = ref([]);
 const loading = ref(false);
 const hasMore = ref(true);
 const loadingItems = ref([]);
+const loadMoreTrigger = ref(null);
+const gridRef = ref(null);
 
 // 游标分页参数
 let lastUpdatedAt = null;
@@ -47,6 +52,7 @@ let lastLikeRatio = null;
 let lastId = null;
 const pageSize = 12;
 let tempIdCounter = 0;
+let observer = null;
 
 // 合并实际文章和加载占位符
 const displayItems = computed(() =>
@@ -120,34 +126,63 @@ const loadPosts = async () =>
     // 清除加载占位符
     loadingItems.value = [];
     loading.value = false;
+    
+    // 加载完成后检查是否需要继续加载以填满屏幕
+    await nextTick();
+    checkAndLoadMore();
   }
 };
 
-
-
-// 滚动加载
-const handleScroll = () =>
-{
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
+// 检查是否需要继续加载以填满屏幕
+const checkAndLoadMore = () => {
+  if (!hasMore.value || loading.value) return;
+  
+  // 检查页面高度是否小于视口高度
   const documentHeight = document.documentElement.scrollHeight;
-
-  // 距离底部200px时触发加载
-  if (scrollTop + windowHeight >= documentHeight - 200)
-  {
+  const windowHeight = window.innerHeight;
+  
+  // 如果内容高度不足以产生滚动条，继续加载
+  if (documentHeight <= windowHeight + 100) {
     loadPosts();
   }
 };
 
-onMounted(() =>
+
+
+// 设置 IntersectionObserver
+const setupObserver = () => {
+  if (!loadMoreTrigger.value) return;
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+      // 当触发器进入视口时加载更多
+      if (entry.isIntersecting && !loading.value && hasMore.value) {
+        loadPosts();
+      }
+    },
+    {
+      // 提前触发：当触发器距离视口还有 500px 时就开始加载
+      rootMargin: '500px',
+      threshold: 0
+    }
+  );
+
+  observer.observe(loadMoreTrigger.value);
+};
+
+onMounted(async () =>
 {
-  loadPosts();
-  window.addEventListener('scroll', handleScroll);
+  await loadPosts();
+  await nextTick();
+  setupObserver();
 });
 
 onUnmounted(() =>
 {
-  window.removeEventListener('scroll', handleScroll);
+  if (observer) {
+    observer.disconnect();
+  }
 });
 </script>
 
@@ -200,6 +235,12 @@ onUnmounted(() =>
   justify-content: center;
   align-items: center;
   padding: 40px 0;
+}
+
+.load-more-trigger {
+  height: 1px;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .no-more-text {
