@@ -148,44 +148,27 @@ const savePostContent = async (postId, content, isAuto = false) => {
   saveLock = true;
 
   try {
-    Message.loading({
-      id: 'saveInfo',
-      content: isAuto ? '云保存中...' : '正在保存中...',
-      duration: 15000
-    });
+    // 只有手动保存才显示加载提示
+    if (!isAuto) {
+      Message.loading({
+        id: 'saveInfo',
+        content: '正在保存中...',
+        duration: 15000
+      });
+    }
+    
     await api.put('/post', { id: postId, content, auto: isAuto });
-    if (isAuto) {
-      let know = localStorage.getItem('autoSave:know');
-      Message.success(
-        {
-          id: 'saveInfo',
-          content: '保存成功',
-          duration: know ? 1500 : 3000,
-        });
-      if (!know) {
-        setTimeout(() => {
-          Message.info(
-            {
-              id: 'saveInfo',
-              content: '自动保存不会生成历史版本信息哦，该信息只会提醒一次',
-              duration: 15000,
-              closable: true,
-              onClose: () => {
-                localStorage.setItem('autoSave:know', true);
-              }
-            });
-        }, 2000);
-        localStorage.setItem('autoSave:know', true);
-      }
+    
+    // 自动保存：静默保存，不显示任何提示
+    // 手动保存：显示保存成功提示
+    if (!isAuto) {
+      Message.success({
+        id: 'saveInfo',
+        content: '保存成功',
+        duration: 2000,
+      });
     }
-    else {
-      Message.success(
-        {
-          id: 'saveInfo',
-          content: '保存成功',
-          duration: 2000,
-        });
-    }
+    
     postInfo.value.updatedAt = Date.now();
     lastAutoSavedTime.value = Date.now();
     // 更新上次自动保存的内容
@@ -197,6 +180,7 @@ const savePostContent = async (postId, content, isAuto = false) => {
   }
   catch (error) {
     console.error('保存文章内容失败:', error);
+    // 保存失败时才显示错误提示（无论自动还是手动）
     Message.error({
       id: 'saveInfo',
       content: '保存失败，已存放入本地缓存！',
@@ -330,11 +314,11 @@ const autoSave = async () => {
 
   isAutoSave = true;
 
-  // 当本地保存次数达到10次以上时，才调用API进行云保存
-  if (localSaveCount >= 10) {
+  // 当本地保存次数达到5次以上时，才调用API进行云保存（降低频率）
+  if (localSaveCount >= 5) {
     const postId = route.query.p;
     if (postId) {
-      // 自动保存
+      // 自动保存（静默保存，不显示提示）
       await savePostContent(postId, textContent.value, true);
     }
   }
@@ -349,8 +333,8 @@ const startAutoSave = () => {
     clearInterval(autoSaveInterval);
   }
 
-  // 每5秒检查一次是否需要自动保存
-  autoSaveInterval = setInterval(autoSave, 1000);
+  // 每30秒检查一次是否需要自动保存
+  autoSaveInterval = setInterval(autoSave, 30000);
 };
 
 // 停止自动保存定时器
@@ -373,6 +357,10 @@ watch(
       return;
     }
     isRestoringRoute = true;
+    
+    // 先停止旧的自动保存定时器
+    stopAutoSave();
+    
     if (newPostId && newPostId !== oldPostId) {
       // 检查是否有未保存的更改
       if (isContentChanged.value) {
@@ -385,7 +373,13 @@ watch(
         }
       }
     }
-    loadPostContent(newPostId);
+    
+    // 加载新文章内容
+    await loadPostContent(newPostId);
+    
+    // 重新启动自动保存定时器
+    startAutoSave();
+    
     isRestoringRoute = false;
   }
 );

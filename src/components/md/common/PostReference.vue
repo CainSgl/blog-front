@@ -1,15 +1,10 @@
 <template>
     <div class="cainsgl-post-reference">
-        <div v-if="loading" class="post-loading">
-            <a-spin />
-            <span>加载文章信息...</span>
-        </div>
-
-        <div v-else-if="error" class="post-error">
+        <div v-if="error" class="post-error">
             <icon-exclamation-circle :size="24" />
             <span>{{ error }}</span>
         </div>
-        <a-link :hoverable="false" :href="postData?`/p/${postData.id}` : ''" style="width: 100%;max-width: 500px;display: block;" >
+        <a-link v-if="!error" :hoverable="false" :href="postData?`/p/${postData.id}` : ''" style="width: 100%;max-width: 500px;display: block;" >
             <PostCardWrapper  :post="postData" />
         </a-link>
     </div>
