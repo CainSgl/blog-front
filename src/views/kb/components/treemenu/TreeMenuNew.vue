@@ -34,7 +34,7 @@
         </Dropdown>
       </div>
     </div>
-    <TransitionGroup name="node-list" tag="div" style="height:100%;overflow: auto" class="menu-nodes-list">
+    <TransitionGroup name="node-list" tag="div" class="menu-nodes-list">
       <div v-for="(node, index) in flatNodes" :key="node.id" class="tree-node" :class="getNodeClasses(node, index)"
         :style="{ marginLeft: `${node.depth * 20}px` }" @mousedown="handleMouseDown($event, node, index)">
         <div class="node-content" :class="{ editing: node.isEditing }">
@@ -115,6 +115,7 @@
         <span class="node-name">{{ dragState.sourceNode?.name }}</span>
       </div>
     </div>
+
     <!-- 加载状态指示器 -->
     <div v-if="loading > 0" class="loading-container">
       <Spin :tip="loadingTip">
@@ -1461,6 +1462,9 @@ function cleanupDrag() {
 .menu-nodes-list {
   overflow: auto;
   scrollbar-width: none;
+  flex: 1;
+  height: 100%;
+  padding-bottom: calc(100dvh - 400px);
 
   &::-webkit-scrollbar {
     display: none !important;
@@ -1471,6 +1475,9 @@ function cleanupDrag() {
 
 .tree-menu {
   user-select: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
   .tree-menu-container {
     position: relative;

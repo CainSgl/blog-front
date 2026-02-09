@@ -26,13 +26,12 @@
       :edit="edit" 
       :kb-id="kbId"
       v-bind="$attrs"
-      :style="{ height: height }"
     />
   </div>
 </template>
 
 <script setup>
-import {computed, nextTick, onMounted, ref} from 'vue';
+import {computed, ref} from 'vue';
 import TreeMenuNew from './TreeMenuNew.vue';
 
 // 启用属性继承
@@ -52,10 +51,6 @@ const props = defineProps({
   kbId: {
     type: String,
     default: '-1'
-  },
-  height: {
-    type: String,
-    default: '100%'
   }
 });
 
@@ -67,13 +62,6 @@ const showSkeleton = computed(() =>
 
 // 创建ref引用
 const wrapperRef = ref(null);
-
-
-// 组件挂载后计算高度
-onMounted(async () => 
-{
-  await nextTick();
-});
 </script>
 
 <style scoped>

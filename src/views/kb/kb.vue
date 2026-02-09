@@ -1,34 +1,36 @@
 <template>
-  <Header></Header>
-  <div class="header-container"></div>
-  <div class="knowledge-base" @mousemove="handleMouseMove">
+  <Header v-show="!isImmersive"></Header>
+  <div class="header-container" v-show="!isImmersive"></div>
+  <div class="knowledge-base" :class="{ immersive: isImmersive }" @mousemove="handleMouseMove">
     <div v-if="!hasError" class="sidebar" :class="{ collapsed: isCollapsed }">
-      <div v-show="!isCollapsed">
-        <div class="tree-menu">
-          <div class="kb-header">
-            <h3 style="color: var(--color-neutral-10);">{{ kbInfo.name }}</h3>
+      <div class="tree-menu" v-show="!isCollapsed">
+        <div class="kb-header">
+          <h3 style="color: var(--color-neutral-10);">{{ kbInfo.name }}</h3>
+          <div class="header-actions">
+            <div class="immersive-button" @click="toggleImmersive">
+              <IconFullscreenExit v-if="isImmersive" class="immersive-icon" />
+              <IconFullscreen v-else class="immersive-icon" />
+            </div>
             <div class="favorite-button" @click="handleFavorite">
               <IconStarFill v-if="kbStore.hasStar" class="star-icon active" />
               <IconStar v-else class="star-icon" />
             </div>
           </div>
-          <div class="home-node" @click="goToHome">
-            <div class="node-content">
-              <span class="node-name">
-                <IconHome class="action-icon" />
-                <span>首页</span>
-              </span>
-            </div>
-          </div>
-          <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId"
-            :height="treeMenuHeight" />
-
         </div>
+        <div class="home-node" @click="goToHome">
+          <div class="node-content">
+            <span class="node-name">
+              <IconHome class="action-icon" />
+              <span>首页</span>
+            </span>
+          </div>
+        </div>
+        <TreeMenu :tree-data="treeData" :edit="edit" @clickPost="handleClickPost" :kb-id="kbId" />
       </div>
+      
       <div class="collapse-button" v-show="!isCollapsed && showCollapseButton" @click="toggleCollapse">
         <IconDoubleLeft class="collapse-icon" size="large"> </IconDoubleLeft>
       </div>
-
     </div>
 
 
@@ -51,7 +53,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import TreeMenu from '@/views/kb/components/treemenu/TreeMenuWrapper.vue';
 import AddToFavoriteModal from '@/components/base/favorite/AddToFavoriteModal.vue';
 
-import { IconDoubleLeft, IconDoubleRight, IconHome, IconStar, IconStarFill } from '@arco-design/web-vue/es/icon';
+import { IconDoubleLeft, IconDoubleRight, IconHome, IconStar, IconStarFill, IconFullscreen, IconFullscreenExit } from '@arco-design/web-vue/es/icon';
 import { useRoute, useRouter } from 'vue-router';
 import { useKbStore } from './kbStore.js';
 import { useUserStore } from '@/store/user';
@@ -66,6 +68,7 @@ const route = useRoute();
 const router = useRouter();
 const noKb = ref(false);
 const isCollapsed = ref(false);
+const isImmersive = ref(false);
 const kbInfo = ref({
   name: '获取中...',
   likeCount: 0
@@ -213,7 +216,6 @@ function handleResize() {
 }
 
 const kbId = ref('-1');
-const treeMenuHeight = ref('calc(100vh - 220px)'); // 默认高度计算
 
 function handleClickPost(node) {
   const pageName = route.name;
@@ -234,6 +236,10 @@ function goToHome() {
 
 function toggleCollapse() {
   isCollapsed.value = !isCollapsed.value;
+}
+
+function toggleImmersive() {
+  isImmersive.value = !isImmersive.value;
 }
 
 function handleMouseMove(event) {
@@ -289,20 +295,26 @@ onUnmounted(() => {
 <style scoped lang="less">
 .knowledge-base {
   display: flex;
-  height: 100vh;
+  height: calc(100dvh - 68px);
   width: 100%;
   background-color: var(--color-bg-1);
+
+  &.immersive {
+    height: 100dvh;
+  }
 }
 
 .sidebar {
   min-width: 290px;
   width: 16%;
   padding: 20px;
-  height: 100vh;
+  max-height: 100dvh;
   box-sizing: border-box;
   border-right: 1px solid var(--color-border-2);
   position: relative;
   transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
 
   &.collapsed {
     width: 0;
@@ -319,8 +331,10 @@ onUnmounted(() => {
 
 .tree-menu {
   width: 100%;
-  height: 100%;
+  flex: 1;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .kb-header {
@@ -336,6 +350,38 @@ onUnmounted(() => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .immersive-button {
+    flex-shrink: 0;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: var(--color-fill-2);
+    }
+
+    .immersive-icon {
+      font-size: 20px;
+      color: var(--color-neutral-6);
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--color-neutral-10);
+      }
+    }
   }
 
   .favorite-button {
@@ -371,7 +417,7 @@ onUnmounted(() => {
 .content {
   flex: 1;
   overflow: hidden;
-  height: 100vh;
+  height: 100%;
   box-sizing: border-box;
 }
 
