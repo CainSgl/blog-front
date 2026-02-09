@@ -22,6 +22,7 @@ import CommentableParagraph from '../comment/CommentableParagraph.vue';
 import ShareFile from './common/ShareFile.vue';
 import MusicPlayer from './common/MusicPlayer.vue';
 import VideoPlayer from './common/VideoPlayer.vue';
+import PostReference from './common/PostReference.vue';
 import {API_BASE_URL} from '@/config';
 import containerExtension from '@/plugins/md-tip-info-extens.js';
 import {useTocStore} from './common/toc/toc.js';
@@ -511,6 +512,32 @@ const processDynamicComponents = async () =>
       videoPlayerApp.use(ArcoVue);
       // 挂载到容器
       videoPlayerApp.mount(container);
+    });
+
+    // 处理文章引用占位符
+    const postReferencePlaceholders = previewContentRef.value.querySelectorAll('.post-reference-placeholder');
+    postReferencePlaceholders.forEach(placeholder => 
+    {
+      const postId = decodeURIComponent(placeholder.getAttribute('data-post-id'));
+      const description = decodeURIComponent(placeholder.getAttribute('data-description'));
+
+      // 创建一个容器来放置 PostReference 组件
+      const container = document.createElement('div');
+      container.className = 'post-reference-container';
+      placeholder.parentNode.replaceChild(container, placeholder);
+
+      const postReferenceApp = createApp({
+        render() 
+        {
+          return h(PostReference, {
+            postId: postId,
+            description: description
+          });
+        }
+      });
+      postReferenceApp.use(ArcoVue);
+      // 挂载到容器
+      postReferenceApp.mount(container);
     });
   }
 };

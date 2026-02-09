@@ -121,6 +121,9 @@
     <!-- 图片裁剪模态框 -->
     <ImageCropperModal ref="imageCropperRef" v-model="cropperModalVisible" :auto="true"
       :original-file-name="originalFileName" @confirm="handleCroppedImage" />
+
+    <!-- 文章选择器 -->
+    <PostSelector v-model="postSelectorVisible" :userId="currentUserId" @select="handlePostSelected" />
   </div>
 </template>
 
@@ -161,6 +164,8 @@ import VuePickColors from 'vue-pick-colors';
 import ImageCropperModal from '@/components/base/image/ImageCropperModal.vue';
 import VMdEditor, { loadMermaidPlugin } from '@/plugins/v-md-editor';
 import {uploadFile} from '@/utils/fileUploader.js';
+import PostSelector from './common/PostSelector.vue';
+import { useUserStore } from '@/store/user.js';
 const formatButtons1 = [
   {
     content: "粗体",
@@ -256,6 +261,13 @@ const formatButtons2 = [
     title: "插入视频/动图",
     icon: IconPlayCircle,
     handler: () => insertVideo()
+  },
+  {
+    content: "引用文章",
+    type: "post",
+    title: "引用文章",
+    icon: IconFile,
+    handler: () => insertPost()
   }
 ];
 const menuItems = [
@@ -331,6 +343,12 @@ const menuItems = [
     label: '插入视频/动图',
     icon: IconPlayCircle,
     handler: () => insertVideo()
+  },
+  {
+    type: 'post',
+    label: '引用文章',
+    icon: IconFile,
+    handler: () => insertPost()
   }
 ];
 
@@ -415,6 +433,11 @@ const cropperModalVisible = ref(false);
 const imageCropperRef = ref();
 const currentImageFile = ref(null);
 const originalFileName = ref('');
+
+// 文章选择器相关数据
+const postSelectorVisible = ref(false);
+const userStore = useUserStore();
+const currentUserId = ref(null);
 
 // 编辑器模式
 const editorMode = ref('both'); // 'edit', 'preview', 'both'
@@ -1691,6 +1714,45 @@ const insertVideo = () => {
     }
   };
   fileInput.click();
+};
+
+// 插入文章引用
+const insertPost = async () => {
+  // 获取当前用户ID
+  try {
+    const userInfo = await userStore.getUserInfo();
+    currentUserId.value = userInfo.id;
+    // 打开文章选择器
+    postSelectorVisible.value = true;
+  } catch (error) {
+    console.error('获取用户信息失败:', error);
+    Message.error('请先登录');
+  }
+};
+
+// 处理文章选择
+const handlePostSelected = (post) => {
+  const editor = editorRef.value;
+  if (!editor) return;
+
+  const textarea = editor.$refs.editorEgine?.textareaEl || editor.$el.querySelector('textarea');
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  // 插入 post 格式：:::post postId \n 文章标题\n:::\n
+  const postMarkdown = `\n:::post ${post.id} \n ${post.title}\n:::\n`;
+  const newText = text.value.substring(0, start) + postMarkdown + text.value.substring(end);
+  text.value = newText;
+
+  // 设置光标位置到文章引用块后面
+  setTimeout(() => {
+    textarea.setSelectionRange(start + postMarkdown.length, start + postMarkdown.length);
+    textarea.focus();
+  }, 0);
+
+  Message.success('文章引用插入成功');
 };
 
 

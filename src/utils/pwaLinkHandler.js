@@ -30,7 +30,7 @@ function isInternalLink(url) {
 /**
  * 导航到指定路径
  */
-function navigateToPath(href, config) {
+function navigateToPath(href, config, forceRefresh = false) {
   try {
     const url = new URL(href, window.location.origin);
     const path = url.pathname + url.search + url.hash;
@@ -38,9 +38,24 @@ function navigateToPath(href, config) {
     // 检查是否为当前页面
     const currentPath = window.location.pathname + window.location.search + window.location.hash;
     if (path !== currentPath) {
-      safeLog('PWA 内部导航:', path);
-      showDebugNotification(`导航到: ${path}`);
-      router.push(path);
+      safeLog('PWA 内部导航:', path, forceRefresh ? '(强制刷新)' : '');
+      showDebugNotification(`导航到: ${path}${forceRefresh ? ' (刷新)' : ''}`);
+      
+      if (forceRefresh) {
+        // 对于需要刷新的场景（如 target="_blank"），先导航再刷新
+        router.push(path).then(() => {
+          // 使用 router.go(0) 或 location.reload() 刷新页面
+          // 这样可以清除组件缓存并重新加载数据
+          window.location.href = path;
+        });
+      } else {
+        router.push(path);
+      }
+      return true;
+    } else if (forceRefresh) {
+      // 如果是同一页面但需要刷新
+      safeLog('PWA 刷新当前页面');
+      window.location.reload();
       return true;
     }
     return false;
@@ -59,7 +74,9 @@ const config = {
   // 是否在控制台输出调试信息
   debug: false, // 生产环境默认关闭，避免被 terser 删除代码
   // 是否显示通知（用于生产环境调试）
-  showNotification: false
+  showNotification: false,
+  // target="_blank" 链接是否强制刷新（解决缓存问题）
+  refreshOnNewWindow: true
 };
 
 // 安全的日志函数，不会被 terser 删除
@@ -105,8 +122,8 @@ function overrideWindowOpen() {
       safeLog('拦截 window.open 内部链接:', urlString);
       showDebugNotification(`拦截 window.open: ${urlString}`);
       
-      // 在应用内导航
-      navigateToPath(urlString, config);
+      // 在应用内导航，window.open 通常意味着新窗口，所以强制刷新
+      navigateToPath(urlString, config, config.refreshOnNewWindow);
       
       // 返回一个模拟的 window 对象，避免代码报错
       return {
@@ -172,20 +189,19 @@ export function initPWALinkHandler(options = {}) {
 
     // 检查是否为内部链接
     if (isInternalLink(href)) {
+      event.preventDefault();
+      event.stopPropagation();
+      
       // 如果是内部链接且有 target="_blank"，也要拦截
       if (targetAttr === '_blank') {
-        event.preventDefault();
-        event.stopPropagation();
-        
         safeLog('拦截 target="_blank" 内部链接:', href);
         showDebugNotification(`拦截链接: ${href}`);
+        // target="_blank" 意味着新窗口，强制刷新以避免缓存问题
+        navigateToPath(href, config, config.refreshOnNewWindow);
       } else {
-        event.preventDefault();
-        event.stopPropagation();
+        // 普通链接，正常导航
+        navigateToPath(href, config, false);
       }
-
-      // 使用 router 进行导航
-      navigateToPath(href, config);
     } else if (config.interceptExternalLinks) {
       // 外部链接：拦截并提示
       event.preventDefault();
