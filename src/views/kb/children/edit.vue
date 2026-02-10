@@ -43,6 +43,13 @@ import api from '@/api/index.js';
 import { useKbStore } from '../kbStore.js';
 import { useUserSettingStore } from '@/store/userSetting.js';
 
+const props = defineProps({
+  isImmersive: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();
@@ -55,7 +62,11 @@ const lastAutoSavedContent = ref(''); // 存储上次自动保存的内容
 const lastAutoSavedTime = ref(0); // 存储上次自动保存的时间戳
 let isAutoSave = false; // 自动保存的定时器（非响应式）
 let localSaveCount = 0; // 本地保存计数器
-const editorHeight = ref('calc(100vh - 194px)');
+const editorHeight = computed(() => {
+  // immersive 模式：100dvh - 194px (页面内部元素)
+  // 非 immersive 模式：100dvh - 194px - 68px (header高度)
+  return props.isImmersive ? 'calc(100dvh - 194px)' : 'calc(100dvh - 194px - 68px)';
+});
 const loading = ref(false); // 控制文章加载时的旋转动画
 
 // 编辑器提示相关

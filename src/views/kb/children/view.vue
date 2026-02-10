@@ -30,13 +30,25 @@ import {messageManager} from '@/api/request.js';
 
 import MarkdownPreviewWrapper from '@/components/md/MarkdownPreviewWrapper.vue';
 
+const props = defineProps({
+  isImmersive: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();
 
 // 响应式数据
 const textContent = ref('');
-const previewHeight = ref('calc(100vh - 124px)');
+const previewHeight = computed(() => {
+  // immersive 模式：100dvh
+  // 非 immersive 模式：100dvh - 68px (header高度)
+  // 减去 124px 是页面内部的其他元素高度
+  return props.isImmersive ? 'calc(100dvh - 124px)' : 'calc(100dvh - 124px - 68px)';
+});
 const loading = ref(false); // 控制文章加载时的旋转动画
 const notBestReading = ref(false); // 是否不在最佳阅读位置
 const lastScrollTop = ref(0); // 上次滚动位置
@@ -58,7 +70,7 @@ function getSummrayElment(summary)
   {
     summary = '这个人没有设置任何摘要哦';
   }
-  summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>`;
+  summaryCache = `<p style="font-size: 16px; line-height: 1.6;background-color: var(--color-fill-1); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">摘要：${summary}</p>\n\n`;
   return summaryCache;
 }
 const loadPostContent = async (postId) => 
@@ -71,8 +83,8 @@ const loadPostContent = async (postId) =>
   {
     const { data } = await api.get('/post', { id: postId, simple: true });
     console.log(data);
+    data.content= getSummrayElment(data.summary) + '\n' + data.content;
     textContent.value = data.content || '';
-    data.content= getSummrayElment(data.summary) + '\n' + data.content
     postInfo.value = data;
   }
   catch (error) 

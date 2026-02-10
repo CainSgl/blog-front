@@ -36,7 +36,7 @@
 
 
     <div class="content">
-      <router-view />
+      <router-view :is-immersive="isImmersive" />
       <div class="collapse-button-fixed" v-if="isCollapsed" v-show="isCollapsed && showCollapseButton"
         @click="toggleCollapse">
         <IconDoubleRight class="collapse-icon" size="large"></IconDoubleRight>
@@ -418,6 +418,7 @@ onUnmounted(() => {
   flex: 1;
   overflow: hidden;
   height: 100%;
+  max-height: 100dvh;
   box-sizing: border-box;
 }
 
