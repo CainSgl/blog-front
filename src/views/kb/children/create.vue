@@ -340,7 +340,7 @@ const customRequest = async (options) =>
 
 <style scoped lang="less">
 .kb-create-container {
-  height: 100vh;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;

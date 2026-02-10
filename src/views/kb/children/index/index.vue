@@ -63,7 +63,8 @@
       </div>
     </div>
 
-    <a-spin :loading="loading" tip="正在加载知识库首页内容..." style="display: block;">
+    <a-spin :loading="loading" tip="正在加载知识库首页内容..." style="display: block;" >
+      <div :style="{'height': previewHeight}" style="overflow: auto;">
       <div class="user-info">
         <div class="user-info-content">
           <avatarWithInfo :user="masterUser" :size="40" />
@@ -71,11 +72,12 @@
         </div>
         <FollowButton :userId="masterUser?.id" @followChanged="handleFollowChanged" />
       </div>
-      <div v-if="content" class="content-container">
-        <MarkdownPreview :showComment="false" :content="content" :height="height" />
+      <div v-if="content" class="content-container" >
+        <MarkdownPreview :showComment="false" :content="content" />
       </div>
       <div v-else-if="!loading" class="empty-container">
         <a-empty description="该用户未设置首页内容" />
+      </div>
       </div>
     </a-spin>
 
@@ -95,18 +97,33 @@ import {IconCopy, IconEdit, IconMore, IconSettings, IconShareInternal} from '@ar
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import FollowButton from '@/components/base/follow/FollowButton.vue';
 
+const props = defineProps({
+  isImmersive: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const route = useRoute();
 const router = useRouter();
 const kbStore = useKbStore();
 const userStore = useUserStore();
 const content = ref('');
 const loading = ref(false);
-const height = ref('calc(100vh - 120px)'); // 设置合适的高度
 const renaming = ref(false); // 添加重命名状态
 const newName = ref('');
 const renameInputRef = ref(); // 添加重命名输入框引用
 const shareVisible = ref(false);
 const masterUser = ref(null);
+
+// 计算预览高度
+const previewHeight = computed(() => {
+  // immersive 模式：100dvh
+  // 非 immersive 模式：100dvh - 68px (header高度)`
+  // 减去 123px 是页面内部的其他元素高度
+  return props.isImmersive ? 'calc(100dvh - 100px)' : 'calc(100dvh - 100px - 68px)';
+});
+
 const shareLink = computed(() => 
 {
   if (kbInfo.value && kbInfo.value.id) 
@@ -152,7 +169,7 @@ const loadKbIndexContent = async () =>
     try 
     {
       const { data } = await api.get('/post/kb/index', { id: kbIdreq });
-      content.value = data.index || '';
+      content.value = '\n\n'+data.index || '';
     }
     catch (error) 
     {
@@ -395,10 +412,6 @@ const handleFollowChanged = (isFollowing) =>
   }
 
  
-
-  .content-container {
-    height: 100%;
-  }
 
   .empty-container {
     display: flex;

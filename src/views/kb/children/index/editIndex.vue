@@ -330,7 +330,7 @@ onMounted(() =>
   width: 180px;
 }
 .kb-edit-index-container {
-  height: 100vh;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;

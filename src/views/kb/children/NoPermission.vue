@@ -51,7 +51,7 @@ const goBack = () =>
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100%;
   background-color: #f5f5f5;
 }
 
