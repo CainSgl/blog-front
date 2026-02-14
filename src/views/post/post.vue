@@ -218,7 +218,7 @@ async function handleHistoryClick(item) {
     console.log('查看历史记录', item.version);
     commentStore.getParagraphCommentCountByPost(item.postId, item.version);
     const { data } = await api.get('/post/history', { postId: item.postId, id: item.id });
-    post.value.content = data;
+    post.value.content = '\n\n'+data;
     Message.success({ id: 'loadingHistory', content: '文章历史版本加载成功', duration: 500 });
   }
   catch (error) {

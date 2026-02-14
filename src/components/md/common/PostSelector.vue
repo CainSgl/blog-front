@@ -19,12 +19,12 @@
       </div>
 
       <!-- 文章列表 -->
-      <div v-if="loading" class="loading-container">
+      <div v-if="loading && posts.length === 0" class="loading-container">
         <a-spin />
         <span>加载中...</span>
       </div>
 
-      <div v-else-if="posts.length === 0" class="empty-container">
+      <div v-else-if="posts.length === 0 && !loading" class="empty-container">
         <a-empty description="暂无文章" />
       </div>
 
@@ -37,9 +37,13 @@
         >
           <PostCardWrapper
             :post="post"
-            :width="cardWidth"
-            :height="cardHeight"
+            :height="'100%'"
           />
+        </div>
+        
+        <!-- 加载中的遮罩 -->
+        <div v-if="loading" class="loading-overlay">
+          <a-spin size="large" />
         </div>
       </div>
 
@@ -85,10 +89,6 @@ const currentPage = ref(1);
 const pageSize = ref(12);
 const searchKeyword = ref('');
 
-// 卡片尺寸
-const cardWidth = 240;
-const cardHeight = 360;
-
 // 监听 modelValue 变化
 watch(() => props.modelValue, (newVal) => {
   visible.value = newVal;
@@ -125,6 +125,8 @@ const loadPosts = async (page = 1) => {
     }
 
     const { data } = await api.post('/post/list', params);
+    
+    // 加载完成后再更新数据，避免页面闪烁
     posts.value = data.records;
     if (total.value <= 0) {
       total.value = data.total;
@@ -144,11 +146,13 @@ const loadPosts = async (page = 1) => {
 const handleSearch = () => {
   currentPage.value = 1;
   total.value = 0;
+  posts.value = []; // 搜索时清空旧数据
   loadPosts(1);
 };
 
 // 分页处理
 const handlePageChange = (page) => {
+  // 不清空旧数据，保持页面内容
   loadPosts(page);
 };
 
@@ -182,8 +186,9 @@ const handleCancel = () => {
   }
 
   .posts-grid {
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
     max-height: 60vh;
@@ -191,12 +196,28 @@ const handleCancel = () => {
     padding: 8px;
 
     .post-item {
+      width: 100%;
+      height: 320px;
       cursor: pointer;
       transition: transform 0.2s ease;
 
       &:hover {
         transform: translateY(-4px);
       }
+    }
+    
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(var(--color-bg-1-rgb), 0.8);
+      backdrop-filter: blur(2px);
+      z-index: 10;
     }
   }
 
@@ -208,12 +229,37 @@ const handleCancel = () => {
   }
 }
 
-// 移动端适配
+// 响应式设计
+@media (max-width: 1280px) {
+  .post-selector {
+    .posts-grid {
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .post-selector {
     .posts-grid {
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 12px;
+      
+      .post-item {
+        height: 280px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .post-selector {
+    .posts-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      
+      .post-item {
+        height: 280px;
+      }
     }
   }
 }

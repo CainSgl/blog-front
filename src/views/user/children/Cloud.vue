@@ -105,6 +105,17 @@
               </a-grid-item>
             </a-grid>
           </div>
+          
+          <!-- 加载触发器和加载状态 -->
+          <div ref="loadingTrigger" class="loading-trigger">
+            <div v-if="loading" style="text-align: center; padding: 20px;">
+              <a-spin />
+              <span style="margin-left: 10px;">加载中...</span>
+            </div>
+            <div v-else-if="!hasMore" style="text-align: center; padding: 20px; color: var(--color-text-3);">
+              没有更多文件了
+            </div>
+          </div>
         </a-card>
       </div>
     </div>
@@ -113,7 +124,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref, nextTick} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {useUserStore} from '@/store/user.js';
 import {IconDriveFile, IconFile, IconFileImage, IconFilePdf,} from '@arco-design/web-vue/es/icon';
@@ -136,6 +147,9 @@ const usedStorageBytes = ref(0); // 实际使用的字节数
 const usedStorage = computed(() => formatBytes(usedStorageBytes.value)); // 格式化后的已用存储
 const lastId = ref('0'); // 用于游标分页
 const hasMore = ref(true); // 是否还有更多数据
+const loadMore = ref(true); // 是否继续加载
+const loading = ref(false); // 是否正在加载
+const loadingTrigger = ref(null); // 加载触发器元素
 
 // 初始化 userId，并监听路由变化
 const userId = ref(route.params.id);
@@ -200,6 +214,11 @@ const fetchUserInfo = async (id) => {
 
 // 获取文件列表
 const fetchFileList = async () => {
+  if (loading.value || !loadMore.value) {
+    return;
+  }
+  
+  loading.value = true;
   try {
     const params = {
       id: userId.value,
@@ -210,15 +229,38 @@ const fetchFileList = async () => {
     if (newFiles.length > 0) {
       lastId.value = newFiles[newFiles.length - 1].shortUrl;
       hasMore.value = newFiles.length === 30;
+      files.value = [...files.value, ...newFiles];
+      
+      // 等待 DOM 更新后检查是否需要继续加载
+      await nextTick();
+      checkIfNeedMoreLoad();
     }
     else {
       hasMore.value = false;
+      loadMore.value = false;
     }
-    files.value = [...files.value, ...newFiles];
   }
   catch (error) {
     console.error('获取文件列表失败:', error);
     throw error; // 重新抛出错误，以便上层处理
+  }
+  finally {
+    loading.value = false;
+  }
+};
+
+// 检查是否需要继续加载（当内容不足以填满视窗时）
+const checkIfNeedMoreLoad = () => {
+  if (!loadingTrigger.value || !hasMore.value || loading.value) {
+    return;
+  }
+  
+  const rect = loadingTrigger.value.getBoundingClientRect();
+  const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+  
+  // 如果加载触发器仍在视窗内，说明内容不够，继续加载
+  if (isInViewport && loadMore.value) {
+    fetchFileList();
   }
 };
 
@@ -235,6 +277,32 @@ const formatBytes = (bytes, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 const router = useRouter();
+
+// Intersection Observer 实例
+let observer = null;
+
+// 设置 Intersection Observer
+const setupIntersectionObserver = () => {
+  if (!loadingTrigger.value) return;
+  
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && hasMore.value && loadMore.value && !loading.value) {
+          fetchFileList();
+        }
+      });
+    },
+    {
+      root: null,
+      rootMargin: '100px', // 提前 100px 开始加载
+      threshold: 0.1
+    }
+  );
+  
+  observer.observe(loadingTrigger.value);
+};
+
 // 组件挂载时加载数据
 onMounted(async () => {
   if (userId.value) {
@@ -249,13 +317,24 @@ onMounted(async () => {
       // 然后获取文件列表
       await fetchFileList();
       Message.success({ id: 'cloudLoading', content: '加载成功' });
+      
+      // 设置 Intersection Observer
+      await nextTick();
+      setupIntersectionObserver();
     }
     catch (error) {
       Message.error('数据加载失败: ' + error.message);
     }
   }
-}
-);
+});
+
+// 组件卸载时清理
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
+});
 
 const handleBack = () => {
   router.push(`/space/${userId.value}`);
@@ -529,6 +608,10 @@ const handleFileClick = (file) => {
   }
 
   .file-manager {
+    .loading-trigger {
+      min-height: 40px;
+    }
+    
     .grid-view {
       .file-card {
         transition: all 0.3s ease;

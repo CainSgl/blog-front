@@ -402,7 +402,6 @@ const processDynamicComponents = async () =>
     {
       let src = placeholder.getAttribute('data-src');
       const alt = placeholder.getAttribute('data-alt');
-      const title = placeholder.getAttribute('data-title');
       let width = placeholder.getAttribute('data-width');
 
       // Arco 图片组件
@@ -414,20 +413,26 @@ const processDynamicComponents = async () =>
       const imageApp = createApp({
         render() 
         {
+          const imageStyle = {
+            borderRadius: '6px',
+            margin: '16px 0',
+            maxWidth: '100%'
+          };
+          
+          // 如果有指定宽度，添加到style中
+          if (width) {
+            imageStyle.width = `${parseInt(width)}px`;
+          }
+          
           return h(AImage, {
             src: src,
             alt: alt,
-            width: width ? parseInt(width) : undefined, // 如果有 width 属性，则使用它
             height: 'auto',
             fit: 'scale-down', // 使用 scale-down 模式，保持宽高比且不放大图片
             'show-loader': true,
             'lazy': true,
             preview: true,
-            style: {
-              borderRadius: '6px',
-              margin: '16px 0',
-              maxWidth: '100%'
-            }
+            style: imageStyle
           });
         }
       });
