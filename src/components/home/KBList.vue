@@ -132,15 +132,6 @@ const loadMoreData = async () =>
 
     // 触发响应式更新
     items.value = [...items.value];
-
-    // 数据加载完成后，立即检查是否还需要加载更多数据
-    nextTick(() => 
-    {
-      if (shouldLoadMore()) 
-      {
-        loadMoreData();
-      }
-    });
   }
   catch (error) 
   {
@@ -152,6 +143,15 @@ const loadMoreData = async () =>
   finally 
   {
     loadingData = false;
+    
+    // 数据加载完成后，立即检查是否还需要加载更多数据
+    nextTick(() => 
+    {
+      if (shouldLoadMore()) 
+      {
+        loadMoreData();
+      }
+    });
   }
 };
 

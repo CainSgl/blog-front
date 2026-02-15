@@ -26,23 +26,7 @@ onMounted(() => {
   if (isPWA) {
     document.body.classList.add('pwa-mode');
   }
-  
-  // 检测 HTTP 连接并强制跳转到 HTTPS
-  if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
-    Modal.warning({
-      title: '连接不安全',
-      content: '当前连接不安全，请立即切换到 HTTPS 安全连接',
-      okText: '是',
-      hideCancel: true,
-      closable: false,
-      maskClosable: false,
-      escToClose: false,
-      onOk: () => {
-        const httpsUrl = window.location.href.replace('http://', 'https://');
-        window.location.replace(httpsUrl);
-      }
-    });
-  }
+
 });
 
 // 懒加载 LoginModal，只在需要时才加载 three.js 等重资源

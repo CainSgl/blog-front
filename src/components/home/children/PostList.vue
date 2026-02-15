@@ -130,19 +130,36 @@ const loadPosts = async () =>
     // 加载完成后检查是否需要继续加载以填满屏幕
     await nextTick();
     checkAndLoadMore();
+    
+    // 加载完成后，手动检查触发器是否在视口内
+    checkTriggerVisibility();
   }
 };
 
 // 检查是否需要继续加载以填满屏幕
 const checkAndLoadMore = () => {
-  if (!hasMore.value || loading.value) return;
+  if (!hasMore.value || loading.value || !loadMoreTrigger.value) return;
   
-  // 检查页面高度是否小于视口高度
-  const documentHeight = document.documentElement.scrollHeight;
+  // 检查触发器是否在视口内或接近视口
+  const triggerRect = loadMoreTrigger.value.getBoundingClientRect();
   const windowHeight = window.innerHeight;
   
-  // 如果内容高度不足以产生滚动条，继续加载
-  if (documentHeight <= windowHeight + 100) {
+  // 如果触发器在视口内或距离视口底部小于200px，继续加载
+  if (triggerRect.top < windowHeight + 200) {
+    loadPosts();
+  }
+};
+
+// 手动检查触发器可见性（用于 loading 完成后）
+const checkTriggerVisibility = () => {
+  if (!hasMore.value || loading.value || !loadMoreTrigger.value) return;
+  
+  const triggerRect = loadMoreTrigger.value.getBoundingClientRect();
+  const windowHeight = window.innerHeight;
+  
+  // 检查触发器是否在视口内（包含 rootMargin）
+  if (triggerRect.top < windowHeight + 500) {
+    console.log('Trigger is visible after loading, loading more...');
     loadPosts();
   }
 };
@@ -153,11 +170,23 @@ const checkAndLoadMore = () => {
 const setupObserver = () => {
   if (!loadMoreTrigger.value) return;
 
+  // 如果已经有 observer，先断开
+  if (observer) {
+    observer.disconnect();
+  }
+
   observer = new IntersectionObserver(
     (entries) => {
       const entry = entries[0];
+      console.log('IntersectionObserver triggered:', {
+        isIntersecting: entry.isIntersecting,
+        loading: loading.value,
+        hasMore: hasMore.value,
+        boundingClientRect: entry.boundingClientRect
+      });
       // 当触发器进入视口时加载更多
       if (entry.isIntersecting && !loading.value && hasMore.value) {
+        console.log('Loading more posts...');
         loadPosts();
       }
     },
@@ -169,10 +198,12 @@ const setupObserver = () => {
   );
 
   observer.observe(loadMoreTrigger.value);
+  console.log('Observer setup complete');
 };
 
 onMounted(async () =>
 {
+  console.log('Component mounted');
   await loadPosts();
   await nextTick();
   setupObserver();
@@ -180,6 +211,7 @@ onMounted(async () =>
 
 onUnmounted(() =>
 {
+  console.log('Component unmounting');
   if (observer) {
     observer.disconnect();
   }
