@@ -9,9 +9,25 @@ import router from '@/router';
  * 检查是否在 PWA 模式下运行
  */
 export function isPWAMode() {
-  return window.matchMedia('(display-mode: standalone)').matches ||
-         window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-         window.navigator.standalone === true;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches;
+  const windowControls = window.matchMedia('(display-mode: window-controls-overlay)').matches;
+  const iosStandalone = window.navigator.standalone === true;
+  
+  const isPWA = standalone || windowControls || iosStandalone;
+  
+  // 调试信息（开发环境）
+  if (import.meta.env.DEV) {
+    console.log('[PWA 检测]', {
+      standalone,
+      windowControls,
+      iosStandalone,
+      isPWA,
+      displayMode: window.matchMedia('(display-mode: standalone)').media,
+      userAgent: navigator.userAgent
+    });
+  }
+  
+  return isPWA;
 }
 
 /**

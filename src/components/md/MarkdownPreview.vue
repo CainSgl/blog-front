@@ -922,6 +922,12 @@ defineExpose({
       }
     }
 
+    // 确保 Arco Image 组件内的 img 标签不超出容器
+    & .arco-image-img {
+      max-width: 100% !important;
+      object-fit: scale-down !important;
+    }
+
     & .cainsgl-task-list-item {
       display: flex;
       align-items: flex-start;

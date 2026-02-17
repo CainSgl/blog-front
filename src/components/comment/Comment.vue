@@ -14,6 +14,9 @@
       <span class="view-replies comment-gray-color" style="font-size: 14px;" key="reply" @click="toggleReplyInput">
         回复
       </span>
+      <span v-if="canDelete" class="view-replies comment-gray-color" style="font-size: 14px;" key="delete" @click="handleDelete">
+        删除
+      </span>
     </template>
 
     <template #avatar>
@@ -34,13 +37,12 @@
       </div>
     </template>
 
-
-
     <transition name="replies-container" mode="out-in">
       <div v-if="showReplies && replies.length > 0" class="replies-container" key="replies">
         <transition-group name="reply-list" tag="div">
           <CommentReply v-for="replyComment in replies" :key="replyComment.id" :comment-data="replyComment"
-            :data-reply-id="replyComment.id" @reply="handleReply" @reply-to-click="handleReplyToClick" />
+            :data-reply-id="replyComment.id" @reply="handleReply" @reply-to-click="handleReplyToClick" 
+            @delete="handleReplyDelete" />
         </transition-group>
       </div>
     </transition>
@@ -77,9 +79,9 @@
 </template>
 
 <script setup>
-import { defineProps, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, defineProps, nextTick, onMounted, ref, watch } from 'vue';
 import { useUserStore } from '@/store/user.js';
-import { Message } from '@arco-design/web-vue';
+import { Message, Modal } from '@arco-design/web-vue';
 import { IconHeart, IconHeartFill, } from '@arco-design/web-vue/es/icon';
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import UserLevel from '@/components/base/UserLevel.vue';
@@ -471,8 +473,55 @@ onMounted(async () => {
   }
 })
 
+// 处理回复被删除
+const handleReplyDelete = (replyId) => {
+  // 从回复列表中移除被删除的回复
+  const index = replies.value.findIndex(reply => reply.id === replyId);
+  if (index !== -1) {
+    replies.value.splice(index, 1);
+    // 更新回复计数
+    props.commentData.replyCount -= 1;
+  }
+};
+
+// 判断是否可以删除（只有评论作者本人可以删除）
+const canDelete = computed(() => {
+  return userDetail.value && userStore.userInfo && userDetail.value.id === userStore.userInfo.id;
+});
+
+// 处理删除评论
+const handleDelete = () => {
+  Modal.confirm({
+    title: '确认删除',
+    content: '确定要删除这条评论吗？删除后无法恢复。',
+    okText: '确认删除',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        let url;
+        if (props.postComment) {
+          // 删除文章评论
+          url = '/comment/post';
+        } else {
+          // 删除段落评论
+          url = '/comment/paragraph/comment';
+        }
+        
+        await api.delete(url, { id: props.commentData.id });
+        Message.success('删除成功');
+        
+        // 触发删除事件，让父组件移除这条评论
+        emit('delete', props.commentData.id);
+      } catch (error) {
+        console.error('删除评论失败:', error);
+        Message.error('删除失败，请重试');
+      }
+    }
+  });
+};
+
 // 定义组件事件
-const emit = defineEmits(['reply']);
+const emit = defineEmits(['reply', 'delete']);
 </script>
 
 <style scoped lang="less">

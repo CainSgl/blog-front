@@ -9,7 +9,7 @@
       <div class="comments-container" ref="commentsContainerRef">
         <div class="comments-list">
           <Comment v-for="comment in comments" :key="comment.id" :comment-data="comment" :post-comment="false"
-            :show-self="false" :position="'LT'" :data-comment-id="comment.id" />
+            :show-self="false" :position="'LT'" :data-comment-id="comment.id" @delete="handleCommentDelete" />
         </div>
         <div v-if="loading" class="loading-more">加载中...</div>
         <div v-if="!hasMore" class="no-more">没有更多评论了</div>
@@ -218,6 +218,16 @@ const handleAddComment = async (content) => {
   }
   finally {
     pushCommentLoading.value = false;
+  }
+};
+
+// 处理评论删除
+const handleCommentDelete = (commentId) => {
+  const index = comments.value.findIndex(comment => comment.id === commentId);
+  if (index !== -1) {
+    comments.value.splice(index, 1);
+    // 更新评论计数
+    commentStore.decrementCommentCount(commentStore.paragrahphId);
   }
 };
 

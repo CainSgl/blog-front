@@ -11,7 +11,7 @@
       {{ noCommentsText }}
     </div>
     <div class="comments-container" ref="commentsContainerRef">
-      <Comment v-for="comment in commentList" :key="comment.id" :comment-data="comment" />
+      <Comment v-for="comment in commentList" :key="comment.id" :comment-data="comment" @delete="handleCommentDelete" />
     </div>
     <div v-if="loading && commentList.length > 0" class="loading-more">加载更多中...</div>
     <div v-if="!hasMore && commentList.length > 0" class="no-more">没有更多评论了</div>
@@ -141,6 +141,14 @@ const handleSubmitComment = async (content) => {
   catch (error) {
     console.error('发布评论失败:', error);
     Message.error('发布评论失败，请重试！');
+  }
+};
+
+// 处理评论删除
+const handleCommentDelete = (commentId) => {
+  const index = commentList.value.findIndex(comment => comment.id === commentId);
+  if (index !== -1) {
+    commentList.value.splice(index, 1);
   }
 };
 

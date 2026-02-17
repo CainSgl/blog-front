@@ -43,6 +43,9 @@
           <span class="view-replies arco-comment-datetime" style="font-size: 14px;" key="reply" @click="reply">
             回复
           </span>
+          <span v-if="canDelete" class="view-replies arco-comment-datetime" style="font-size: 14px;" key="delete" @click="handleDelete">
+            删除
+          </span>
         </div>
       </div>
 
@@ -52,16 +55,15 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue';
+import {computed, ref, watch} from 'vue';
 import {useUserStore} from '@/store/user.js';
 import {IconHeart, IconHeartFill,} from '@arco-design/web-vue/es/icon';
-import {Comment as AComment, Link as ALink, Typography as ATypography} from '@arco-design/web-vue';
+import {Comment as AComment, Link as ALink, Typography as ATypography, Modal, Message} from '@arco-design/web-vue';
 import AvatarWithInfo from '@/components/base/avatar/AvatarWithInfo.vue';
 import UserLevel from '@/components/base/UserLevel.vue';
 import {formatDate} from '@/utils/DateFormatter.js';
 import { likeCache } from '@/utils/likeCache.js'; // 引入点赞缓存工具
 import api from '@/api/index.js';
-import { Message } from '@arco-design/web-vue';
 
 // 定义组件属性
 const props = defineProps({
@@ -73,7 +75,7 @@ const props = defineProps({
 });
 
 // 定义emit事件
-const emit = defineEmits(['reply', 'replyToClick']);
+const emit = defineEmits(['reply', 'replyToClick', 'delete']);
 
 // 点赞状态 - 从缓存中初始化
 const like = ref(likeCache.getLike(props.commentData.id));
@@ -129,6 +131,33 @@ const reply = () => {
 // 处理点击@用户
 const handleReplyToClick = () => {
   emit('replyToClick', props.commentData.replyCommentId);
+};
+
+// 判断是否可以删除（只有评论作者本人可以删除）
+const canDelete = computed(() => {
+  return userDetail.value && userStore.userInfo && userDetail.value.id === userStore.userInfo.id;
+});
+
+// 处理删除回复评论
+const handleDelete = () => {
+  Modal.confirm({
+    title: '确认删除',
+    content: '确定要删除这条回复吗？删除后无法恢复。',
+    okText: '确认删除',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        await api.delete('/comment/reply', { id: props.commentData.id });
+        Message.success('删除成功');
+        
+        // 触发删除事件，让父组件移除这条回复
+        emit('delete', props.commentData.id);
+      } catch (error) {
+        console.error('删除回复失败:', error);
+        Message.error('删除失败，请重试');
+      }
+    }
+  });
 };
 </script>
 
