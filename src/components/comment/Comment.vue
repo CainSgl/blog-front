@@ -49,10 +49,15 @@
     <!-- 回复输入框 -->
     <ReplyInput v-if="showReplyInput" class="reply-input-wrapper" :on-submit-comment="handleSubmitReply"
       :placeholder="placeholder" :showSelf="showSelf" />
-    <a-spin v-if="loadingReply" tip="加载更多评论中" />
-    <transition name="toggle-button">
+    <div>
       <div v-if="commentData.replyCount > 0">
-        <div v-if="!showReplies">
+        <div v-if="loadingReply">
+        <span class="comment-gray-color" style="font-size: 14px; margin-left: 8px;">
+          加载中
+        </span>
+         <a-spin size="small" />
+        </div>
+        <div v-else-if="!showReplies">
           <span class="comment-gray-color" style="font-size: 14px;">
             共{{ commentData.replyCount }}条回复，
           </span>
@@ -64,7 +69,7 @@
           <span class="comment-gray-color" style="font-size: 14px;" v-if="showReplies">
             共{{ commentData.replyCount }}条回复，
           </span>
-          <span class="view-replies comment-gray-color" v-if="hasMore && commentData.replyCount > replies.length"
+          <span class="view-replies comment-gray-color" v-else-if="hasMore && commentData.replyCount > replies.length"
             @click="loadReply()" style="font-size: 14px;">
             查看更多，
           </span>
@@ -73,7 +78,7 @@
           </span>
         </div>
       </div>
-    </transition>
+    </div>
     <a-divider dashed />
   </a-comment>
 </template>
@@ -244,14 +249,15 @@ async function buildReplyMessage({ id, content }) {
 
 // 切换显示回复
 const toggleReplies = async () => {
-  if (showReplies.value) {
-    showReplies.value = false;
-  }
-  else {
+  if (!showReplies.value) {
+    // 展开回复
     if (replies.value.length === 0) {
       loadReply();
     }
     showReplies.value = true;
+  } else {
+    // 收起回复 - 等待动画完成
+    showReplies.value = false;
   }
 };
 
@@ -583,10 +589,8 @@ const emit = defineEmits(['reply', 'delete']);
 }
 
 .reply-input-wrapper {
-  margin-top: 12px;
   border-radius: 4px;
   display: flex;
-
 }
 
 /* 回复列表过渡动画 */
@@ -610,46 +614,30 @@ const emit = defineEmits(['reply', 'delete']);
   transition: transform 0.3s ease;
 }
 
-.replies-container {
-  margin-top: 23px;
-}
+
 
 /* 回复容器整体过渡动画 */
-.replies-container-move,
 .replies-container-enter-active,
 .replies-container-leave-active {
   transition: all 0.3s ease;
   overflow: hidden;
 }
 
-.replies-container-enter-from {
+.replies-container-enter-from,
+.replies-container-leave-to {
   max-height: 0;
   opacity: 0;
 }
 
-.replies-container-enter-to {
-  max-height: 500px;
+.replies-container-enter-to,
+.replies-container-leave-from {
+  max-height: 2000px;
   /* 设置一个足够大的值，确保内容完全显示 */
   opacity: 1;
 }
 
-.replies-container-leave-to {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-}
 
-/* 切换按钮过渡动画 */
-.toggle-button-enter-active,
-.toggle-button-leave-active {
-  transition: all 0.2s ease;
-}
 
-.toggle-button-enter-from,
-.toggle-button-leave-to {
-  opacity: 0;
-  transform: translateY(-5px);
-}
 
 .comment-content {
   margin-top: 12px;
