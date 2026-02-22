@@ -6,7 +6,6 @@ import { likeCache } from '@/utils/likeCache.js';
 import { useUserSettingStore } from './userSetting';
 
 const youKe = { id: -1 };
-const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10分钟
 
 export const useUserStore = defineStore('user', () => {
   const userInfo = ref(null);
@@ -19,70 +18,21 @@ export const useUserStore = defineStore('user', () => {
   // 当前用户请求Promise（防止重复请求）
   let currentUserPromise = null;
 
-  // 缓存工具函数
-  const isCacheExpired = (timestamp) => Date.now() - timestamp > CACHE_EXPIRY_MS;
-
-  const saveUserCache = (data) => {
-    const cacheData = { data, timestamp: Date.now() };
-    localStorage.setItem('userInfo', JSON.stringify(cacheData));
-  };
-
-  const getUserCache = () => {
-    try {
-      const cached = localStorage.getItem('userInfo');
-      if (!cached) return null;
-
-      const parsed = JSON.parse(cached);
-      if (!parsed.timestamp || isCacheExpired(parsed.timestamp)) {
-        localStorage.removeItem('userInfo');
-        return null;
-      }
-      return parsed;
-    } catch (e) {
-      localStorage.removeItem('userInfo');
-      console.error('解析用户缓存失败:', e);
-      return null;
-    }
-  };
-
-  // hotInfo 计数器管理
-  const getHotCounter = () => {
-    try {
-      return parseInt(localStorage.getItem('userHotCounter') || '0', 10);
-    } catch {
-      return 0;
-    }
-  };
-
-  const incrementHotCounter = () => {
-    const count = getHotCounter() + 1;
-    localStorage.setItem('userHotCounter', count.toString());
-    return count;
-  };
-
-  const resetHotCounter = () => {
-    localStorage.setItem('userHotCounter', '0');
-  };
-
-  // 更新 hotInfo
-  const updateHotInfo = async (cachedData) => {
+  // 更新 hotInfo（仅内存缓存）
+  const updateHotInfo = async () => {
+    if (!userInfo.value) return;
+    
     try {
       const response = await api.get('/user/hotInfo');
-      const updatedUserInfo = { ...cachedData, ...response.data };
-      userInfo.value = updatedUserInfo;
-      saveUserCache(updatedUserInfo);
-      resetHotCounter();
-      return updatedUserInfo;
+      userInfo.value = { ...userInfo.value, ...response.data };
     } catch (error) {
       console.error('更新 hotInfo 失败:', error);
-      return cachedData;
     }
   };
 
   // 设置用户信息
   const setUserInfo = (info) => {
     userInfo.value = info;
-    if (info) saveUserCache(info);
   };
 
   // 设置token
@@ -103,8 +53,6 @@ export const useUserStore = defineStore('user', () => {
   };
 
   const clearCache = () => {
-    localStorage.removeItem('userInfo');
-    localStorage.removeItem('userHotCounter');
     // 清除点赞缓存
     likeCache.clearAll();
     // 清除签到缓存
@@ -152,8 +100,9 @@ export const useUserStore = defineStore('user', () => {
 
   // 获取当前用户信息
   const getCurrentUserInfo = async () => {
-    // 1. 内存中有直接返回
+    // 1. 内存中有直接返回，并异步更新 hotInfo
     if (userInfo.value) {
+      updateHotInfo();
       return userInfo.value;
     }
 
@@ -162,41 +111,16 @@ export const useUserStore = defineStore('user', () => {
       return youKe;
     }
 
-    // 3. 检查缓存
-    const cached = getUserCache();
-    if (cached) {
-      userInfo.value = cached.data;
-
-      // 尝试更新 hotInfo（计数器机制）
-      const counter = incrementHotCounter();
-      if (counter >= 3) {
-        // 异步更新，不阻塞返回
-        updateHotInfo(cached.data);
-      }
-      
-      // 初始化用户设置（从缓存或服务器）
-      const userSettingStore = useUserSettingStore();
-      if (!userSettingStore.isLoaded) {
-        userSettingStore.initSettings().catch(err => {
-          console.warn('初始化用户设置失败:', err);
-        });
-      }
-
-      return cached.data;
-    }
-
-    // 4. 缓存过期或不存在，请求后端
+    // 3. 防止重复请求
     if (currentUserPromise) {
       return currentUserPromise;
     }
 
-    Message.loading({ id: 'loadcurrentInfo', content: '拉取个人信息中，请耐心等待...' });
+   // Message.loading({ id: 'loadcurrentInfo', content: '拉取个人信息中，请耐心等待...' });
     currentUserPromise = api.get('/user/current')
       .then((response) => {
-        Message.success({ id: 'loadcurrentInfo', content: '拉取完毕~已放入缓存中' });
+        //Message.success({ id: 'loadcurrentInfo', content: '拉取完毕~' });
         userInfo.value = response.data;
-        saveUserCache(response.data);
-        resetHotCounter();
         currentUserPromise = null;
         
         // 初始化用户设置
@@ -223,18 +147,15 @@ export const useUserStore = defineStore('user', () => {
   };
 
   // 更新用户信息
-  const updateUserInfo = async (updateData,noApi) => {
+  const updateUserInfo = async (updateData, noApi) => {
     const oldUserInfo = await getUserInfo();
     try {
       userInfo.value = { ...oldUserInfo, ...updateData };
-      if(!noApi)
-      {
-          await api.put('/user', updateData);
+      if (!noApi) {
+        await api.put('/user', updateData);
       }
-      saveUserCache(userInfo.value);
     } catch (error) {
       userInfo.value = oldUserInfo;
-      saveUserCache(oldUserInfo);
       console.error('更新用户信息失败:', error);
       throw error;
     }

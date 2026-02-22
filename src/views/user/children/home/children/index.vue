@@ -5,13 +5,28 @@
     <a-spin :loading="loading" tip="正在加载置顶文章..." style="display: block;">
         <div ref="containerRef" class="posts-container">
             <template v-if="topPosts.length > 0">
-              <a-link :href="`/p/${post.id}`"  v-for="post in topPosts"  :key="post.id" :hoverable="false">
-                <PostCard  :height="cardHeight" :post="post" />
+              <div v-for="post in topPosts" :key="post.id" class="post-item">
+                <a-link :href="`/p/${post.id}`" :hoverable="false" class="post-link">
+                  <PostCard :height="cardHeight" :post="post" />
                 </a-link>
-                <div style="text-align: center;">
-                    <a-button v-if="topPosts.length < 10" type="primary" style="margin-top: 16px;"
-                        @click="showTopPostSelector">置顶更多文章</a-button>
-                </div>
+                <a-button 
+                  v-if="currentUserInfo?.id == route.params.id"
+                  type="text" 
+                  status="danger" 
+                  size="small"
+                  class="unpin-button"
+                  @click="handleUnpinPost(post.id)"
+                >
+                  <template #icon>
+                    <icon-close />
+                  </template>
+                  取消置顶
+                </a-button>
+              </div>
+              <div style="text-align: center;">
+                <a-button v-if="topPosts.length < 10 && currentUserInfo?.id == route.params.id" type="primary" style="margin-top: 16px;"
+                  @click="showTopPostSelector">置顶更多文章</a-button>
+              </div>
             </template>
             <template v-else-if="!loading">
                 <a-empty v-if="currentUserInfo?.id != route.params.id" description="该用户没有设置置顶文章" />
@@ -33,14 +48,15 @@
 
 <script setup>
 import {onMounted, onUnmounted, ref} from 'vue';
-import {useRoute, useRouter} from 'vue-router';
+import {useRoute} from 'vue-router';
 import {useUserStore} from '@/store/user.js';
+import {Message, Modal} from '@arco-design/web-vue';
+import {IconClose} from '@arco-design/web-vue/es/icon';
 import PostCard from '@/components/post/PostCardWrapper.vue';
 import TopPostSelector from '@/views/user/children/components/TopPostSelector.vue';
 import api from '@/api/index.js';
 
 const route = useRoute();
-const router = useRouter();
 const userStore = useUserStore();
 
 // 置顶文章
@@ -109,6 +125,33 @@ const handleTopPostSelected = async (post) =>
   Message.success({ id: 'PostLoading' + post.id, content: '拉取完毕' });
 };
 
+// 取消置顶文章
+const handleUnpinPost = async (postId) => 
+{
+  Modal.confirm({
+    title: '确认取消置顶',
+    content: '确定要取消置顶这篇文章吗？',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => 
+    {
+      try 
+      {
+        Message.loading({ id: 'unpinPost' + postId, content: '正在取消置顶...' });
+        await api.delete('/post/top', { id: postId });
+        Message.success({ id: 'unpinPost' + postId, content: '取消置顶成功' });
+        // 重新获取置顶文章列表
+        await fetchTopPosts(route.params.id);
+      }
+      catch (err) 
+      {
+        console.error('取消置顶失败:', err);
+        Message.error({ id: 'unpinPost' + postId, content: '取消置顶失败，请重试' });
+      }
+    }
+  });
+};
+
 // 处理路由参数变化
 onMounted(async () => 
 {
@@ -162,6 +205,34 @@ onUnmounted(() =>
     display: flex;
     flex-direction: column;
     gap: 16px;
+}
+
+.post-item {
+    position: relative;
+    
+    .post-link {
+        display: block;
+    }
+    
+    .unpin-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 10;
+        background-color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(4px);
+        border-radius: 4px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        
+        &:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+    }
+    
+    &:hover .unpin-button {
+        opacity: 1;
+    }
 }
 
 .empty-content {
