@@ -138,7 +138,7 @@ const handleUnpinPost = async (postId) =>
       try 
       {
         Message.loading({ id: 'unpinPost' + postId, content: '正在取消置顶...' });
-        await api.delete('/post/top', { id: postId });
+       await api.put('/post', {id:postId,isTop:false });
         Message.success({ id: 'unpinPost' + postId, content: '取消置顶成功' });
         // 重新获取置顶文章列表
         await fetchTopPosts(route.params.id);
