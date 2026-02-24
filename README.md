@@ -1,15 +1,15 @@
 # 📝 个人博客与知识库平台
 
-在线演示-> cainsgl.top
-
 <div align="center">
 
-一个基于 Vue 3 构建的现代化个人博客和知识库平台，支持 PWA、Markdown 编辑、实时聊天等功能。
+一个基于 Vue 3 构建的现代化个人博客和知识库平台，支持 PWA、Markdown 编辑、实时聊天、AI 助手等功能。
 
 [![Vue 3](https://img.shields.io/badge/Vue-3.5-brightgreen.svg)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.2-646CFF.svg)](https://vitejs.dev/)
 [![Arco Design](https://img.shields.io/badge/Arco%20Design-2.57-165DFF.svg)](https://arco.design/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+[在线演示](https://cainsgl.top) | [功能特性](#功能特性) | [快速开始](#快速开始) | [文档](#文档)
 
 </div>
 

@@ -1,9 +1,14 @@
 <template>
   <a-image 
     :src="computedUrl" 
+    :loader="computedThumbUrl ? true : false"
     v-bind="filteredAttrs"
     class="c-img"
-  />
+  >
+    <template v-if="computedThumbUrl" #loader>
+      <img :src="computedThumbUrl" class="thumb-loader" />
+    </template>
+  </a-image>
 </template>
 
 <script setup>
@@ -15,6 +20,10 @@ const props = defineProps({
   src: {
     type: String,
     required: true
+  },
+  thumbSrc: {
+    type: String,
+    default: ''
   }
 });
 
@@ -32,6 +41,9 @@ const filteredAttrs = computed(() =>
 // 计算完整的图片 URL
 const computedUrl = computed(() => computeResourceUrl(props.src));
 
+// 计算缩略图 URL
+const computedThumbUrl = computed(() => props.thumbSrc ? computeResourceUrl(props.thumbSrc) : '');
+
 defineOptions({
   inheritAttrs: false
 });
@@ -48,5 +60,13 @@ defineOptions({
   object-fit: cover;
   border-radius: 0; 
   overflow: hidden; 
+}
+
+.thumb-loader {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(10px);
+  transform: scale(1.1);
 }
 </style>
