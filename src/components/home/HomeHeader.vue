@@ -5,7 +5,12 @@
 
     <!-- 背景图片设置为绝对定位 -->
     <div class="background-container" :style="{ opacity: backgroundOpacity, transform: `translateX(-50%) scale(${backgroundScale})` }">
-      <CImg :src="`/file/welcome/background/${randomBgIndex}`" class="background-img"  :preview-visible="false" ></CImg>
+      <CImg 
+        :src="`/file/welcome/background/${randomBgIndex}`" 
+        :thumb-src="`/file/welcome/background/thumb/${randomBgIndex}`"
+        class="background-img"  
+        :preview-visible="false" 
+      />
       <!-- 白色半透明遮罩层 -->
       <div class="overlay-mask"></div>
       <div class="rain-container">
