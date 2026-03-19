@@ -218,6 +218,12 @@ const routes = [
     ],
   },
   {
+    path: '/ai-chat',
+    name: 'AIChat',
+    component: () => import('@/views/ai/AIChat.vue'),
+    meta: { title: 'AI 助手' }
+  },
+  {
     path: '/register',
     name: 'Register',
     component: () => import('@/views/auth/Register.vue'),
