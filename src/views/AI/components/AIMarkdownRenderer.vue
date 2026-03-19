@@ -37,7 +37,11 @@ const renderedMarkdown = computed(() => {
   font-size: 15px;
   line-height: 1.6;
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
   min-height: 24px; // 防止内容渲染时高度跳变
+  max-width: 100%;
+  overflow-x: hidden;
   
   // 使用 content-visibility 优化渲染性能
   content-visibility: auto;

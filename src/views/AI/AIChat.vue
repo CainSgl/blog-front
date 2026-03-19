@@ -761,9 +761,12 @@ const handleRefresh = async () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100%;
+  max-width: 100vw;
   background-color: var(--color-bg-1);
   overflow-y: auto;
   overflow-x: hidden;
+  box-sizing: border-box;
 
   :deep(.arco-layout-header) {
     padding: 0;
@@ -781,6 +784,16 @@ const handleRefresh = async () => {
     bottom: 120px;
     z-index: 100;
 
+    @media (max-width: 768px) {
+      right: 20px;
+      bottom: 100px;
+    }
+
+    @media (max-width: 480px) {
+      right: 12px;
+      bottom: 90px;
+    }
+
     .refresh-button {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       
@@ -791,6 +804,16 @@ const handleRefresh = async () => {
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+      }
+
+      @media (max-width: 768px) {
+        width: 40px;
+        height: 40px;
+      }
+
+      @media (max-width: 480px) {
+        width: 36px;
+        height: 36px;
       }
     }
   }

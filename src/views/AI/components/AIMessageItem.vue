@@ -133,6 +133,17 @@ watch(() => props.message, (newVal) => {
   display: flex;
   gap: 16px;
   align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 
   &.user-message {
     flex-direction: row-reverse;
@@ -160,6 +171,11 @@ watch(() => props.message, (newVal) => {
     width: 40px;
     height: 40px;
 
+    @media (max-width: 480px) {
+      width: 32px;
+      height: 32px;
+    }
+
     .ai-avatar {
       width: 40px;
       height: 40px;
@@ -169,6 +185,11 @@ watch(() => props.message, (newVal) => {
       align-items: center;
       justify-content: center;
       overflow: hidden;
+
+      @media (max-width: 480px) {
+        width: 32px;
+        height: 32px;
+      }
 
       img {
         width: 100%;
@@ -185,6 +206,11 @@ watch(() => props.message, (newVal) => {
     flex: 1;
     max-width: calc(100% - 56px);
     min-width: 0;
+    overflow: hidden;
+
+    @media (max-width: 480px) {
+      max-width: calc(100% - 40px);
+    }
 
     .message-bubble {
       padding: 14px 18px;
@@ -192,6 +218,13 @@ watch(() => props.message, (newVal) => {
       word-wrap: break-word;
       word-break: break-word;
       overflow-wrap: break-word;
+      max-width: 100%;
+      box-sizing: border-box;
+
+      @media (max-width: 480px) {
+        padding: 10px 14px;
+        border-radius: 12px;
+      }
     }
 
     .reasoning-process {

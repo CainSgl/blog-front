@@ -19,8 +19,6 @@
           </div>
 
           <div class="right-section">
-            <!-- AI入口 -->
-            <AIEntrance />
             <!-- 头像部分 -->
             <div>
               <HeaderIcon />
@@ -56,6 +54,9 @@
                 <component v-else :is="action.icon" :size="20" />
                 <span class="action-text">{{ action.label }}</span>
               </div>
+
+              <!-- AI助手 - 始终显示 -->
+              <AIEntrance />
             </div>
 
           </div>
@@ -108,8 +109,7 @@ const messageOptions = [
 const userActions = [
   { path: 'favorites', label: '收藏',  icon: IconStar },
   { path: 'history', label: '历史',  icon: IconHistory },
-  { path: 'knowledge', label: '知识库',  icon: IconBook },
-  { path: 'docs', label: '文档', icon: IconFile }
+  { path: 'knowledge', label: '知识库',  icon: IconBook }
 ];
 
 // 滚动相关状态

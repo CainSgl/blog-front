@@ -27,7 +27,7 @@
             <a-select 
               v-model="configValue.rag" 
               size="small" 
-              style="width: 100px;"
+              :style="{ width: isSmallScreen ? '80px' : '100px' }"
               :popup-container="'body'"
             >
               <a-option value="auto" label="自动">
@@ -54,7 +54,7 @@
           <!-- 模型选择 -->
           <div class="config-item">
             <span class="config-label">模型</span>
-            <a-select v-model="configValue.model" size="small" style="width: 80px;">
+            <a-select v-model="configValue.model" size="small" :style="{ width: isSmallScreen ? '70px' : '80px' }">
               <a-option value="auto">自动</a-option>
               <a-option value="mini">Mini</a-option>
               <a-option value="lite">Lite</a-option>
@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { IconSend } from '@arco-design/web-vue/es/icon';
 
 const props = defineProps({
@@ -101,6 +101,19 @@ const emit = defineEmits(['send', 'update:config']);
 
 const inputValue = ref('');
 const isInputFocused = ref(false);
+const isSmallScreen = ref(window.innerWidth <= 480);
+
+const handleResize = () => {
+  isSmallScreen.value = window.innerWidth <= 480;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 const configValue = computed({
   get: () => props.config,
@@ -125,6 +138,19 @@ const handleSend = () => {
   width: 100%;
   margin: 0 auto;
   z-index: 10;
+  box-sizing: border-box;
+
+  @media (max-width: 968px) {
+    max-width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px 16px 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px 12px 16px;
+  }
 
   .input-wrapper {
     border: 1px solid var(--color-border-2);
@@ -132,6 +158,8 @@ const handleSend = () => {
     background-color: var(--color-bg-2);
     transition: all 0.2s;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 
     &.focused {
       border-color: rgb(var(--primary-6));
@@ -176,15 +204,32 @@ const handleSend = () => {
         gap: 16px;
         flex: 1;
 
+        @media (max-width: 768px) {
+          gap: 12px;
+        }
+
+        @media (max-width: 480px) {
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
         .config-item {
           display: flex;
           align-items: center;
           gap: 8px;
 
+          @media (max-width: 480px) {
+            gap: 4px;
+          }
+
           .config-label {
             font-size: 13px;
             color: var(--color-text-2);
             white-space: nowrap;
+
+            @media (max-width: 480px) {
+              font-size: 12px;
+            }
           }
         }
       }

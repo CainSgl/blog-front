@@ -341,6 +341,21 @@ defineExpose({
   margin: 0 auto;
   overflow-y: auto;
   overflow-x: hidden;
+  box-sizing: border-box;
+
+  @media (max-width: 968px) {
+    max-width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    gap: 12px;
+  }
 
   .loading-indicator {
     display: flex;
