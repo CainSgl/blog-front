@@ -19,6 +19,8 @@
           </div>
 
           <div class="right-section">
+            <!-- AI入口 -->
+            <AIEntrance />
             <!-- 头像部分 -->
             <div>
               <HeaderIcon />
@@ -70,6 +72,7 @@ import { storeToRefs } from 'pinia';
 import SearchBox from '@/components/base/SearchBox.vue';
 import HeaderIcon from './common/HeaderIcon.vue';
 import HistoryPreview from './common/HistoryPreview.vue';
+import AIEntrance from './common/AIEntrance.vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   IconBook,

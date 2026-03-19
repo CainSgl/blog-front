@@ -39,11 +39,14 @@ const onlineStatus = ref(new Map()); // 用户ID -> 在线状态
 const loadSessions = async () => {
   try {
     const { data } = await api.get('/chat/sessions');
-    sessions.value = data.sort((a, b) => {
-      const timeA = a.lastMessageTime ? new Date(a.lastMessageTime).getTime() : 0;
-      const timeB = b.lastMessageTime ? new Date(b.lastMessageTime).getTime() : 0;
-      return timeB - timeA;
-    });
+    // 过滤掉任何一方 ID 为 -1 的会话（AI 会话）
+    sessions.value = data
+      .filter(session => session.otherUserId !== -1)
+      .sort((a, b) => {
+        const timeA = a.lastMessageTime ? new Date(a.lastMessageTime).getTime() : 0;
+        const timeB = b.lastMessageTime ? new Date(b.lastMessageTime).getTime() : 0;
+        return timeB - timeA;
+      });
 
     // 批量查询所有用户的在线状态
     if (sessions.value.length > 0) {

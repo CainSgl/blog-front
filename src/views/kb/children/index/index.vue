@@ -133,25 +133,23 @@ const shareLink = computed(() =>
   return '';
 });
 // 从store中获取kbInfo
-const kbInfo = computed(() => 
-{
-  checkEditPermission(kbStore.kbInfo);
-  console.log(kbStore.kbInfo.userId);
-  return kbStore.kbInfo;
-});
+const kbInfo = computed(() => kbStore.kbInfo);
 
-// 监听kbInfo变化，当kbInfo更新时获取用户信息
+// 监听kbInfo变化，当kbInfo更新时获取用户信息和检查权限
 watch(() => kbInfo.value.userId, async (newUserId) => 
 {
   if (newUserId) 
   {
     masterUser.value = await userStore.getUserInfo(newUserId);
+    // 同时检查编辑权限
+    await checkEditPermission();
   }
 }, { immediate: true });
-async function checkEditPermission(info) 
+
+async function checkEditPermission() 
 {
   const userInfo = await userStore.getUserInfo();
-  if (userInfo.id == info.userId) 
+  if (userInfo && kbInfo.value && userInfo.id == kbInfo.value.userId) 
   {
     edit.value = true;
   }
@@ -185,9 +183,7 @@ const loadKbIndexContent = async () =>
 // 检查编辑权限
 onMounted(async () => 
 {
-  //loadKbIndexContent()
-  userStore.getUserInfo();
-  //获取用户信息
+  // 权限检查已经在 watch 中处理，这里不需要重复调用
 });
 
 // 监听路由参数变化
